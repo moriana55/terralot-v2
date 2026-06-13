@@ -1,0 +1,210 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Property {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  state       String
+  county      String
+  acres       Float
+  price       Int
+  downPayment Int
+  monthlyPayment Int
+  term        Int      @default(48)
+  images      String[]
+  description String
+  features    String[]
+  lat         Float
+  lng         Float
+  zoning      String
+  terrain     String
+  roadAccess  String
+  utilities   String
+  apn         String
+  status      PropertyStatus @default(AVAILABLE)
+  featured    Boolean  @default(false)
+  propertyType String  @default("Residential")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  inquiries   Inquiry[]
+  payments    Payment[]
+  favorites   Favorite[]
+
+  @@index([state])
+  @@index([status])
+  @@index([featured])
+  @@index([price])
+}
+
+enum PropertyStatus {
+  AVAILABLE
+  PENDING
+  SOLD
+  DRAFT
+}
+
+model Inquiry {
+  id         String   @id @default(cuid())
+  propertyId String
+  property   Property @relation(fields: [propertyId], references: [id])
+  name       String
+  email      String
+  phone      String?
+  message    String?
+  status     InquiryStatus @default(NEW)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([status])
+  @@index([propertyId])
+}
+
+enum InquiryStatus {
+  NEW
+  CONTACTED
+  QUALIFIED
+  CLOSED
+}
+
+model Payment {
+  id         String   @id @default(cuid())
+  propertyId String
+  property   Property @relation(fields: [propertyId], references: [id])
+  buyerName  String
+  buyerEmail String
+  amount     Int
+  type       PaymentType
+  stripeId   String?
+  status     PaymentStatus @default(PENDING)
+  dueDate    DateTime?
+  paidAt     DateTime?
+  createdAt  DateTime @default(now())
+
+  @@index([propertyId])
+  @@index([status])
+}
+
+enum PaymentType {
+  DOWN_PAYMENT
+  MONTHLY
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  OVERDUE
+  FAILED
+}
+
+model Favorite {
+  id         String   @id @default(cuid())
+  propertyId String
+  property   Property @relation(fields: [propertyId], references: [id])
+  sessionId  String
+  createdAt  DateTime @default(now())
+
+  @@unique([propertyId, sessionId])
+  @@index([sessionId])
+}
+
+// ── Network & Deal Flow ──
+
+model Contact {
+  id          String        @id @default(cuid())
+  name        String
+  company     String?
+  role        ContactRole
+  email       String?
+  phone       String?
+  state       String?
+  notes       String?
+  deals       Deal[]
+  referrals   Referral[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([role])
+}
+
+enum ContactRole {
+  WHOLESALER
+  SCOUT
+  REALTOR
+  INVESTOR
+  BUYER
+}
+
+model Deal {
+  id            String     @id @default(cuid())
+  title         String
+  state         String
+  county        String?
+  acres         Float?
+  askingPrice   Int?
+  estimatedValue Int?
+  sourceId      String
+  source        Contact    @relation(fields: [sourceId], references: [id])
+  status        DealStatus @default(NEW)
+  notes         String?
+  referrals     Referral[]
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  @@index([status])
+  @@index([sourceId])
+}
+
+enum DealStatus {
+  NEW
+  EVALUATING
+  PRESENTED
+  ACCEPTED
+  CLOSED
+  DEAD
+}
+
+model Referral {
+  id            String         @id @default(cuid())
+  dealId        String
+  deal          Deal           @relation(fields: [dealId], references: [id])
+  contactId     String
+  contact       Contact        @relation(fields: [contactId], references: [id])
+  commission    Int?
+  status        ReferralStatus @default(PENDING)
+  paidAt        DateTime?
+  notes         String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  @@index([dealId])
+  @@index([contactId])
+  @@index([status])
+}
+
+enum ReferralStatus {
+  PENDING
+  INVOICED
+  PAID
+  CANCELLED
+}
+
+model BlogPost {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  excerpt     String
+  content     String
+  coverImage  String?
+  category    String
+  tags        String[]
+  published   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
