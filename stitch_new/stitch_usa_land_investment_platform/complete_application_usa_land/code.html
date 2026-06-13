@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>USA Land | Secure Checkout</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Geist:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "error": "#ba1a1a",
+                        "on-secondary-container": "#506b4f",
+                        "secondary-container": "#ccebc7",
+                        "secondary-fixed": "#ccebc7",
+                        "on-error": "#ffffff",
+                        "background": "#fbf8fc",
+                        "surface-bright": "#fbf8fc",
+                        "surface-tint": "#4c5e86",
+                        "on-error-container": "#93000a",
+                        "primary-container": "#0a1f44",
+                        "outline-variant": "#c5c6cf",
+                        "on-tertiary-fixed": "#231a06",
+                        "surface": "#fbf8fc",
+                        "secondary-fixed-dim": "#b0cfad",
+                        "on-primary-fixed-variant": "#34466d",
+                        "primary": "#00081e",
+                        "on-tertiary-fixed-variant": "#51452d",
+                        "secondary": "#4a6549",
+                        "inverse-surface": "#303033",
+                        "primary-fixed": "#d9e2ff",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "on-surface": "#1b1b1e",
+                        "inverse-primary": "#b4c6f4",
+                        "on-secondary-fixed": "#07200b",
+                        "on-primary-container": "#7687b2",
+                        "outline": "#75777f",
+                        "primary-fixed-dim": "#b4c6f4",
+                        "on-secondary-fixed-variant": "#334d33",
+                        "tertiary-fixed": "#f3e0c0",
+                        "inverse-on-surface": "#f2f0f4",
+                        "on-primary-fixed": "#041a3f",
+                        "surface-variant": "#e4e2e5",
+                        "on-tertiary": "#ffffff",
+                        "tertiary-fixed-dim": "#d6c4a5",
+                        "surface-container-high": "#e9e7eb",
+                        "surface-container-highest": "#e4e2e5",
+                        "on-background": "#1b1b1e",
+                        "on-secondary": "#ffffff",
+                        "surface-container-low": "#f5f3f7",
+                        "surface-dim": "#dbd9dd",
+                        "on-surface-variant": "#44464e",
+                        "on-tertiary-container": "#95866a",
+                        "surface-container": "#efedf1",
+                        "tertiary": "#0e0800",
+                        "tertiary-container": "#281f0a",
+                        "error-container": "#ffdad6"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "margin-mobile": "20px",
+                        "stack-lg": "64px",
+                        "container-max": "1280px",
+                        "stack-sm": "16px",
+                        "gutter": "24px",
+                        "stack-md": "32px",
+                        "margin-desktop": "64px",
+                        "base": "8px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Inter"],
+                        "label-md": ["Geist"],
+                        "headline-xl": ["Geist"],
+                        "headline-md": ["Geist"],
+                        "headline-lg-mobile": ["Geist"],
+                        "body-md": ["Inter"],
+                        "headline-lg": ["Geist"],
+                        "label-sm": ["Geist"],
+                        "body-sm": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "label-md": ["14px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "headline-xl": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "500"}],
+                        "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "600"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "label-sm": ["12px", {"lineHeight": "14px", "fontWeight": "500"}],
+                        "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        input:focus {
+            border-width: 2px !important;
+            outline: none;
+        }
+        .step-active {
+            color: #00081e;
+            border-bottom: 2px solid #00081e;
+        }
+        .step-inactive {
+            color: #44464e;
+            border-bottom: 2px solid transparent;
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-background font-body-md text-on-surface antialiased">
+<!-- TopNavBar (Simplified for Checkout) -->
+<header class="bg-surface border-b border-outline-variant sticky top-0 z-50">
+<div class="flex justify-between items-center w-full h-20 px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
+<div class="font-headline-md text-headline-md font-bold tracking-tight text-primary">USA Land</div>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-secondary">shield</span>
+<span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest hidden md:inline">Secure Checkout</span>
+</div>
+</div>
+</header>
+<main class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-stack-md md:py-stack-lg">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter items-start">
+<!-- Checkout Content (Left Column) -->
+<div class="lg:col-span-8 space-y-stack-md">
+<!-- Progress Wizard -->
+<nav class="flex border-b border-outline-variant mb-stack-md">
+<div class="step-active pb-4 px-2 font-label-md text-label-md cursor-pointer transition-all" id="step-nav-1">01. Personal Information</div>
+<div class="step-inactive pb-4 px-8 font-label-md text-label-md cursor-pointer transition-all" id="step-nav-2">02. Payment Plan</div>
+<div class="step-inactive pb-4 px-2 font-label-md text-label-md cursor-pointer transition-all" id="step-nav-3">03. Confirmation</div>
+</nav>
+<!-- Step 1: Personal Information -->
+<section class="space-y-gutter transition-all duration-300" id="step-content-1">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-stack-sm">
+<div class="space-y-2">
+<label class="font-label-md text-label-md text-on-surface-variant">FIRST NAME</label>
+<input class="w-full h-12 px-4 border border-outline-variant rounded bg-white font-body-md focus:border-primary transition-all" placeholder="John" type="text"/>
+</div>
+<div class="space-y-2">
+<label class="font-label-md text-label-md text-on-surface-variant">LAST NAME</label>
+<input class="w-full h-12 px-4 border border-outline-variant rounded bg-white font-body-md focus:border-primary transition-all" placeholder="Doe" type="text"/>
+</div>
+</div>
+<div class="space-y-2">
+<label class="font-label-md text-label-md text-on-surface-variant">EMAIL ADDRESS</label>
+<input class="w-full h-12 px-4 border border-outline-variant rounded bg-white font-body-md focus:border-primary transition-all" placeholder="john.doe@example.com" type="email"/>
+</div>
+<div class="space-y-2">
+<label class="font-label-md text-label-md text-on-surface-variant">MAILING ADDRESS</label>
+<input class="w-full h-12 px-4 border border-outline-variant rounded bg-white font-body-md focus:border-primary transition-all" placeholder="Street Address" type="text"/>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-3 gap-stack-sm">
+<div class="space-y-2">
+<label class="font-label-md text-label-md text-on-surface-variant">CITY</label>
+<input class="w-full h-12 px-4 border border-outline-variant rounded bg-white font-body-md focus:border-primary transition-all" type="text"/>
+</div>
+<div class="space-y-2">
+<label class="font-label-md text-label-md text-on-surface-variant">STATE</label>
+<input class="w-full h-12 px-4 border border-outline-variant rounded bg-white font-body-md focus:border-primary transition-all" type="text"/>
+</div>
+<div class="space-y-2 col-span-2 md:col-span-1">
+<label class="font-label-md text-label-md text-on-surface-variant">ZIP CODE</label>
+<input class="w-full h-12 px-4 border border-outline-variant rounded bg-white font-body-md focus:border-primary transition-all" type="text"/>
+</div>
+</div>
+<button class="w-full md:w-auto px-10 h-14 bg-primary text-on-primary font-label-md text-label-md rounded-lg flex items-center justify-center gap-2 hover:opacity-90 active:scale-95 transition-all" onclick="goToStep(2)">
+                        CONTINUE TO PAYMENT PLAN
+                        <span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</section>
+<!-- Step 2: Payment Plan (Hidden by default) -->
+<section class="hidden space-y-gutter transition-all duration-300" id="step-content-2">
+<div class="p-6 bg-primary-container rounded-xl text-on-primary-container space-y-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary-fixed">payments</span>
+<h3 class="font-headline-md text-headline-md">Customize Your Ownership</h3>
+</div>
+<p class="font-body-md text-body-md opacity-90">Choose the installment term that best fits your monthly budget. All plans include 0% interest for the first 12 months.</p>
+</div>
+<div class="space-y-stack-sm">
+<label class="font-label-md text-label-md text-on-surface-variant">SELECT TERM (MONTHS)</label>
+<div class="relative w-full">
+<input class="w-full h-2 bg-outline-variant rounded-lg appearance-none cursor-pointer accent-primary" id="term-slider" max="60" min="12" oninput="updatePayment(this.value)" step="12" type="range" value="24"/>
+<div class="flex justify-between mt-4">
+<span class="font-label-sm text-label-sm">12 Months</span>
+<span class="font-label-sm text-label-sm">24 Months</span>
+<span class="font-label-sm text-label-sm">36 Months</span>
+<span class="font-label-sm text-label-sm">48 Months</span>
+<span class="font-label-sm text-label-sm">60 Months</span>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-gutter bg-surface-container-low p-8 rounded border border-outline-variant">
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant mb-1">MONTHLY INSTALLMENT</p>
+<p class="font-headline-xl text-headline-xl text-primary" id="monthly-payment-display">$1,245</p>
+<p class="font-body-sm text-body-sm text-secondary font-medium">Interest-Free Period Active</p>
+</div>
+<div class="space-y-4">
+<div class="flex justify-between items-center pb-2 border-b border-outline-variant">
+<span class="font-body-md text-body-md">Down Payment</span>
+<span class="font-label-md text-label-md">$2,500</span>
+</div>
+<div class="flex justify-between items-center pb-2 border-b border-outline-variant">
+<span class="font-body-md text-body-md">Documentation Fee</span>
+<span class="font-label-md text-label-md">$249</span>
+</div>
+<div class="flex justify-between items-center font-bold">
+<span class="font-body-md text-body-md">Due Today</span>
+<span class="font-label-md text-label-md">$2,749</span>
+</div>
+</div>
+</div>
+<div class="flex flex-col md:flex-row gap-4">
+<button class="px-10 h-14 border border-primary text-primary font-label-md text-label-md rounded flex items-center justify-center gap-2 hover:bg-surface-container transition-all" onclick="goToStep(1)">
+                            BACK
+                        </button>
+<button class="flex-1 px-10 h-14 bg-primary text-on-primary font-label-md text-label-md rounded-lg flex items-center justify-center gap-2 hover:opacity-90 active:scale-95 transition-all" onclick="goToStep(3)">
+                            CONFIRM AND PAY
+                            <span class="material-symbols-outlined">lock</span>
+</button>
+</div>
+</section>
+<!-- Step 3: Confirmation (Hidden by default) -->
+<section class="hidden text-center space-y-stack-md py-stack-md transition-all duration-300" id="step-content-3">
+<div class="w-20 h-20 bg-secondary-container text-on-secondary-container rounded-full flex items-center justify-center mx-auto mb-6">
+<span class="material-symbols-outlined text-4xl" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<div class="space-y-2">
+<h2 class="font-headline-lg text-headline-lg">Application Submitted Successfully</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-md mx-auto">Your reservation for Property #TX-992 is now active. Our title team will contact you within 24 hours to finalize documentation.</p>
+</div>
+<div class="bg-surface-container p-6 rounded-xl inline-block text-left border border-outline-variant">
+<p class="font-label-md text-label-md mb-2">NEXT STEPS</p>
+<ul class="space-y-2 font-body-sm text-body-sm">
+<li class="flex gap-2"><span class="material-symbols-outlined text-sm text-secondary">verified</span> Check your email for the purchase agreement.</li>
+<li class="flex gap-2"><span class="material-symbols-outlined text-sm text-secondary">verified</span> Digital signature requested via DocuSign.</li>
+<li class="flex gap-2"><span class="material-symbols-outlined text-sm text-secondary">verified</span> Access your owner portal for land management.</li>
+</ul>
+</div>
+<div>
+<button class="px-10 h-14 bg-primary text-on-primary font-label-md text-label-md rounded hover:opacity-90 transition-all">
+                            GO TO DASHBOARD
+                        </button>
+</div>
+</section>
+</div>
+<!-- Sidebar: Order Summary -->
+<aside class="lg:col-span-4 space-y-gutter lg:sticky lg:top-28">
+<div class="bg-white rounded-xl shadow-sm border border-outline-variant overflow-hidden">
+<img alt="Property Vista" class="w-full h-48 object-cover" data-alt="A wide-angle, high-resolution architectural photograph of a vast, golden prairie landscape under a soft sunset sky. The lighting is warm and cinematic, emphasizing the textured grass and distant rolling hills. The aesthetic is clean, premium, and serene, perfectly matching a high-end institutional real estate brand with minimal distractions and natural beauty." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBu13eCngZcwC6jSFKwWYYs7MAtBUwHWHr0sBhioweqb1eU-tl-Ona6iIlPMmFOlJ-eRE4xb0uIf7oo09hbRWTu35gpM41jpuwyiWr-wbZYaRPEdcRdmAYGxB529OoTM-WYv-f3Lu3XME9wBe63cL31jkCj59wbJuNMTPYjIXn5AXnzhiEUui5sMhdvJZxrHFsLhvVe2U-yRbU2FaJEHQLCp_5WOhCX9xpMdq6Lu7vP9geowSQ98q-XQK2MyhHBQFfKfF4MIfw6k2tu"/>
+<div class="p-6 space-y-4">
+<div>
+<div class="flex justify-between items-start">
+<h3 class="font-headline-md text-headline-md text-primary">Sagebrush Highlands</h3>
+<span class="bg-primary text-on-primary px-2 py-1 text-[10px] font-bold rounded">#TX-992</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Culberson County, Texas • 40.5 Acres</p>
+</div>
+<div class="pt-4 border-t border-outline-variant space-y-2">
+<div class="flex justify-between font-body-md text-body-md">
+<span class="text-on-surface-variant">Listing Price</span>
+<span>$48,500</span>
+</div>
+<div class="flex justify-between font-body-md text-body-md">
+<span class="text-on-surface-variant">Terms Discount</span>
+<span class="text-secondary">-$1,500</span>
+</div>
+<div class="flex justify-between font-bold text-lg pt-2 border-t border-outline-variant">
+<span>Purchase Price</span>
+<span>$47,000</span>
+</div>
+</div>
+<div class="bg-surface-container-low p-4 rounded-lg flex items-center gap-3">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">verified_user</span>
+<div>
+<p class="font-label-sm text-label-sm">SECURE TITLE GUARANTEE</p>
+<p class="text-[10px] text-on-surface-variant leading-tight">Every transaction is insured and recorded with the US Land Registry.</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Trust Badges -->
+<div class="flex flex-wrap justify-center gap-6 opacity-60 grayscale hover:grayscale-0 transition-all duration-500">
+<div class="flex flex-col items-center gap-1">
+<span class="material-symbols-outlined text-3xl">lock</span>
+<span class="font-label-sm text-[10px] uppercase tracking-tighter">SSL Secure</span>
+</div>
+<div class="flex flex-col items-center gap-1">
+<span class="material-symbols-outlined text-3xl">account_balance</span>
+<span class="font-label-sm text-[10px] uppercase tracking-tighter">Title Insured</span>
+</div>
+<div class="flex flex-col items-center gap-1">
+<span class="material-symbols-outlined text-3xl">gavel</span>
+<span class="font-label-sm text-[10px] uppercase tracking-tighter">Legal Compliant</span>
+</div>
+</div>
+</aside>
+</div>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container-highest border-t border-outline-variant mt-stack-lg">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-gutter py-stack-lg px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
+<div class="md:col-span-2 space-y-4">
+<div class="font-headline-sm text-headline-sm font-bold text-primary">USA Land</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant max-w-sm">
+                    Empowering individual investors through transparent, secure, and accessible land ownership across the United States.
+                </p>
+</div>
+<div class="space-y-4">
+<p class="font-label-md text-label-md font-bold">RESOURCES</p>
+<div class="flex flex-col gap-2">
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors" href="#">Privacy Policy</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors" href="#">Terms of Service</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors" href="#">Owner Financing Guide</a>
+</div>
+</div>
+<div class="space-y-4">
+<p class="font-label-md text-label-md font-bold">SUPPORT</p>
+<div class="flex flex-col gap-2">
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors" href="#">Contact Support</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors" href="#">State Listings</a>
+<p class="font-body-sm text-body-sm text-on-surface-variant">1-800-USA-LAND</p>
+</div>
+</div>
+</div>
+<div class="border-t border-outline-variant py-8 px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto text-center">
+<p class="font-body-sm text-body-sm text-on-surface-variant opacity-80">
+                © 2024 USA Land Investment Group. All rights reserved. Secure Title Guaranteed.
+            </p>
+</div>
+</footer>
+<script>
+        function goToStep(stepNumber) {
+            // Hide all contents
+            document.querySelectorAll('[id^="step-content-"]').forEach(el => el.classList.add('hidden'));
+            
+            // Update Nav styles
+            document.querySelectorAll('[id^="step-nav-"]').forEach(el => {
+                el.classList.remove('step-active');
+                el.classList.add('step-inactive');
+            });
+
+            // Show active content
+            document.getElementById(`step-content-${stepNumber}`).classList.remove('hidden');
+            
+            // Highlight active nav
+            const activeNav = document.getElementById(`step-nav-${stepNumber}`);
+            activeNav.classList.remove('step-inactive');
+            activeNav.classList.add('step-active');
+
+            // Scroll to top of wizard on mobile
+            if (window.innerWidth < 768) {
+                window.scrollTo({ top: 100, behavior: 'smooth' });
+            }
+        }
+
+        function updatePayment(term) {
+            const totalPrice = 47000;
+            const downPayment = 2500;
+            const remaining = totalPrice - downPayment;
+            
+            // Simplified calculation for demo
+            const monthly = Math.round(remaining / term);
+            
+            const display = document.getElementById('monthly-payment-display');
+            
+            // Animated update effect
+            display.style.opacity = 0;
+            setTimeout(() => {
+                display.innerText = `$${monthly.toLocaleString()}`;
+                display.style.opacity = 1;
+            }, 100);
+        }
+
+        // Initialize display
+        updatePayment(24);
+    </script>
+</body></html>

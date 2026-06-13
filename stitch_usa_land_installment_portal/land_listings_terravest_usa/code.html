@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-secondary-container": "#00714d",
+                    "surface-bright": "#f8f9ff",
+                    "tertiary-container": "#001a42",
+                    "surface-variant": "#d3e4fe",
+                    "surface": "#f8f9ff",
+                    "on-secondary-fixed": "#002113",
+                    "primary-container": "#131b2e",
+                    "inverse-primary": "#bec6e0",
+                    "surface-container-highest": "#d3e4fe",
+                    "on-tertiary-fixed": "#001a42",
+                    "surface-dim": "#cbdbf5",
+                    "surface-container-lowest": "#ffffff",
+                    "on-error": "#ffffff",
+                    "on-primary-fixed": "#131b2e",
+                    "secondary": "#006c49",
+                    "background": "#f8f9ff",
+                    "inverse-surface": "#213145",
+                    "primary": "#000000",
+                    "inverse-on-surface": "#eaf1ff",
+                    "error-container": "#ffdad6",
+                    "on-primary": "#ffffff",
+                    "on-surface-variant": "#45464d",
+                    "on-tertiary-fixed-variant": "#004395",
+                    "outline": "#76777d",
+                    "surface-container-high": "#dce9ff",
+                    "surface-container": "#e5eeff",
+                    "tertiary-fixed": "#d8e2ff",
+                    "on-primary-fixed-variant": "#3f465c",
+                    "on-surface": "#0b1c30",
+                    "surface-container-low": "#eff4ff",
+                    "tertiary-fixed-dim": "#adc6ff",
+                    "on-secondary": "#ffffff",
+                    "error": "#ba1a1a",
+                    "on-error-container": "#93000a",
+                    "on-background": "#0b1c30",
+                    "tertiary": "#000000",
+                    "on-tertiary-container": "#3980f4",
+                    "secondary-fixed": "#6ffbbe",
+                    "primary-fixed-dim": "#bec6e0",
+                    "on-secondary-fixed-variant": "#005236",
+                    "surface-tint": "#565e74",
+                    "on-tertiary": "#ffffff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "margin-desktop": "40px",
+                    "stack-lg": "32px",
+                    "stack-md": "16px",
+                    "gutter": "24px",
+                    "container-max": "1280px",
+                    "margin-mobile": "16px",
+                    "stack-sm": "8px"
+            },
+            "fontFamily": {
+                    "headline-xl-mobile": ["Inter"],
+                    "label-md": ["Inter"],
+                    "headline-xl": ["Inter"],
+                    "headline-md": ["Inter"],
+                    "headline-lg": ["Inter"],
+                    "caption": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "body-md": ["Inter"]
+            },
+            "fontSize": {
+                    "headline-xl-mobile": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                    "headline-xl": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "headline-lg": ["30px", {"lineHeight": "38px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "caption": ["12px", {"lineHeight": "16px", "fontWeight": "400"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-background text-on-background">
+<!-- Top Navigation Bar -->
+<header class="bg-surface docked full-width top-0 sticky z-50 border-b border-outline-variant">
+<div class="flex justify-between items-center w-full px-margin-desktop py-4 max-w-container-max mx-auto">
+<div class="text-headline-md font-headline-md font-bold text-primary">TerraVest USA</div>
+<nav class="hidden md:flex items-center gap-8">
+<a class="text-primary font-bold border-b-2 border-primary pb-1 text-label-md font-label-md" href="#">Explore Lands</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors text-label-md font-label-md" href="#">How it Works</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors text-label-md font-label-md" href="#">Calculators</a>
+</nav>
+<div class="flex items-center gap-4">
+<button class="text-on-surface-variant hover:text-primary text-label-md font-label-md transition-all">Login</button>
+<button class="bg-primary text-on-primary px-6 py-2 rounded font-label-md hover:opacity-80 transition-all">Register</button>
+</div>
+</div>
+</header>
+<main class="max-w-container-max mx-auto px-margin-desktop py-stack-lg min-h-screen">
+<header class="mb-stack-lg">
+<h1 class="font-headline-xl text-headline-xl text-on-surface mb-2">Available Land Opportunities</h1>
+<p class="text-body-lg font-body-lg text-on-surface-variant">Invest in your dream land with secure installment options.</p>
+</header>
+<div class="flex flex-col md:flex-row gap-gutter">
+<!-- Sidebar Filters -->
+<aside class="w-full md:w-64 flex-shrink-0">
+<div class="bg-surface-container-lowest border border-outline-variant rounded p-stack-md sticky top-24">
+<div class="flex items-center justify-between mb-4">
+<h2 class="font-headline-md text-label-md font-bold uppercase tracking-wider">Filters</h2>
+<span class="material-symbols-outlined text-outline cursor-pointer" data-icon="filter_list">filter_list</span>
+</div>
+<!-- Filter Groups -->
+<div class="space-y-6">
+<div>
+<label class="block text-label-md font-label-md mb-2">State</label>
+<div class="space-y-2">
+<label class="flex items-center gap-2 cursor-pointer group">
+<input class="w-4 h-4 border-outline rounded text-primary focus:ring-primary" type="checkbox"/>
+<span class="text-body-md font-body-md group-hover:text-primary transition-colors">Texas</span>
+</label>
+<label class="flex items-center gap-2 cursor-pointer group">
+<input class="w-4 h-4 border-outline rounded text-primary focus:ring-primary" type="checkbox"/>
+<span class="text-body-md font-body-md group-hover:text-primary transition-colors">Florida</span>
+</label>
+<label class="flex items-center gap-2 cursor-pointer group">
+<input class="w-4 h-4 border-outline rounded text-primary focus:ring-primary" type="checkbox"/>
+<span class="text-body-md font-body-md group-hover:text-primary transition-colors">Arizona</span>
+</label>
+<label class="flex items-center gap-2 cursor-pointer group">
+<input class="w-4 h-4 border-outline rounded text-primary focus:ring-primary" type="checkbox"/>
+<span class="text-body-md font-body-md group-hover:text-primary transition-colors">Nevada</span>
+</label>
+</div>
+</div>
+<div>
+<label class="block text-label-md font-label-md mb-2">Price Range</label>
+<select class="w-full bg-surface border border-outline-variant rounded p-2 text-body-md">
+<option>All Prices</option>
+<option>$0 - $10,000</option>
+<option>$10,000 - $50,000</option>
+<option>$50,000+</option>
+</select>
+</div>
+<div>
+<label class="block text-label-md font-label-md mb-2">Land Size</label>
+<div class="space-y-2">
+<label class="flex items-center gap-2">
+<input class="w-4 h-4 text-primary focus:ring-primary" name="size" type="radio"/>
+<span class="text-body-md">1-5 acres</span>
+</label>
+<label class="flex items-center gap-2">
+<input class="w-4 h-4 text-primary focus:ring-primary" name="size" type="radio"/>
+<span class="text-body-md">5-20 acres</span>
+</label>
+<label class="flex items-center gap-2">
+<input class="w-4 h-4 text-primary focus:ring-primary" name="size" type="radio"/>
+<span class="text-body-md">20+ acres</span>
+</label>
+</div>
+</div>
+<div>
+<label class="block text-label-md font-label-md mb-2">Usage Type</label>
+<div class="grid grid-cols-1 gap-2">
+<button class="text-left px-3 py-2 border border-outline-variant rounded hover:bg-surface-container-high transition-colors text-body-md">Residential</button>
+<button class="text-left px-3 py-2 border border-outline-variant rounded hover:bg-surface-container-high transition-colors text-body-md">Agricultural</button>
+<button class="text-left px-3 py-2 border border-outline-variant rounded bg-primary-container text-on-primary-container font-medium text-body-md">Investment</button>
+</div>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content -->
+<section class="flex-grow">
+<!-- Sorting & Stats -->
+<div class="flex justify-between items-center mb-stack-md">
+<p class="text-body-md font-body-md text-on-surface-variant">8 lands listed</p>
+<div class="flex items-center gap-3">
+<span class="text-label-md font-label-md">Sort by:</span>
+<select class="bg-transparent border-none font-bold text-primary focus:ring-0 cursor-pointer">
+<option>Newest</option>
+<option>Price: Low to High</option>
+<option>Price: High to Low</option>
+</select>
+</div>
+</div>
+<!-- Land Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter">
+<script>
+                        const landItems = [
+                            { title: '5 Acres in Hudspeth, Texas', price: '$24,900', monthly: '$299', location: 'Texas', tags: ['Road Access', 'Power Nearby'] },
+                            { title: '10 Acres in Mohave Desert', price: '$15,500', monthly: '$189', location: 'Arizona', tags: ['Investment', 'Solar Ready'] },
+                            { title: 'Florida Highlands Land', price: '$32,000', monthly: '$350', location: 'Florida', tags: ['Residential', 'Wooded'] },
+                            { title: '40 Acre Ranch in Elko', price: '$45,000', monthly: '$499', location: 'Nevada', tags: ['Agricultural', 'Flat Land'] },
+                            { title: 'Rio Grande Valley Parcel', price: '$12,900', monthly: '$149', location: 'Texas', tags: ['Scenic', 'Rural'] },
+                            { title: 'Apache County Investment', price: '$8,500', monthly: '$99', location: 'Arizona', tags: ['Road Access', 'Budget Friendly'] },
+                            { title: '2 Acres Near Orlando', price: '$58,000', monthly: '$620', location: 'Florida', tags: ['Developing', 'Residential'] },
+                            { title: 'Costilla County Mountain Range', price: '$19,800', monthly: '$225', location: 'Texas', tags: ['Mountain Views', 'Hunting'] }
+                        ];
+
+                        document.write(landItems.map((land, index) => `
+                            <div class="bg-surface-container-lowest border border-outline-variant rounded overflow-hidden group hover:shadow-[0px_4px_20px_rgba(15,23,42,0.05)] transition-all flex flex-col h-full">
+                                <div class="relative h-48 w-full overflow-hidden">
+                                    <img src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&q=80&w=600" 
+                                         alt="${land.title}" 
+                                         data-alt="A wide angle, high-resolution landscape photograph of an expansive open land in ${land.location} during the golden hour. The sky is a warm gradient of amber and soft blue, casting a long, gentle light over the rugged terrain and scattered desert vegetation. The image has a professional, high-end feel with sharp focus and balanced contrast, evoking a sense of stable investment and peaceful ownership in a modern light-mode aesthetic."
+                                         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                                    <div class="absolute top-3 right-3 bg-secondary text-on-secondary text-caption font-medium px-2 py-1 rounded">
+                                        AVAILABLE
+                                    </div>
+                                </div>
+                                <div class="p-stack-md flex flex-col flex-grow">
+                                    <h3 class="font-headline-md text-body-lg font-bold text-on-surface mb-2">${land.title}</h3>
+                                    <div class="flex flex-wrap gap-2 mb-4">
+                                        ${land.tags.map(tag => `
+                                            <span class="bg-surface-container text-on-surface-variant text-caption px-2 py-0.5 rounded border border-outline-variant">${tag}</span>
+                                        `).join('')}
+                                    </div>
+                                    <div class="mt-auto pt-4 border-t border-outline-variant flex justify-between items-end">
+                                        <div>
+                                            <p class="text-caption text-on-surface-variant">Total Price</p>
+                                            <p class="text-headline-md font-bold text-primary">${land.price}</p>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="text-caption text-secondary font-medium">Installments from</p>
+                                            <p class="text-body-lg font-bold text-secondary">${land.monthly}/mo</p>
+                                        </div>
+                                    </div>
+                                    <button class="w-full mt-stack-md bg-primary text-on-primary py-2 rounded font-label-md hover:opacity-90 transition-all">View Details</button>
+                                </div>
+                            </div>
+                        `).join(''));
+                    </script>
+</div>
+<!-- Pagination -->
+<div class="mt-stack-lg flex justify-center items-center gap-2">
+<button class="w-10 h-10 flex items-center justify-center rounded border border-outline-variant hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined" data-icon="chevron_left">chevron_left</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center rounded bg-primary text-on-primary font-bold">1</button>
+<button class="w-10 h-10 flex items-center justify-center rounded border border-outline-variant hover:bg-surface-container transition-colors">2</button>
+<button class="w-10 h-10 flex items-center justify-center rounded border border-outline-variant hover:bg-surface-container transition-colors">3</button>
+<button class="w-10 h-10 flex items-center justify-center rounded border border-outline-variant hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+</section>
+</div>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container-low border-t border-outline-variant mt-stack-lg">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-gutter px-margin-desktop py-stack-lg max-w-container-max mx-auto">
+<div class="col-span-1">
+<div class="text-headline-sm font-headline-sm font-bold text-primary mb-4">TerraVest</div>
+<p class="text-caption text-on-surface-variant">Your trusted land investment partner across America. With over 20 years of experience, we make it easy for you to become a landowner.</p>
+</div>
+<div>
+<h4 class="font-label-md font-bold mb-4 uppercase text-on-surface">Properties</h4>
+<ul class="space-y-2">
+<li><a class="text-on-surface-variant hover:text-primary transition-all text-body-md" href="#">Texas Properties</a></li>
+<li><a class="text-on-surface-variant hover:text-primary transition-all text-body-md" href="#">Florida Properties</a></li>
+<li><a class="text-on-surface-variant hover:text-primary transition-all text-body-md" href="#">Arizona Properties</a></li>
+</ul>
+</div>
+<div>
+<h4 class="font-label-md font-bold mb-4 uppercase text-on-surface">Support</h4>
+<ul class="space-y-2">
+<li><a class="text-on-surface-variant hover:text-primary transition-all text-body-md" href="#">Contact Support</a></li>
+<li><a class="text-on-surface-variant hover:text-primary transition-all text-body-md" href="#">Privacy Policy</a></li>
+<li><a class="text-on-surface-variant hover:text-primary transition-all text-body-md" href="#">Legal Disclaimer</a></li>
+</ul>
+</div>
+<div>
+<h4 class="font-label-md font-bold mb-4 uppercase text-on-surface">Newsletter</h4>
+<div class="flex flex-col gap-2">
+<input class="bg-surface-container-lowest border border-outline-variant rounded p-2 text-body-md focus:ring-2 focus:ring-primary outline-none" placeholder="Your email address" type="email"/>
+<button class="bg-primary text-on-primary py-2 rounded font-label-md hover:opacity-90">Subscribe</button>
+</div>
+</div>
+</div>
+<div class="max-w-container-max mx-auto px-margin-desktop py-6 border-t border-outline-variant text-center">
+<p class="text-caption text-on-surface-variant">© 2024 TerraVest Land Investments LLC. All rights reserved. Registered US Land Brokerage.</p>
+</div>
+</footer>
+<script>
+        // Micro-interactions for interactive filter elements
+        document.querySelectorAll('input[type="checkbox"], input[type="radio"]').forEach(input => {
+            input.addEventListener('change', () => {
+                input.parentElement.classList.add('scale-95');
+                setTimeout(() => input.parentElement.classList.remove('scale-95'), 100);
+            });
+        });
+    </script>
+</body></html>

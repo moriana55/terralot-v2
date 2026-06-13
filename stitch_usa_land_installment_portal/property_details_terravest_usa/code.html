@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+
+<html class="scroll-smooth" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-secondary-container": "#00714d",
+                    "surface-bright": "#f8f9ff",
+                    "tertiary-container": "#001a42",
+                    "surface-variant": "#d3e4fe",
+                    "surface": "#f8f9ff",
+                    "on-secondary-fixed": "#002113",
+                    "primary-container": "#131b2e",
+                    "inverse-primary": "#bec6e0",
+                    "surface-container-highest": "#d3e4fe",
+                    "on-tertiary-fixed": "#001a42",
+                    "surface-dim": "#cbdbf5",
+                    "surface-container-lowest": "#ffffff",
+                    "on-error": "#ffffff",
+                    "on-primary-fixed": "#131b2e",
+                    "secondary": "#006c49",
+                    "background": "#f8f9ff",
+                    "inverse-surface": "#213145",
+                    "primary": "#000000",
+                    "inverse-on-surface": "#eaf1ff",
+                    "error-container": "#ffdad6",
+                    "on-primary": "#ffffff",
+                    "on-surface-variant": "#45464d",
+                    "on-tertiary-fixed-variant": "#004395",
+                    "outline": "#76777d",
+                    "surface-container-high": "#dce9ff",
+                    "surface-container": "#e5eeff",
+                    "tertiary-fixed": "#d8e2ff",
+                    "on-primary-fixed-variant": "#3f465c",
+                    "on-surface": "#0b1c30",
+                    "surface-container-low": "#eff4ff",
+                    "tertiary-fixed-dim": "#adc6ff",
+                    "on-secondary": "#ffffff",
+                    "error": "#ba1a1a",
+                    "on-error-container": "#93000a",
+                    "on-background": "#0b1c30",
+                    "tertiary": "#000000",
+                    "on-tertiary-container": "#3980f4",
+                    "secondary-fixed": "#6ffbbe",
+                    "primary-fixed-dim": "#bec6e0",
+                    "on-secondary-fixed-variant": "#005236",
+                    "surface-tint": "#565e74",
+                    "on-tertiary": "#ffffff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "margin-desktop": "40px",
+                    "stack-lg": "32px",
+                    "stack-md": "16px",
+                    "gutter": "24px",
+                    "container-max": "1280px",
+                    "margin-mobile": "16px",
+                    "stack-sm": "8px"
+            },
+            "fontFamily": {
+                    "headline-xl-mobile": ["Inter"],
+                    "label-md": ["Inter"],
+                    "headline-xl": ["Inter"],
+                    "headline-md": ["Inter"],
+                    "headline-lg": ["Inter"],
+                    "caption": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "body-md": ["Inter"]
+            },
+            "fontSize": {
+                    "headline-xl-mobile": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                    "headline-xl": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "headline-lg": ["30px", {"lineHeight": "38px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "caption": ["12px", {"lineHeight": "16px", "fontWeight": "400"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .active-tab { border-bottom: 2px solid #000000; font-weight: 700; color: #000000; }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body-md antialiased">
+<!-- TopNavBar -->
+<header class="bg-surface dark:bg-surface-container-highest border-b border-outline-variant dark:border-outline docked full-width top-0 sticky z-50">
+<nav class="flex justify-between items-center w-full px-margin-desktop py-4 max-w-container-max mx-auto">
+<div class="text-headline-md font-headline-md font-bold text-primary dark:text-inverse-primary">
+                TerraVest USA
+            </div>
+<div class="hidden md:flex items-center gap-gutter">
+<a class="text-primary dark:text-inverse-primary font-bold border-b-2 border-primary pb-1 text-label-md font-label-md" href="#">Explore Lands</a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-inverse-primary transition-colors text-label-md font-label-md" href="#">How it Works</a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-inverse-primary transition-colors text-label-md font-label-md" href="#">Calculators</a>
+</div>
+<div class="flex items-center gap-4">
+<button class="px-4 py-2 text-label-md font-label-md text-on-surface hover:bg-surface-container-low transition-all">Login</button>
+<button class="px-6 py-2 bg-primary text-on-primary text-label-md font-label-md rounded-lg hover:opacity-80 transition-all">Register</button>
+</div>
+</nav>
+</header>
+<main class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-stack-lg">
+<!-- Breadcrumbs -->
+<nav class="flex items-center gap-2 mb-stack-md text-on-surface-variant text-caption font-caption">
+<a class="hover:text-primary" href="#">Portfolio</a>
+<span class="material-symbols-outlined text-[16px]">chevron_right</span>
+<a class="hover:text-primary" href="#">Arizona</a>
+<span class="material-symbols-outlined text-[16px]">chevron_right</span>
+<span class="text-on-surface font-medium">Mohave, 10 Acres</span>
+</nav>
+<!-- Hero: Property Title & Availability -->
+<div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-stack-md gap-4">
+<div>
+<h1 class="text-headline-xl-mobile md:text-headline-xl font-headline-xl tracking-tight text-primary">10 Acres of Land in Mohave, Arizona</h1>
+<p class="text-body-lg text-on-surface-variant mt-2">A unique investment opportunity for the future, in the heart of the wilderness.</p>
+</div>
+<div class="flex items-center gap-3">
+<span class="inline-flex items-center px-3 py-1 rounded-full bg-secondary-container text-on-secondary-container text-label-md font-bold">
+<span class="w-2 h-2 rounded-full bg-secondary mr-2 animate-pulse"></span>
+                    Available
+                </span>
+<button class="p-2 border border-outline-variant rounded-lg hover:bg-surface-container-low transition-all">
+<span class="material-symbols-outlined">share</span>
+</button>
+<button class="p-2 border border-outline-variant rounded-lg hover:bg-surface-container-low transition-all">
+<span class="material-symbols-outlined">favorite</span>
+</button>
+</div>
+</div>
+<!-- Bento Grid Image Gallery -->
+<div class="grid grid-cols-1 md:grid-cols-4 md:grid-rows-2 gap-4 h-[400px] md:h-[600px] mb-stack-lg overflow-hidden rounded-xl border border-outline-variant">
+<div class="md:col-span-2 md:row-span-2 relative group cursor-pointer overflow-hidden">
+<img alt="Main Land View" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC1uqFFd35N2aVqymk7LHxajXGDk6Fe5WkcrSPOj2OyEj_YCK-Bk0j2ShvNZB_YYWoHdX8cfZtSwv-fvZmJ55X670kruw0Or_aPzN_5JQn-cEvb67Ya90vm0t4ENDJaTGppaamTq-BsCyXpBXm2F96odnanb4G3DvbpBZgpDjPR53RMwezBKi0ai9mrfBgUIBNZYIc4_osrm5qzDmNhrFRcQaW9nIZP0-Eya9C0yvrvfSCRM28Dx1N_369SicUXZD2kbeiPaVhoi10"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+</div>
+<div class="md:col-span-1 md:row-span-1 relative group cursor-pointer overflow-hidden">
+<img alt="Land Close Up" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCNsH7gGg38Sk26SfwQsO2hzcxmsSjSihvLnOA3A3dMZ7DPpU6-gDP9h7fRyXpLkGaS3-dshThGUbEDigFVq4Cye9_bkuOCmHm3iPiMTlSoec6s195s-tVxNa9BDZkYwWLEdl0HhcvMYYSnio7lNdzRzIFcM0Rlmxx20Fy6HU1m-d4xCTpqCk9jUTzfUDQRyV186HuEwDFM0npGZ4O6EwyPBKNvv5kL77zVcbBtMJFgvc8uQI4dUhxQ0UEqakqOAbrX06IE6w1sLdM"/>
+</div>
+<div class="md:col-span-1 md:row-span-1 relative group cursor-pointer overflow-hidden">
+<img alt="Sunset View" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDtEa74E3zJtDNVte-Jx0L9CwyWPIA4pshbWSJ0mASM1BIHVLBX6SmazDWA-ltuEMyEhAkYg33xEkrdkRoeJzDODunVz6IKVja4FueUg-cFefIHBi5UVLyk653-KzjqVGU9H9ukKfwJWOOYfet78zDu0ln_VOYqyQ8ZqGdECBajkwc6NSrLPL0WdsOeFvt9U_JNUsdLZ0an05V0qLNNitMpzTLFmgjmnkgG904jViA4_fTYtl0pLkbeFcLhXeni-s2OYMXxXCiKnTE"/>
+</div>
+<div class="hidden md:block md:col-span-2 md:row-span-1 relative group cursor-pointer overflow-hidden">
+<img alt="Road Access" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDgMkrAqprhXKjLT_D9tBrMLnGQm3zUvpnXATLdo6XFl93odwUO7VTBMA6y-H-zpyayMf5EeAWYU0ne9cO4VfTOOadtdXVz1lcbGn_qcygOmuiOlUYdbiAY49I9vBX3JdfACVF8252kWt6vGP7U9wy6eTVNH1Ylugu3UFwYSf0TvmL3RJqI9aWMvtRArViDgTkeYXJB9or4H06qbAFPl1YDfO8mDymMEO35AniTrygRi2C6JRH6fWJ6dNxwhxgigD0vR4j338LLDLo"/>
+<div class="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="text-white font-bold">See +12 Photos</span>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter items-start">
+<!-- Left Column: Details & Map -->
+<div class="lg:col-span-8 space-y-stack-lg">
+<!-- Key Specifications Card -->
+<div class="bg-surface-container-lowest border border-outline-variant p-stack-md rounded-xl">
+<h3 class="text-headline-md font-headline-md mb-6">Property Specifications</h3>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-gutter">
+<div class="space-y-1">
+<span class="text-caption font-caption text-on-surface-variant uppercase tracking-wider">GPS Coordinates</span>
+<p class="font-bold flex items-center gap-2">
+                                35.1234, -114.5678
+                                <button class="text-primary hover:scale-110 transition-transform"><span class="material-symbols-outlined text-[18px]">content_copy</span></button>
+</p>
+</div>
+<div class="space-y-1">
+<span class="text-caption font-caption text-on-surface-variant uppercase tracking-wider">Zoning</span>
+<p class="font-bold">Residential / Recreational</p>
+</div>
+<div class="space-y-1">
+<span class="text-caption font-caption text-on-surface-variant uppercase tracking-wider">Infrastructure</span>
+<p class="font-bold">Off-grid (Solar/Well)</p>
+</div>
+<div class="space-y-1">
+<span class="text-caption font-caption text-on-surface-variant uppercase tracking-wider">Elevation</span>
+<p class="font-bold">1,240 Meters</p>
+</div>
+</div>
+</div>
+<!-- Description Section -->
+<div class="prose max-w-none text-on-surface-variant leading-relaxed">
+<h3 class="text-headline-md font-headline-md text-on-surface mb-4">About the Land</h3>
+<p class="mb-4">This 10-acre property is located in the most peaceful part of Mohave County. Perfect for both investment and weekend getaways, this parcel has level terrain and is ideal for container home or tiny house projects. The area is known as one of the best spots in the world for stargazing and preserved wildlife.</p>
+<ul class="grid grid-cols-1 md:grid-cols-2 gap-2 list-none p-0">
+<li class="flex items-center gap-2"><span class="material-symbols-outlined text-secondary">check_circle</span> Easy Road Access</li>
+<li class="flex items-center gap-2"><span class="material-symbols-outlined text-secondary">check_circle</span> Low Annual Property Taxes</li>
+<li class="flex items-center gap-2"><span class="material-symbols-outlined text-secondary">check_circle</span> 100% Clean Title Guarantee</li>
+<li class="flex items-center gap-2"><span class="material-symbols-outlined text-secondary">check_circle</span> No Commission</li>
+</ul>
+</div>
+<!-- Interactive Map Section -->
+<div class="space-y-4">
+<h3 class="text-headline-md font-headline-md">Location Information</h3>
+<div class="w-full h-[450px] rounded-xl border border-outline-variant overflow-hidden grayscale hover:grayscale-0 transition-all duration-500 shadow-sm relative">
+<img class="w-full h-full object-cover" data-location="Mohave County, Arizona" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCsyn8mloJL-8XH4afaPTufOdhjT_6gC8sQq-Qj0aMTpjMj4bKtqzpwTJPdhYy1OAJ0Lllsq_Q5G5RVxfrpzvFWhXpq9HOYKEv18NOk8jZO9ml2PwpI4f9-mx-esBYZoqIXNtGsbXh3ujoxq23YZEAa8881YjtiLprEn5TrSdgUX2Pt9r1LYN5vXNd_gaunQkpuoYbN7iDMEGvHqND50nYrJn6ZbSPPunPXFG9Lyo4EQs5lj-hqLobRrlq7ob4FqUSWpRJFarj6DrI"/>
+<div class="absolute bottom-4 right-4 glass-panel p-3 rounded-lg shadow-lg">
+<button class="bg-primary text-on-primary px-4 py-2 rounded text-label-md font-bold flex items-center gap-2">
+<span class="material-symbols-outlined text-[20px]">directions</span>
+                                Get Directions
+                            </button>
+</div>
+</div>
+</div>
+<!-- Trust Section -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 bg-surface-container-low border border-outline-variant rounded-xl p-stack-md">
+<div class="text-center space-y-2">
+<span class="material-symbols-outlined text-primary text-[40px]" data-weight="fill">verified_user</span>
+<h4 class="font-bold text-body-lg">Secure Title Process</h4>
+<p class="text-caption text-on-surface-variant">All our transactions are conducted transparently in accordance with state laws.</p>
+</div>
+<div class="text-center space-y-2">
+<span class="material-symbols-outlined text-primary text-[40px]" data-weight="fill">contract</span>
+<h4 class="font-bold text-body-lg">Quick Contract</h4>
+<p class="text-caption text-on-surface-variant">Become a property owner without leaving your seat with our digital signature infrastructure.</p>
+</div>
+<div class="text-center space-y-2">
+<span class="material-symbols-outlined text-primary text-[40px]" data-weight="fill">payments</span>
+<h4 class="font-bold text-body-lg">Flexible Payment</h4>
+<p class="text-caption text-on-surface-variant">We offer suitable installment options for everyone, regardless of credit score.</p>
+</div>
+</div>
+</div>
+<!-- Right Column: Calculator Sticky -->
+<div class="lg:col-span-4 sticky top-24 space-y-stack-md">
+<div class="bg-surface-container-lowest border border-primary border-t-4 p-stack-md rounded-xl shadow-xl">
+<div class="flex justify-between items-start mb-6">
+<div>
+<span class="text-caption font-caption text-on-surface-variant">Cash Price</span>
+<p class="text-headline-lg font-headline-lg text-primary">$18,500</p>
+</div>
+<div class="text-right">
+<span class="text-caption font-caption text-on-surface-variant">Installments starting from</span>
+<p class="text-headline-md font-headline-md text-secondary">$199/mo</p>
+</div>
+</div>
+<div class="space-y-6">
+<h4 class="font-bold text-body-md border-b border-outline-variant pb-2">Payment Calculator</h4>
+<div class="space-y-4">
+<div class="flex justify-between items-center">
+<label class="text-label-md font-label-md">Down Payment</label>
+<span class="font-bold text-primary" id="down-payment-display">$1,000</span>
+</div>
+<input class="w-full h-2 bg-surface-container-high rounded-lg appearance-none cursor-pointer accent-primary" id="down-payment-slider" max="10000" min="500" step="500" type="range" value="1000"/>
+</div>
+<div class="space-y-4">
+<label class="text-label-md font-label-md block">Term</label>
+<div class="grid grid-cols-3 gap-2">
+<button class="py-2 border border-outline-variant rounded-lg text-label-md hover:bg-surface-container-low transition-all vade-btn" data-months="24">24 Months</button>
+<button class="py-2 border-2 border-primary bg-primary-container text-white rounded-lg text-label-md vade-btn active" data-months="48">48 Months</button>
+<button class="py-2 border border-outline-variant rounded-lg text-label-md hover:bg-surface-container-low transition-all vade-btn" data-months="60">60 Months</button>
+</div>
+</div>
+<div class="bg-surface-container-low p-4 rounded-lg space-y-2">
+<div class="flex justify-between text-caption">
+<span>Monthly Payment</span>
+<span class="font-bold text-on-surface" id="monthly-installment">$199.00</span>
+</div>
+<div class="flex justify-between text-caption">
+<span>Interest Rate</span>
+<span class="font-bold text-on-secondary-container">0% APR (Promo)</span>
+</div>
+<hr class="border-outline-variant"/>
+<div class="flex justify-between text-body-md font-bold text-primary">
+<span>Total Repayment</span>
+<span id="total-repayment">$18,500</span>
+</div>
+</div>
+<button class="w-full bg-primary text-on-primary py-4 rounded-lg font-bold text-body-lg hover:opacity-90 active:scale-95 transition-all shadow-lg flex items-center justify-center gap-2">
+                            Buy with Installments
+                            <span class="material-symbols-outlined">arrow_forward</span>
+</button>
+<button class="w-full bg-transparent border border-outline text-primary py-3 rounded-lg font-medium hover:bg-surface-container-low transition-all">
+                            Get Detailed Offer (PDF)
+                        </button>
+</div>
+<p class="text-center text-[11px] text-on-surface-variant mt-4">
+                        * This calculation is not binding. Final figures will be finalized at the contract stage.
+                    </p>
+</div>
+<!-- Contact Card -->
+<div class="bg-surface-container-high p-4 rounded-xl flex items-center gap-4">
+<img alt="Investment Consultant" class="w-12 h-12 rounded-full border-2 border-white" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB0jygJcnHiKX6qUgYZj0w1DNvVrLj3ZVvrpX8ftNLc1Q-HGiPJrIbn2QGjhr2XKmzTaqMjsbdCAmSR7YAlcYzKEmRroypBkbFtbVgAHCtxajheDrmOyUJIwTCKlhYEUh1RfDQ1YPto0SvU9SY0cClDMfQK-J1WO98vpA2I5srzHq59-nIuGHDrFdu9wQFix657y7TOnK-yrJdZDNMqSvSA_gnygoVJZ_ydgiYZ0FX-gHLNxcvV_LsbcrFEMJoD0j7ThaEeP2RChy8"/>
+<div>
+<p class="text-caption font-bold">Mert Yilmaz</p>
+<p class="text-[11px] text-on-surface-variant">Senior Investment Consultant</p>
+<a class="text-secondary text-caption font-bold hover:underline" href="tel:+">Call Now →</a>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container-low dark:bg-surface-container-lowest border-t border-outline-variant dark:border-outline full-width bottom-0 mt-stack-lg">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-gutter px-margin-desktop py-stack-lg max-w-container-max mx-auto">
+<div class="space-y-4">
+<div class="text-headline-sm font-headline-sm font-bold text-primary dark:text-inverse-primary">TerraVest USA</div>
+<p class="text-caption font-caption text-on-surface-variant">We work to ensure you own land in a safe and easy way. With over 15 years of experience, we have the largest land portfolio in the USA.</p>
+</div>
+<div class="flex flex-col gap-2">
+<h5 class="font-bold text-label-md mb-2">Popular Regions</h5>
+<a class="text-on-surface-variant hover:text-primary transition-all text-label-md" href="#">Texas Properties</a>
+<a class="text-on-surface-variant hover:text-primary transition-all text-label-md" href="#">Florida Properties</a>
+<a class="text-on-surface-variant hover:text-primary transition-all text-label-md" href="#">Arizona Properties</a>
+</div>
+<div class="flex flex-col gap-2">
+<h5 class="font-bold text-label-md mb-2">Corporate</h5>
+<a class="text-on-surface-variant hover:text-primary transition-all text-label-md" href="#">Legal Disclaimer</a>
+<a class="text-on-surface-variant hover:text-primary transition-all text-label-md" href="#">Privacy Policy</a>
+<a class="text-on-surface-variant hover:text-primary transition-all text-label-md" href="#">Contact Support</a>
+</div>
+<div class="space-y-4">
+<h5 class="font-bold text-label-md mb-2">Join Our Newsletter</h5>
+<div class="flex gap-2">
+<input class="bg-surface-container-lowest border border-outline-variant px-3 py-2 rounded-lg text-label-md w-full focus:ring-2 focus:ring-primary focus:outline-none" placeholder="Email" type="email"/>
+<button class="bg-primary text-on-primary px-4 py-2 rounded-lg"><span class="material-symbols-outlined">send</span></button>
+</div>
+</div>
+</div>
+<div class="max-w-container-max mx-auto px-margin-desktop py-6 border-t border-outline-variant text-center md:text-left">
+<p class="text-caption font-caption text-on-surface-variant">© 2024 TerraVest Land Investments LLC. All rights reserved. Registered US Land Brokerage.</p>
+</div>
+</footer>
+<script>
+        // Simple Interaction Script for Calculator
+        const downPaymentSlider = document.getElementById('down-payment-slider');
+        const downPaymentDisplay = document.getElementById('down-payment-display');
+        const monthlyInstallment = document.getElementById('monthly-installment');
+        const totalRepaymentDisplay = document.getElementById('total-repayment');
+        const vadeBtns = document.querySelectorAll('.vade-btn');
+
+        let currentVade = 48;
+        const totalAmount = 18500;
+
+        function updateCalculator() {
+            const downPayment = parseInt(downPaymentSlider.value);
+            downPaymentDisplay.textContent = `$${downPayment.toLocaleString()}`;
+
+            const remainingAmount = totalAmount - downPayment;
+            const monthly = remainingAmount / currentVade;
+            
+            monthlyInstallment.textContent = `$${monthly.toFixed(2)}`;
+            // In zero APR case, total repayment is just the original price
+            totalRepaymentDisplay.textContent = `$${totalAmount.toLocaleString()}`;
+        }
+
+        downPaymentSlider.addEventListener('input', updateCalculator);
+
+        vadeBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                vadeBtns.forEach(b => {
+                    b.classList.remove('active', 'border-2', 'border-primary', 'bg-primary-container', 'text-white');
+                    b.classList.add('border', 'border-outline-variant', 'text-on-surface-variant');
+                });
+                
+                btn.classList.add('active', 'border-2', 'border-primary', 'bg-primary-container', 'text-white');
+                btn.classList.remove('border', 'border-outline-variant', 'text-on-surface-variant');
+                
+                currentVade = parseInt(btn.dataset.months);
+                updateCalculator();
+            });
+        });
+
+        // Initialize
+        updateCalculator();
+
+        // Reveal effect for map container
+        const mapContainer = document.querySelector('.overflow-hidden.shadow-sm.relative');
+        mapContainer.addEventListener('mouseenter', () => {
+            mapContainer.classList.remove('grayscale');
+        });
+        mapContainer.addEventListener('mouseleave', () => {
+            mapContainer.classList.add('grayscale');
+        });
+    </script>
+</body></html>

@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-secondary-container": "#00714d",
+                    "surface-bright": "#f8f9ff",
+                    "tertiary-container": "#001a42",
+                    "surface-variant": "#d3e4fe",
+                    "surface": "#f8f9ff",
+                    "on-secondary-fixed": "#002113",
+                    "primary-container": "#131b2e",
+                    "inverse-primary": "#bec6e0",
+                    "surface-container-highest": "#d3e4fe",
+                    "on-tertiary-fixed": "#001a42",
+                    "surface-dim": "#cbdbf5",
+                    "surface-container-lowest": "#ffffff",
+                    "on-error": "#ffffff",
+                    "on-primary-fixed": "#131b2e",
+                    "secondary": "#006c49",
+                    "background": "#f8f9ff",
+                    "inverse-surface": "#213145",
+                    "primary": "#000000",
+                    "inverse-on-surface": "#eaf1ff",
+                    "error-container": "#ffdad6",
+                    "on-primary": "#ffffff",
+                    "on-surface-variant": "#45464d",
+                    "on-tertiary-fixed-variant": "#004395",
+                    "outline": "#76777d",
+                    "surface-container-high": "#dce9ff",
+                    "surface-container": "#e5eeff",
+                    "tertiary-fixed": "#d8e2ff",
+                    "on-primary-fixed-variant": "#3f465c",
+                    "on-surface": "#0b1c30",
+                    "surface-container-low": "#eff4ff",
+                    "tertiary-fixed-dim": "#adc6ff",
+                    "on-secondary": "#ffffff",
+                    "error": "#ba1a1a",
+                    "on-error-container": "#93000a",
+                    "on-background": "#0b1c30",
+                    "tertiary": "#000000",
+                    "on-primary-container": "#7c839b",
+                    "primary-fixed": "#dae2fd",
+                    "outline-variant": "#c6c6cd",
+                    "secondary-fixed-dim": "#4edea3",
+                    "secondary-container": "#6cf8bb",
+                    "on-tertiary-container": "#3980f4",
+                    "secondary-fixed": "#6ffbbe",
+                    "primary-fixed-dim": "#bec6e0",
+                    "on-secondary-fixed-variant": "#005236",
+                    "surface-tint": "#565e74",
+                    "on-tertiary": "#ffffff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "margin-desktop": "40px",
+                    "stack-lg": "32px",
+                    "stack-md": "16px",
+                    "gutter": "24px",
+                    "container-max": "1280px",
+                    "margin-mobile": "16px",
+                    "stack-sm": "8px"
+            },
+            "fontFamily": {
+                    "headline-xl-mobile": ["Inter"],
+                    "label-md": ["Inter"],
+                    "headline-xl": ["Inter"],
+                    "headline-md": ["Inter"],
+                    "headline-lg": ["Inter"],
+                    "caption": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "body-md": ["Inter"]
+            },
+            "fontSize": {
+                    "headline-xl-mobile": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                    "headline-xl": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "headline-lg": ["30px", {"lineHeight": "38px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "caption": ["12px", {"lineHeight": "16px", "fontWeight": "400"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .glass-effect { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(8px); }
+    </style>
+</head>
+<body class="bg-background text-on-background">
+<!-- TopNavBar -->
+<header class="bg-surface dark:bg-surface-container-highest docked full-width top-0 sticky z-50 border-b border-outline-variant dark:border-outline flat no shadows">
+<div class="flex justify-between items-center w-full px-margin-desktop py-4 max-w-container-max mx-auto">
+<div class="text-headline-md font-headline-md font-bold text-primary dark:text-inverse-primary">TerraVest USA</div>
+<nav class="hidden md:flex items-center space-x-8">
+<a class="text-primary dark:text-inverse-primary font-bold border-b-2 border-primary pb-1 text-label-md font-label-md" href="#">Explore Lands</a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-inverse-primary transition-colors text-label-md font-label-md" href="#">How it Works</a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-inverse-primary transition-colors text-label-md font-label-md" href="#">Calculators</a>
+</nav>
+<div class="flex items-center gap-4">
+<button class="px-6 py-2 border border-outline rounded text-label-md font-label-md hover:bg-surface-container-low dark:hover:bg-surface-container-highest transition-all duration-200">Login</button>
+<button class="px-6 py-2 bg-primary text-on-primary rounded text-label-md font-label-md hover:opacity-80 scale-95 transition-transform">Register</button>
+</div>
+</div>
+</header>
+<!-- Hero Section -->
+<section class="relative h-[819px] flex items-center overflow-hidden">
+<img class="absolute inset-0 w-full h-full object-cover" data-alt="A breathtaking wide-angle shot of the vast American West landscape at golden hour. The scene features rolling golden hills and distant purple mountains under a clear, warm sky. The lighting is soft and cinematic, emphasizing the textured grass and open space. The overall aesthetic is professional, high-end, and evokes a sense of freedom and secure investment with a clean, light-mode palette." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBhlv2dSlg8LN28Oab9CG6qGpnha-IUwTT45p4bni-aLv7teZe7YVv0Sb55Hjr6QFh1_OimSwFQUn6nvCLSixZCkw10hl3jhRz4OTlGi9lU0Vmvc7G2ah9fliL90sDTSgkVFMD2kPYpOyKsBkb4NrkZJtjMKHN11nUMYMhEg0ogX1irxqRq00Gj5TzM5R2sw9MCnJ1cSaC66CpH6XXsQlKRBAKTgQiuVuynM9lXdY2VyspaXcePYLqlBOfKGoXKLWMEfLAZ9ziENz0"/>
+<div class="absolute inset-0 bg-gradient-to-r from-on-surface/40 to-transparent"></div>
+<div class="relative w-full max-w-container-max mx-auto px-margin-desktop">
+<div class="max-w-2xl bg-white/10 backdrop-blur-md p-stack-lg rounded-xl border border-white/20">
+<h1 class="font-headline-xl text-headline-xl text-white mb-stack-md">Own a Piece of America</h1>
+<p class="font-body-lg text-body-lg text-white/90 mb-stack-lg">Secure your future today. Own prime land in America's most valuable regions with flexible payment options.</p>
+<div class="flex gap-stack-md">
+<button class="bg-secondary text-on-secondary px-8 py-4 rounded-lg font-label-md text-label-md hover:opacity-90 transition-all flex items-center gap-2">
+                    Explore Available Lands <span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Why Invest Section -->
+<section class="py-24 bg-surface">
+<div class="max-w-container-max mx-auto px-margin-desktop">
+<div class="text-center mb-16">
+<h2 class="font-headline-lg text-headline-lg text-on-surface">Why Invest in Land?</h2>
+<div class="w-20 h-1 bg-secondary mx-auto mt-4"></div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+<div class="bg-surface-container-lowest p-stack-lg border border-slate-200 rounded-xl hover:shadow-lg transition-all">
+<div class="w-12 h-12 bg-surface-container-high rounded-full flex items-center justify-center mb-stack-md text-secondary">
+<span class="material-symbols-outlined">security</span>
+</div>
+<h3 class="font-headline-md text-headline-md mb-stack-sm">Security</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Land is the safest tangible asset that protects against inflation. Its value never drops to zero.</p>
+</div>
+<div class="bg-surface-container-lowest p-stack-lg border border-slate-200 rounded-xl hover:shadow-lg transition-all">
+<div class="w-12 h-12 bg-surface-container-high rounded-full flex items-center justify-center mb-stack-md text-secondary">
+<span class="material-symbols-outlined">trending_up</span>
+</div>
+<h3 class="font-headline-md text-headline-md mb-stack-sm">Appreciation</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">With limited supply and growing demand, land in strategic regions consistently gains value.</p>
+</div>
+<div class="bg-surface-container-lowest p-stack-lg border border-slate-200 rounded-xl hover:shadow-lg transition-all">
+<div class="w-12 h-12 bg-surface-container-high rounded-full flex items-center justify-center mb-stack-md text-secondary">
+<span class="material-symbols-outlined">touch_app</span>
+</div>
+<h3 class="font-headline-md text-headline-md mb-stack-sm">Tangibility</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Unlike digital assets, it is a real asset you can stand on and pass down as a legacy.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Featured Lands Bento-ish Grid -->
+<section class="py-24">
+<div class="max-w-container-max mx-auto px-margin-desktop">
+<div class="flex justify-between items-end mb-12">
+<div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface">Featured Land Opportunities</h2>
+<p class="font-body-md text-body-md text-on-surface-variant mt-2">Explore our exclusive portfolio from Texas to Arizona.</p>
+</div>
+<a class="text-secondary font-label-md text-label-md flex items-center gap-1 hover:underline" href="#">
+                See All <span class="material-symbols-outlined">open_in_new</span>
+</a>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+<!-- Card 1: Texas -->
+<div class="group border border-slate-200 rounded-xl overflow-hidden bg-white hover:shadow-xl transition-all">
+<div class="relative h-64">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="A lush green ranch landscape in Texas during a bright summer afternoon." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBLJqGDD4mBWOf1_Wv_L1jJjRgfIV6QPxNwR_zDYJIeoJW0oXJEmX2HzQxX10fhgrT5TzAANFHJ1bnJjEbq0FbFB657xxNsCwYE1d0fmxDq0tMvcADgh8_-cnmQofvQ-HS65jPb095Qhs9VLkuu1qiHYdLWEkFr4S2a8NrZS0uEXlFkYvSrGqIm4u7O_UF7MqYKilBmEN0mGKa2o9YwwGBvFcBgagqAD4i-hopiex8tg29J-RfPY_lVsxUhpx4hkdGBUugGEZHLMFM"/>
+<span class="absolute top-4 right-4 bg-secondary text-white px-3 py-1 rounded text-caption font-label-md">Available</span>
+</div>
+<div class="p-stack-md">
+<h4 class="font-headline-md text-headline-md text-on-surface">West Texas Plains</h4>
+<div class="flex items-center gap-1 text-on-surface-variant text-caption mt-1">
+<span class="material-symbols-outlined text-sm">location_on</span> Brewster County, TX
+                    </div>
+<div class="mt-6 flex justify-between items-center">
+<div>
+<p class="text-caption text-on-surface-variant uppercase tracking-wider">Total Price</p>
+<p class="font-headline-md text-primary">$24,900</p>
+</div>
+<div class="text-right">
+<p class="text-caption text-on-surface-variant uppercase tracking-wider">Monthly From</p>
+<p class="font-headline-md text-secondary">$299</p>
+</div>
+</div>
+<button class="w-full mt-6 py-3 border border-slate-300 rounded-lg text-label-md font-label-md hover:bg-slate-50 transition-colors">View Details</button>
+</div>
+</div>
+<!-- Card 2: Arizona -->
+<div class="group border border-slate-200 rounded-xl overflow-hidden bg-white hover:shadow-xl transition-all">
+<div class="relative h-64">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="An expansive Arizona desert landscape featuring iconic red rock formations." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB32xphIe3ldbFKBgxZzl57sPGNknHGBU5KMX5J6GuFRQgHQZuNPGrOp1bk9h5C-_OS8JVLjSzDL54WanMvi_2bv0BqUWVL08q0ZSuu4z0oVc9MZcboBbCrB6ja7N3_71nOfvYF669bW7gU_Ei2280qEJdOLGgSlI2bqPkVCjhOsROGXcf1_52fJbiF6f5q5w8Yn3WhtVI-3yKf3yfs6yGpkFWMpGqnBPSEHcIRm0RV_somWXP61yr9u1D_r6b5PwkEdCvEwWEgjXc"/>
+<span class="absolute top-4 right-4 bg-secondary text-white px-3 py-1 rounded text-caption font-label-md">Popular</span>
+</div>
+<div class="p-stack-md">
+<h4 class="font-headline-md text-headline-md text-on-surface">Arizona High Desert</h4>
+<div class="flex items-center gap-1 text-on-surface-variant text-caption mt-1">
+<span class="material-symbols-outlined text-sm">location_on</span> Apache County, AZ
+                    </div>
+<div class="mt-6 flex justify-between items-center">
+<div>
+<p class="text-caption text-on-surface-variant uppercase tracking-wider">Total Price</p>
+<p class="font-headline-md text-primary">$18,500</p>
+</div>
+<div class="text-right">
+<p class="text-caption text-on-surface-variant uppercase tracking-wider">Monthly From</p>
+<p class="font-headline-md text-secondary">$195</p>
+</div>
+</div>
+<button class="w-full mt-6 py-3 border border-slate-300 rounded-lg text-label-md font-label-md hover:bg-slate-50 transition-colors">View Details</button>
+</div>
+</div>
+<!-- Card 3: Florida -->
+<div class="group border border-slate-200 rounded-xl overflow-hidden bg-white hover:shadow-xl transition-all">
+<div class="relative h-64">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="A serene Florida coastal property view." src="https://lh3.googleusercontent.com/aida-public/AB6AXuArC0fzyv3YfsWShiIion8Ya-ZFVKdIGEcQBVCCq-FsjmqvpnXQXiVcalDQ-V-QwvA-lkPkt61f-ElJRKknjcD5_7HPu4cT7SUYdTrHgCx6aanheQyjAoKS4QfllW8WnK3_kTOHc6HudQOTsW2mdHEfXnFPe0skLjorjR5Sjk3t4XteI_7cHFAYWuKUzPiVQAXSbzdS8ayeaPQsdLRDIxEbNXQP_GC7VK20R7qrcCZJO4zpqJFJHyBhHPKhWLVnBSpSF2qAYXDoKe8"/>
+<span class="absolute top-4 right-4 bg-secondary text-white px-3 py-1 rounded text-caption font-label-md">New</span>
+</div>
+<div class="p-stack-md">
+<h4 class="font-headline-md text-headline-md text-on-surface">Sunny Florida Retreat</h4>
+<div class="flex items-center gap-1 text-on-surface-variant text-caption mt-1">
+<span class="material-symbols-outlined text-sm">location_on</span> Putnam County, FL
+                    </div>
+<div class="mt-6 flex justify-between items-center">
+<div>
+<p class="text-caption text-on-surface-variant uppercase tracking-wider">Total Price</p>
+<p class="font-headline-md text-primary">$32,000</p>
+</div>
+<div class="text-right">
+<p class="text-caption text-on-surface-variant uppercase tracking-wider">Monthly From</p>
+<p class="font-headline-md text-secondary">$349</p>
+</div>
+</div>
+<button class="w-full mt-6 py-3 border border-slate-300 rounded-lg text-label-md font-label-md hover:bg-slate-50 transition-colors">View Details</button>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- How It Works Section -->
+<section class="py-24 bg-surface-container">
+<div class="max-w-container-max mx-auto px-margin-desktop">
+<div class="text-center mb-16">
+<h2 class="font-headline-lg text-headline-lg text-on-surface">How it Works?</h2>
+<p class="font-body-md text-body-md text-on-surface-variant mt-2">Become a landowner in America in just 3 easy steps.</p>
+</div>
+<div class="relative flex flex-col md:flex-row justify-between items-center gap-gutter">
+<!-- Connector Line (Desktop) -->
+<div class="hidden md:block absolute top-1/2 left-0 w-full h-0.5 bg-slate-300 -translate-y-1/2 z-0"></div>
+<div class="relative z-10 bg-white p-stack-lg rounded-xl border border-slate-200 text-center flex-1 w-full">
+<div class="w-16 h-16 bg-primary text-white rounded-full flex items-center justify-center mx-auto mb-stack-md text-headline-md">1</div>
+<h4 class="font-headline-md text-headline-md mb-stack-sm">Select Land</h4>
+<p class="font-body-md text-body-md text-on-surface-variant">Find the perfect property based on state and budget criteria.</p>
+</div>
+<div class="relative z-10 bg-white p-stack-lg rounded-xl border border-slate-200 text-center flex-1 w-full">
+<div class="w-16 h-16 bg-primary text-white rounded-full flex items-center justify-center mx-auto mb-stack-md text-headline-md">2</div>
+<h4 class="font-headline-md text-headline-md mb-stack-sm">Choose Plan</h4>
+<p class="font-body-md text-body-md text-on-surface-variant">Select a cash payment or a personalized installment plan that fits your budget.</p>
+</div>
+<div class="relative z-10 bg-white p-stack-lg rounded-xl border border-slate-200 text-center flex-1 w-full">
+<div class="w-16 h-16 bg-primary text-white rounded-full flex items-center justify-center mx-auto mb-stack-md text-headline-md">3</div>
+<h4 class="font-headline-md text-headline-md mb-stack-sm">Get Your Title</h4>
+<p class="font-body-md text-body-md text-on-surface-variant">Receive your legal property deed once the process is complete.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Trust Stats Section -->
+<section class="py-24 bg-white overflow-hidden">
+<div class="max-w-container-max mx-auto px-margin-desktop">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-24 items-center">
+<div>
+<h2 class="font-headline-lg text-headline-lg mb-stack-md">Our Strong Presence Across the USA</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant mb-12">With years of experience and a transparent business model, we have been a safe haven for thousands of investors. We are by your side at every step with our registered US real estate license.</p>
+<div class="grid grid-cols-2 gap-gutter">
+<div>
+<p class="text-headline-xl font-headline-xl text-primary">1000+</p>
+<p class="font-label-md text-label-md text-on-surface-variant">Lands Sold</p>
+</div>
+<div>
+<p class="text-headline-xl font-headline-xl text-primary">A+</p>
+<p class="font-label-md text-label-md text-on-surface-variant">BBB Rating</p>
+</div>
+<div class="mt-8">
+<p class="text-headline-xl font-headline-xl text-primary">24</p>
+<p class="font-label-md text-label-md text-on-surface-variant">Active States</p>
+</div>
+<div class="mt-8">
+<p class="text-headline-xl font-headline-xl text-primary">100%</p>
+<p class="font-label-md text-label-md text-on-surface-variant">Title Guarantee</p>
+</div>
+</div>
+</div>
+<div class="relative">
+<!-- Map Placeholder with data-location -->
+<div class="bg-surface-container-low border border-slate-200 rounded-2xl p-8 shadow-inner aspect-square flex items-center justify-center overflow-hidden">
+<img class="w-full h-full object-contain mix-blend-multiply opacity-80" data-alt="A stylised, clean professional map of the United States." data-location="United States" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBhgKpKlEyif7BqzJpCLshAVvgAp50pVv7KmiWUCfOtX9YJPKz3s6OEgyOlFKgSApMI0uTT_NY4R5Q33c_-CRski12ghh3RKXKhXzhVDhF9b6pweP6jhsWiBTFwBrm3gt7i0hccHH5a6UjnoPR2MKv6Hn7zYocTbqEjf1NQeqWm4elOxVusBxhI5uqmvDajDsoL8VkvF4BKMIOFLnaF1TqAMJ_TdQBwJ5FGRRyzckHJrgbE5beveRto7jTlq1Ce2yvEg3a8rbvHRec"/>
+</div>
+<!-- Stats Floating Card -->
+<div class="absolute -bottom-10 -left-10 glass-effect p-stack-md rounded-xl border border-slate-200 shadow-xl hidden md:block">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 bg-secondary rounded-full flex items-center justify-center text-white">
+<span class="material-symbols-outlined">verified</span>
+</div>
+<div>
+<p class="font-label-md text-label-md">Licensed Brokerage</p>
+<p class="text-caption text-on-surface-variant">TerraVest Land Investments LLC</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Footer -->
+<footer class="bg-surface-container-low dark:bg-surface-container-lowest full-width bottom-0 mt-stack-lg border-t border-outline-variant dark:border-outline flat no shadows">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-gutter px-margin-desktop py-stack-lg max-w-container-max mx-auto">
+<div class="col-span-1 md:col-span-1">
+<div class="text-headline-sm font-headline-sm font-bold text-primary dark:text-inverse-primary mb-4">TerraVest USA</div>
+<p class="text-caption font-caption text-on-surface-variant dark:text-outline">Your trusted land investment partner. Turning your American dream into reality.</p>
+</div>
+<div>
+<p class="font-label-md text-label-md mb-4 text-primary">Properties</p>
+<ul class="space-y-2">
+<li><a class="text-on-surface-variant dark:text-outline hover:text-primary dark:hover:text-inverse-primary transition-all text-body-md font-body-md" href="#">Texas Properties</a></li>
+<li><a class="text-on-surface-variant dark:text-outline hover:text-primary dark:hover:text-inverse-primary transition-all text-body-md font-body-md" href="#">Florida Properties</a></li>
+<li><a class="text-on-surface-variant dark:text-outline hover:text-primary dark:hover:text-inverse-primary transition-all text-body-md font-body-md" href="#">Arizona Properties</a></li>
+</ul>
+</div>
+<div>
+<p class="font-label-md text-label-md mb-4 text-primary">Corporate</p>
+<ul class="space-y-2">
+<li><a class="text-on-surface-variant dark:text-outline hover:text-primary dark:hover:text-inverse-primary transition-all text-body-md font-body-md" href="#">Legal Disclaimer</a></li>
+<li><a class="text-on-surface-variant dark:text-outline hover:text-primary dark:hover:text-inverse-primary transition-all text-body-md font-body-md" href="#">Privacy Policy</a></li>
+<li><a class="text-on-surface-variant dark:text-outline hover:text-primary dark:hover:text-inverse-primary transition-all text-body-md font-body-md" href="#">Contact Support</a></li>
+</ul>
+</div>
+<div class="text-on-surface dark:text-on-surface-variant text-caption font-caption">
+<p class="mb-4">© 2024 TerraVest Land Investments LLC. All rights reserved. Registered US Land Brokerage.</p>
+<div class="flex gap-4">
+<span class="material-symbols-outlined cursor-pointer hover:text-primary">public</span>
+<span class="material-symbols-outlined cursor-pointer hover:text-primary">share</span>
+<span class="material-symbols-outlined cursor-pointer hover:text-primary">mail</span>
+</div>
+</div>
+</div>
+</footer>
+<script>
+    // Simple Micro-interactions
+    document.querySelectorAll('button').forEach(btn => {
+        btn.addEventListener('mousedown', () => {
+            btn.style.transform = 'scale(0.95)';
+        });
+        btn.addEventListener('mouseup', () => {
+            btn.style.transform = 'scale(1)';
+        });
+    });
+
+    // Intersection Observer for fade-in effects
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('opacity-100', 'translate-y-0');
+                entry.target.classList.remove('opacity-0', 'translate-y-10');
+            }
+        });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('section > div > div').forEach(el => {
+        el.classList.add('transition-all', 'duration-700', 'opacity-0', 'translate-y-10');
+        observer.observe(el);
+    });
+</script>
+</body></html>

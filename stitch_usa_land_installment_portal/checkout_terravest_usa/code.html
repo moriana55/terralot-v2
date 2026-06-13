@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>TerraVest USA - Secure Checkout</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-container": "#00714d",
+                        "surface-bright": "#f8f9ff",
+                        "tertiary-container": "#001a42",
+                        "surface-variant": "#d3e4fe",
+                        "surface": "#f8f9ff",
+                        "on-secondary-fixed": "#002113",
+                        "primary-container": "#131b2e",
+                        "inverse-primary": "#bec6e0",
+                        "surface-container-highest": "#d3e4fe",
+                        "on-tertiary-fixed": "#001a42",
+                        "surface-dim": "#cbdbf5",
+                        "surface-container-lowest": "#ffffff",
+                        "on-error": "#ffffff",
+                        "on-primary-fixed": "#131b2e",
+                        "secondary": "#006c49",
+                        "background": "#f8f9ff",
+                        "inverse-surface": "#213145",
+                        "primary": "#000000",
+                        "inverse-on-surface": "#eaf1ff",
+                        "error-container": "#ffdad6",
+                        "on-primary": "#ffffff",
+                        "on-surface-variant": "#45464d",
+                        "on-tertiary-fixed-variant": "#004395",
+                        "outline": "#76777d",
+                        "surface-container-high": "#dce9ff",
+                        "surface-container": "#e5eeff",
+                        "tertiary-fixed": "#d8e2ff",
+                        "on-primary-fixed-variant": "#3f465c",
+                        "on-surface": "#0b1c30",
+                        "surface-container-low": "#eff4ff",
+                        "tertiary-fixed-dim": "#adc6ff",
+                        "on-secondary": "#ffffff",
+                        "error": "#ba1a1a",
+                        "on-error-container": "#93000a",
+                        "on-background": "#0b1c30",
+                        "tertiary": "#000000",
+                        "on-tertiary-container": "#3980f4",
+                        "secondary-fixed": "#6ffbbe",
+                        "primary-fixed-dim": "#bec6e0",
+                        "on-secondary-fixed-variant": "#005236",
+                        "surface-tint": "#565e74",
+                        "on-tertiary": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "margin-desktop": "40px",
+                        "stack-lg": "32px",
+                        "stack-md": "16px",
+                        "gutter": "24px",
+                        "container-max": "1280px",
+                        "margin-mobile": "16px",
+                        "stack-sm": "8px"
+                    },
+                    "fontFamily": {
+                        "headline-xl-mobile": ["Inter"],
+                        "label-md": ["Inter"],
+                        "headline-xl": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "caption": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "body-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-xl-mobile": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                        "headline-xl": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "headline-lg": ["30px", {"lineHeight": "38px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "caption": ["12px", {"lineHeight": "16px", "fontWeight": "400"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        input:focus {
+            outline: none !important;
+            border-color: #0b1c30 !important;
+            box-shadow: 0 0 0 2px #131b2e !important;
+        }
+        .step-inactive { opacity: 0.5; filter: grayscale(1); pointer-events: none; }
+        .step-active { opacity: 1; filter: none; }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-md">
+<!-- TopNavBar -->
+<nav class="bg-surface docked full-width top-0 sticky z-50 border-b border-outline-variant">
+<div class="flex justify-between items-center w-full px-margin-desktop py-4 max-w-container-max mx-auto">
+<div class="text-headline-md font-headline-md font-bold text-primary">TerraVest USA</div>
+<div class="hidden md:flex gap-gutter items-center">
+<a class="text-on-surface-variant hover:text-primary transition-colors font-label-md text-label-md" href="#">Explore Lands</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors font-label-md text-label-md" href="#">How it Works</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors font-label-md text-label-md" href="#">Calculators</a>
+</div>
+<div class="flex gap-4">
+<button class="px-6 py-2 border border-outline-variant text-primary font-label-md text-label-md hover:bg-surface-container-low transition-all">Login</button>
+<button class="px-6 py-2 bg-primary text-on-primary font-label-md text-label-md hover:opacity-90 transition-all">Register</button>
+</div>
+</div>
+</nav>
+<main class="max-w-container-max mx-auto px-margin-desktop py-stack-lg">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+<!-- Left Side: Order Summary -->
+<aside class="lg:col-span-5 space-y-stack-md">
+<div class="bg-surface-container-lowest border border-outline-variant p-6 shadow-sm">
+<h2 class="text-headline-md font-headline-md mb-stack-md">Order Summary</h2>
+<!-- Property Details -->
+<div class="mb-6">
+<div class="aspect-video w-full overflow-hidden mb-4 rounded-sm">
+<img alt="Land Property" class="w-full h-full object-cover" data-alt="A sprawling, sun-drenched pastoral landscape in Arizona with golden grass and a clear blue sky. The lighting is warm and cinematic, emphasizing the vast openness and investment potential of the land. The aesthetic is clean, corporate, and professional, using a natural but high-end color palette of earth tones and vibrant azure." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCl-xuBylHdQUgHa7W8o2bv3vHvu_Y9YpdFee4E1ZTYJR9kE-6c1BDHhEdlYjWGeVZcXDOVIUnZxrclljq8qeGHaMOHzvrnMjakhjdkvGfhFfhKT0EfM3jqr52PvUow7jxLvyAklqA-PARbRqOBtZ9W3OwLSwi34T3S1hh1e7LuZ8sMzQcz4LhQxt5IgyzrUJoVdOYy845BgCVZ1eTp70SAJp-y3e7T4JV4B3sDT_iETZ-86CC3qig50PwCFfu9cvJ15Ht93G3oB8w"/>
+</div>
+<div class="flex justify-between items-start">
+<div>
+<p class="text-label-md font-label-md text-secondary uppercase tracking-wider">Property Code: AZ-7742</p>
+<h3 class="text-headline-sm font-headline-md">Mojave Desert Investment Land</h3>
+<p class="text-body-md text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">location_on</span>
+                                    Mohave County, Arizona, USA
+                                </p>
+</div>
+<div class="text-right">
+<span class="bg-on-secondary-container text-white px-2 py-1 text-caption font-label-md rounded-sm">AVAILABLE</span>
+</div>
+</div>
+</div>
+<hr class="border-outline-variant mb-6"/>
+<!-- Plan Summary -->
+<div class="space-y-4">
+<h4 class="font-headline-md text-body-lg">Payment Plan Summary</h4>
+<div class="flex justify-between text-body-md">
+<span class="text-on-surface-variant">Total Sale Price</span>
+<span class="font-bold text-primary">$42,500.00</span>
+</div>
+<div class="flex justify-between text-body-md">
+<span class="text-on-surface-variant">Term</span>
+<span>60 Months (5 Years)</span>
+</div>
+<div class="flex justify-between text-body-md">
+<span class="text-on-surface-variant">Monthly Payment</span>
+<span class="text-secondary font-bold">$595.00</span>
+</div>
+<div class="flex justify-between text-body-md pt-4 border-t border-outline-variant">
+<span class="font-bold text-primary">Down Payment Due Today</span>
+<span class="text-headline-md font-headline-md text-primary">$2,500.00</span>
+</div>
+</div>
+</div>
+<!-- Trust Indicators -->
+<div class="grid grid-cols-2 gap-4">
+<div class="bg-surface-container border border-outline-variant p-4 flex items-center gap-3">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">verified_user</span>
+<div>
+<p class="text-label-md font-label-md">SSL Secure</p>
+<p class="text-caption text-on-surface-variant">256-bit Encryption</p>
+</div>
+</div>
+<div class="bg-surface-container border border-outline-variant p-4 flex items-center gap-3">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">gavel</span>
+<div>
+<p class="text-label-md font-label-md">US Land Registry</p>
+<p class="text-caption text-on-surface-variant">Officially Registered</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Right Side: Multi-step Form -->
+<section class="lg:col-span-7">
+<div class="bg-surface-container-lowest border border-outline-variant shadow-sm overflow-hidden">
+<div class="p-4 border-b border-outline-variant">
+<h1 class="text-headline-md font-headline-md">Checkout &amp; Application</h1>
+</div>
+<!-- Progress Bar -->
+<div class="flex w-full bg-surface-container-low border-b border-outline-variant">
+<div class="flex-1 py-4 text-center border-b-2 border-primary font-bold transition-all" id="step-tab-1">
+<span class="bg-primary text-white w-6 h-6 inline-flex items-center justify-center rounded-full text-caption mr-2">1</span>
+                            Personal Information
+                        </div>
+<div class="flex-1 py-4 text-center border-b-2 border-transparent text-on-surface-variant transition-all" id="step-tab-2">
+<span class="bg-outline-variant text-on-surface-variant w-6 h-6 inline-flex items-center justify-center rounded-full text-caption mr-2">2</span>
+                            Payment Method
+                        </div>
+<div class="flex-1 py-4 text-center border-b-2 border-transparent text-on-surface-variant transition-all" id="step-tab-3">
+<span class="bg-outline-variant text-on-surface-variant w-6 h-6 inline-flex items-center justify-center rounded-full text-caption mr-2">3</span>
+                            Confirmation
+                        </div>
+</div>
+<div class="p-8">
+<!-- Step 1: Personal Info -->
+<div class="space-y-6" id="form-step-1">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div class="space-y-2">
+<label class="text-label-md font-label-md">Full Name</label>
+<input class="w-full p-3 border border-outline-variant rounded-sm focus:ring-2 focus:ring-primary" placeholder="e.g. John Doe" type="text"/>
+</div>
+<div class="space-y-2">
+<label class="text-label-md font-label-md">Email Address</label>
+<input class="w-full p-3 border border-outline-variant rounded-sm focus:ring-2 focus:ring-primary" placeholder="john@example.com" type="email"/>
+</div>
+<div class="space-y-2 md:col-span-2">
+<label class="text-label-md font-label-md">Phone Number</label>
+<input class="w-full p-3 border border-outline-variant rounded-sm focus:ring-2 focus:ring-primary" placeholder="+1 xxx xxx xxxx" type="tel"/>
+</div>
+</div>
+<button class="w-full py-4 bg-primary text-on-primary font-headline-md text-headline-sm hover:opacity-90 transition-transform active:scale-[0.98]" onclick="nextStep(2)">
+                                Proceed to Payment
+                            </button>
+</div>
+<!-- Step 2: Payment Method -->
+<div class="hidden space-y-6" id="form-step-2">
+<div class="grid grid-cols-2 gap-4 mb-6">
+<button class="p-4 border-2 border-primary flex flex-col items-center gap-2 rounded-sm transition-all" id="pay-card" onclick="selectPayment('card')">
+<span class="material-symbols-outlined text-headline-md">credit_card</span>
+<span class="font-label-md">Credit Card</span>
+</button>
+<button class="p-4 border border-outline-variant flex flex-col items-center gap-2 rounded-sm transition-all hover:bg-surface-container-low" id="pay-wire" onclick="selectPayment('wire')">
+<span class="material-symbols-outlined text-headline-md">account_balance</span>
+<span class="font-label-md">Bank Transfer</span>
+</button>
+</div>
+<!-- Card Details UI -->
+<div class="space-y-4" id="payment-card-fields">
+<div class="space-y-2">
+<label class="text-label-md font-label-md">Name on Card</label>
+<input class="w-full p-3 border border-outline-variant rounded-sm" type="text"/>
+</div>
+<div class="space-y-2">
+<label class="text-label-md font-label-md">Card Number</label>
+<input class="w-full p-3 border border-outline-variant rounded-sm" placeholder="0000 0000 0000 0000" type="text"/>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div class="space-y-2">
+<label class="text-label-md font-label-md">Expiration</label>
+<input class="w-full p-3 border border-outline-variant rounded-sm" placeholder="MM/YY" type="text"/>
+</div>
+<div class="space-y-2">
+<label class="text-label-md font-label-md">CVC</label>
+<input class="w-full p-3 border border-outline-variant rounded-sm" placeholder="123" type="text"/>
+</div>
+</div>
+</div>
+<div class="flex gap-4">
+<button class="w-1/3 py-4 border border-outline text-primary font-label-md hover:bg-surface-container-low transition-all" onclick="nextStep(1)">Back</button>
+<button class="w-2/3 py-4 bg-primary text-on-primary font-headline-md text-headline-sm hover:opacity-90" onclick="nextStep(3)">Continue</button>
+</div>
+</div>
+<!-- Step 3: Confirmation -->
+<div class="hidden space-y-6" id="form-step-3">
+<div class="bg-surface-container p-6 border border-outline-variant space-y-4">
+<h4 class="font-headline-md text-body-lg">Agreement Confirmation</h4>
+<p class="text-body-md text-on-surface-variant">
+                                    By completing this payment, you agree to the TerraVest USA land contract terms and conditions of use. The title transfer process will be initiated within 24 hours after the down payment is confirmed.
+                                </p>
+<div class="flex items-start gap-3 mt-4">
+<input class="mt-1 w-5 h-5 text-primary border-outline-variant rounded focus:ring-primary" id="terms" type="checkbox"/>
+<label class="text-body-md" for="terms">
+                                        I have read and agree to the <span class="font-bold">Terms of Use</span> and <span class="font-bold">Land Contract</span> provisions.
+                                    </label>
+</div>
+</div>
+<div class="flex gap-4">
+<button class="w-1/3 py-4 border border-outline text-primary font-label-md hover:bg-surface-container-low transition-all" onclick="nextStep(2)">Back</button>
+<button class="w-2/3 py-4 bg-secondary text-on-secondary font-headline-md text-headline-sm hover:opacity-95 transition-transform active:scale-[0.98] shadow-md" onclick="completePurchase()">
+                                    Pay $2,500.00 &amp; Complete
+                                </button>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container-low border-t border-outline-variant mt-stack-lg">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-gutter px-margin-desktop py-stack-lg max-w-container-max mx-auto">
+<div class="md:col-span-1">
+<div class="text-headline-sm font-headline-sm font-bold text-primary mb-4">TerraVest USA</div>
+<p class="text-caption text-on-surface-variant leading-relaxed">
+                    © 2024 TerraVest Land Investments LLC. All rights reserved. Registered US Land Brokerage.
+                </p>
+</div>
+<div class="space-y-2">
+<h5 class="font-bold text-label-md mb-4">Properties</h5>
+<a class="block text-on-surface-variant hover:text-primary transition-all text-body-md" href="#">Texas Properties</a>
+<a class="block text-on-surface-variant hover:text-primary transition-all text-body-md" href="#">Florida Properties</a>
+<a class="block text-on-surface-variant hover:text-primary transition-all text-body-md" href="#">Arizona Properties</a>
+</div>
+<div class="space-y-2">
+<h5 class="font-bold text-label-md mb-4">Legal</h5>
+<a class="block text-on-surface-variant hover:text-primary transition-all text-body-md" href="#">Legal Disclaimer</a>
+<a class="block text-on-surface-variant hover:text-primary transition-all text-body-md" href="#">Privacy Policy</a>
+</div>
+<div class="space-y-2">
+<h5 class="font-bold text-label-md mb-4">Support</h5>
+<a class="block text-on-surface-variant hover:text-primary transition-all text-body-md" href="#">Contact Support</a>
+<div class="flex gap-2 mt-4">
+<span class="material-symbols-outlined text-on-surface-variant">language</span>
+<span class="text-body-md">English (US)</span>
+</div>
+</div>
+</div>
+</footer>
+<script>
+        function nextStep(step) {
+            // Hide all steps
+            document.getElementById('form-step-1').classList.add('hidden');
+            document.getElementById('form-step-2').classList.add('hidden');
+            document.getElementById('form-step-3').classList.add('hidden');
+
+            // Reset tab styles
+            const tabs = ['step-tab-1', 'step-tab-2', 'step-tab-3'];
+            const stepLabels = ["Personal Information", "Payment Method", "Confirmation"];
+            tabs.forEach((id, index) => {
+                const el = document.getElementById(id);
+                const circle = el.querySelector('span');
+                if (index + 1 < step) {
+                    el.className = "flex-1 py-4 text-center border-b-2 border-secondary text-secondary font-bold";
+                    circle.className = "bg-secondary text-white w-6 h-6 inline-flex items-center justify-center rounded-full text-caption mr-2";
+                    circle.innerHTML = "check";
+                    circle.classList.add('material-symbols-outlined');
+                } else if (index + 1 === step) {
+                    el.className = "flex-1 py-4 text-center border-b-2 border-primary font-bold";
+                    circle.className = "bg-primary text-white w-6 h-6 inline-flex items-center justify-center rounded-full text-caption mr-2";
+                    circle.innerHTML = step;
+                    circle.classList.remove('material-symbols-outlined');
+                } else {
+                    el.className = "flex-1 py-4 text-center border-b-2 border-transparent text-on-surface-variant";
+                    circle.className = "bg-outline-variant text-on-surface-variant w-6 h-6 inline-flex items-center justify-center rounded-full text-caption mr-2";
+                    circle.innerHTML = index + 1;
+                    circle.classList.remove('material-symbols-outlined');
+                }
+            });
+
+            // Show selected step
+            document.getElementById(`form-step-${step}`).classList.remove('hidden');
+            window.scrollTo({ top: 100, behavior: 'smooth' });
+        }
+
+        function selectPayment(type) {
+            const cardBtn = document.getElementById('pay-card');
+            const wireBtn = document.getElementById('pay-wire');
+            const cardFields = document.getElementById('payment-card-fields');
+
+            if (type === 'card') {
+                cardBtn.className = "p-4 border-2 border-primary flex flex-col items-center gap-2 rounded-sm transition-all";
+                wireBtn.className = "p-4 border border-outline-variant flex flex-col items-center gap-2 rounded-sm transition-all hover:bg-surface-container-low";
+                cardFields.classList.remove('opacity-50', 'pointer-events-none');
+            } else {
+                wireBtn.className = "p-4 border-2 border-primary flex flex-col items-center gap-2 rounded-sm transition-all";
+                cardBtn.className = "p-4 border border-outline-variant flex flex-col items-center gap-2 rounded-sm transition-all hover:bg-surface-container-low";
+                cardFields.classList.add('opacity-50', 'pointer-events-none');
+            }
+        }
+
+        function completePurchase() {
+            const checkbox = document.getElementById('terms');
+            if (!checkbox.checked) {
+                alert('Please agree to the terms to continue.');
+                return;
+            }
+            
+            const btn = event.currentTarget;
+            btn.innerHTML = '<span class="material-symbols-outlined animate-spin">progress_activity</span> Processing...';
+            btn.disabled = true;
+
+            setTimeout(() => {
+                alert('Your order has been successfully placed! Check your inbox for transfer details.');
+                window.location.reload();
+            }, 2000);
+        }
+    </script>
+</body></html>

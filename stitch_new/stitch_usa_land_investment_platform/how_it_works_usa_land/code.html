@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Geist:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            scroll-behavior: smooth;
+        }
+        .architectural-border {
+            border-bottom: 1px solid #E2E8F0;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(226, 232, 240, 0.5);
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "error": "#ba1a1a",
+                      "on-secondary-container": "#506b4f",
+                      "secondary-container": "#ccebc7",
+                      "secondary-fixed": "#ccebc7",
+                      "on-error": "#ffffff",
+                      "background": "#fbf8fc",
+                      "surface-bright": "#fbf8fc",
+                      "surface-tint": "#4c5e86",
+                      "on-error-container": "#93000a",
+                      "primary-container": "#0a1f44",
+                      "outline-variant": "#c5c6cf",
+                      "on-tertiary-fixed": "#231a06",
+                      "surface": "#fbf8fc",
+                      "secondary-fixed-dim": "#b0cfad",
+                      "on-primary-fixed-variant": "#34466d",
+                      "primary": "#00081e",
+                      "on-tertiary-fixed-variant": "#51452d",
+                      "secondary": "#4a6549",
+                      "inverse-surface": "#303033",
+                      "primary-fixed": "#d9e2ff",
+                      "surface-container-lowest": "#ffffff",
+                      "on-primary": "#ffffff",
+                      "on-surface": "#1b1b1e",
+                      "inverse-primary": "#b4c6f4",
+                      "on-secondary-fixed": "#07200b",
+                      "on-primary-container": "#7687b2",
+                      "outline": "#75777f",
+                      "primary-fixed-dim": "#b4c6f4",
+                      "on-secondary-fixed-variant": "#334d33",
+                      "tertiary-fixed": "#f3e0c0",
+                      "inverse-on-surface": "#f2f0f4",
+                      "on-primary-fixed": "#041a3f",
+                      "surface-variant": "#e4e2e5",
+                      "on-tertiary": "#ffffff",
+                      "tertiary-fixed-dim": "#d6c4a5",
+                      "surface-container-high": "#e9e7eb",
+                      "surface-container-highest": "#e4e2e5",
+                      "on-background": "#1b1b1e",
+                      "on-secondary": "#ffffff",
+                      "surface-container-low": "#f5f3f7",
+                      "surface-dim": "#dbd9dd",
+                      "on-surface-variant": "#44464e",
+                      "on-tertiary-container": "#95866a",
+                      "surface-container": "#efedf1",
+                      "tertiary": "#0e0800",
+                      "tertiary-container": "#281f0a",
+                      "error-container": "#ffdad6"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "margin-mobile": "20px",
+                      "stack-lg": "64px",
+                      "container-max": "1280px",
+                      "stack-sm": "16px",
+                      "gutter": "24px",
+                      "stack-md": "32px",
+                      "margin-desktop": "64px",
+                      "base": "8px"
+              },
+              "fontFamily": {
+                      "body-lg": ["Inter"],
+                      "label-md": ["Geist"],
+                      "headline-xl": ["Geist"],
+                      "headline-md": ["Geist"],
+                      "headline-lg-mobile": ["Geist"],
+                      "body-md": ["Inter"],
+                      "headline-lg": ["Geist"],
+                      "label-sm": ["Geist"],
+                      "body-sm": ["Inter"]
+              },
+              "fontSize": {
+                      "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                      "label-md": ["14px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                      "headline-xl": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                      "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "500"}],
+                      "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "600"}],
+                      "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                      "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                      "label-sm": ["12px", {"lineHeight": "14px", "fontWeight": "500"}],
+                      "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}]
+              }
+            },
+          },
+        }
+    </script>
+</head>
+<body class="bg-surface text-on-surface">
+<!-- TopNavBar -->
+<header class="bg-surface dark:bg-primary border-b border-outline-variant dark:border-primary-container docked full-width top-0 z-50">
+<nav class="flex justify-between items-center w-full h-20 px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
+<div class="font-headline-md text-headline-md font-bold tracking-tight text-primary dark:text-primary-fixed">USA Land</div>
+<div class="hidden md:flex items-center gap-gutter">
+<a class="text-on-surface-variant dark:text-on-primary-container font-medium hover:text-primary dark:hover:text-primary-fixed transition-colors font-label-md text-label-md" href="#">Browse Land</a>
+<a class="text-primary dark:text-primary-fixed font-bold border-b-2 border-primary dark:border-primary-fixed pb-1 font-label-md text-label-md" href="#">How It Works</a>
+<a class="text-on-surface-variant dark:text-on-primary-container font-medium hover:text-primary dark:hover:text-primary-fixed transition-colors font-label-md text-label-md" href="#">About</a>
+<a class="text-on-surface-variant dark:text-on-primary-container font-medium hover:text-primary dark:hover:text-primary-fixed transition-colors font-label-md text-label-md" href="#">Contact</a>
+</div>
+<div class="flex items-center gap-stack-sm">
+<button class="font-label-md text-label-md text-on-surface-variant dark:text-on-primary-container hover:bg-surface-container-low dark:hover:bg-primary-container transition-all duration-200 px-4 py-2 rounded">Sign In</button>
+<button class="font-label-md text-label-md bg-primary text-on-primary dark:bg-primary-fixed dark:text-on-primary-fixed px-6 py-2 rounded hover:opacity-90 active:scale-95 transition-all">Browse Properties</button>
+</div>
+</nav>
+</header>
+<main>
+<!-- Section 1: Hero & Financing Model -->
+<section class="relative overflow-hidden py-stack-lg bg-surface-container-lowest">
+<div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop grid grid-cols-1 lg:grid-cols-2 gap-stack-lg items-center">
+<div>
+<span class="font-label-md text-label-md text-secondary uppercase tracking-widest mb-4 block">Institutional Ease</span>
+<h1 class="font-headline-xl text-headline-xl text-primary mb-6">Own America’s Land with <span class="text-secondary">Owner Financing</span></h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant mb-8 max-w-xl">We believe land ownership should be accessible to everyone. Our simple, transparent model removes the barriers of traditional bank financing, allowing you to secure your legacy with minimal friction.</p>
+<div class="space-y-gutter">
+<div class="flex gap-4 p-6 glass-card rounded-lg border-l-4 border-primary">
+<span class="material-symbols-outlined text-primary" style="font-size: 32px;">check_circle</span>
+<div>
+<h3 class="font-headline-md text-headline-md text-primary mb-2">No Credit Checks</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">We don't care about your past credit history. We only care about your future as a landowner. Your land is the collateral.</p>
+</div>
+</div>
+<div class="flex gap-4 p-6 glass-card rounded-lg border-l-4 border-secondary">
+<span class="material-symbols-outlined text-secondary" style="font-size: 32px;">payments</span>
+<div>
+<h3 class="font-headline-md text-headline-md text-primary mb-2">Low Down Payments</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Start your ownership journey with as little as $500 down. Flexible monthly terms tailored to your financial goals.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="relative group">
+<div class="absolute -inset-4 bg-secondary/10 rounded-full blur-3xl group-hover:bg-secondary/20 transition-all"></div>
+<img alt="USA Land Landscape" class="rounded-xl shadow-2xl relative z-10 w-full h-[600px] object-cover grayscale-[20%] group-hover:grayscale-0 transition-all duration-500" data-alt="A sprawling panoramic landscape of golden rolling hills during a soft sunset, capturing the serene and expansive beauty of rural American land. The lighting is warm and cinematic, emphasizing the textures of the earth and the peaceful atmosphere of vast open spaces. The overall style is high-end architectural photography, suggesting a premium yet grounded investment opportunity in the natural world." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCvcPoJDvc_ZbwaT_eYV5K10wyjiOLJezUhpYCg0ksoa-fgf_ZgnQqI9cUWpxSajbtpQ6v9yAvtCw1T4UVu2fVkP2c9Bd70QwmLwWOsTZzUZh3s5G5HQqzjtDPxTbYg8M8O_ZXqmrtZpGk626XL6OJjjSX1AzRJQthNxtq05riYf-JL1WLLF2K7FH_tFXYHULL8Zybgw2_9h5clHM9mEPE9nwTgyOctxBpvUjfSpzPNDBr6zDTE2GswCwB_dUKKV-ZC7FVOcWNctRQ3"/>
+</div>
+</div>
+</section>
+<!-- Section 2: Step-by-Step Process -->
+<section class="py-stack-lg bg-surface">
+<div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
+<div class="text-center mb-16">
+<h2 class="font-headline-lg text-headline-lg text-primary mb-4">The Architectural Path to Ownership</h2>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-2xl mx-auto">A structured, four-step journey designed for transparency and confidence.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-4 gap-gutter">
+<!-- Step 1 -->
+<div class="flex flex-col items-center text-center">
+<div class="w-16 h-16 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center mb-6 shadow-sm">
+<span class="material-symbols-outlined" style="font-size: 32px;">travel_explore</span>
+</div>
+<h4 class="font-headline-md text-headline-md text-primary mb-2">1. Explore</h4>
+<p class="font-body-md text-body-md text-on-surface-variant">Browse our curated list of high-potential land listings across the United States.</p>
+</div>
+<!-- Step 2 -->
+<div class="flex flex-col items-center text-center">
+<div class="w-16 h-16 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center mb-6 shadow-sm">
+<span class="material-symbols-outlined" style="font-size: 32px;">description</span>
+</div>
+<h4 class="font-headline-md text-headline-md text-primary mb-2">2. Reserve</h4>
+<p class="font-body-md text-body-md text-on-surface-variant">Pay the document fee to take the property off the market and start the legal paperwork.</p>
+</div>
+<!-- Step 3 -->
+<div class="flex flex-col items-center text-center">
+<div class="w-16 h-16 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center mb-6 shadow-sm">
+<span class="material-symbols-outlined" style="font-size: 32px;">edit_document</span>
+</div>
+<h4 class="font-headline-md text-headline-md text-primary mb-2">3. E-Sign</h4>
+<p class="font-body-md text-body-md text-on-surface-variant">Review and sign your digital land contract from anywhere in the world.</p>
+</div>
+<!-- Step 4 -->
+<div class="flex flex-col items-center text-center">
+<div class="w-16 h-16 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center mb-6 shadow-sm">
+<span class="material-symbols-outlined" style="font-size: 32px;">key</span>
+</div>
+<h4 class="font-headline-md text-headline-md text-primary mb-2">4. Access</h4>
+<p class="font-body-md text-body-md text-on-surface-variant">Receive your welcome packet and start enjoying your land immediately.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Section 3: Team and Company Background (Bento Grid) -->
+<section class="py-stack-lg bg-surface-container-low">
+<div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
+<div class="grid grid-cols-1 md:grid-cols-12 gap-gutter">
+<div class="md:col-span-7 bg-primary text-on-primary p-12 rounded-xl flex flex-col justify-center">
+<h2 class="font-headline-lg text-headline-lg mb-6">Rooted in Integrity. Built for the Future.</h2>
+<p class="font-body-lg text-body-lg opacity-80 mb-6">Founded in 2018, USA Land Investment Group was born out of a desire to modernize the antiquated land acquisition process. Our team combines decades of real estate expertise with modern fintech solutions to provide a seamless investment experience.</p>
+<div class="flex gap-stack-md mt-4">
+<div>
+<div class="font-headline-md text-headline-md font-bold">5,000+</div>
+<div class="font-label-sm text-label-sm opacity-60">Acres Sold</div>
+</div>
+<div>
+<div class="font-headline-md text-headline-md font-bold">1,200+</div>
+<div class="font-label-sm text-label-sm opacity-60">Happy Landowners</div>
+</div>
+</div>
+</div>
+<div class="md:col-span-5 bg-white p-8 rounded-xl border border-outline-variant">
+<img alt="Team" class="w-full h-64 object-cover rounded-lg mb-6" data-alt="A professional and diverse team of real estate experts collaborating in a bright, modern office with floor-to-ceiling windows. The office aesthetic is minimalist with natural wood accents and clean lines. The atmosphere is productive and trustworthy, with soft morning light illuminating the space. The visual style is corporate and sophisticated, reflecting a high-end institutional real estate firm." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBaG8GPSDZ5q6ywiH3MVkq_FrzEQSEB6aOScLHPI4cphpQ4Si8DK4Y85KUCJ6zQ-XXHcnxo7-jHjJwIR73IuIKAniB9u5BVM1BiANdDw3bPqg5hFyNCj2tvEcpTHoXhEvm7JJkHsxL5H-Ue-yO-Mx8l7ylIQJsp2_8Ja17vKLyU--FPCoWHuFj5C7mo9r5RW8it7stymmoIE-2jvKmqV-RQ9g88KYGTHP3YkWDPyQnqX_ifGQaeEpup9zv19YGDQHs4TwfNRCCM5kEt"/>
+<h3 class="font-headline-md text-headline-md text-primary mb-2">Our Mission</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">To democratize land ownership by providing simple financing and expert guidance to the next generation of American landowners.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Section 4: Testimonials -->
+<section class="py-stack-lg bg-surface">
+<div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
+<div class="text-center mb-16">
+<h2 class="font-headline-lg text-headline-lg text-primary">From Our Community</h2>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+<!-- Testimonial 1 -->
+<div class="p-8 bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm hover:shadow-md transition-shadow">
+<div class="flex text-secondary mb-4">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant italic mb-6">"I never thought I could afford 5 acres in Arizona. The owner financing was so straightforward that I signed and closed in the same afternoon."</p>
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center font-bold text-primary">JD</div>
+<div>
+<div class="font-label-md text-label-md text-primary">James D.</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">Arizona Landowner</div>
+</div>
+</div>
+</div>
+<!-- Testimonial 2 -->
+<div class="p-8 bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm hover:shadow-md transition-shadow">
+<div class="flex text-secondary mb-4">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant italic mb-6">"Transparency was my biggest concern. USA Land provided all documents upfront, and there were zero hidden fees. Highly recommended."</p>
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center font-bold text-secondary">SR</div>
+<div>
+<div class="font-label-md text-label-md text-primary">Sarah R.</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">Colorado Investor</div>
+</div>
+</div>
+</div>
+<!-- Testimonial 3 -->
+<div class="p-8 bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm hover:shadow-md transition-shadow">
+<div class="flex text-secondary mb-4">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant italic mb-6">"The step-by-step process made it so easy. From browsing to owning, the support team was there to answer every technical question."</p>
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center font-bold text-primary">ML</div>
+<div>
+<div class="font-label-md text-label-md text-primary">Michael L.</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">Texas Rancher</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- CTA Section -->
+<section class="py-stack-lg bg-primary text-on-primary">
+<div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop text-center">
+<h2 class="font-headline-xl text-headline-xl mb-6">Ready to secure your piece of the American dream?</h2>
+<p class="font-body-lg text-body-lg mb-8 opacity-80 max-w-2xl mx-auto">Start browsing our active listings and find the property that fits your vision and your budget.</p>
+<div class="flex flex-col sm:flex-row gap-4 justify-center">
+<button class="bg-secondary text-on-secondary px-8 py-4 rounded font-label-md text-label-md hover:opacity-90 transition-all">View All Properties</button>
+<button class="border border-on-primary text-on-primary px-8 py-4 rounded font-label-md text-label-md hover:bg-on-primary/10 transition-all">Contact Sales Team</button>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container-highest dark:bg-primary-container border-t border-outline-variant dark:border-primary full-width bottom-0">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-gutter py-stack-lg px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
+<div class="col-span-1">
+<div class="font-headline-sm text-headline-sm font-bold text-primary dark:text-primary-fixed mb-4">USA Land</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant dark:text-on-primary-container opacity-80">Empowering individuals through secure, accessible land investment and transparent owner financing.</p>
+</div>
+<div class="flex flex-col gap-2">
+<h5 class="font-label-md text-label-md text-primary mb-2">Company</h5>
+<a class="font-body-sm text-body-sm text-on-surface-variant dark:text-on-primary-container opacity-80 hover:opacity-100 transition-opacity" href="#">About Us</a>
+<a class="font-body-sm text-body-sm text-on-surface-variant dark:text-on-primary-container opacity-80 hover:opacity-100 transition-opacity" href="#">State Listings</a>
+<a class="font-body-sm text-body-sm text-on-surface-variant dark:text-on-primary-container opacity-80 hover:opacity-100 transition-opacity" href="#">Owner Financing Guide</a>
+</div>
+<div class="flex flex-col gap-2">
+<h5 class="font-label-md text-label-md text-primary mb-2">Support</h5>
+<a class="font-body-sm text-body-sm text-on-surface-variant dark:text-on-primary-container opacity-80 hover:opacity-100 transition-opacity" href="#">Contact Support</a>
+<a class="font-body-sm text-body-sm text-on-surface-variant dark:text-on-primary-container opacity-80 hover:opacity-100 transition-opacity" href="#">Privacy Policy</a>
+<a class="font-body-sm text-body-sm text-on-surface-variant dark:text-on-primary-container opacity-80 hover:opacity-100 transition-opacity" href="#">Terms of Service</a>
+</div>
+<div class="flex flex-col gap-2">
+<h5 class="font-label-md text-label-md text-primary mb-2">Newsletter</h5>
+<p class="font-body-sm text-body-sm text-on-surface-variant dark:text-on-primary-container opacity-80 mb-2">Get new land listings sent directly to your inbox.</p>
+<div class="flex gap-2">
+<input class="bg-surface border border-outline-variant rounded px-3 py-2 text-sm focus:outline-primary w-full" placeholder="Email address" type="email"/>
+<button class="bg-primary text-on-primary p-2 rounded"><span class="material-symbols-outlined">send</span></button>
+</div>
+</div>
+</div>
+<div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-6 border-t border-outline-variant/30 flex justify-between items-center">
+<p class="font-label-sm text-label-sm text-on-surface-variant dark:text-on-primary-container opacity-80">© 2024 USA Land Investment Group. All rights reserved. Secure Title Guaranteed.</p>
+<div class="flex gap-4">
+<span class="material-symbols-outlined opacity-60">shield</span>
+<span class="material-symbols-outlined opacity-60">verified_user</span>
+</div>
+</div>
+</footer>
+<script>
+        // Simple micro-interaction for scroll reveals
+        const observerOptions = {
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('opacity-100', 'translate-y-0');
+                    entry.target.classList.remove('opacity-0', 'translate-y-10');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('section > div').forEach(section => {
+            section.classList.add('transition-all', 'duration-700', 'ease-out', 'opacity-0', 'translate-y-10');
+            observer.observe(section);
+        });
+    </script>
+</body></html>

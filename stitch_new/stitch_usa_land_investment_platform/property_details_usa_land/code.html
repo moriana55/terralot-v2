@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+
+<html class="scroll-smooth" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Geist:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .glass-card { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(226, 232, 240, 0.8); }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "error": "#ba1a1a",
+                        "on-secondary-container": "#506b4f",
+                        "secondary-container": "#ccebc7",
+                        "secondary-fixed": "#ccebc7",
+                        "on-error": "#ffffff",
+                        "background": "#fbf8fc",
+                        "surface-bright": "#fbf8fc",
+                        "surface-tint": "#4c5e86",
+                        "on-error-container": "#93000a",
+                        "primary-container": "#0a1f44",
+                        "outline-variant": "#c5c6cf",
+                        "on-tertiary-fixed": "#231a06",
+                        "surface": "#fbf8fc",
+                        "secondary-fixed-dim": "#b0cfad",
+                        "on-primary-fixed-variant": "#34466d",
+                        "primary": "#00081e",
+                        "on-tertiary-fixed-variant": "#51452d",
+                        "secondary": "#4a6549",
+                        "inverse-surface": "#303033",
+                        "primary-fixed": "#d9e2ff",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "on-surface": "#1b1b1e",
+                        "inverse-primary": "#b4c6f4",
+                        "on-secondary-fixed": "#07200b",
+                        "on-primary-container": "#7687b2",
+                        "outline": "#75777f",
+                        "primary-fixed-dim": "#b4c6f4",
+                        "on-secondary-fixed-variant": "#334d33",
+                        "tertiary-fixed": "#f3e0c0",
+                        "inverse-on-surface": "#f2f0f4",
+                        "on-primary-fixed": "#041a3f",
+                        "surface-variant": "#e4e2e5",
+                        "on-tertiary": "#ffffff",
+                        "tertiary-fixed-dim": "#d6c4a5",
+                        "surface-container-high": "#e9e7eb",
+                        "surface-container-highest": "#e4e2e5",
+                        "on-background": "#1b1b1e",
+                        "on-secondary": "#ffffff",
+                        "surface-container-low": "#f5f3f7",
+                        "surface-dim": "#dbd9dd",
+                        "on-surface-variant": "#44464e",
+                        "on-tertiary-container": "#95866a",
+                        "surface-container": "#efedf1",
+                        "tertiary": "#0e0800",
+                        "tertiary-container": "#281f0a",
+                        "error-container": "#ffdad6"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "margin-mobile": "20px",
+                        "stack-lg": "64px",
+                        "container-max": "1280px",
+                        "stack-sm": "16px",
+                        "gutter": "24px",
+                        "stack-md": "32px",
+                        "margin-desktop": "64px",
+                        "base": "8px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Inter"],
+                        "label-md": ["Geist"],
+                        "headline-xl": ["Geist"],
+                        "headline-md": ["Geist"],
+                        "headline-lg-mobile": ["Geist"],
+                        "body-md": ["Inter"],
+                        "headline-lg": ["Geist"],
+                        "label-sm": ["Geist"],
+                        "body-sm": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "label-md": ["14px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "headline-xl": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "500"}],
+                        "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "600"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "label-sm": ["12px", {"lineHeight": "14px", "fontWeight": "500"}],
+                        "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}]
+                    }
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-background text-on-surface font-body-md">
+<!-- TopNavBar -->
+<header class="bg-surface dark:bg-primary border-b border-outline-variant dark:border-primary-container docked full-width top-0 z-50 transition-all duration-300">
+<nav class="flex justify-between items-center w-full h-20 px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
+<a class="font-headline-md text-headline-md font-bold tracking-tight text-primary dark:text-primary-fixed" href="#">USA Land</a>
+<div class="hidden md:flex items-center gap-stack-md">
+<a class="font-label-md text-label-md text-primary dark:text-primary-fixed font-bold border-b-2 border-primary dark:border-primary-fixed pb-1" href="#">Browse Land</a>
+<a class="font-label-md text-label-md text-on-surface-variant dark:text-on-primary-container font-medium hover:text-primary dark:hover:text-primary-fixed transition-colors" href="#">How It Works</a>
+<a class="font-label-md text-label-md text-on-surface-variant dark:text-on-primary-container font-medium hover:text-primary dark:hover:text-primary-fixed transition-colors" href="#">About</a>
+<a class="font-label-md text-label-md text-on-surface-variant dark:text-on-primary-container font-medium hover:text-primary dark:hover:text-primary-fixed transition-colors" href="#">Contact</a>
+</div>
+<div class="flex items-center gap-4">
+<button class="hidden sm:block font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors">Sign In</button>
+<button class="bg-primary text-on-primary px-6 py-3 font-label-md text-label-md rounded hover:opacity-90 active:scale-95 transition-all">Browse Properties</button>
+</div>
+</nav>
+</header>
+<main class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop pt-stack-md pb-stack-lg">
+<!-- Image Gallery (Bento Style) -->
+<section class="grid grid-cols-1 md:grid-cols-4 grid-rows-2 gap-3 h-[500px] md:h-[600px] mb-stack-md rounded-xl overflow-hidden">
+<div class="md:col-span-2 md:row-span-2 relative group cursor-pointer overflow-hidden">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="A sprawling panoramic view of 40 acres of golden Nevada prairie land under a vast cerulean sky. In the distance, rugged purple-toned mountains rise against the horizon. The lighting is the soft, golden glow of late afternoon, casting long, gentle shadows across the sagebrush. The overall aesthetic is one of elite, peaceful isolation and rugged natural beauty, reflecting a premium land investment opportunity." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDuQP8l2twPkrdsDj8s4pdXpCliXY5Tg7tqcgwqEeY1_uKcqRj1W7AuUodUmJOQjCET2dQh27p4f3PwrbRY6c0IXU7TXqlpxlBdbD1N8hR77rk64oAbZ5o_nPsm9bT_Xcd-nrPRVQWB68jeyFme-x4-q02_UAQp3b_KcVspMCsAhq3qe_77Y4unWoWzDbJQWNkbaW0T3Lq1vqCW-_fL9bjGt2QTcLJeAmqFX3sfYEa2gilptYiKTeGcgSDum2CUQ4BAdCUEopqQNALT"/>
+<div class="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors"></div>
+</div>
+<div class="hidden md:block relative group cursor-pointer overflow-hidden">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="A close-up view of the rugged Nevada terrain showing diverse mountain peaks and natural rock formations. The lighting is crisp and clear, highlighting the architectural textures of the earth. The color palette is composed of warm ochres, deep browns, and sage greens, maintaining a sophisticated and grounded corporate aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCojeirhwKjaUTnhFXUj_8L0Q_QkD-1Jnbe3KN9r-Ukcb_nU-YTKqNvdbE2bf_djmugp6GsqAEp-OieeZ4jRyhwHUyZohmHaquBgULjWiUfVuhUy5uuK3l0x6yFJ8kDExb9i67X41UNXbpK5W501eFUsV8EwwWnh1fTIE3X0jus3rsBV2LgoLh6zBMZ3p3eLMSsoJg_LrPg8BDapzowUl6Tv9kTz2Bu6acNrLGRjLz6iC-aaTIehhcu21G5pr0Q1pvv1WJ004wa2nPs"/>
+</div>
+<div class="hidden md:block relative group cursor-pointer overflow-hidden">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="A wide-angle shot of a serene valley floor in Elko County, Nevada, where the desert meets the mountain base. The sky is filled with soft, wispy clouds reflecting the pale light of dawn. The scene conveys a sense of immense space and untouched potential, framed with the clarity and precision of high-end real estate photography." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAzWCtbI0Zl4vSqgtzEZI1uHyPMUs2HxzTCLRso_3Us1SQRSz7BPLXNK0weCzrFno03RRsEAyKcdOs8mt1EtN9a57KrNWbUyUdeHssudqW7TBRef9GzkAaEh77ml67LA7RXLKHiKXpOrK-yzxIg7_0GReubBV2wVaUKLh-RwQyVhjnu_q41S_SUjzwCIVGpoFr-1kSOtWADhmBTnYmPhA0JWX5KIIQhTTUYYMepycbp0BgjaYyaAxaVgPXhzYjmfJJaSJg7eb25DD9I"/>
+</div>
+<div class="hidden md:block md:col-span-2 relative group cursor-pointer overflow-hidden">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="Aerial drone photography looking straight down at the property boundaries of a Nevada land parcel. The dry vegetation creates intricate, organic patterns against the sandy soil. The lighting is bright and even, providing a technical yet beautiful perspective of the land's topography and access points." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBq7aW9bL2SFPwEFRNwAVMplFXn7eQSzivIgLpHv8N5nK0Q64RlY20oPlrgPeHyyWmF7WI1j0GflTOH0IIX7fsQMuA6upW_ClI6m5p5A2A7FT25IZhI9Gg9LYriPf6W7dzq0KDeTT851p8gGNqIEohJEmg7CyVneUfAMfpSNK51s1pn7XnkDiscj2KsLGtkHovBK_hldPL6l4BWa_c5tE8k-lqD4d9LO308FpJSVhO1ni1cKx9wgfaDufIM3B4BbItkil4HPzcBsKwG"/>
+<button class="absolute bottom-4 right-4 bg-white/90 backdrop-blur-md px-4 py-2 rounded-lg flex items-center gap-2 text-primary font-label-md shadow-sm border border-outline-variant">
+<span class="material-symbols-outlined text-[18px]">grid_view</span> View all 12 photos
+                </button>
+</div>
+</section>
+<div class="flex flex-col lg:flex-row gap-gutter relative">
+<!-- Left Content Area -->
+<div class="flex-1 space-y-stack-md">
+<!-- Title & Basic Specs -->
+<header>
+<div class="flex flex-wrap items-center gap-2 mb-2">
+<span class="bg-secondary-container text-on-secondary-container px-3 py-1 rounded-full font-label-sm text-label-sm">Verified Title</span>
+<span class="bg-primary-container text-on-primary-container px-3 py-1 rounded-full font-label-sm text-label-sm">Owner Financing Available</span>
+</div>
+<h1 class="font-headline-xl text-headline-xl mb-4">40 Acres in Elko County, Nevada</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant flex items-center gap-2">
+<span class="material-symbols-outlined">location_on</span> Near Montello, NV 89830
+                    </p>
+</header>
+<!-- Key Specs Grid -->
+<div class="grid grid-cols-2 md:grid-cols-4 gap-gutter py-stack-sm border-y border-outline-variant">
+<div class="space-y-1">
+<p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Acreage</p>
+<p class="font-headline-md text-headline-md">40.00</p>
+</div>
+<div class="space-y-1">
+<p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Zoning</p>
+<p class="font-headline-md text-headline-md">Open Space</p>
+</div>
+<div class="space-y-1">
+<p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Terrain</p>
+<p class="font-headline-md text-headline-md">Level to Sloped</p>
+</div>
+<div class="space-y-1">
+<p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Elevation</p>
+<p class="font-headline-md text-headline-md">5,100 ft</p>
+</div>
+</div>
+<!-- About Section -->
+<section class="space-y-4" id="about">
+<h3 class="font-headline-lg text-headline-lg">About This Land</h3>
+<div class="prose max-w-none text-on-surface-variant font-body-md leading-relaxed">
+<p>Discover the ultimate off-grid retreat or investment opportunity in the heart of Elko County. This expansive 40-acre parcel offers unparalleled privacy and breathtaking 360-degree views of the Pilot Peak range. Whether you're looking to establish a sustainable homestead, a seasonal campsite, or a long-term land hold, this property provides the perfect canvas.</p>
+<p>The terrain is primarily level with gentle undulations, making it suitable for building or agricultural pursuits. Access is provided via well-maintained county dirt roads, ensuring year-round accessibility for high-clearance vehicles.</p>
+</div>
+</section>
+<!-- Features Checklist -->
+<section class="space-y-4">
+<h3 class="font-headline-lg text-headline-lg">Property Features</h3>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div class="flex items-center gap-3 p-4 bg-surface-container rounded-lg">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1">check_circle</span>
+<span class="font-label-md text-label-md">Legal Access via Dirt Road</span>
+</div>
+<div class="flex items-center gap-3 p-4 bg-surface-container rounded-lg">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1">check_circle</span>
+<span class="font-label-md text-label-md">No Time Limit to Build</span>
+</div>
+<div class="flex items-center gap-3 p-4 bg-surface-container rounded-lg">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1">check_circle</span>
+<span class="font-label-md text-label-md">RV &amp; Camping Permitted</span>
+</div>
+<div class="flex items-center gap-3 p-4 bg-surface-container rounded-lg">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1">check_circle</span>
+<span class="font-label-md text-label-md">Mobile Homes Allowed</span>
+</div>
+</div>
+</section>
+<!-- Location Section -->
+<section class="space-y-4" id="location">
+<div class="flex justify-between items-end">
+<h3 class="font-headline-lg text-headline-lg">Location</h3>
+<p class="font-label-md text-label-md text-on-surface-variant">GPS: 41.2452, -114.1284</p>
+</div>
+<div class="h-96 w-full rounded-xl overflow-hidden border border-outline-variant relative">
+<img class="w-full h-full object-cover" data-alt="A professional satellite map rendering of a large, square 40-acre land parcel in the Nevada desert. The map shows clearly defined property lines highlighted in a subtle cyan glow. The surrounding terrain is marked by topographical lines and natural geographical features like dry washes and sparse vegetation. The image has a clean, data-driven aesthetic suited for a high-end real estate platform." data-location="Elko County, Nevada" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBRrn-LbWJkFxSQ0XRN-MyBsNDf7KCZ6caOZmnRaOQCukD5rCa3ara92yr42eeyAKT83-UOVsIwA9Go1HCvLOfxiSAXwklvctOeCoWlSwW3pjsZIbaeWFsUKSoEay6R_sj0b9U098HW4r7O-9HqmK9L0CvufCmW0UKZMWBbMLsMn2tPcT7FX_yFhgIBZkCukMDgdU9yz9koAAjEfmM9PZkUX9_gokwGzLpK2FvFSi2CDmShtS_frl7X895SUefNdaaT7bzVtwhLAZz_"/>
+<div class="absolute top-4 right-4 flex flex-col gap-2">
+<button class="bg-white p-2 rounded-lg shadow-md border border-outline-variant hover:bg-surface-container transition-colors"><span class="material-symbols-outlined">add</span></button>
+<button class="bg-white p-2 rounded-lg shadow-md border border-outline-variant hover:bg-surface-container transition-colors"><span class="material-symbols-outlined">remove</span></button>
+</div>
+<div class="absolute bottom-4 left-4 bg-white px-4 py-2 rounded-lg shadow-md border border-outline-variant font-label-sm text-label-sm">
+                            Map data ©2024 USA Land
+                        </div>
+</div>
+</section>
+</div>
+<!-- Sticky Sidebar -->
+<aside class="w-full lg:w-[400px] shrink-0">
+<div class="sticky top-24 space-y-gutter p-gutter rounded-xl glass-card shadow-lg">
+<div>
+<p class="font-label-md text-label-md text-on-surface-variant mb-1">Cash Price</p>
+<h2 class="font-headline-xl text-headline-xl text-primary">$34,900</h2>
+<div class="mt-2 h-1 w-12 bg-secondary rounded-full"></div>
+</div>
+<div class="space-y-stack-sm p-4 bg-primary-container rounded-lg border border-primary-container">
+<h4 class="font-label-md text-label-md text-on-primary-container uppercase tracking-widest">Installment Focus</h4>
+<div class="flex justify-between items-end">
+<div>
+<p class="font-label-sm text-label-sm text-on-primary-container opacity-80">Monthly Payment</p>
+<p class="font-headline-md text-headline-md text-white">$499</p>
+</div>
+<div class="text-right">
+<p class="font-label-sm text-label-sm text-on-primary-container opacity-80">Down Payment</p>
+<p class="font-headline-md text-headline-md text-white">$1,900</p>
+</div>
+</div>
+</div>
+<!-- Payment Calculator -->
+<div class="space-y-4 pt-4 border-t border-outline-variant">
+<h4 class="font-label-md text-label-md">Payment Calculator</h4>
+<div class="space-y-6">
+<div class="space-y-3">
+<div class="flex justify-between font-label-sm">
+<span>Term: <span id="term-val">72</span> Months</span>
+<span class="text-secondary">0% Interest</span>
+</div>
+<input class="w-full h-1.5 bg-outline-variant rounded-lg appearance-none cursor-pointer accent-primary" max="120" min="12" oninput="document.getElementById('term-val').innerText = this.value" step="12" type="range" value="72"/>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div class="p-3 bg-surface-container rounded border border-outline-variant">
+<p class="font-label-sm text-on-surface-variant">Int. Rate</p>
+<p class="font-label-md">0.0%</p>
+</div>
+<div class="p-3 bg-surface-container rounded border border-outline-variant">
+<p class="font-label-sm text-on-surface-variant">Doc Fee</p>
+<p class="font-label-md">$249</p>
+</div>
+</div>
+</div>
+</div>
+<button class="w-full bg-primary text-on-primary font-label-md text-label-md py-4 rounded-lg hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+                        Start Application <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+<button class="w-full bg-transparent border border-primary text-primary font-label-md text-label-md py-4 rounded-lg hover:bg-surface-container transition-all">
+                        Inquire via Email
+                    </button>
+<div class="flex items-center justify-center gap-4 text-on-surface-variant pt-2">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">verified_user</span>
+<span class="font-label-sm text-label-sm">Secure Checkout</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">policy</span>
+<span class="font-label-sm text-label-sm">30-Day Guarantee</span>
+</div>
+</div>
+</div>
+</aside>
+</div>
+<!-- Similar Properties -->
+<section class="mt-stack-lg pt-stack-lg border-t border-outline-variant">
+<h3 class="font-headline-lg text-headline-lg mb-stack-md">Similar Nevada Listings</h3>
+<div class="flex gap-gutter overflow-x-auto no-scrollbar pb-6 -mx-margin-mobile px-margin-mobile md:mx-0 md:px-0">
+<!-- Property Card 1 -->
+<div class="min-w-[300px] md:min-w-[320px] group flex flex-col bg-surface shadow-sm hover:shadow-xl transition-all duration-300 rounded-xl overflow-hidden border border-outline-variant">
+<div class="h-48 overflow-hidden">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="A cinematic wide shot of a 20-acre desert parcel at dusk in Nevada. The horizon is painted with deep purples and oranges of a setting sun. The land is marked by small desert shrubs and a quiet, still atmosphere. The image emphasizes high-end aesthetics and serene wilderness potential, presented with the clarity of a professional real estate portfolio." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBl9AgKhVb_h3IFcbUcPM9YjiMIthi4Nb9QJWM6viU9MjH0aw-NuZrcwQj0ZVyfcaC0A65qCzWBFKKVwzqBL_6-w7i8MY3xfaRLNE5oe4NnTFA8BWCiturA6HdYjVSqqqU_xCX1HMVbJam31tdIHZdWcoZDOgazYO0Ps5puLL4Gw0DuixfsqkzTHRArTYXo7XkknHBnu2BcMDUIf65QifCUtlY0n_AivmGcOTHB69WjH7m8nlRSBryKrI2Y7haa33nFZaZXAlU3D9WB"/>
+</div>
+<div class="p-4 flex-grow space-y-2">
+<p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest">Elko County, NV</p>
+<h4 class="font-headline-md text-headline-md">20 Acres near Wells</h4>
+<div class="flex gap-4 font-label-sm text-on-surface-variant">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">landscape</span> 20.00 Ac</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">terrain</span> Level</span>
+</div>
+</div>
+<div class="p-4 bg-primary text-white flex justify-between items-center">
+<div>
+<p class="font-label-sm text-[10px] opacity-70 uppercase tracking-tighter">Starting at</p>
+<p class="font-label-md">$299/mo</p>
+</div>
+<button class="bg-white/10 hover:bg-white/20 px-3 py-1 rounded text-label-sm border border-white/20 transition-colors">Details</button>
+</div>
+</div>
+<!-- Property Card 2 -->
+<div class="min-w-[300px] md:min-w-[320px] group flex flex-col bg-surface shadow-sm hover:shadow-xl transition-all duration-300 rounded-xl overflow-hidden border border-outline-variant">
+<div class="h-48 overflow-hidden">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="A scenic property view featuring a 10-acre lot with mountain views in the distance. The lighting is crisp morning light, creating clear visibility across the valley. The terrain is dotted with diverse desert vegetation, suggesting a rich natural environment. The overall feel is one of secure investment and natural luxury." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAy5B2w7hKFoyp3SH0OCd8uGA0wcIBdFQjxcylTbUOPzTlXN_k_j1-ivlLsxw6YeGlfxzN3POJrVDSjo2kKAxegzcUsTXXIrPHYSRmHrZp8VLpxhb_PFJpdhB15tWhdvF4__OAcgpB3WDupGm2L6APC_-tx-zcAUQDgZnddJq5g87X85RQjrTqCKFV1CZp-244ZyMoZxak59puk9q0-BMjK8e1mjamgzPAwWIoLKRS3gflzHbygHLL2zXAuBz1OfQnOkTXEXXktmwx3"/>
+</div>
+<div class="p-4 flex-grow space-y-2">
+<p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest">Humboldt County, NV</p>
+<h4 class="font-headline-md text-headline-md">10 Acres Valley View</h4>
+<div class="flex gap-4 font-label-sm text-on-surface-variant">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">landscape</span> 10.00 Ac</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">terrain</span> Sloped</span>
+</div>
+</div>
+<div class="p-4 bg-primary text-white flex justify-between items-center">
+<div>
+<p class="font-label-sm text-[10px] opacity-70 uppercase tracking-tighter">Starting at</p>
+<p class="font-label-md">$199/mo</p>
+</div>
+<button class="bg-white/10 hover:bg-white/20 px-3 py-1 rounded text-label-sm border border-white/20 transition-colors">Details</button>
+</div>
+</div>
+<!-- Property Card 3 -->
+<div class="min-w-[300px] md:min-w-[320px] group flex flex-col bg-surface shadow-sm hover:shadow-xl transition-all duration-300 rounded-xl overflow-hidden border border-outline-variant">
+<div class="h-48 overflow-hidden">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="An expansive 80-acre cattle ranch land view in northern Nevada. The image captures the immense scale of the property under a bright, high-key midday sun. Pristine, untouched land stretches to the horizon where blue mountain ranges blend into the sky. The professional architectural framing reinforces a sense of elite accessibility and trust." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAF6OMyd-a_TIkkCSKqD9BE4uzdejXw1FRf-sUufwX4DsIPNfrqh_4fq3sxWrqmazr79nAgGUDWa3a6jw4tFeyvy5QMm0LZJvqXGKBrPy2DEEf2WE_cd9hoIhml7eLjWgYfqeTYWQxUwJLUzuiZT_M_jdb05iKF51_QJ5XjHj1l8xbt2wPsNz651rT7hTRbO_YKnHtLAoPGft-OYAMi8lTCamO5kb0Qwsrr9KiM47kPTBPyXSjF3mxHTOnHw2-pUx_f9GazeSF07DKZ"/>
+</div>
+<div class="p-4 flex-grow space-y-2">
+<p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest">Elko County, NV</p>
+<h4 class="font-headline-md text-headline-md">80 Acre Cattle Ranch</h4>
+<div class="flex gap-4 font-label-sm text-on-surface-variant">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">landscape</span> 80.00 Ac</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">terrain</span> Flat</span>
+</div>
+</div>
+<div class="p-4 bg-primary text-white flex justify-between items-center">
+<div>
+<p class="font-label-sm text-[10px] opacity-70 uppercase tracking-tighter">Starting at</p>
+<p class="font-label-md">$899/mo</p>
+</div>
+<button class="bg-white/10 hover:bg-white/20 px-3 py-1 rounded text-label-sm border border-white/20 transition-colors">Details</button>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container-highest dark:bg-primary-container border-t border-outline-variant dark:border-primary full-width bottom-0">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-gutter py-stack-lg px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
+<div class="md:col-span-1 space-y-4">
+<p class="font-headline-sm text-headline-sm font-bold text-primary dark:text-primary-fixed">USA Land</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant dark:text-on-primary-container opacity-80">
+                    Premium rural land investments with easy owner financing. Secure your piece of the American west today.
+                </p>
+</div>
+<div class="space-y-4">
+<p class="font-label-md text-label-md font-bold">Quick Links</p>
+<ul class="space-y-2">
+<li><a class="font-label-sm text-label-sm text-on-surface-variant dark:text-on-primary-container opacity-80 hover:opacity-100 hover:text-primary dark:hover:text-primary-fixed transition-all underline" href="#">State Listings</a></li>
+<li><a class="font-label-sm text-label-sm text-on-surface-variant dark:text-on-primary-container opacity-80 hover:opacity-100 hover:text-primary dark:hover:text-primary-fixed transition-all underline" href="#">Owner Financing Guide</a></li>
+<li><a class="font-label-sm text-label-sm text-on-surface-variant dark:text-on-primary-container opacity-80 hover:opacity-100 hover:text-primary dark:hover:text-primary-fixed transition-all underline" href="#">Contact Support</a></li>
+</ul>
+</div>
+<div class="space-y-4">
+<p class="font-label-md text-label-md font-bold">Compliance</p>
+<ul class="space-y-2">
+<li><a class="font-label-sm text-label-sm text-on-surface-variant dark:text-on-primary-container opacity-80 hover:opacity-100 hover:text-primary dark:hover:text-primary-fixed transition-all underline" href="#">Privacy Policy</a></li>
+<li><a class="font-label-sm text-label-sm text-on-surface-variant dark:text-on-primary-container opacity-80 hover:opacity-100 hover:text-primary dark:hover:text-primary-fixed transition-all underline" href="#">Terms of Service</a></li>
+</ul>
+</div>
+<div class="space-y-4">
+<p class="font-label-md text-label-md font-bold">Secure Transactions</p>
+<div class="flex gap-3">
+<span class="material-symbols-outlined text-primary-container/30 text-[32px]">credit_card</span>
+<span class="material-symbols-outlined text-primary-container/30 text-[32px]">account_balance</span>
+<span class="material-symbols-outlined text-primary-container/30 text-[32px]">shield</span>
+</div>
+</div>
+<div class="md:col-span-4 pt-stack-sm border-t border-outline-variant/30 mt-stack-sm">
+<p class="font-label-sm text-label-sm text-on-surface-variant dark:text-on-primary-container opacity-60 text-center md:text-left">
+                    © 2024 USA Land Investment Group. All rights reserved. Secure Title Guaranteed.
+                </p>
+</div>
+</div>
+</footer>
+<script>
+        // Simple Navbar shadow on scroll
+        window.addEventListener('scroll', () => {
+            const header = document.querySelector('header');
+            if (window.scrollY > 20) {
+                header.classList.add('shadow-md');
+                header.classList.add('h-16');
+                header.classList.remove('h-20');
+            } else {
+                header.classList.remove('shadow-md');
+                header.classList.add('h-20');
+                header.classList.remove('h-16');
+            }
+        });
+
+        // Payment calculator interaction simulation
+        const slider = document.querySelector('input[type="range"]');
+        const termLabel = document.getElementById('term-val');
+        const paymentDisplay = document.querySelector('.sticky h2 + div + div .font-headline-md');
+
+        slider.addEventListener('input', (e) => {
+            const months = e.target.value;
+            termLabel.innerText = months;
+            // Rough calc: (Price 34900 - Down 1900) / months
+            const calculated = Math.round((34900 - 1900) / months);
+            paymentDisplay.innerText = `$${calculated}`;
+        });
+    </script>
+</body></html>
