@@ -669,12 +669,12 @@ export default function KickoffPage() {
             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Referans Analiz Kaynakları:</span>
             <div className="flex gap-4">
               <a 
-                href="https://www.landwatch.com" 
+                href="https://offgridauthority.com/best-states-for-off-grid-living-2026/" 
                 target="_blank" 
                 rel="noopener noreferrer" 
                 className="text-[10px] font-bold text-blue-600 hover:underline flex items-center gap-1"
               >
-                1. LandWatch Eyalet Analizleri
+                1. Off-Grid Living Best States 2026 (Off-Grid Authority)
               </a>
               <a 
                 href="https://www.newsweek.com/megaprojects-construction-across-us-11182077" 
