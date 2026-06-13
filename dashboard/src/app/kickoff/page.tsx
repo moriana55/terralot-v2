@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { ChevronDown, MessageSquare, Send, CheckCircle2, Clock, Circle, Code2, AlignLeft, Copy, Check, Target, Milestone, Database, HelpCircle, BarChart3, MapPin } from "lucide-react";
+import { ChevronDown, MessageSquare, Send, CheckCircle2, Clock, Circle, Code2, AlignLeft, Copy, Check, Target, Milestone, Database, HelpCircle, BarChart3, MapPin, Sun, ShieldCheck, Factory, BookOpen, ExternalLink, DollarSign } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 
 interface SubTask {
@@ -317,6 +317,115 @@ const STATUS_CONFIG: Record<Status, { label: string; color: string; bg: string; 
   "tamamlandı": { label: "Tamamlandı", color: "#22c55e", bg: "#f0fdf4", icon: <CheckCircle2 className="w-3 h-3" /> },
 };
 
+const HOTSPOTS_DATA = [
+  {
+    id: "TX",
+    name: "Texas (TX)",
+    subRegion: "Dallas Çeperi & Sherman Bölgesi",
+    summary: "Yoğun nüfus artışı, sanayi devleri ve teknoloji göçüyle tetiklenen hızlı arsa talebi.",
+    tag: "Bölgesel Büyüme & Hızlı Satış",
+    color: "#3b82f6",
+    bg: "#eff6ff",
+    metrics: {
+      landCost: "$2,787 / Dönüm (Batı TX'te $1,000 - $3,000)",
+      sunHours: "5.5 - 6.0 Saat / Gün",
+      propTax: "%1.60 (Ag muafiyeti ile %0.15'e düşebilir)",
+      codes: "Unincorporated bölgelerde yapı kodu yok (Presidio, Brewster, Hudspeth)",
+      water: "Rule of Capture (Arazi sahibi suyu çekmekte serbest)"
+    },
+    megaprojects: [
+      {
+        name: "GlobalWafers 300mm Silikon Wafer Fabrikası",
+        cost: "$7.5 Milyar",
+        location: "Sherman, TX",
+        desc: "AI, 5G ve elektrikli araç çiplerini yerli üretmek için Sherman kampüsünde devasa kapasite genişlemesi."
+      }
+    ],
+    thesis: "Dallas-Fort Worth çeperlerindeki (Sherman/Denison) sanayi patlaması, bölgedeki arazi fiyatlarını tetikliyor. 5+ dönümlük parseller, imar komisyonu onayından muaf şekilde bölünerek (subdivision) hızlıca nakde çevrilebilir."
+  },
+  {
+    id: "AZ",
+    name: "Arizona (AZ)",
+    subRegion: "Mohave & Cochise Kırsal Vadileri",
+    summary: "Rekor güneş verimliliği, tiny-house yerleşimcileri ve devasa yarı-iletken koridoru.",
+    tag: "Off-Grid Yaşam & Çip Koridoru",
+    color: "#10b981",
+    bg: "#f0fdf4",
+    metrics: {
+      landCost: "$4,200 / Dönüm (Kırsal vadilerde $500 - $2,000)",
+      sunHours: "6.57 Saat / Gün (ABD Birincisi)",
+      propTax: "%0.51 (Çok düşük taşıma maliyeti)",
+      codes: "Cochise (Owner-Builder denetim muafiyeti), Greenlee (Hiç kod yok)",
+      water: "Groundwater AMAs dışında kuyu izni kolay, su taşıma yaygın"
+    },
+    megaprojects: [
+      {
+        name: "TSMC Arizona Advanced Semiconductor Fabs",
+        cost: "$165 Milyar",
+        location: "Phoenix, AZ",
+        desc: "3 adet ultra modern çip üretim fabrikası ve devasa Ar-Ge merkezi yatırımı."
+      },
+      {
+        name: "LG Energy Solution Battery Complex",
+        cost: "$5.5 Milyar",
+        location: "Queen Creek, AZ",
+        desc: "Elektrikli araçlar ve silindirik bataryalar için kurulan devasa üretim tesisi."
+      }
+    ],
+    thesis: "Yarı iletken ve batarya yatırımları Phoenix çeperine binlerce yüksek gelirli mühendis çekiyor. Kırsal Mohave ve Cochise county'leri, bu merkezlere yakın ama denetimden uzak yaşamak isteyen off-grid kitleyi absorbe ediyor."
+  },
+  {
+    id: "NM",
+    name: "New Mexico (NM)",
+    subRegion: "Valencia, Socorro & Taos Dağları",
+    summary: "ABD'nin en ucuz arazileri ile yüksek güneş gücünün birleştiği ana yatırım üssü.",
+    tag: "Minimum Yatırım & Yüksek Marj",
+    color: "#8b5cf6",
+    bg: "#f5f3ff",
+    metrics: {
+      landCost: "$725 / Dönüm (Remote parsellerde $300'e kadar düşüyor)",
+      sunHours: "6.20 Saat / Gün",
+      propTax: "%0.67 (Yıllık vergi yükü $15 - $30 arası)",
+      codes: "Valencia & Socorro kırsalında neredeyse sıfır denetim, kompost serbest",
+      water: "Prior Appropriation (Su hakları tescili zorunlu, kuyu izni sıkı)"
+    },
+    megaprojects: [
+      {
+        name: "SunZia Rüzgar ve Güneş Enerji İletim Koridoru",
+        cost: "$8.0 Milyar",
+        location: "Eyalet Geneli",
+        desc: "Batı eyaletlerine temiz enerji aktaracak ABD'nin en büyük yenilenebilir enerji iletim hattı projesi."
+      }
+    ],
+    thesis: "New Mexico, düşük bütçeli alıcılar için giriş bariyeri en düşük eyalettir. Yağmur suyu toplamanın yasal olarak en çok desteklendiği eyalettir. 40+ dönüm alt parsel bölmeleri resmi kurul onayından muaf olduğu için hızlı flip işlemleri için mükemmeldir."
+  },
+  {
+    id: "CO",
+    name: "Colorado (CO)",
+    subRegion: "Costilla & Alamosa Havzası",
+    summary: "Alpin dağ manzaraları ve yerleşik off-grid toplulukların rekreasyonel merkez üssü.",
+    tag: "Doğal Yaşam & Rekreasyon",
+    color: "#f59e0b",
+    bg: "#fffbeb",
+    metrics: {
+      landCost: "$2,500 - $10,000 / Dönüm (Vadi içi düz araziler)",
+      sunHours: "5.50 Saat / Gün",
+      propTax: "%0.49 (ABD'nin en düşük eyalet mülk vergilerinden biri)",
+      codes: "Saguache County (Zoning var ama bina/yapı denetim kodu yok)",
+      water: "Kuyu izni 35+ dönüm altına sıkı, yağmur suyu maks 110 galon (2 varil)"
+    },
+    megaprojects: [
+      {
+        name: "San Luis Valley Yeşil Enerji & Hidrojen Depolama",
+        cost: "$2.5 Milyar",
+        location: "Alamosa / Costilla, CO",
+        desc: "Dağ havzasında güneş enerjisi toplama ve hidrojen bazlı depolama projeleri yatırımı."
+      }
+    ],
+    thesis: "Alpin manzaralı araziler rekreasyonel ve eko-turizm alıcılarından yoğun talep görüyor. Saguache County'nin bina kodlarından muaf yapısı yurt, dome ve toprak ev (earthship) yapanlar için cazibe merkezidir."
+  }
+];
+
 export default function KickoffPage() {
   const [open, setOpen] = useState<number | null>(null);
   const [catFilter, setCatFilter] = useState<string>("Tümü");
@@ -329,6 +438,7 @@ export default function KickoffPage() {
   const [copied, setCopied] = useState<string | null>(null);
   const [authorName, setAuthorName] = useState("Ahmet");
   const [faqOpen, setFaqOpen] = useState<number | null>(null);
+  const [activeHotspot, setActiveHotspot] = useState<string>("TX");
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -611,78 +721,165 @@ export default function KickoffPage() {
         </div>
 
         {/* Yatırım & Eyalet Odak Bölgeleri (Hotspots) */}
-        <div className="mb-8 p-5 rounded-2xl border bg-white" style={{ borderColor: "#e2e8f0" }}>
-          <div className="flex items-center gap-2 mb-4">
+        <div className="mb-8 p-6 rounded-2xl border bg-white" style={{ borderColor: "#e2e8f0" }}>
+          <div className="flex items-center gap-2 mb-2">
             <MapPin className="w-4 h-4" style={{ color: "#0f172a" }} />
             <h3 className="text-sm font-bold tracking-tight uppercase" style={{ color: "#0f172a" }}>Yatırım & Eyalet Odak Bölgeleri (Hotspots)</h3>
           </div>
           
-          <p className="text-xs text-slate-500 mb-4 leading-relaxed">
-            Botların veri çekme, comps analizi ve mektup gönderiminde önceliklendireceği pilot eyaletler ve değer kazanacak hedef bölgeler.
+          <p className="text-xs text-slate-500 mb-5 leading-relaxed">
+            Off-Grid Authority ve Newsweek Megaprojects verilerine göre hazırlanan, yüksek büyüme potansiyeline sahip pilot yatırım eyaletleri.
           </p>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {[
-              {
-                state: "Texas (TX) — Dallas Çevresi",
-                desc: "Dallas-Fort Worth çeperleri (özellikle Sherman/Denison bölgesi). Yoğun nüfus artışı ve sanayi yatırımları arsa talebini tetikliyor. 5+ dönümlük parseller sıfır imar onayıyla tescil edilerek hızlıca nakde çevrilebilir.",
-                tag: "Bölgesel Büyüme & Hızlı Satış",
-                color: "#3b82f6",
-                bg: "#eff6ff"
-              },
-              {
-                state: "Arizona (AZ) — Mohave & Cochise",
-                desc: "Kingman, Golden Valley ve Cochise çöl vadileri. Off-grid yaşam ve tiny house yerleşimcilerinden yoğun talep görüyor. 10+ dönümlük arazi bölünmeleri county imar onayından muaftır.",
-                tag: "Off-Grid Cabin & Karavan",
-                color: "#10b981",
-                bg: "#f0fdf4"
-              },
-              {
-                state: "New Mexico (NM) — Valencia & Socorro",
-                desc: "Albuquerque dış çeperleri. 35+ dönüm üzeri bölünmeler resmi komisyon onayından muaftır. Yıllık vergi yükü yok denecek kadar azdır ($15-$30), uzun süreli elde tutma ve koruma için idealdir.",
-                tag: "Minimum Vergi & Geniş Arazi",
-                color: "#8b5cf6",
-                bg: "#f5f3ff"
-              },
-              {
-                state: "Colorado (CO) — Costilla & Alamosa",
-                desc: "Blanca Peak etekleri ve Sanchez Reservoir göl çevresi. Alpin dağ manzaraları ve doğal yaşam arayan rekreasyonel alıcılar için cazip comps verilerine sahiptir.",
-                tag: "Rekreasyon & Manzara",
-                color: "#f59e0b",
-                bg: "#fffbeb"
-              }
-            ].map((hot, idx) => (
-              <div key={idx} className="p-4 rounded-xl border transition-all hover:shadow-xs" style={{ background: "#f8fafc", borderColor: "#e2e8f0" }}>
-                <div className="flex items-center justify-between mb-1.5">
-                  <h4 className="text-xs font-bold text-slate-900">{hot.state}</h4>
-                  <span className="px-2 py-0.5 rounded-full text-[8px] font-bold uppercase" style={{ color: hot.color, background: hot.bg }}>
-                    {hot.tag}
-                  </span>
-                </div>
-                <p className="text-[11px] leading-relaxed text-slate-500">{hot.desc}</p>
-              </div>
-            ))}
+          {/* Eyalet Sekme Seçici */}
+          <div className="flex gap-2 border-b border-slate-100 pb-3 mb-5 overflow-x-auto">
+            {HOTSPOTS_DATA.map((state) => {
+              const active = activeHotspot === state.id;
+              return (
+                <button
+                  key={state.id}
+                  onClick={() => setActiveHotspot(state.id)}
+                  className="px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-2"
+                  style={{
+                    background: active ? state.bg : "transparent",
+                    color: active ? state.color : "#64748b",
+                    border: active ? `1px solid ${state.color}30` : "1px solid transparent",
+                  }}
+                >
+                  <span className="w-1.5 h-1.5 rounded-full" style={{ background: state.color }} />
+                  {state.name}
+                </button>
+              );
+            })}
           </div>
 
+          {/* Seçili Eyalet İçeriği */}
+          {HOTSPOTS_DATA.filter(h => h.id === activeHotspot).map((state) => (
+            <div key={state.id} className="space-y-5">
+              
+              {/* Header ve Özet */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-xl" style={{ background: "#f8fafc" }}>
+                <div>
+                  <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">{state.subRegion}</h4>
+                  <p className="text-xs font-semibold text-slate-800 mt-1">{state.summary}</p>
+                </div>
+                <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase self-start sm:self-auto" style={{ color: state.color, background: state.bg }}>
+                  {state.tag}
+                </span>
+              </div>
+
+              {/* Grid: Off-Grid Metrikleri vs Megaprojeler */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                
+                {/* Sol Sütun: Off-Grid Potansiyeli (Off-Grid Authority) */}
+                <div className="p-4 rounded-xl border border-slate-100">
+                  <div className="flex items-center gap-2 mb-3 border-b border-slate-50 pb-2">
+                    <BookOpen className="w-3.5 h-3.5 text-slate-500" />
+                    <h5 className="text-xs font-bold text-slate-700 uppercase tracking-wider">Off-Grid Potansiyeli (Off-Grid Authority)</h5>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    <div className="flex items-start gap-3">
+                      <div className="p-1 rounded bg-slate-50 mt-0.5"><DollarSign className="w-3.5 h-3.5 text-slate-500" /></div>
+                      <div>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase">Ortalama Arsa Maliyeti</p>
+                        <p className="text-xs font-medium text-slate-700">{state.metrics.landCost}</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-start gap-3">
+                      <div className="p-1 rounded bg-slate-50 mt-0.5"><Sun className="w-3.5 h-3.5 text-amber-500" /></div>
+                      <div>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase">Günlük Güneş Saati</p>
+                        <p className="text-xs font-medium text-slate-700">{state.metrics.sunHours}</p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <div className="p-1 rounded bg-slate-50 mt-0.5"><BarChart3 className="w-3.5 h-3.5 text-violet-500" /></div>
+                      <div>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase">Mülk Vergisi Oranı</p>
+                        <p className="text-xs font-medium text-slate-700">{state.metrics.propTax}</p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <div className="p-1 rounded bg-slate-50 mt-0.5"><ShieldCheck className="w-3.5 h-3.5 text-emerald-500" /></div>
+                      <div>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase">İmar ve Bina Kodları</p>
+                        <p className="text-xs font-medium text-slate-700">{state.metrics.codes}</p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <div className="p-1 rounded bg-slate-50 mt-0.5"><MapPin className="w-3.5 h-3.5 text-rose-500" /></div>
+                      <div>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase">Su Hakları & Kaynaklar</p>
+                        <p className="text-xs font-medium text-slate-700">{state.metrics.water}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Sağ Sütun: Bölgesel Sanayi Megaprojeleri (Newsweek) */}
+                <div className="p-4 rounded-xl border border-slate-100 bg-slate-50/30">
+                  <div className="flex items-center gap-2 mb-3 border-b border-slate-50 pb-2">
+                    <Factory className="w-3.5 h-3.5 text-slate-500" />
+                    <h5 className="text-xs font-bold text-slate-700 uppercase tracking-wider">Sanayi & Altyapı Megaprojeleri (Newsweek)</h5>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    {state.megaprojects.map((proj, pIdx) => (
+                      <div key={pIdx} className="bg-white p-3 rounded-xl border border-slate-100">
+                        <div className="flex justify-between items-start gap-2 mb-1.5">
+                          <h6 className="text-xs font-bold text-slate-800 leading-tight">{proj.name}</h6>
+                          <span className="px-2 py-0.5 rounded bg-amber-500/10 text-amber-600 text-[9px] font-extrabold whitespace-nowrap">
+                            {proj.cost}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-1 mb-1.5 text-[9px] text-slate-400 font-bold uppercase">
+                          <MapPin className="w-2.5 h-2.5" /> {proj.location}
+                        </div>
+                        <p className="text-[11px] leading-relaxed text-slate-500">{proj.desc}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Alt Kısım: Yatırım Tezi */}
+              <div className="p-4 rounded-xl border" style={{ borderColor: `${state.color}20`, background: `${state.color}05` }}>
+                <div className="flex items-center gap-1.5 mb-1 text-slate-800">
+                  <Target className="w-4 h-4 shrink-0" style={{ color: state.color }} />
+                  <span className="text-[10px] font-extrabold uppercase tracking-wider">Yatırım Tezi & Çıkış Stratejisi</span>
+                </div>
+                <p className="text-xs leading-relaxed text-slate-600 font-medium">{state.thesis}</p>
+              </div>
+
+            </div>
+          ))}
+
           {/* Referans Kaynaklar */}
-          <div className="mt-4 pt-4 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Referans Analiz Kaynakları:</span>
-            <div className="flex gap-4">
+          <div className="mt-5 pt-4 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
+              <BookOpen className="w-3 h-3" /> Referans Analiz Kaynakları:
+            </span>
+            <div className="flex flex-wrap gap-x-4 gap-y-2">
               <a 
                 href="https://offgridauthority.com/best-states-for-off-grid-living-2026/" 
                 target="_blank" 
                 rel="noopener noreferrer" 
-                className="text-[10px] font-bold text-blue-600 hover:underline flex items-center gap-1"
+                className="text-[10px] font-bold text-blue-600 hover:text-blue-800 flex items-center gap-1 transition-colors animate-pulse"
               >
-                1. Off-Grid Living Best States 2026 (Off-Grid Authority)
+                1. Best States for Off-Grid Living (Off-Grid Authority) <ExternalLink className="w-2.5 h-2.5" />
               </a>
               <a 
                 href="https://www.newsweek.com/megaprojects-construction-across-us-11182077" 
                 target="_blank" 
                 rel="noopener noreferrer" 
-                className="text-[10px] font-bold text-blue-600 hover:underline flex items-center gap-1"
+                className="text-[10px] font-bold text-blue-600 hover:text-blue-800 flex items-center gap-1 transition-colors animate-pulse"
               >
-                2. US Megaprojects (Newsweek)
+                2. US Megaprojects 2026 Breakout (Newsweek) <ExternalLink className="w-2.5 h-2.5" />
               </a>
             </div>
           </div>
