@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { LayoutDashboard, MapPin, MessageSquare, CreditCard, ArrowLeft, BarChart3, Users, Handshake, CircleDollarSign, Activity, Map, Gauge, Mail, Split, Wallet, Target, Globe, EyeOff, Tv, FileSearch, ShieldCheck, ChevronLeft, ChevronRight, ChevronDown, Cpu } from "lucide-react";
+import { LayoutDashboard, MapPin, MessageSquare, CreditCard, ArrowLeft, BarChart3, Users, Handshake, CircleDollarSign, Activity, Map, Gauge, Mail, Split, Wallet, Target, Globe, EyeOff, Tv, FileSearch, ShieldCheck, ChevronLeft, ChevronRight, ChevronDown, Cpu, SlidersHorizontal } from "lucide-react";
 import { CerberusLogo } from "@/components/DealHoundLogo";
 
 const SECTIONS: { label: string | null; items: { href: string; icon: typeof MapPin; label: string }[] }[] = [
@@ -20,6 +20,7 @@ const SECTIONS: { label: string | null; items: { href: string; icon: typeof MapP
       { href: "/admin/scraper", icon: Cpu, label: "Cerberus Botları" },
       { href: "/admin/tax-leads", icon: FileSearch, label: "Tax Leads" },
       { href: "/admin/acquisitions", icon: Target, label: "Acquisitions" },
+      { href: "/admin/deal-screener", icon: SlidersHorizontal, label: "Deal Screener" },
       { href: "/admin/off-market", icon: EyeOff, label: "Off Market" },
       { href: "/admin/competitor-analysis", icon: BarChart3, label: "Competitor Intel" },
       { href: "/admin/parcels", icon: Globe, label: "Parcel Explorer" },
