@@ -1,4 +1,5 @@
 import { properties } from "@/lib/data";
+import { SampleDataBanner } from "@/components/SampleDataBanner";
 
 export const metadata = { title: "Financials" };
 
@@ -40,7 +41,9 @@ export default function FinancialsPage() {
   return (
     <div className="p-8">
       <h1 className="text-2xl font-bold mb-1">Financial Report</h1>
-      <p className="text-sm mb-8" style={{ color: "var(--muted)" }}>Complete financial breakdown of the TerraLot portfolio</p>
+      <p className="text-sm mb-6" style={{ color: "var(--muted)" }}>Complete financial breakdown of the TerraLot portfolio</p>
+
+      <SampleDataBanner note="Aylık grafik kısmen sabit örnek değerler içerir." />
 
       {/* Top metrics */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">

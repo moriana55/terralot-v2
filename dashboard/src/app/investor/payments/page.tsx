@@ -1,5 +1,6 @@
 import { properties } from "@/lib/data";
 import { CheckCircle2, Clock, AlertTriangle } from "lucide-react";
+import { SampleDataBanner } from "@/components/SampleDataBanner";
 
 export const metadata = { title: "Payments" };
 
@@ -77,7 +78,9 @@ export default function PaymentsPage() {
   return (
     <div className="p-8">
       <h1 className="text-2xl font-bold mb-1">Payment Tracking</h1>
-      <p className="text-sm mb-8" style={{ color: "var(--muted)" }}>All installment payments across the portfolio</p>
+      <p className="text-sm mb-6" style={{ color: "var(--muted)" }}>All installment payments across the portfolio</p>
+
+      <SampleDataBanner note="Stripe bağlanınca gerçek ödeme geçmişiyle değişecek." />
 
       <div className="grid grid-cols-3 gap-4 mb-8">
         <Card>

@@ -1,8 +1,9 @@
 import { properties } from "@/lib/data";
 import {
   MapPin, DollarSign, TrendingUp, CreditCard,
-  ArrowUpRight, ArrowDownRight, Package, Users,
+  Package,
 } from "lucide-react";
+import { SampleDataBanner } from "@/components/SampleDataBanner";
 
 export const metadata = { title: "Investor Overview" };
 
@@ -33,7 +34,7 @@ export default function InvestorDashboard() {
   const stats = [
     { icon: Package, label: "Total Parcels", value: properties.length, sub: `${available.length} available · ${pending.length} pending · ${sold.length} sold`, color: "var(--primary)", trend: null },
     { icon: DollarSign, label: "Portfolio Value", value: `$${totalPortfolioValue.toLocaleString()}`, sub: `Cost basis: $${totalCost.toLocaleString()}`, color: "var(--success)", trend: `+${profitMargin}% margin` },
-    { icon: TrendingUp, label: "Monthly MRR", value: `$${monthlyMRR.toLocaleString()}`, sub: "From active installments", color: "#8ed1df", trend: "+12% vs last month" },
+    { icon: TrendingUp, label: "Monthly MRR", value: `$${monthlyMRR.toLocaleString()}`, sub: "From active installments", color: "#8ed1df", trend: null },
     { icon: CreditCard, label: "Total Collected", value: `$${totalReceived.toLocaleString()}`, sub: "All-time revenue", color: "var(--tertiary)", trend: null },
   ];
 
@@ -51,18 +52,14 @@ export default function InvestorDashboard() {
 
   return (
     <div className="p-8">
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-2xl font-bold">Investor Dashboard</h1>
-          <p className="text-sm mt-1" style={{ color: "var(--muted)" }}>
-            Real-time portfolio overview · Last updated: {new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
-          </p>
-        </div>
-        <div className="flex items-center gap-2 px-4 py-2 rounded-lg border border-white/5" style={{ background: "var(--surface)" }}>
-          <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-          <span className="text-xs font-medium" style={{ color: "var(--muted)" }}>Live</span>
-        </div>
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold">Investor Dashboard</h1>
+        <p className="text-sm mt-1" style={{ color: "var(--muted)" }}>
+          Portfolio overview
+        </p>
       </div>
+
+      <SampleDataBanner />
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
@@ -72,7 +69,6 @@ export default function InvestorDashboard() {
               <s.icon className="w-5 h-5" style={{ color: s.color }} />
               {s.trend && (
                 <span className="flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{ background: "rgba(34,197,94,0.1)", color: "#22c55e" }}>
-                  <ArrowUpRight className="w-3 h-3" />
                   {s.trend}
                 </span>
               )}

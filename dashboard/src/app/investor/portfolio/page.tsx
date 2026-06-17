@@ -1,5 +1,6 @@
 import { properties } from "@/lib/data";
 import { MapPin, ExternalLink } from "lucide-react";
+import { SampleDataBanner } from "@/components/SampleDataBanner";
 
 export const metadata = { title: "Portfolio" };
 
@@ -22,19 +23,12 @@ export default function PortfolioPage() {
 
   return (
     <div className="p-8">
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-2xl font-bold">Portfolio</h1>
-          <p className="text-sm mt-1" style={{ color: "var(--muted)" }}>{properties.length} parcels across {new Set(properties.map(p => p.state)).size} states</p>
-        </div>
-        <div className="flex gap-2">
-          {["All", "Available", "Pending", "Sold"].map(f => (
-            <button key={f} className="px-3 py-1.5 rounded-lg text-xs font-medium border border-white/10 transition-colors hover:border-white/20" style={{ color: "var(--muted)" }}>
-              {f}
-            </button>
-          ))}
-        </div>
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold">Portfolio</h1>
+        <p className="text-sm mt-1" style={{ color: "var(--muted)" }}>{properties.length} parcels across {new Set(properties.map(p => p.state)).size} states</p>
       </div>
+
+      <SampleDataBanner note="Görseller ve parseller temsilidir." />
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
         {sorted.map(p => (

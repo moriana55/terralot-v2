@@ -34,7 +34,7 @@ export default function CerberusMap({ deals, catalysts, sales }: { deals: MapDea
       {deals.map(d => {
         const g = d.final_score != null ? gradeOf(d.final_score) : null;
         const color = g ? GRADE_COLOR[g.varName] : "#8a8b92";
-        const disc = d.judgment_amount && d.minimum_bid ? Math.round(((d.judgment_amount - d.minimum_bid) / d.judgment_amount) * 100) : null;
+        const disc = d.judgment_amount && d.judgment_amount > 0 && d.minimum_bid ? Math.round(((d.judgment_amount - d.minimum_bid) / d.judgment_amount) * 100) : null;
         return (
           <CircleMarker key={d.id} center={[d.lat, d.lng]} radius={5} pathOptions={{ color, fillColor: color, fillOpacity: 0.7, weight: 1 }}>
             <Popup>

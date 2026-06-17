@@ -17,8 +17,10 @@ function daysUntil(d: string | null): number | null {
 export function UpcomingSales({ max = 40 }: { max?: number }) {
   const [sales, setSales] = useState<Sale[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
+    let alive = true;
     const today = new Date().toISOString().slice(0, 10);
     supabase
       .from("upcoming_sales")
@@ -26,7 +28,13 @@ export function UpcomingSales({ max = 40 }: { max?: number }) {
       .gte("sale_date", today)
       .order("sale_date", { ascending: true })
       .limit(max)
-      .then(({ data }) => { setSales((data as Sale[]) || []); setLoading(false); });
+      .then(({ data, error }) => {
+        if (!alive) return;
+        if (error) setError(true);
+        else setSales((data as Sale[]) || []);
+        setLoading(false);
+      }, () => { if (alive) { setError(true); setLoading(false); } });
+    return () => { alive = false; };
   }, [max]);
 
   return (
@@ -38,6 +46,8 @@ export function UpcomingSales({ max = 40 }: { max?: number }) {
       </div>
       {loading ? (
         <p className="text-sm py-8 text-center" style={{ color: "var(--muted)" }}>Yükleniyor…</p>
+      ) : error ? (
+        <p className="text-sm py-8 text-center" style={{ color: "var(--danger)" }}>Takvim yüklenemedi.</p>
       ) : sales.length === 0 ? (
         <p className="text-sm py-8 text-center" style={{ color: "var(--muted)" }}>Yaklaşan satış yok.</p>
       ) : (

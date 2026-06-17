@@ -1,4 +1,5 @@
-import { Target, Search, FileCheck, Handshake, CheckCircle2, XCircle } from "lucide-react";
+import { Search, FileCheck, Handshake, CheckCircle2, XCircle } from "lucide-react";
+import { SampleDataBanner } from "@/components/SampleDataBanner";
 
 export const metadata = { title: "Deal Pipeline" };
 
@@ -33,7 +34,9 @@ export default function PipelinePage() {
   return (
     <div className="p-8">
       <h1 className="text-2xl font-bold mb-1">Deal Pipeline</h1>
-      <p className="text-sm mb-8" style={{ color: "var(--muted)" }}>Active acquisition opportunities being evaluated</p>
+      <p className="text-sm mb-6" style={{ color: "var(--muted)" }}>Active acquisition opportunities being evaluated</p>
+
+      <SampleDataBanner note="Gerçek pipeline için admin → Acquisitions ekranına bakın." />
 
       {/* Pipeline columns */}
       <div className="grid grid-cols-5 gap-4 mb-8">

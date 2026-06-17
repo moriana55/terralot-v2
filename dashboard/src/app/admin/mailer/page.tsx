@@ -4,6 +4,7 @@ import { Mail, Send, Eye, Plus, FileText, Loader2 } from "lucide-react";
 import { campaigns, mailPieces, getMailerStats, MAIL_TYPE_LABELS, MAIL_STATUS_LABELS, CAMPAIGN_STATUS_LABELS, getCampaignStatusColor, getMailStatusColor, getCampaignPieces, LETTER_TEMPLATES } from "@/lib/mailer-data";
 import type { CampaignStatus } from "@/lib/mailer-data";
 import { useState } from "react";
+import { SampleDataBanner } from "@/components/SampleDataBanner";
 
 export default function MailerPage() {
   const stats = getMailerStats();
@@ -12,11 +13,11 @@ export default function MailerPage() {
   const [previewTemplate, setPreviewTemplate] = useState<string | null>(null);
 
   // Quick Send Form States
-  const [recipientName, setRecipientName] = useState("John Doe");
-  const [streetAddress, setStreetAddress] = useState("123 Main St");
-  const [city, setCity] = useState("Austin");
-  const [stateCode, setStateCode] = useState("TX");
-  const [zip, setZip] = useState("78701");
+  const [recipientName, setRecipientName] = useState("");
+  const [streetAddress, setStreetAddress] = useState("");
+  const [city, setCity] = useState("");
+  const [stateCode, setStateCode] = useState("");
+  const [zip, setZip] = useState("");
   const [selectedTemplate, setSelectedTemplate] = useState("tpl1");
   const [sending, setSending] = useState(false);
   const [sentResult, setSentResult] = useState<any>(null);
@@ -102,12 +103,14 @@ export default function MailerPage() {
             style={{ color: "var(--muted)" }}>
             <FileText className="w-4 h-4" /> Templates
           </button>
-          <button className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold transition-colors"
+          <button disabled title="Yakında" className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold opacity-50 cursor-not-allowed"
             style={{ background: "var(--primary)", color: "var(--background)" }}>
             <Plus className="w-4 h-4" /> New Campaign
           </button>
         </div>
       </div>
+
+      <SampleDataBanner note="Kampanya istatistikleri örnektir. Hızlı Gönderim, LOB_API_KEY tanımlıysa gerçek gönderir; aksi halde sandbox modunda çalışır." />
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">

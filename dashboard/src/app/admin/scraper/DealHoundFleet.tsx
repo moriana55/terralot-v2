@@ -39,12 +39,31 @@ const META: Record<string, { Icon: typeof Gavel; color: string }> = {
 const TXT = "#f4f7fb";
 const DIM = "rgba(244,247,251,0.58)";
 
+// Derive an honest live/stale/cold status from the freshest scrape timestamp,
+// instead of a hardcoded "always green" badge.
+function fleetStatus(iso: string | null): { label: string; color: string } {
+  if (!iso) return { label: "veri yok", color: "#6b7280" };
+  const h = (Date.now() - new Date(iso).getTime()) / 3_600_000;
+  if (isNaN(h)) return { label: "veri yok", color: "#6b7280" };
+  if (h < 30) return { label: "canlı", color: "#62e39a" };
+  if (h < 80) return { label: "gecikmeli", color: "#ffc24d" };
+  return { label: "durağan", color: "#ff7a7a" };
+}
+
 export function DealHoundFleet() {
   const [fleet, setFleet] = useState<Fleet | null>(null);
+  const [state, setState] = useState<"loading" | "ready" | "error">("loading");
 
   useEffect(() => {
-    fetch("/api/scraper-fleet").then((r) => r.json()).then(setFleet).catch(() => {});
+    let alive = true;
+    fetch("/api/scraper-fleet")
+      .then((r) => { if (!r.ok) throw new Error(String(r.status)); return r.json(); })
+      .then((d) => { if (alive) { setFleet(d); setState("ready"); } })
+      .catch(() => { if (alive) setState("error"); });
+    return () => { alive = false; };
   }, []);
+
+  const status = fleetStatus(fleet?.lastRun ?? null);
 
   return (
     <div
@@ -65,8 +84,8 @@ export function DealHoundFleet() {
           </div>
           <div className="flex-1 min-w-0 flex items-center gap-2">
             <h2 className="text-lg font-extrabold tracking-[0.2em] uppercase" style={{ color: TXT }}>Cerberus</h2>
-            <span className="inline-flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full" style={{ background: "rgba(80,220,140,0.16)", color: "#62e39a" }}>
-              <span className="w-1 h-1 rounded-full" style={{ background: "#62e39a", boxShadow: "0 0 6px #62e39a" }} /> canlı
+            <span className="inline-flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full" style={{ background: `${status.color}28`, color: status.color }}>
+              <span className="w-1 h-1 rounded-full" style={{ background: status.color, boxShadow: `0 0 6px ${status.color}` }} /> {state === "error" ? "bağlanamadı" : status.label}
             </span>
             {fleet?.lastRun && (
               <span className="text-[10px] hidden sm:inline" style={{ color: DIM }}>· son tarama {ago(fleet.lastRun)}</span>
@@ -81,6 +100,21 @@ export function DealHoundFleet() {
         </div>
 
         {/* bot strip */}
+        {state === "error" ? (
+          <div className="mt-5 rounded-xl px-4 py-6 text-center text-[11px]" style={{ background: "rgba(255,122,122,0.08)", border: "1px solid rgba(255,122,122,0.18)", color: "#ffb0b0" }}>
+            Fleet durumu yüklenemedi — Supabase bağlantısını kontrol edin.
+          </div>
+        ) : state === "loading" ? (
+          <div className="mt-5 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 rounded-xl overflow-hidden" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="px-4 py-3.5 animate-pulse" style={{ borderLeft: i === 0 ? "none" : "1px solid rgba(255,255,255,0.08)" }}>
+                <div className="h-3 w-16 rounded mb-2.5" style={{ background: "rgba(255,255,255,0.08)" }} />
+                <div className="h-5 w-10 rounded mb-2" style={{ background: "rgba(255,255,255,0.10)" }} />
+                <div className="h-2.5 w-20 rounded" style={{ background: "rgba(255,255,255,0.06)" }} />
+              </div>
+            ))}
+          </div>
+        ) : (
         <div className="mt-5 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 rounded-xl overflow-hidden" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
           {(fleet?.bots || []).map((b, i) => {
             const { Icon, color } = META[b.kind] || META.tax;
@@ -104,6 +138,7 @@ export function DealHoundFleet() {
             );
           })}
         </div>
+        )}
       </div>
     </div>
   );

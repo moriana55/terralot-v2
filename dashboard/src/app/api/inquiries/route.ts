@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { supabaseAdmin } from "@/lib/supabase";
+
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 const inquirySchema = z.object({
   propertyId: z.string().trim().min(1).max(200),
@@ -47,9 +51,30 @@ export async function POST(req: NextRequest) {
     createdAt: new Date().toISOString(),
   };
 
-  inquiries.push(inquiry);
+  // Prefer durable storage in the Supabase `Inquiry` table (what admin/leads
+  // reads). If Supabase is unconfigured or the insert fails (e.g. the propertyId
+  // isn't in the Property table yet), fall back to the in-memory list so the
+  // public form never breaks. We never surface fake success on a hard error.
+  let persisted = false;
+  try {
+    const s = supabaseAdmin();
+    const { error } = await s.from("Inquiry").insert({
+      id: inquiry.id,
+      propertyId,
+      name,
+      email,
+      phone: phone || null,
+      message: message || null,
+      status: "NEW",
+    });
+    if (!error) persisted = true;
+  } catch {
+    persisted = false;
+  }
 
-  return NextResponse.json({ success: true, id: inquiry.id });
+  if (!persisted) inquiries.push(inquiry);
+
+  return NextResponse.json({ success: true, id: inquiry.id, persisted });
 }
 
 export async function GET() {

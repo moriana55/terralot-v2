@@ -15,8 +15,14 @@ export async function GET(req: NextRequest) {
   const unauth = await requireGate(req);
   if (unauth) return unauth;
 
-  const s = supabaseAdmin();
+  let s;
+  try {
+    s = supabaseAdmin();
+  } catch {
+    return NextResponse.json({ error: "supabase_unconfigured" }, { status: 503 });
+  }
 
+  try {
   const countWhere = async (table: string, apply?: (q: any) => any) => {
     let q = s.from(table).select("*", { count: "exact", head: true });
     if (apply) q = apply(q);
@@ -24,16 +30,18 @@ export async function GET(req: NextRequest) {
     return count ?? 0;
   };
 
-  // distinct states + last run for a source pattern
+  // distinct states + last run for a source pattern. Bounded to MAX_PAGES so a
+  // very large table can't make this request hang or time out.
+  const MAX_PAGES = 60; // 60k rows scanned worst-case
   const meta = async (pattern: string | null) => {
     const states = new Set<string>();
     let last: string | null = null;
     let from = 0;
-    for (;;) {
+    for (let page = 0; page < MAX_PAGES; page++) {
       let q = s.from(TDP).select("state,scraped_at").range(from, from + 999);
       if (pattern) q = q.like("source", pattern);
-      const { data } = await q;
-      if (!data || data.length === 0) break;
+      const { data, error } = await q;
+      if (error || !data || data.length === 0) break;
       for (const r of data) {
         if (r.state && r.state !== "Unknown") states.add(r.state);
         if (r.scraped_at && (!last || r.scraped_at > last)) last = r.scraped_at;
@@ -84,4 +92,10 @@ export async function GET(req: NextRequest) {
     lastRun,
     bots,
   });
+  } catch (e) {
+    return NextResponse.json(
+      { error: "fleet_query_failed", message: e instanceof Error ? e.message : "failed" },
+      { status: 500 }
+    );
+  }
 }

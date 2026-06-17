@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Users, Plus, DollarSign, TrendingUp, Gift, CheckCircle2, Clock, UserPlus, Copy, ExternalLink } from "lucide-react";
+import { SampleDataBanner } from "@/components/SampleDataBanner";
 
 type PartnerType = "individual" | "agent" | "investor" | "wholesaler";
 type ReferralStatus = "pending" | "qualified" | "converted" | "paid" | "expired";
@@ -118,10 +119,12 @@ export default function ReferralsPage() {
           <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--muted)" }}>Commission Tracking</p>
           <h1 className="text-2xl font-bold mt-1">Referral Program</h1>
         </div>
-        <button className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold" style={{ background: "var(--primary)", color: "#fff" }}>
+        <button disabled title="Yakında" className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold opacity-50 cursor-not-allowed" style={{ background: "var(--primary)", color: "#fff" }}>
           <UserPlus className="w-4 h-4" /> Add Partner
         </button>
       </div>
+
+      <SampleDataBanner note="Partner ekleme yakında; rakamlar temsilidir." />
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">

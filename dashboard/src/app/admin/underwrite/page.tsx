@@ -56,7 +56,8 @@ export default function UnderwritePage() {
       });
       if (res.status === 429) throw new Error("Çok fazla istek — biraz bekle.");
       const j = await res.json();
-      if (j.error) throw new Error(j.error);
+      if (j.error) throw new Error(j.message || j.error);
+      if (!Array.isArray(j.reasons)) throw new Error("Beklenmeyen yanıt biçimi.");
       setResult(j);
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Underwriting başarısız");

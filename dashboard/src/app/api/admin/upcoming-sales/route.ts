@@ -19,6 +19,7 @@ export async function GET(req: NextRequest) {
       .from("upcoming_sales")
       .select("id,county,state,sale_date,lat,lng")
       .not("lat", "is", null)
+      .not("lng", "is", null)
       .limit(200);
     if (error) return NextResponse.json({ sales: [], error: error.message }, { status: 200 });
     return NextResponse.json({ sales: data ?? [] });

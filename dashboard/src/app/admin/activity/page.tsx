@@ -4,6 +4,7 @@ import { Phone, Mail, Calendar, StickyNote, Send, CheckCircle } from "lucide-rea
 import { activities, getContact, getDeal, ACTIVITY_LABELS, getActivityColor } from "@/lib/network-data";
 import type { ActivityType } from "@/lib/network-data";
 import { useState } from "react";
+import { SampleDataBanner } from "@/components/SampleDataBanner";
 
 const ACTIVITY_ICONS: Record<ActivityType, typeof Phone> = {
   call: Phone,
@@ -21,10 +22,12 @@ export default function ActivityPage() {
 
   return (
     <div className="p-8">
-      <div className="mb-8">
+      <div className="mb-6">
         <h1 className="text-2xl font-bold mb-1">Activity Log</h1>
         <p className="text-sm" style={{ color: "var(--muted)" }}>All interactions with your network</p>
       </div>
+
+      <SampleDataBanner />
 
       {/* Filters */}
       <div className="flex gap-2 mb-6 flex-wrap">

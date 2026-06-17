@@ -1,4 +1,5 @@
-import { FileText, Download, Eye, Calendar } from "lucide-react";
+import { FileText, Calendar } from "lucide-react";
+import { SampleDataBanner } from "@/components/SampleDataBanner";
 
 export const metadata = { title: "Documents" };
 
@@ -35,7 +36,9 @@ export default function DocumentsPage() {
   return (
     <div className="p-8">
       <h1 className="text-2xl font-bold mb-1">Documents</h1>
-      <p className="text-sm mb-8" style={{ color: "var(--muted)" }}>All investor documents, reports, and research materials</p>
+      <p className="text-sm mb-6" style={{ color: "var(--muted)" }}>All investor documents, reports, and research materials</p>
+
+      <SampleDataBanner note="Dosya indirme henüz bağlanmadı; boyut/tarih bilgileri temsilidir." />
 
       {/* Category chips */}
       <div className="flex gap-2 mb-6">

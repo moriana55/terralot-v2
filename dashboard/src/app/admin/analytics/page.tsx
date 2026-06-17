@@ -131,6 +131,14 @@ export default function AdminAnalytics() {
         </div>
       </div>
 
+      {properties.length === 0 && (
+        <div className="rounded-xl border p-10 text-center" style={{ borderColor: "var(--surface-high)", background: "var(--surface)" }}>
+          <BarChart3 className="w-8 h-8 mx-auto mb-3" style={{ color: "var(--muted)" }} />
+          <p className="text-sm font-semibold">Henüz parsel verisi yok</p>
+          <p className="text-xs mt-1" style={{ color: "var(--muted)" }}>Property tablosuna kayıt eklendiğinde finansal analiz burada görünecek.</p>
+        </div>
+      )}
+
       {/* State Filter */}
       <div className="flex flex-wrap gap-1.5 p-1.5 rounded-xl border border-slate-200 bg-slate-50 mb-8">
         {statesList.slice(0, 10).map(st => (

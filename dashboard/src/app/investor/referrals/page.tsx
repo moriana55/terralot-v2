@@ -1,4 +1,5 @@
-import { Users, DollarSign, CheckCircle2, Clock } from "lucide-react";
+import { Users, CheckCircle2, Clock } from "lucide-react";
+import { SampleDataBanner } from "@/components/SampleDataBanner";
 
 export const metadata = { title: "Referrals" };
 
@@ -33,7 +34,9 @@ export default function ReferralsPage() {
   return (
     <div className="p-8">
       <h1 className="text-2xl font-bold mb-1">Referral Network</h1>
-      <p className="text-sm mb-8" style={{ color: "var(--muted)" }}>Track commissions and network partnerships</p>
+      <p className="text-sm mb-6" style={{ color: "var(--muted)" }}>Track commissions and network partnerships</p>
+
+      <SampleDataBanner />
 
       <div className="grid grid-cols-3 gap-4 mb-8">
         <Card>

@@ -1,8 +1,9 @@
 "use client";
 
-import { TrendingUp, Users, Handshake, CircleDollarSign, Target, ArrowUpRight } from "lucide-react";
+import { Users, Handshake, CircleDollarSign, Target, ArrowUpRight } from "lucide-react";
 import Link from "next/link";
-import { deals, referrals, contacts, getPipelineStats, scoreDeal, getDealStatusColor, DEAL_STATUS_LABELS, getContact } from "@/lib/network-data";
+import { deals, contacts, getPipelineStats, scoreDeal, getDealStatusColor, DEAL_STATUS_LABELS, getContact } from "@/lib/network-data";
+import { SampleDataBanner } from "@/components/SampleDataBanner";
 
 function Card({ children, className = "" }: { children: React.ReactNode; className?: string }) {
   return (
@@ -16,7 +17,6 @@ export default function NetworkHubPage() {
   const stats = getPipelineStats();
   const activeDeals = deals.filter(d => !["closed", "dead"].includes(d.status));
   const scoredDeals = activeDeals.map(d => ({ ...d, ...scoreDeal(d) })).sort((a, b) => b.score - a.score);
-  const recentReferrals = [...referrals].sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, 5);
 
   const monthlyData = [
     { month: "Jan", deals: 2, earned: 1200 },
@@ -30,10 +30,12 @@ export default function NetworkHubPage() {
 
   return (
     <div className="p-8">
-      <div className="mb-8">
+      <div className="mb-6">
         <h1 className="text-2xl font-bold mb-1">Network Hub</h1>
         <p className="text-sm" style={{ color: "var(--muted)" }}>Your deal flow & network performance at a glance</p>
       </div>
+
+      <SampleDataBanner note="Canlı kişi/deal verisi için Contacts ve Deals ekranlarına bakın." />
 
       {/* Top Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
@@ -57,7 +59,7 @@ export default function NetworkHubPage() {
         <Card className="lg:col-span-2">
           <div className="flex items-center justify-between mb-6">
             <h2 className="font-bold">Deal Flow</h2>
-            <span className="text-xs" style={{ color: "var(--muted)" }}>Last 5 months</span>
+            <span className="text-xs" style={{ color: "var(--muted)" }}>Örnek · son 5 ay</span>
           </div>
           <div className="flex items-end gap-3 h-40">
             {monthlyData.map(m => (

@@ -1,8 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 import { supabaseAdmin } from "@/lib/supabase";
 import { enforceRateLimit, requireGate } from "@/lib/api-guard";
 import { aiEnabled, aiNarrative } from "@/lib/ai-narrative";
 import { saneAcres, saneBid, medianPpa, intrinsicValue } from "@/lib/land-valuation";
+
+// Input contract — every field optional, but the request must identify a parcel
+// by at least one of leadId/apn/address (enforced after parse). Strings are
+// length-capped so a hostile caller can't push huge payloads into ILIKE queries
+// or the AI prompt. Coordinates are bounded to valid lat/lng ranges.
+const underwriteSchema = z.object({
+  leadId: z.string().trim().min(1).max(100).optional(),
+  apn: z.string().trim().max(120).optional(),
+  address: z.string().trim().max(300).optional(),
+  state: z.string().trim().max(60).optional(),
+  county: z.string().trim().max(120).optional(),
+  acres: z.coerce.number().finite().nonnegative().max(1_000_000).optional(),
+  minBid: z.coerce.number().finite().nonnegative().max(1_000_000_000).optional(),
+  lat: z.coerce.number().min(-90).max(90).optional(),
+  lng: z.coerce.number().min(-180).max(180).optional(),
+});
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -97,7 +114,19 @@ export async function POST(req: NextRequest) {
   const unauth = await requireGate(req);
   if (unauth) return unauth;
 
-  const body = await req.json().catch(() => ({} as Record<string, unknown>));
+  const raw = await req.json().catch(() => ({}));
+  const parsed = underwriteSchema.safeParse(raw);
+  if (!parsed.success) {
+    return NextResponse.json({ error: "invalid_input", issues: parsed.error.flatten().fieldErrors }, { status: 400 });
+  }
+  const body = parsed.data;
+  // Must identify a parcel by at least one selector or enough manual fields.
+  if (!body.leadId && !body.apn && !body.address && !(body.state && body.county && body.acres != null)) {
+    return NextResponse.json(
+      { error: "missing_parcel", message: "leadId, apn, address ya da (state + county + acres) gerekli." },
+      { status: 400 }
+    );
+  }
   const s = supabaseAdmin();
 
   // 1) Resolve the parcel ----------------------------------------------------
@@ -107,10 +136,10 @@ export async function POST(req: NextRequest) {
       const { data } = await s.from("tax_delinquent_properties").select("*").eq("id", body.leadId).maybeSingle();
       lead = (data as LeadShape) ?? null;
     } else if (body.apn) {
-      const { data } = await s.from("tax_delinquent_properties").select("*").ilike("apn", `%${String(body.apn).trim()}%`).limit(1);
+      const { data } = await s.from("tax_delinquent_properties").select("*").ilike("apn", `%${body.apn.replace(/[%,]/g, "")}%`).limit(1);
       lead = (data?.[0] as LeadShape) ?? null;
     } else if (body.address) {
-      const q = String(body.address).replace(/[%,]/g, "").trim();
+      const q = body.address.replace(/[%,]/g, "").trim();
       const { data } = await s.from("tax_delinquent_properties").select("*").ilike("property_address", `%${q}%`).limit(1);
       lead = (data?.[0] as LeadShape) ?? null;
     }
@@ -118,17 +147,17 @@ export async function POST(req: NextRequest) {
     lead = null;
   }
 
-  // manual mode: build a lead from the caller-supplied fields
+  // manual mode: build a lead from the caller-supplied (validated) fields
   if (!lead) {
     lead = {
-      apn: (body.apn as string) ?? null,
-      state: (body.state as string) ?? null,
-      county: (body.county as string) ?? null,
-      acres: typeof body.acres === "number" ? body.acres : body.acres ? Number(body.acres) : null,
-      minimum_bid: typeof body.minBid === "number" ? body.minBid : body.minBid ? Number(body.minBid) : null,
-      lat: typeof body.lat === "number" ? body.lat : null,
-      lng: typeof body.lng === "number" ? body.lng : null,
-      property_address: (body.address as string) ?? null,
+      apn: body.apn ?? null,
+      state: body.state ?? null,
+      county: body.county ?? null,
+      acres: body.acres ?? null,
+      minimum_bid: body.minBid ?? null,
+      lat: body.lat ?? null,
+      lng: body.lng ?? null,
+      property_address: body.address ?? null,
     };
   }
 
