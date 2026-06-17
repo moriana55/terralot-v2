@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
+import { enforceRateLimit } from "@/lib/api-guard";
 
 const REGRID_TOKEN = process.env.REGRID_API_TOKEN || "";
 const BASE = "https://app.regrid.com/api/v2";
 
 export async function GET(req: NextRequest) {
+  const limited = enforceRateLimit(req);
+  if (limited) return limited;
+
   const { searchParams } = req.nextUrl;
   const endpoint = searchParams.get("endpoint");
 
@@ -77,8 +81,13 @@ export async function GET(req: NextRequest) {
 
   try {
     const res = await fetch(url, { headers });
-    const data = await res.json();
-    return NextResponse.json(data);
+    let data: unknown;
+    try {
+      data = await res.json();
+    } catch {
+      return NextResponse.json({ error: "Upstream returned invalid JSON" }, { status: 502 });
+    }
+    return NextResponse.json(data, { status: res.ok ? 200 : res.status });
   } catch (e: unknown) {
     const message = e instanceof Error ? e.message : "Unknown error";
     return NextResponse.json({ error: message }, { status: 500 });

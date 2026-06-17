@@ -1,8 +1,26 @@
 import { NextRequest, NextResponse } from "next/server";
+import { enforceRateLimit } from "@/lib/api-guard";
+import { DD_FEMA_TIMEOUT_MS, DD_OVERPASS_TIMEOUT_MS } from "@/lib/constants";
 
 const NFHL_URL = "https://hazards.fema.gov/arcgis/rest/services/public/NFHL/MapServer/28/query";
 const OVERPASS_URL = "https://overpass-api.de/api/interpreter";
 const ROAD_TYPES = "motorway|trunk|primary|secondary|tertiary|unclassified|residential|service|track|road|living_street";
+
+// Minimal shapes for the external API fields we actually read.
+interface FemaFeatureAttrs {
+  FLD_ZONE?: string | null;
+  ZONE_SUBTY?: string | null;
+  SFHA_TF?: string | null;
+}
+interface FemaResponse {
+  features?: { attributes?: FemaFeatureAttrs }[];
+}
+interface OverpassElement {
+  tags?: { name?: string; ref?: string; highway?: string; surface?: string };
+}
+interface OverpassResponse {
+  elements?: OverpassElement[];
+}
 
 // ─── Flood ───────────────────────────────────────────────────────────────────
 
@@ -31,16 +49,18 @@ async function checkFlood(lat: number, lon: number) {
     url.searchParams.set("f", "json");
 
     const controller = new AbortController();
-    const id = setTimeout(() => controller.abort(), 5000); // 5s timeout
+    const id = setTimeout(() => controller.abort(), DD_FEMA_TIMEOUT_MS);
 
-    const res = await fetch(url.href, { 
+    const res = await fetch(url.href, {
       headers: { accept: "application/json" },
       signal: controller.signal
     });
     clearTimeout(id);
 
     if (!res.ok) throw new Error(`FEMA HTTP ${res.status}`);
-    const data: any = await res.json();
+    const data: FemaResponse = await res.json().catch(() => {
+      throw new Error("FEMA returned invalid JSON");
+    });
     const f = data.features?.[0]?.attributes;
     if (!f) return { floodZone: "X", zoneSubtype: "AREA OF MINIMAL FLOOD HAZARD", inSFHA: false, insuranceRequired: false, riskScore: 5, riskLabel: "minimal" };
     
@@ -90,7 +110,7 @@ async function roadsWithin(lat: number, lon: number, radius: number) {
   const query = `[out:json][timeout:15];way(around:${radius},${lat},${lon})[highway~"^(${ROAD_TYPES})$"];out tags center 1;`;
   
   const controller = new AbortController();
-  const id = setTimeout(() => controller.abort(), 4000); // 4s timeout
+  const id = setTimeout(() => controller.abort(), DD_OVERPASS_TIMEOUT_MS);
 
   const res = await fetch(OVERPASS_URL, {
     method: "POST",
@@ -101,7 +121,9 @@ async function roadsWithin(lat: number, lon: number, radius: number) {
   clearTimeout(id);
 
   if (!res.ok) throw new Error(`Overpass HTTP ${res.status}`);
-  const data: any = await res.json();
+  const data: OverpassResponse = await res.json().catch(() => {
+    throw new Error("Overpass returned invalid JSON");
+  });
   const el = data.elements?.[0];
   if (!el) return null;
   return { name: el.tags?.name || el.tags?.ref || null, highway: el.tags?.highway || null, surfaceTag: el.tags?.surface || null, dist: radius };
@@ -147,6 +169,9 @@ async function checkRoad(lat: number, lon: number) {
 // ─── Route ───────────────────────────────────────────────────────────────────
 
 export async function GET(req: NextRequest) {
+  const limited = enforceRateLimit(req);
+  if (limited) return limited;
+
   const lat = parseFloat(req.nextUrl.searchParams.get("lat") ?? "");
   const lon = parseFloat(req.nextUrl.searchParams.get("lon") ?? "");
   if (isNaN(lat) || isNaN(lon)) return NextResponse.json({ error: "lat/lon required" }, { status: 400 });

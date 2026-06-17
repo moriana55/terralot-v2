@@ -1,4 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
+
+const inquirySchema = z.object({
+  propertyId: z.string().trim().min(1).max(200),
+  propertyTitle: z.string().trim().max(300).optional(),
+  name: z.string().trim().min(1).max(100),
+  email: z.string().trim().email().max(200),
+  phone: z.string().trim().max(40).optional(),
+  message: z.string().trim().max(2000).optional(),
+});
 
 const inquiries: Array<{
   id: string;
@@ -13,12 +23,17 @@ const inquiries: Array<{
 }> = [];
 
 export async function POST(req: NextRequest) {
-  const body = await req.json();
-  const { propertyId, propertyTitle, name, email, phone, message } = body;
-
-  if (!name || !email || !propertyId) {
-    return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+  let raw: unknown;
+  try {
+    raw = await req.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
+  const parsed = inquirySchema.safeParse(raw);
+  if (!parsed.success) {
+    return NextResponse.json({ error: "Invalid input" }, { status: 400 });
+  }
+  const { propertyId, propertyTitle, name, email, phone, message } = parsed.data;
 
   const inquiry = {
     id: crypto.randomUUID(),

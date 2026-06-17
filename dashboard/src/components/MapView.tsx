@@ -29,6 +29,7 @@ export default function MapView({ properties, onMarkerClick, center, zoom = 4, c
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<L.Map | null>(null);
   const [mapStyle, setMapStyle] = useState<"satellite" | "dark" | "topo">("satellite");
+  const [mapError, setMapError] = useState(false);
 
   const tileUrls: Record<string, { url: string; attr: string }> = {
     satellite: {
@@ -108,6 +109,9 @@ export default function MapView({ properties, onMarkerClick, center, zoom = 4, c
       }
 
       mapInstance.current = map;
+    }).catch((err) => {
+      console.error("Leaflet failed to load:", err);
+      setMapError(true);
     });
 
     return () => {
@@ -126,9 +130,20 @@ export default function MapView({ properties, onMarkerClick, center, zoom = 4, c
       const tile = tileUrls[mapStyle];
       const newLayer = L.tileLayer(tile.url, { attribution: tile.attr, maxZoom: 19 }).addTo(map);
       (map as unknown as Record<string, L.TileLayer>)._activeLayer = newLayer;
+    }).catch((err) => {
+      console.error("Leaflet failed to load:", err);
+      setMapError(true);
     });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mapStyle]);
+
+  if (mapError) {
+    return (
+      <div className={`relative w-full h-full min-h-[300px] flex items-center justify-center text-sm ${className}`} style={{ background: "#1a1a2e", color: "#aaa" }}>
+        Harita yüklenemedi
+      </div>
+    );
+  }
 
   return (
     <div className="relative w-full h-full">

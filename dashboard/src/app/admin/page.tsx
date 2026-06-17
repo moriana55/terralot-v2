@@ -22,34 +22,46 @@ export default function AdminDashboard() {
   const [deals, setDeals] = useState<Deal[]>([]);
   const [fresh, setFresh] = useState<Deal[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     (async () => {
-      const since = new Date(Date.now() - 36 * 3600000).toISOString();
-      const [{ data: props }, { data: top }, { data: newDeals }, f] = await Promise.all([
-        supabase.from("Property").select("price,status"),
-        supabase.from("tax_delinquent_properties").select("id,state,county,minimum_bid,judgment_amount,final_score,road_access").order("final_score", { ascending: false, nullsFirst: false }).limit(6),
-        supabase.from("tax_delinquent_properties").select("id,state,county,minimum_bid,judgment_amount,final_score,road_access").gt("created_at", since).gte("final_score", 45).order("final_score", { ascending: false, nullsFirst: false }).limit(6),
-        fetch("/api/acquisition-stats").then((r) => r.json()).catch(() => null),
-      ]);
-      if (newDeals) setFresh(newDeals as Deal[]);
-      if (props) {
-        setStats({
-          total: props.length,
-          available: props.filter((p) => p.status === "AVAILABLE").length,
-          pending: props.filter((p) => p.status === "PENDING").length,
-          sold: props.filter((p) => p.status === "SOLD").length,
-          totalValue: props.reduce((s, p) => s + (p.price || 0), 0),
-        });
+      try {
+        const since = new Date(Date.now() - 36 * 3600000).toISOString();
+        const [{ data: props }, { data: top }, { data: newDeals }, f] = await Promise.all([
+          supabase.from("Property").select("price,status"),
+          supabase.from("tax_delinquent_properties").select("id,state,county,minimum_bid,judgment_amount,final_score,road_access").order("final_score", { ascending: false, nullsFirst: false }).limit(6),
+          supabase.from("tax_delinquent_properties").select("id,state,county,minimum_bid,judgment_amount,final_score,road_access").gt("created_at", since).gte("final_score", 45).order("final_score", { ascending: false, nullsFirst: false }).limit(6),
+          fetch("/api/acquisition-stats").then((r) => r.json()).catch(() => null),
+        ]);
+        if (newDeals) setFresh(newDeals as Deal[]);
+        if (props) {
+          setStats({
+            total: props.length,
+            available: props.filter((p) => p.status === "AVAILABLE").length,
+            pending: props.filter((p) => p.status === "PENDING").length,
+            sold: props.filter((p) => p.status === "SOLD").length,
+            totalValue: props.reduce((s, p) => s + (p.price || 0), 0),
+          });
+        }
+        if (top) setDeals(top as Deal[]);
+        if (f) setFunnel(f);
+      } catch (e) {
+        setError(e instanceof Error ? e.message : "Veriler yüklenemedi.");
+      } finally {
+        setLoading(false);
       }
-      if (top) setDeals(top as Deal[]);
-      if (f) setFunnel(f);
-      setLoading(false);
     })();
   }, []);
 
   return (
     <div className="p-7 max-w-6xl space-y-6">
+      {error && (
+        <div className="rounded-lg p-3 text-sm" style={{ background: "rgba(255,80,80,0.08)", color: "#ff5050", border: "1px solid rgba(255,80,80,0.2)" }}>
+          {error}
+        </div>
+      )}
+
       {/* ── Cerberus command hero ── */}
       <div className="relative rounded-2xl overflow-hidden" style={{ background: "linear-gradient(135deg, #102a55 0%, #0a1a3f 62%)", boxShadow: "0 10px 34px rgba(8,18,42,0.4)" }}>
         <div style={{ height: 2, background: "linear-gradient(90deg, transparent, #8ed1df, #a882ff, transparent)" }} />

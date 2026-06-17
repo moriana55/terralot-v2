@@ -3,8 +3,25 @@ import { NextRequest, NextResponse } from "next/server";
 const LOB_API_KEY = process.env.LOB_API_KEY;
 const LOB_BASE = "https://api.lob.com/v1";
 
+// Parse an upstream Lob response safely; returns a 502 if the body isn't JSON.
+async function lobJson(res: Response): Promise<NextResponse> {
+  let data: unknown;
+  try {
+    data = await res.json();
+  } catch {
+    return NextResponse.json({ error: "Lob returned invalid JSON" }, { status: 502 });
+  }
+  return NextResponse.json(data, { status: res.ok ? 200 : 400 });
+}
+
 export async function POST(req: NextRequest) {
-  const body = await req.json();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let body: Record<string, any>;
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+  }
   const { action } = body;
 
   if (!LOB_API_KEY) {
@@ -80,8 +97,7 @@ export async function POST(req: NextRequest) {
       }),
     });
 
-    const data = await res.json();
-    return NextResponse.json(data, { status: res.ok ? 200 : 400 });
+    return lobJson(res);
   }
 
   if (action === "send_postcard") {
@@ -116,8 +132,7 @@ export async function POST(req: NextRequest) {
       }),
     });
 
-    const data = await res.json();
-    return NextResponse.json(data, { status: res.ok ? 200 : 400 });
+    return lobJson(res);
   }
 
   if (action === "verify_address") {
@@ -137,8 +152,7 @@ export async function POST(req: NextRequest) {
       }),
     });
 
-    const data = await res.json();
-    return NextResponse.json(data, { status: res.ok ? 200 : 400 });
+    return lobJson(res);
   }
 
   return NextResponse.json({ error: "Unknown action" }, { status: 400 });

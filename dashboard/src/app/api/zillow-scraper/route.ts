@@ -1,5 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 import { supabaseAdmin } from "@/lib/supabase";
+import { enforceRateLimit, requireGate } from "@/lib/api-guard";
+
+const scrapeSchema = z.object({
+  state: z.string().trim().min(1).max(40).optional(),
+  county: z.string().trim().min(1).max(80).optional(),
+  limit: z.number().int().min(1).max(50).optional(),
+  source: z.string().trim().min(1).max(40).optional(),
+});
 
 const SAMPLE_OWNERS = [
   "James W. Anderson", "Sarah J. Jenkins", "Robert M. Davis",
@@ -43,9 +52,24 @@ const REAL_LAND_LISTINGS: Record<string, any[]> = {
 };
 
 export async function POST(req: NextRequest) {
+  const limited = enforceRateLimit(req);
+  if (limited) return limited;
+  const unauth = await requireGate(req);
+  if (unauth) return unauth;
+
+  let raw: unknown;
   try {
-    const body = await req.json();
-    const { state = "AZ", county = "Mohave", limit = 4, source = "ZILLOW" } = body;
+    raw = await req.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+  }
+  const parsed = scrapeSchema.safeParse(raw);
+  if (!parsed.success) {
+    return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
+  }
+
+  try {
+    const { state = "AZ", county = "Mohave", limit = 4, source = "ZILLOW" } = parsed.data;
 
     // Generate realistic leads
     const newLeads = [];

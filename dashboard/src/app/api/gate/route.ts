@@ -1,17 +1,28 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GATE_COOKIE, gateEnabled, gateToken } from "@/lib/gate";
+import { GATE_RATE_MAX_ATTEMPTS, GATE_RATE_WINDOW_MS } from "@/lib/constants";
 
 export const runtime = "nodejs";
 
-// Simple in-memory brute-force limiter: max 8 attempts / 5 min per IP.
+// Simple in-memory brute-force limiter: max attempts / window per IP.
 const attempts = new Map<string, { n: number; ts: number }>();
-const WINDOW = 5 * 60_000;
+const WINDOW = GATE_RATE_WINDOW_MS;
+
+// Drop entries older than the window so the Map can't grow unbounded
+// (previously entries were only removed on a successful login).
+function sweepExpired(now: number) {
+  for (const [k, v] of attempts) {
+    if (now - v.ts > WINDOW) attempts.delete(k);
+  }
+}
+
 function rateLimited(ip: string): boolean {
   const now = Date.now();
+  sweepExpired(now);
   const a = attempts.get(ip);
   if (!a || now - a.ts > WINDOW) { attempts.set(ip, { n: 1, ts: now }); return false; }
   a.n++;
-  return a.n > 8;
+  return a.n > GATE_RATE_MAX_ATTEMPTS;
 }
 
 export async function POST(req: NextRequest) {

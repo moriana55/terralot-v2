@@ -17,9 +17,17 @@ export function gateEnabled(): boolean {
 }
 
 // Deterministic session token derived from password + secret.
+// Fails closed: never falls back to a hardcoded secret, and never derives a
+// token from an empty password (which would let an empty password match).
 export async function gateToken(): Promise<string> {
-  const pw = process.env.ADMIN_PASSWORD || "";
-  const secret = process.env.SESSION_SECRET || "tl-dev-secret";
+  const pw = process.env.ADMIN_PASSWORD;
+  const secret = process.env.SESSION_SECRET;
+  if (!secret) {
+    throw new Error("SESSION_SECRET is not set — gate refusing to issue a session (fail closed).");
+  }
+  if (!pw) {
+    throw new Error("ADMIN_PASSWORD is not set — gate refusing to issue a session (fail closed).");
+  }
   const data = new TextEncoder().encode(`${pw}:${secret}`);
   const digest = await crypto.subtle.digest("SHA-256", data);
   return Array.from(new Uint8Array(digest))

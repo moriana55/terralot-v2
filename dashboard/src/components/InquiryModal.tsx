@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { X, Send, CheckCircle2, Loader2 } from "lucide-react";
 import type { Property } from "@/lib/data";
 
@@ -12,6 +12,17 @@ interface InquiryModalProps {
 export default function InquiryModal({ property, onClose }: InquiryModalProps) {
   const [form, setForm] = useState({ name: "", email: "", phone: "", message: "" });
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
+  const closeBtnRef = useRef<HTMLButtonElement>(null);
+
+  // Close on Escape; focus the close button on open.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", onKey);
+    closeBtnRef.current?.focus();
+    return () => document.removeEventListener("keydown", onKey);
+  }, [onClose]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,7 +44,7 @@ export default function InquiryModal({ property, onClose }: InquiryModalProps) {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={onClose}>
         <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
-        <div className="relative rounded-2xl p-8 max-w-md w-full text-center border border-white/10" style={{ background: "var(--surface)" }} onClick={e => e.stopPropagation()}>
+        <div role="dialog" aria-modal="true" aria-label="Inquiry sent" className="relative rounded-2xl p-8 max-w-md w-full text-center border border-white/10" style={{ background: "var(--surface)" }} onClick={e => e.stopPropagation()}>
           <CheckCircle2 className="w-16 h-16 mx-auto mb-4" style={{ color: "var(--success)" }} />
           <h3 className="text-xl font-bold mb-2">Inquiry Sent!</h3>
           <p className="text-sm mb-6" style={{ color: "var(--muted)" }}>
@@ -50,13 +61,13 @@ export default function InquiryModal({ property, onClose }: InquiryModalProps) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={onClose}>
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
-      <div className="relative rounded-2xl p-6 max-w-lg w-full border border-white/10" style={{ background: "var(--surface)" }} onClick={e => e.stopPropagation()}>
+      <div role="dialog" aria-modal="true" aria-labelledby="inquiry-modal-title" className="relative rounded-2xl p-6 max-w-lg w-full border border-white/10" style={{ background: "var(--surface)" }} onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h3 className="text-lg font-bold">Inquire About This Property</h3>
+            <h3 id="inquiry-modal-title" className="text-lg font-bold">Inquire About This Property</h3>
             <p className="text-xs mt-1" style={{ color: "var(--muted)" }}>{property.title} — ${property.price.toLocaleString()}</p>
           </div>
-          <button onClick={onClose} className="w-8 h-8 rounded-lg flex items-center justify-center border border-white/10 hover:border-white/20 transition-colors">
+          <button ref={closeBtnRef} onClick={onClose} aria-label="Close" className="w-8 h-8 rounded-lg flex items-center justify-center border border-white/10 hover:border-white/20 transition-colors">
             <X className="w-4 h-4" />
           </button>
         </div>

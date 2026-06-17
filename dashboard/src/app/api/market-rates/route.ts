@@ -1,5 +1,6 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
+import { enforceRateLimit, requireGate } from "@/lib/api-guard";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -33,7 +34,12 @@ const median = (a: number[]) => {
   return b.length % 2 ? b[m] : (b[m - 1] + b[m]) / 2;
 };
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const limited = enforceRateLimit(req);
+  if (limited) return limited;
+  const unauth = await requireGate(req);
+  if (unauth) return unauth;
+
   const s = supabaseAdmin();
   const { data } = await s.from("competitor_listings").select("state,price,acres");
   const by: Record<string, number[]> = {};

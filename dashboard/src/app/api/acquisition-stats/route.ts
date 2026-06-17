@@ -1,11 +1,17 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
+import { enforceRateLimit, requireGate } from "@/lib/api-guard";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 // Real sourcing funnel: counties scanned -> records -> evaluable -> deal tiers.
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const limited = enforceRateLimit(req);
+  if (limited) return limited;
+  const unauth = await requireGate(req);
+  if (unauth) return unauth;
+
   const s = supabaseAdmin();
   const TABLE = "tax_delinquent_properties";
 

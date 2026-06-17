@@ -9,8 +9,15 @@ const isApi = (req: NextRequest) => req.nextUrl.pathname.startsWith("/api/");
 async function gateMiddleware(req: NextRequest) {
   if (!isProtectedRoute(req)) return NextResponse.next();
   const cookie = req.cookies.get(GATE_COOKIE)?.value;
-  const expected = await gateToken();
-  if (cookie && cookie === expected) return NextResponse.next();
+  // Fail closed: if the token can't be derived (e.g. SESSION_SECRET missing),
+  // deny rather than allow.
+  let expected: string | null = null;
+  try {
+    expected = await gateToken();
+  } catch {
+    expected = null;
+  }
+  if (expected && cookie && cookie === expected) return NextResponse.next();
   // API → 401 JSON; pages → redirect to gate
   if (isApi(req)) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   const url = req.nextUrl.clone();

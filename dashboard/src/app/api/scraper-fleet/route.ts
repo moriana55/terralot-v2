@@ -1,5 +1,6 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
+import { enforceRateLimit, requireGate } from "@/lib/api-guard";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -8,7 +9,12 @@ export const dynamic = "force-dynamic";
 // acquisition pipeline. Stats are live from Supabase.
 const TDP = "tax_delinquent_properties";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const limited = enforceRateLimit(req);
+  if (limited) return limited;
+  const unauth = await requireGate(req);
+  if (unauth) return unauth;
+
   const s = supabaseAdmin();
 
   const countWhere = async (table: string, apply?: (q: any) => any) => {

@@ -1,4 +1,5 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import { enforceRateLimit, requireGate } from "@/lib/api-guard";
 
 export const runtime = "nodejs";
 
@@ -27,7 +28,12 @@ const CATALYSTS: Catalyst[] = [
   { company: "Meta", project: "Hyperion AI data center", sector: "Veri Merkezi", city: "Richland Parish", state: "LA", county: "Richland", investmentB: 10, year: 2026, lat: 32.42, lng: -91.76 },
 ];
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const limited = enforceRateLimit(req);
+  if (limited) return limited;
+  const unauth = await requireGate(req);
+  if (unauth) return unauth;
+
   // county set for fast deal matching, key "ST/COUNTY"
   const counties = CATALYSTS.map((c) => `${c.state}/${c.county.toUpperCase()}`);
   return NextResponse.json({ catalysts: CATALYSTS, counties });
