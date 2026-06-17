@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { enforceRateLimit, requireGate } from "@/lib/api-guard";
+import { enforceRateLimit } from "@/lib/api-guard";
 
 export const runtime = "nodejs";
 
@@ -31,8 +31,7 @@ const CATALYSTS: Catalyst[] = [
 export async function GET(req: NextRequest) {
   const limited = enforceRateLimit(req);
   if (limited) return limited;
-  const unauth = await requireGate(req);
-  if (unauth) return unauth;
+  // Public marketing data (allowlisted in middleware) — rate-limited, no gate.
 
   // county set for fast deal matching, key "ST/COUNTY"
   const counties = CATALYSTS.map((c) => `${c.state}/${c.county.toUpperCase()}`);

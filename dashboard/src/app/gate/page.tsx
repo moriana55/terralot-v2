@@ -4,10 +4,20 @@ import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Lock, Loader2 } from "lucide-react";
 
+// Open-redirect guard: only allow same-origin, single-leading-slash paths.
+// Rejects "//evil.com", "https://evil.com", "/\evil.com", etc. → falls back to /admin.
+function safeNext(raw: string | null): string {
+  if (!raw) return "/admin";
+  if (!raw.startsWith("/")) return "/admin";       // must be a relative path
+  if (raw.startsWith("//") || raw.startsWith("/\\")) return "/admin"; // protocol-relative
+  if (/[\r\n]/.test(raw)) return "/admin";          // header/JS injection guard
+  return raw;
+}
+
 function GateForm() {
   const router = useRouter();
   const params = useSearchParams();
-  const next = params.get("next") || "/admin";
+  const next = safeNext(params.get("next"));
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
-import { enforceRateLimit, requireGate } from "@/lib/api-guard";
+import { enforceRateLimit } from "@/lib/api-guard";
 import { HOT_COUNTIES_CAP, HOT_STATES_CAP } from "@/lib/constants";
 
 export const runtime = "nodejs";
@@ -17,8 +17,7 @@ const normCounty = (c: string | null) => (c || "").toUpperCase().replace(/ COUNT
 export async function GET(req: NextRequest) {
   const limited = enforceRateLimit(req);
   if (limited) return limited;
-  const unauth = await requireGate(req);
-  if (unauth) return unauth;
+  // Public marketing data (allowlisted in middleware) — rate-limited, no gate.
 
   const s = supabaseAdmin();
 

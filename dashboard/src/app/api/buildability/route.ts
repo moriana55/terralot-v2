@@ -1,10 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 import { supabaseAdmin } from "@/lib/supabase";
 import { enforceRateLimit, requireGate } from "@/lib/api-guard";
 import { aiEnabled, aiNarrative } from "@/lib/ai-narrative";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+
+// Input contract — coordinates bounded, strings length-capped, numbers finite.
+// Identify a parcel by leadId OR supply manual fields. Coerced so JSON numbers
+// or numeric strings both work; rejects junk with a 400 instead of crashing.
+const buildabilitySchema = z.object({
+  leadId: z.string().trim().min(1).max(100).optional(),
+  acres: z.coerce.number().finite().nonnegative().max(1_000_000).optional(),
+  state: z.string().trim().max(60).optional(),
+  county: z.string().trim().max(120).optional(),
+  lat: z.coerce.number().min(-90).max(90).optional(),
+  lng: z.coerce.number().min(-180).max(180).optional(),
+  slopePct: z.coerce.number().finite().min(0).max(100).optional(),
+});
 
 // ─────────────────────────────────────────────────────────────────────────────
 // BUILDABILITY / ZONING AI
@@ -70,7 +84,18 @@ export async function POST(req: NextRequest) {
   const unauth = await requireGate(req);
   if (unauth) return unauth;
 
-  const body = await req.json().catch(() => ({} as Record<string, unknown>));
+  const raw = await req.json().catch(() => ({}));
+  const parsed = buildabilitySchema.safeParse(raw);
+  if (!parsed.success) {
+    return NextResponse.json({ error: "invalid_input", issues: parsed.error.flatten().fieldErrors }, { status: 400 });
+  }
+  const body = parsed.data;
+  if (!body.leadId && body.acres == null && !(body.state && body.county)) {
+    return NextResponse.json(
+      { error: "missing_parcel", message: "leadId ya da (acres veya state+county) gerekli." },
+      { status: 400 }
+    );
+  }
   const s = supabaseAdmin();
 
   let lead: Record<string, unknown> | null = null;
@@ -81,12 +106,12 @@ export async function POST(req: NextRequest) {
     } catch { /* graceful */ }
   }
 
-  const acres = (lead?.acres as number) ?? (typeof body.acres === "number" ? body.acres : body.acres ? Number(body.acres) : null);
-  const state = abbr((lead?.state as string) ?? (body.state as string) ?? null);
-  const county = (lead?.county as string) ?? (body.county as string) ?? null;
-  const lat = (lead?.lat as number) ?? (typeof body.lat === "number" ? body.lat : null);
-  const lng = (lead?.lng as number) ?? (typeof body.lng === "number" ? body.lng : null);
-  let slopePct = (lead?.slope_pct as number) ?? (typeof body.slopePct === "number" ? body.slopePct : null);
+  const acres = (lead?.acres as number) ?? body.acres ?? null;
+  const state = abbr((lead?.state as string) ?? body.state ?? null);
+  const county = (lead?.county as string) ?? body.county ?? null;
+  const lat = (lead?.lat as number) ?? body.lat ?? null;
+  const lng = (lead?.lng as number) ?? body.lng ?? null;
+  let slopePct = (lead?.slope_pct as number) ?? body.slopePct ?? null;
   let floodScore = (lead?.flood_score as number) ?? null;
   let roadAccess = (lead?.road_access as string) ?? null;
 

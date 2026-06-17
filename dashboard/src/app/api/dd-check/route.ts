@@ -1,6 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
-import { enforceRateLimit } from "@/lib/api-guard";
+import { z } from "zod";
+import { enforceRateLimit, requireGate } from "@/lib/api-guard";
 import { DD_FEMA_TIMEOUT_MS, DD_OVERPASS_TIMEOUT_MS } from "@/lib/constants";
+
+// Bounded coordinate validation — rejects NaN/out-of-range before any external
+// fetch, so the FEMA/Overpass calls can't be driven with junk input.
+const coordSchema = z.object({
+  lat: z.coerce.number().min(-90).max(90),
+  lon: z.coerce.number().min(-180).max(180),
+});
 
 const NFHL_URL = "https://hazards.fema.gov/arcgis/rest/services/public/NFHL/MapServer/28/query";
 const OVERPASS_URL = "https://overpass-api.de/api/interpreter";
@@ -171,10 +179,19 @@ async function checkRoad(lat: number, lon: number) {
 export async function GET(req: NextRequest) {
   const limited = enforceRateLimit(req);
   if (limited) return limited;
+  // Admin-gated (no-op when Clerk is live; internal underwrite/buildability
+  // callers forward the session cookie so they still pass).
+  const unauth = await requireGate(req);
+  if (unauth) return unauth;
 
-  const lat = parseFloat(req.nextUrl.searchParams.get("lat") ?? "");
-  const lon = parseFloat(req.nextUrl.searchParams.get("lon") ?? "");
-  if (isNaN(lat) || isNaN(lon)) return NextResponse.json({ error: "lat/lon required" }, { status: 400 });
+  const parsed = coordSchema.safeParse({
+    lat: req.nextUrl.searchParams.get("lat"),
+    lon: req.nextUrl.searchParams.get("lon"),
+  });
+  if (!parsed.success) {
+    return NextResponse.json({ error: "valid lat/lon required" }, { status: 400 });
+  }
+  const { lat, lon } = parsed.data;
 
   const [flood, road] = await Promise.allSettled([checkFlood(lat, lon), checkRoad(lat, lon)]);
 

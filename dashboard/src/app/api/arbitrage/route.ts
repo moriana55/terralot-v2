@@ -52,8 +52,13 @@ export async function GET(req: NextRequest) {
   if (unauth) return unauth;
 
   const s = supabaseAdmin();
-  const stateFilter = req.nextUrl.searchParams.get("state");
-  const minGap = Number(req.nextUrl.searchParams.get("minGap") || "0"); // min discount %
+  const rawState = req.nextUrl.searchParams.get("state");
+  // Bound the state filter to a sane token (2-letter abbr, "all", or null) so it
+  // can't smuggle anything into the query; reject overly long junk.
+  const stateFilter = rawState && rawState.length <= 30 ? rawState : null;
+  // minGap: clamp to 0..100, NaN → 0 (never let NaN silently disable the filter).
+  const rawGap = Number(req.nextUrl.searchParams.get("minGap"));
+  const minGap = Number.isFinite(rawGap) ? Math.max(0, Math.min(100, rawGap)) : 0; // min discount %
 
   // 1) Build county + state median $/acre tables (outlier-stripped) ----------
   const stateRates: Record<string, number> = {};

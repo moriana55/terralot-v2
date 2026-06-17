@@ -1,12 +1,28 @@
 import { NextRequest, NextResponse } from "next/server";
-import { enforceRateLimit } from "@/lib/api-guard";
+import { z } from "zod";
+import { enforceRateLimit, requireGate } from "@/lib/api-guard";
 
 const REGRID_TOKEN = process.env.REGRID_API_TOKEN || "";
 const BASE = "https://app.regrid.com/api/v2";
 
+// Validates only what the chosen endpoint needs. Coordinates are bounded numbers
+// so they can't smuggle anything into the upstream URL; query/owner are length-
+// capped strings (and URL-encoded below).
+const regridSchema = z.object({
+  endpoint: z.enum(["point", "address", "owner"]),
+  lat: z.coerce.number().min(-90).max(90).optional(),
+  lng: z.coerce.number().min(-180).max(180).optional(),
+  query: z.string().trim().min(1).max(300).optional(),
+  owner: z.string().trim().min(1).max(200).optional(),
+});
+
 export async function GET(req: NextRequest) {
   const limited = enforceRateLimit(req);
   if (limited) return limited;
+  // Admin-gated (no-op under Clerk). Proxies a paid/token'd upstream — must not
+  // be anonymously reachable.
+  const unauth = await requireGate(req);
+  if (unauth) return unauth;
 
   const { searchParams } = req.nextUrl;
   const endpoint = searchParams.get("endpoint");
@@ -59,24 +75,30 @@ export async function GET(req: NextRequest) {
     });
   }
 
+  const parsed = regridSchema.safeParse({
+    endpoint,
+    lat: searchParams.get("lat") ?? undefined,
+    lng: searchParams.get("lng") ?? undefined,
+    query: searchParams.get("query") ?? undefined,
+    owner: searchParams.get("owner") ?? undefined,
+  });
+  if (!parsed.success) {
+    return NextResponse.json({ error: "invalid_input", issues: parsed.error.flatten() }, { status: 400 });
+  }
+  const p = parsed.data;
+
   let url = "";
   const headers = { Authorization: `Bearer ${REGRID_TOKEN}`, Accept: "application/json" };
 
-  if (endpoint === "point") {
-    const lat = searchParams.get("lat");
-    const lng = searchParams.get("lng");
-    if (!lat || !lng) return NextResponse.json({ error: "lat/lng required" }, { status: 400 });
-    url = `${BASE}/parcels/point?lat=${lat}&lon=${lng}&token=${REGRID_TOKEN}`;
-  } else if (endpoint === "address") {
-    const query = searchParams.get("query");
-    if (!query) return NextResponse.json({ error: "query required" }, { status: 400 });
-    url = `${BASE}/parcels/address?query=${encodeURIComponent(query)}&token=${REGRID_TOKEN}`;
-  } else if (endpoint === "owner") {
-    const owner = searchParams.get("owner");
-    if (!owner) return NextResponse.json({ error: "owner required" }, { status: 400 });
-    url = `${BASE}/parcels/owner?owner=${encodeURIComponent(owner)}&token=${REGRID_TOKEN}`;
+  if (p.endpoint === "point") {
+    if (p.lat == null || p.lng == null) return NextResponse.json({ error: "lat/lng required" }, { status: 400 });
+    url = `${BASE}/parcels/point?lat=${p.lat}&lon=${p.lng}&token=${encodeURIComponent(REGRID_TOKEN)}`;
+  } else if (p.endpoint === "address") {
+    if (!p.query) return NextResponse.json({ error: "query required" }, { status: 400 });
+    url = `${BASE}/parcels/address?query=${encodeURIComponent(p.query)}&token=${encodeURIComponent(REGRID_TOKEN)}`;
   } else {
-    return NextResponse.json({ error: "Invalid endpoint" }, { status: 400 });
+    if (!p.owner) return NextResponse.json({ error: "owner required" }, { status: 400 });
+    url = `${BASE}/parcels/owner?owner=${encodeURIComponent(p.owner)}&token=${encodeURIComponent(REGRID_TOKEN)}`;
   }
 
   try {

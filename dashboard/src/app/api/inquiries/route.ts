@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { supabaseAdmin } from "@/lib/supabase";
+import { enforceRateLimit } from "@/lib/api-guard";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -27,6 +28,11 @@ const inquiries: Array<{
 }> = [];
 
 export async function POST(req: NextRequest) {
+  // Public lead-capture endpoint (no auth by design). Rate-limit per IP so it
+  // can't be used for spam / form-flooding. Tighter than the API default.
+  const limited = enforceRateLimit(req, { limit: 8, windowMs: 60_000 });
+  if (limited) return limited;
+
   let raw: unknown;
   try {
     raw = await req.json();
@@ -77,6 +83,17 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({ success: true, id: inquiry.id, persisted });
 }
 
-export async function GET() {
-  return NextResponse.json(inquiries.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()));
+// The in-memory list only holds inquiries that FAILED to persist to Supabase
+// (a degraded fallback) and can contain submitter PII. It must not be world-
+// readable. Admin reads come from /api/admin/inquiries (gated). The route-level
+// gate (middleware) protects /api/* except this file's POST, but we add an
+// explicit fail-closed check here too rather than leak the buffer.
+import { requireGate } from "@/lib/api-guard";
+
+export async function GET(req: NextRequest) {
+  const unauth = await requireGate(req);
+  if (unauth) return unauth;
+  return NextResponse.json(
+    inquiries.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+  );
 }

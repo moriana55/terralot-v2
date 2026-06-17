@@ -2,8 +2,27 @@ import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse, type NextFetchEvent } from "next/server";
 import { GATE_COOKIE, clerkIsReal, gateEnabled, gateToken } from "@/lib/gate";
 
-// Protect admin/investor pages AND all API routes except the login endpoint.
-const isProtectedRoute = createRouteMatcher(["/admin(.*)", "/investor(.*)", "/api/((?!gate).*)"]);
+// Explicitly PUBLIC API endpoints — reachable by the marketing site even when
+// the admin gate / Clerk protection is active. These are the only /api/* paths
+// that anonymous traffic may hit; each enforces its own input validation +
+// per-IP rate limit at the route level (lead capture & read-only public data).
+// Everything else under /api/* is protected (fail-closed) below.
+const PUBLIC_API = [
+  "/api/gate",
+  "/api/inquiries",
+  "/api/checkout",
+  "/api/hot-counties",
+  "/api/growth-catalysts",
+  "/api/county-demographics",
+  "/api/market-rates",
+];
+const isPublicApi = (req: NextRequest) =>
+  PUBLIC_API.some((p) => req.nextUrl.pathname === p || req.nextUrl.pathname.startsWith(p + "/"));
+
+// Protect admin/investor pages AND all API routes EXCEPT the public allowlist.
+const isProtectedRoute = (req: NextRequest) =>
+  !isPublicApi(req) && matchProtected(req);
+const matchProtected = createRouteMatcher(["/admin(.*)", "/investor(.*)", "/buyer(.*)", "/api/(.*)"]);
 const isApi = (req: NextRequest) => req.nextUrl.pathname.startsWith("/api/");
 
 async function gateMiddleware(req: NextRequest) {
@@ -30,9 +49,28 @@ const clerk = clerkMiddleware(async (auth, req) => {
   if (isProtectedRoute(req)) await auth.protect();
 });
 
+// Fail-closed deny for protected routes when NO auth mechanism is configured
+// (Clerk keys are placeholders AND no ADMIN_PASSWORD/SESSION_SECRET set).
+// Previously this fell through to NextResponse.next(), leaving every /admin,
+// /investor and /api/* route fully open. Now an unconfigured deployment denies
+// protected traffic instead of silently exposing it.
+function denyUnconfigured(req: NextRequest): NextResponse {
+  if (isApi(req)) {
+    return NextResponse.json(
+      { error: "auth_not_configured", message: "Set Clerk keys or ADMIN_PASSWORD + SESSION_SECRET." },
+      { status: 503 }
+    );
+  }
+  const url = req.nextUrl.clone();
+  url.pathname = "/gate";
+  return NextResponse.redirect(url);
+}
+
 export default function middleware(req: NextRequest, ev: NextFetchEvent) {
   if (clerkIsReal()) return clerk(req, ev);
   if (gateEnabled()) return gateMiddleware(req);
+  // No real auth configured: allow public routes, deny anything protected.
+  if (isProtectedRoute(req)) return denyUnconfigured(req);
   return NextResponse.next();
 }
 
