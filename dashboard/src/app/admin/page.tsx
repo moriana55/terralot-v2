@@ -28,20 +28,21 @@ export default function AdminDashboard() {
     (async () => {
       try {
         const since = new Date(Date.now() - 36 * 3600000).toISOString();
-        const [{ data: props }, { data: top }, { data: newDeals }, f] = await Promise.all([
-          supabase.from("Property").select("price,status"),
+        const [{ properties: props }, { data: top }, { data: newDeals }, f] = await Promise.all([
+          fetch("/api/admin/property?view=stats").then((r) => r.json()).catch(() => ({ properties: null })),
           supabase.from("tax_delinquent_properties").select("id,state,county,minimum_bid,judgment_amount,final_score,road_access").order("final_score", { ascending: false, nullsFirst: false }).limit(6),
           supabase.from("tax_delinquent_properties").select("id,state,county,minimum_bid,judgment_amount,final_score,road_access").gt("created_at", since).gte("final_score", 45).order("final_score", { ascending: false, nullsFirst: false }).limit(6),
           fetch("/api/acquisition-stats").then((r) => r.json()).catch(() => null),
         ]);
         if (newDeals) setFresh(newDeals as Deal[]);
         if (props) {
+          const list = props as Array<{ status?: string; price?: number }>;
           setStats({
-            total: props.length,
-            available: props.filter((p) => p.status === "AVAILABLE").length,
-            pending: props.filter((p) => p.status === "PENDING").length,
-            sold: props.filter((p) => p.status === "SOLD").length,
-            totalValue: props.reduce((s, p) => s + (p.price || 0), 0),
+            total: list.length,
+            available: list.filter((p) => p.status === "AVAILABLE").length,
+            pending: list.filter((p) => p.status === "PENDING").length,
+            sold: list.filter((p) => p.status === "SOLD").length,
+            totalValue: list.reduce((s, p) => s + (p.price || 0), 0),
           });
         }
         if (top) setDeals(top as Deal[]);

@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { CreditCard, Mail, Clock, Trash2, Loader2, AlertCircle } from "lucide-react";
-import { supabase } from "@/lib/supabase";
 
 interface Payment {
   id: string;
@@ -37,25 +36,30 @@ export default function AdminPayments() {
 
   async function load() {
     setLoading(true);
-    const { data, error: err } = await supabase
-      .from("Payment")
-      .select(`*, Property(title)`)
-      .order("createdAt", { ascending: false });
-    if (err) setError(err.message);
-    else setPayments(data ?? []);
+    try {
+      const res = await fetch("/api/admin/payments");
+      const json = await res.json();
+      if (json.error) setError(json.error);
+      else setPayments(json.payments ?? []);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Failed to load");
+    }
     setLoading(false);
   }
 
   async function updateStatus(id: string, status: string) {
-    const update: any = { status };
-    if (status === "PAID") update.paidAt = new Date().toISOString();
-    await supabase.from("Payment").update(update).eq("id", id);
-    setPayments(p => p.map(x => x.id === id ? { ...x, status, paidAt: update.paidAt ?? x.paidAt } : x));
+    const paidAt = status === "PAID" ? new Date().toISOString() : null;
+    setPayments(p => p.map(x => x.id === id ? { ...x, status, paidAt: paidAt ?? x.paidAt } : x));
+    await fetch(`/api/admin/payments?id=${encodeURIComponent(id)}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status, paidAt }),
+    });
   }
 
   async function deletePayment(id: string) {
     setDeletingId(id);
-    await supabase.from("Payment").delete().eq("id", id);
+    await fetch(`/api/admin/payments?id=${encodeURIComponent(id)}`, { method: "DELETE" });
     setPayments(p => p.filter(x => x.id !== id));
     setDeletingId(null);
     setConfirmId(null);

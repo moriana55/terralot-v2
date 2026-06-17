@@ -286,13 +286,13 @@ export default function UpdatesPage() {
   async function fetchData() {
     setLoading(true);
     
-    // 1. Fetch manual updates
-    const { data: dbMilestones } = await supabase
-      .from("updates")
-      .select("*")
-      .order("created_at", { ascending: false });
+    // 1. Fetch manual updates (RLS-protected → guarded service-role route)
+    const dbMilestones: Update[] = await fetch("/api/admin/updates")
+      .then(r => r.json())
+      .then(j => j.updates ?? [])
+      .catch(() => []);
 
-    // 2. Fetch bot statuses that are completed
+    // 2. Fetch bot statuses that are completed (anon-OK table, stays on client)
     const { data: dbBotStatuses } = await supabase
       .from("bot_statuses")
       .select("*")
@@ -368,12 +368,13 @@ export default function UpdatesPage() {
   async function addUpdate() {
     const lines = formItems.split("\n").map(s => s.trim()).filter(Boolean);
     if (!formWeek || !formTitle || lines.length === 0) return;
-    const { data, error } = await supabase
-      .from("updates")
-      .insert({ week: formWeek, title: formTitle, items: lines })
-      .select()
-      .single();
-    if (!error && data) {
+    const res = await fetch("/api/admin/updates", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ week: formWeek, title: formTitle, items: lines }),
+    });
+    const json = await res.json().catch(() => ({}));
+    if (res.ok && json.ok) {
       // Re-fetch to merge cleanly
       fetchData();
       setFormWeek("");
@@ -387,7 +388,7 @@ export default function UpdatesPage() {
     // Check if it's milestone or bot
     if (combinedId.startsWith("m-")) {
       const dbId = combinedId.replace("m-", "");
-      await supabase.from("updates").delete().eq("id", dbId);
+      await fetch(`/api/admin/updates?id=${encodeURIComponent(dbId)}`, { method: "DELETE" });
       setItems(prev => prev.filter(item => item.id !== combinedId));
     }
   }

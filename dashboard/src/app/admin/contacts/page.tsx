@@ -4,7 +4,6 @@ import { Plus, Phone, Mail, X, Trash2, Loader2 } from "lucide-react";
 import { activities, ROLE_LABELS, ACTIVITY_LABELS, getActivityColor } from "@/lib/network-data";
 import type { ContactRole } from "@/lib/network-data";
 import { useState, useEffect } from "react";
-import { supabase } from "@/lib/supabase";
 
 const ROLE_COLORS: Record<string, string> = {
   wholesaler: "var(--primary)",
@@ -24,11 +23,11 @@ export default function ContactsPage() {
 
   useEffect(() => {
     Promise.all([
-      supabase.from("Contact").select("*").order("createdAt", { ascending: false }),
-      supabase.from("Deal").select("*"),
-    ]).then(([{ data: c }, { data: d }]) => {
-      setContacts(c?.map(x => ({ ...x, role: x.role?.toLowerCase() })) ?? []);
-      setDeals(d?.map(x => ({ ...x, status: x.status?.toLowerCase() })) ?? []);
+      fetch("/api/admin/contacts?view=full").then(r => r.json()).catch(() => ({ contacts: [] })),
+      fetch("/api/admin/deals").then(r => r.json()).catch(() => ({ deals: [] })),
+    ]).then(([{ contacts: c }, { deals: d }]) => {
+      setContacts(c?.map((x: any) => ({ ...x, role: x.role?.toLowerCase() })) ?? []);
+      setDeals(d?.map((x: any) => ({ ...x, status: x.status?.toLowerCase() })) ?? []);
       setLoading(false);
     });
   }, []);
@@ -39,7 +38,7 @@ export default function ContactsPage() {
   const selectedActivities = selected ? activities.filter((a: any) => a.contactId === selected.id).sort((a: any, b: any) => b.createdAt.localeCompare(a.createdAt)) : [];
 
   async function deleteContact(id: string) {
-    await supabase.from("Contact").delete().eq("id", id);
+    await fetch(`/api/admin/contacts?id=${encodeURIComponent(id)}`, { method: "DELETE" });
     setContacts(c => c.filter(x => x.id !== id));
     setConfirmId(null);
     if (selectedId === id) setSelectedId(null);

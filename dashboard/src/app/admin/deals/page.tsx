@@ -4,7 +4,6 @@ import { Plus, Target, Users, Trash2, Loader2 } from "lucide-react";
 import { DEAL_STATUS_LABELS, getDealStatusColor, scoreDeal, matchInvestors } from "@/lib/network-data";
 import type { DealStatus } from "@/lib/network-data";
 import { useState, useEffect } from "react";
-import { supabase } from "@/lib/supabase";
 
 const PIPELINE: DealStatus[] = ["new", "evaluating", "presented", "accepted", "closed", "dead"];
 
@@ -18,10 +17,10 @@ export default function DealsPage() {
 
   useEffect(() => {
     Promise.all([
-      supabase.from("Deal").select("*").order("createdAt", { ascending: false }),
-      supabase.from("Contact").select("id,name,company,role,state,notes"),
-    ]).then(([{ data: d }, { data: c }]) => {
-      setDeals(d?.map(x => ({ ...x, status: x.status?.toLowerCase() })) ?? []);
+      fetch("/api/admin/deals?ordered=1").then(r => r.json()).catch(() => ({ deals: [] })),
+      fetch("/api/admin/contacts?view=brief").then(r => r.json()).catch(() => ({ contacts: [] })),
+    ]).then(([{ deals: d }, { contacts: c }]) => {
+      setDeals(d?.map((x: any) => ({ ...x, status: x.status?.toLowerCase() })) ?? []);
       setContacts(c ?? []);
       setLoading(false);
     });
@@ -38,7 +37,7 @@ export default function DealsPage() {
   const matches = matchDeal ? matchInvestors(matchDeal) : [];
 
   async function deleteDeal(id: string) {
-    await supabase.from("Deal").delete().eq("id", id);
+    await fetch(`/api/admin/deals?id=${encodeURIComponent(id)}`, { method: "DELETE" });
     setDeals(d => d.filter(x => x.id !== id));
     setConfirmId(null);
   }

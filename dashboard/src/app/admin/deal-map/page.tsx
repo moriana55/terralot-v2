@@ -18,13 +18,13 @@ export default function DealMapPage() {
 
   useEffect(() => {
     (async () => {
-      const [{ data: d }, { data: s }, cat] = await Promise.all([
+      const [{ data: d }, salesRes, cat] = await Promise.all([
         supabase.from("tax_delinquent_properties").select("id,lat,lng,county,state,final_score,minimum_bid,judgment_amount").not("lat", "is", null).not("lng", "is", null).order("final_score", { ascending: false, nullsFirst: false }).limit(800),
-        supabase.from("upcoming_sales").select("id,county,state,sale_date,lat,lng").not("lat", "is", null).limit(200),
+        fetch("/api/admin/upcoming-sales").then(r => r.json()).catch(() => ({ sales: [] })),
         fetch("/api/growth-catalysts").then(r => r.json()).catch(() => ({ catalysts: [] })),
       ]);
       setDeals((d as MapDeal[])?.filter(x => x.lat && x.lng) || []);
-      setSales((s as MapSale[]) || []);
+      setSales((salesRes.sales as MapSale[]) || []);
       setCatalysts(cat.catalysts || []);
     })();
   }, []);

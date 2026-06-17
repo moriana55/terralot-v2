@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { Plus, Search, Eye, Edit, Trash2, Star, Loader2, AlertCircle, X } from "lucide-react";
-import { supabase } from "@/lib/supabase";
 
 interface Property {
   id: string;
@@ -38,12 +37,17 @@ export default function AdminListings() {
   const load = useCallback(async () => {
     setLoading(true);
     setError(null);
-    let q = supabase.from("Property").select("id,title,slug,state,county,acres,price,monthlyPayment,status,featured,images").order("createdAt", { ascending: false });
-    if (statusFilter) q = q.eq("status", statusFilter);
-    if (search) q = q.or(`title.ilike.%${search}%,state.ilike.%${search}%,county.ilike.%${search}%`);
-    const { data, error: err } = await q;
-    if (err) setError(err.message);
-    else setProperties(data ?? []);
+    const params = new URLSearchParams({ view: "listings" });
+    if (statusFilter) params.set("status", statusFilter);
+    if (search) params.set("search", search);
+    try {
+      const res = await fetch(`/api/admin/property?${params.toString()}`);
+      const json = await res.json();
+      if (json.error) setError(json.error);
+      else setProperties(json.properties ?? []);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Failed to load");
+    }
     setLoading(false);
   }, [search, statusFilter]);
 
@@ -51,16 +55,25 @@ export default function AdminListings() {
 
   async function deleteProperty(id: string) {
     setDeletingId(id);
-    const { error: err } = await supabase.from("Property").delete().eq("id", id);
-    if (err) alert("Delete failed: " + err.message);
-    else setProperties(p => p.filter(x => x.id !== id));
+    try {
+      const res = await fetch(`/api/admin/property?id=${encodeURIComponent(id)}`, { method: "DELETE" });
+      const json = await res.json();
+      if (!res.ok || json.error) alert("Delete failed: " + (json.error || res.statusText));
+      else setProperties(p => p.filter(x => x.id !== id));
+    } catch (e) {
+      alert("Delete failed: " + (e instanceof Error ? e.message : "error"));
+    }
     setDeletingId(null);
     setConfirmId(null);
   }
 
   async function toggleFeatured(id: string, current: boolean) {
-    await supabase.from("Property").update({ featured: !current }).eq("id", id);
     setProperties(p => p.map(x => x.id === id ? { ...x, featured: !current } : x));
+    await fetch(`/api/admin/property?id=${encodeURIComponent(id)}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ featured: !current }),
+    });
   }
 
   return (

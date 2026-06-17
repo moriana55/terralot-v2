@@ -5,7 +5,6 @@ import {
   TrendingUp, DollarSign, Wallet, ArrowUpRight,
   MapPin, Sparkles, BarChart3, ChevronDown, ChevronUp, Calculator, Loader2
 } from "lucide-react";
-import { supabase } from "@/lib/supabase";
 
 type SortKey = "title" | "state" | "costPrice" | "price" | "profit" | "roi" | "collected" | "status";
 type SortDir = "asc" | "desc";
@@ -21,9 +20,10 @@ export default function AdminAnalytics() {
   const [simTerm, setSimTerm] = useState<TermOption>(24);
 
   useEffect(() => {
-    supabase.from("Property").select("id,title,state,county,acres,price,costPrice,downPayment,monthlyPayment,term,paymentsReceived,status,featured,interestRate,monthlyExpenses,useCases,images")
-      .order("createdAt", { ascending: false })
-      .then(({ data }) => { setProperties(data?.map(p => ({ ...p, costPrice: p.costPrice ?? 0, paymentsReceived: p.paymentsReceived ?? 0, status: p.status?.toLowerCase() })) ?? []); setLoading(false); });
+    fetch("/api/admin/property?view=analytics")
+      .then((r) => r.json())
+      .then(({ properties: data }) => { setProperties(data?.map((p: any) => ({ ...p, costPrice: p.costPrice ?? 0, paymentsReceived: p.paymentsReceived ?? 0, status: p.status?.toLowerCase() })) ?? []); setLoading(false); })
+      .catch(() => { setProperties([]); setLoading(false); });
   }, []);
 
   if (loading) return <div className="flex items-center justify-center py-40 gap-2 text-sm" style={{ color: "var(--muted)" }}><Loader2 className="w-4 h-4 animate-spin" /> Loading…</div>;

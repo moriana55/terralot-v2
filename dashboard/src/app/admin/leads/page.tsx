@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { MessageSquare, Mail, Phone, Clock, Trash2, Loader2, AlertCircle } from "lucide-react";
-import { supabase } from "@/lib/supabase";
 
 interface Lead {
   id: string;
@@ -36,23 +35,29 @@ export default function AdminLeads() {
 
   async function load() {
     setLoading(true);
-    const { data, error: err } = await supabase
-      .from("Inquiry")
-      .select(`*, Property(title)`)
-      .order("createdAt", { ascending: false });
-    if (err) setError(err.message);
-    else setLeads(data ?? []);
+    try {
+      const res = await fetch("/api/admin/inquiries");
+      const json = await res.json();
+      if (json.error) setError(json.error);
+      else setLeads(json.inquiries ?? []);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Failed to load");
+    }
     setLoading(false);
   }
 
   async function updateStatus(id: string, status: string) {
-    await supabase.from("Inquiry").update({ status }).eq("id", id);
     setLeads(l => l.map(x => x.id === id ? { ...x, status } : x));
+    await fetch(`/api/admin/inquiries?id=${encodeURIComponent(id)}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status }),
+    });
   }
 
   async function deleteLead(id: string) {
     setDeletingId(id);
-    await supabase.from("Inquiry").delete().eq("id", id);
+    await fetch(`/api/admin/inquiries?id=${encodeURIComponent(id)}`, { method: "DELETE" });
     setLeads(l => l.filter(x => x.id !== id));
     setDeletingId(null);
     setConfirmId(null);

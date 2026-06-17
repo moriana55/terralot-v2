@@ -132,16 +132,24 @@ export default function AcquisitionsPage() {
   const [tracking, setTracking] = useState<Record<string, Track>>({});
   useEffect(() => {
     if (!leads.length) return;
-    supabase.from("deal_tracking").select("*").in("lead_id", leads.map(l => l.id)).then(({ data }) => {
-      const m: Record<string, Track> = {};
-      (data as Track[] | null)?.forEach(t => { m[t.lead_id] = t; });
-      setTracking(prev => ({ ...prev, ...m }));
-    });
+    const ids = leads.map(l => l.id).join(",");
+    fetch(`/api/admin/deal-tracking?lead_ids=${encodeURIComponent(ids)}`)
+      .then(r => r.json())
+      .then(({ tracking: data }) => {
+        const m: Record<string, Track> = {};
+        (data as Track[] | null)?.forEach(t => { m[t.lead_id] = t; });
+        setTracking(prev => ({ ...prev, ...m }));
+      })
+      .catch(() => {});
   }, [leads]);
   const saveTrack = async (leadId: string, patch: Partial<Track>) => {
     const next = { ...(tracking[leadId] || { lead_id: leadId }), ...patch, lead_id: leadId };
     setTracking(p => ({ ...p, [leadId]: next }));
-    await supabase.from("deal_tracking").upsert({ ...next, updated_at: new Date().toISOString() }, { onConflict: "lead_id" });
+    await fetch("/api/admin/deal-tracking", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...next, updated_at: new Date().toISOString() }),
+    });
   };
   const STAGES: [string, string][] = [["new", "Yeni"], ["researching", "Araştırılıyor"], ["offer", "Teklif verildi"], ["won", "Kazanıldı"], ["owned", "Sahipli"], ["listed", "Listede"], ["sold", "Satıldı"], ["dead", "Vazgeçildi"]];
 
