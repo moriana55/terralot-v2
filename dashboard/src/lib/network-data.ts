@@ -32,6 +32,7 @@ export interface Deal {
   lat?: number;
   lng?: number;
   documents?: Document[];
+  apn?: string;
   createdAt: string;
 }
 

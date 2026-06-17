@@ -118,7 +118,7 @@ export default function ReferralsPage() {
           <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--muted)" }}>Commission Tracking</p>
           <h1 className="text-2xl font-bold mt-1">Referral Program</h1>
         </div>
-        <button className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold" style={{ background: "var(--primary)", color: "#000" }}>
+        <button className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold" style={{ background: "var(--primary)", color: "#fff" }}>
           <UserPlus className="w-4 h-4" /> Add Partner
         </button>
       </div>
@@ -146,7 +146,7 @@ export default function ReferralsPage() {
         {(["partners", "referrals"] as const).map(v => (
           <button key={v} onClick={() => setView(v)}
             className="px-4 py-2 rounded-lg text-xs font-semibold transition-colors capitalize"
-            style={{ background: view === v ? "var(--primary)" : "var(--surface)", color: view === v ? "#000" : "var(--muted)" }}>
+            style={{ background: view === v ? "var(--primary)" : "var(--surface)", color: view === v ? "#fff" : "var(--muted)" }}>
             {v === "partners" ? "Partners" : "All Referrals"}
           </button>
         ))}
@@ -307,7 +307,7 @@ export default function ReferralsPage() {
               )}
 
               {sel.pendingPayout > 0 && (
-                <button className="w-full py-2.5 rounded-lg text-xs font-semibold flex items-center justify-center gap-2" style={{ background: "var(--primary)", color: "#000" }}>
+                <button className="w-full py-2.5 rounded-lg text-xs font-semibold flex items-center justify-center gap-2" style={{ background: "var(--primary)", color: "#fff" }}>
                   <DollarSign className="w-3.5 h-3.5" /> Pay ${sel.pendingPayout.toLocaleString()}
                 </button>
               )}

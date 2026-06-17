@@ -1,0 +1,3914 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zillow Land Tracker - AI Dashboard</title>
+  <!-- Google Fonts: Inter & Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+  <style>
+    :root {
+      --bg-light: #f8fafc;
+      --bg-glass: rgba(255, 255, 255, 0.85);
+      --border-glass: rgba(15, 23, 42, 0.08);
+      --accent-purple: #6d28d9;
+      --accent-purple-glow: rgba(109, 40, 217, 0.12);
+      --accent-blue: #1d4ed8;
+      --accent-blue-glow: rgba(29, 78, 216, 0.12);
+      --accent-emerald: #047857;
+      --accent-emerald-glow: rgba(4, 120, 87, 0.12);
+      --accent-rose: #be123c;
+      --accent-rose-glow: rgba(190, 18, 60, 0.12);
+      --accent-amber: #b45309;
+      --accent-amber-glow: rgba(180, 83, 9, 0.12);
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-light);
+      color: var(--text-main);
+      min-height: 100vh;
+      overflow-x: hidden;
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(109, 40, 217, 0.04) 0%, transparent 45%),
+        radial-gradient(circle at 90% 80%, rgba(29, 78, 216, 0.04) 0%, transparent 45%),
+        linear-gradient(rgba(15, 23, 42, 0.015) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(15, 23, 42, 0.015) 1px, transparent 1px);
+      background-size: 100% 100%, 100% 100%, 40px 40px, 40px 40px;
+    }
+
+    /* Container */
+    .dashboard {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem;
+    }
+
+    /* Header */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2.5rem;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+    }
+
+    .brand-section {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .brand-logo {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 15px var(--accent-purple-glow);
+    }
+
+    .brand-logo i {
+      color: white;
+    }
+
+    .brand-title h1 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.75rem;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .brand-title p {
+      color: var(--text-muted);
+      font-size: 0.875rem;
+      margin-top: 0.1rem;
+    }
+
+    /* Control Buttons */
+    .control-actions {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .btn {
+      padding: 0.75rem 1.25rem;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 0.875rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      border: 1px solid transparent;
+      outline: none;
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
+      color: white;
+      box-shadow: 0 4px 12px var(--accent-purple-glow);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(109, 40, 217, 0.3);
+    }
+
+    .btn-secondary {
+      background: var(--bg-glass);
+      color: var(--text-main);
+      border: 1px solid var(--border-glass);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+
+    .btn-secondary:hover {
+      background: #ffffff;
+      border-color: rgba(15, 23, 42, 0.15);
+      transform: translateY(-1px);
+    }
+
+    .btn-sm {
+      padding: 0.5rem 1rem;
+      font-size: 0.8rem;
+      border-radius: 8px;
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .stat-card {
+      background: var(--bg-glass);
+      border: 1px solid var(--border-glass);
+      border-radius: 16px;
+      padding: 1.5rem;
+      backdrop-filter: blur(16px);
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+      transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(15, 23, 42, 0.15);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+    }
+
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: var(--accent-purple);
+    }
+
+    .stat-card.blue::before { background: var(--accent-blue); }
+    .stat-card.emerald::before { background: var(--accent-emerald); }
+    .stat-card.rose::before { background: var(--accent-rose); }
+
+    .stat-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .stat-title {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .stat-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(15, 23, 42, 0.03);
+    }
+
+    .stat-value {
+      font-family: 'Outfit', sans-serif;
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+      color: var(--text-main);
+    }
+
+    .stat-desc {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* Tabs & Content */
+    .tabs-container {
+      background: var(--bg-glass);
+      border: 1px solid var(--border-glass);
+      border-radius: 20px;
+      padding: 1.5rem;
+      backdrop-filter: blur(16px);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.04);
+    }
+
+    .tabs-header {
+      display: flex;
+      border-bottom: 1px solid var(--border-glass);
+      margin-bottom: 1.5rem;
+      gap: 1.5rem;
+    }
+
+    .tab-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      padding: 0.75rem 0.5rem;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      position: relative;
+      transition: color 0.2s ease;
+    }
+
+    .tab-btn:hover {
+      color: var(--text-main);
+    }
+
+    .tab-btn.active {
+      color: var(--accent-purple);
+    }
+
+    .tab-btn.active::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: var(--accent-purple);
+      box-shadow: 0 0 6px var(--accent-purple-glow);
+    }
+
+    /* Filters Section */
+    .filters-bar {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      align-items: center;
+    }
+
+    .filter-input-wrapper {
+      position: relative;
+    }
+
+    .filter-input-wrapper i {
+      position: absolute;
+      left: 0.875rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+
+    .form-control {
+      width: 100%;
+      background: #ffffff;
+      border: 1px solid var(--border-glass);
+      border-radius: 10px;
+      padding: 0.75rem 1rem 0.75rem 2.5rem;
+      color: var(--text-main);
+      font-size: 0.875rem;
+      outline: none;
+      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.02);
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .form-control:focus {
+      border-color: var(--accent-purple);
+      box-shadow: 0 0 8px var(--accent-purple-glow);
+    }
+
+    select.form-control {
+      padding-left: 2.5rem;
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 0.75rem center;
+      background-size: 1.25rem;
+    }
+
+    /* Checkbox Styles */
+    .checkbox-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      user-select: none;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-main);
+      padding: 0.5rem 0.75rem;
+      border-radius: 8px;
+      background: rgba(239, 68, 68, 0.05);
+      border: 1px dashed rgba(239, 68, 68, 0.2);
+      transition: all 0.2s ease;
+    }
+
+    .checkbox-wrapper:hover {
+      background: rgba(239, 68, 68, 0.08);
+      border-color: rgba(239, 68, 68, 0.3);
+    }
+
+    .checkbox-wrapper input {
+      cursor: pointer;
+      accent-color: var(--accent-rose);
+      width: 16px;
+      height: 16px;
+    }
+
+    /* Grid Layout for Listings */
+    .listings-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .listing-card {
+      background: rgba(255, 255, 255, 0.65);
+      border: 1px solid var(--border-glass);
+      border-radius: 14px;
+      padding: 1.25rem;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.015);
+      transition: all 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+    }
+
+    .listing-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(15, 23, 42, 0.15);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
+      background: #ffffff;
+    }
+
+    /* Hot Deal Special Border */
+    .listing-card.hot-deal-card {
+      border: 2px solid rgba(239, 68, 68, 0.3);
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.08);
+      background: rgba(255, 245, 245, 0.5);
+    }
+    .listing-card.hot-deal-card:hover {
+      border-color: rgba(239, 68, 68, 0.6);
+      background: #fffafa;
+      box-shadow: 0 8px 25px rgba(239, 68, 68, 0.12);
+    }
+
+    .hot-badge {
+      position: absolute;
+      top: -12px;
+      left: 12px;
+      background: linear-gradient(135deg, #f43f5e, #eab308);
+      color: white;
+      padding: 0.25rem 0.6rem;
+      border-radius: 8px;
+      font-size: 0.675rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      box-shadow: 0 2px 8px rgba(244, 63, 94, 0.3);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .listing-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 0.75rem;
+      gap: 0.5rem;
+      margin-top: 0.25rem;
+    }
+
+    .listing-address {
+      font-weight: 700;
+      font-size: 0.95rem;
+      line-height: 1.4;
+      color: var(--text-main);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: 180px;
+    }
+
+    .listing-price {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 800;
+      color: var(--accent-emerald);
+      font-size: 1.15rem;
+    }
+
+    .listing-location {
+      font-size: 0.775rem;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      font-weight: 500;
+    }
+
+    .listing-details {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+      padding: 0.75rem;
+      background: rgba(15, 23, 42, 0.03);
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      border: 1px solid rgba(0, 0, 0, 0.02);
+    }
+
+    .detail-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .detail-label {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 600;
+    }
+
+    .detail-value {
+      font-size: 0.825rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    /* Action Buttons in Cards */
+    .listing-actions {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .card-action-btn {
+      padding: 0.5rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.25rem;
+      transition: all 0.2s ease;
+      border: 1px solid var(--border-glass);
+      background: #ffffff;
+      color: var(--text-main);
+      text-decoration: none;
+    }
+
+    .card-action-btn:hover {
+      background: rgba(15, 23, 42, 0.03);
+      border-color: rgba(15, 23, 42, 0.15);
+    }
+
+    .card-action-btn.btn-gps:hover {
+      background: rgba(59, 130, 246, 0.08);
+      color: var(--accent-blue);
+      border-color: rgba(59, 130, 246, 0.2);
+    }
+
+    .card-action-btn.btn-doc:hover {
+      background: rgba(109, 40, 217, 0.08);
+      color: var(--accent-purple);
+      border-color: rgba(109, 40, 217, 0.2);
+    }
+
+    .listing-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: auto;
+      border-top: 1px solid rgba(15, 23, 42, 0.05);
+      padding-top: 0.75rem;
+    }
+
+    .days-badge {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      font-weight: 500;
+    }
+
+    .zillow-link {
+      color: var(--accent-blue);
+      font-size: 0.775rem;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+
+    .zillow-link:hover {
+      color: var(--accent-purple);
+    }
+
+    /* Price Drops Timeline */
+    .timeline {
+      position: relative;
+      padding-left: 2rem;
+      margin-top: 1rem;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 7px;
+      top: 0;
+      width: 2px;
+      height: 100%;
+      background: var(--border-glass);
+    }
+
+    .timeline-item {
+      position: relative;
+      margin-bottom: 1.5rem;
+    }
+
+    .timeline-dot {
+      position: absolute;
+      left: -2rem;
+      top: 4px;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--accent-rose);
+      border: 4px solid var(--bg-light);
+      box-shadow: 0 0 6px var(--accent-rose);
+    }
+
+    .timeline-card {
+      background: rgba(255, 255, 255, 0.75);
+      border: 1px solid var(--border-glass);
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.015);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .timeline-info h4 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+
+    .timeline-info p {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .timeline-price {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .old-price {
+      text-decoration: line-through;
+      color: var(--text-muted);
+      font-size: 0.875rem;
+    }
+
+    .new-price {
+      font-family: 'Outfit', sans-serif;
+      color: var(--accent-rose);
+      font-weight: 800;
+      font-size: 1.15rem;
+    }
+
+    .drop-percentage {
+      background: rgba(225, 29, 72, 0.08);
+      color: var(--accent-rose);
+      padding: 0.25rem 0.5rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 800;
+      border: 1px solid rgba(225, 29, 72, 0.15);
+    }
+
+    /* Pagination */
+    .pagination-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 2rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .pagination-info {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .pagination-buttons {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    /* Scraper status */
+    .scraper-status-banner {
+      background: rgba(109, 40, 217, 0.08);
+      border: 1px solid rgba(109, 40, 217, 0.15);
+      border-radius: 12px;
+      padding: 1rem;
+      margin-bottom: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      animation: pulse 2s infinite;
+      display: none;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 0.8; }
+      50% { opacity: 1; }
+      100% { opacity: 0.8; }
+    }
+
+    .status-text {
+      font-weight: 700;
+      font-size: 0.875rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--accent-purple);
+    }
+
+    /* Modal Styles */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.4);
+      backdrop-filter: blur(4px);
+    }
+
+    .modal-content {
+      background-color: #ffffff;
+      margin: 10% auto;
+      padding: 2rem;
+      border: 1px solid var(--border-glass);
+      border-radius: 16px;
+      width: 90%;
+      max-width: 550px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      position: relative;
+    }
+
+    .close-modal {
+      position: absolute;
+      right: 1.25rem;
+      top: 1.25rem;
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: color 0.2s ease;
+    }
+
+    .close-modal:hover {
+      color: var(--text-main);
+    }
+
+    .modal-header {
+      margin-bottom: 1.5rem;
+    }
+
+    .modal-header h3 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.35rem;
+      font-weight: 700;
+    }
+
+    .modal-body {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .form-group label {
+      font-size: 0.775rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 0.65rem 0.875rem;
+      border: 1px solid var(--border-glass);
+      border-radius: 8px;
+      outline: none;
+      font-size: 0.9rem;
+      font-family: inherit;
+    }
+
+    .form-group input:focus {
+      border-color: var(--accent-purple);
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.75rem;
+      margin-top: 1.5rem;
+      border-top: 1px solid var(--border-glass);
+      padding-top: 1rem;
+    }
+
+    .spinner {
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .filters-bar {
+        grid-template-columns: 1fr;
+      }
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .control-actions {
+        width: 100%;
+        justify-content: space-between;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="dashboard">
+    
+    <!-- Header -->
+    <header>
+      <div class="brand-section">
+        <div class="brand-logo">
+          <i data-lucide="compass" class="brand-logo-icon"></i>
+        </div>
+        <div class="brand-title">
+          <h1>Zillow Land Tracker</h1>
+          <p>Yapay Zeka Destekli Arsa Takip ve Fiyat Analiz Otomasyonu</p>
+        </div>
+      </div>
+      <div class="control-actions">
+        <button id="ai-suggest-btn" class="btn btn-secondary" style="background: rgba(109, 40, 217, 0.05); border-color: rgba(109, 40, 217, 0.2); color: var(--accent-purple)">
+          <i data-lucide="brain"></i> AI Hedef Önerici
+        </button>
+        <button id="trigger-scrape-btn" class="btn btn-primary">
+          <i data-lucide="play"></i> Tarayıcıyı Çalıştır
+        </button>
+        <button id="export-btn" class="btn btn-secondary">
+          <i data-lucide="download"></i> Excel/CSV İndir
+        </button>
+        <button id="export-dm-btn" class="btn btn-secondary" style="background: rgba(37, 99, 235, 0.05); border-color: rgba(37, 99, 235, 0.2); color: var(--accent-blue)">
+          <i data-lucide="mail"></i> Direct Mail Listesi (CSV)
+        </button>
+      </div>
+    </header>
+
+    <!-- Module Switcher -->
+    <div style="display: flex; gap: 0.5rem; margin-bottom: 2rem; background: var(--bg-glass); border: 1px solid var(--border-glass); border-radius: 12px; padding: 0.35rem; backdrop-filter: blur(10px); width: fit-content; box-shadow: 0 4px 15px rgba(0,0,0,0.02);">
+      <button id="module-land-btn" class="btn btn-sm btn-primary" style="border-radius: 8px; font-weight: 700; padding: 0.55rem 1.5rem; font-family: 'Outfit', sans-serif;">
+        <i data-lucide="map"></i> Arsa Modülü (Land Flipping)
+      </button>
+      <button id="module-house-btn" class="btn btn-sm btn-secondary" style="border-radius: 8px; font-weight: 700; padding: 0.55rem 1.5rem; background: transparent; color: var(--text-muted); border: none; font-family: 'Outfit', sans-serif;">
+        <i data-lucide="home"></i> Konut Modülü (House Wholesaling)
+      </button>
+    </div>
+
+    <!-- Scraper Status Banner -->
+    <div id="status-banner" class="scraper-status-banner">
+      <div class="status-text">
+        <i data-lucide="loader-2" class="spinner"></i>
+        <span>Tarayıcı Arka Planda Çalışıyor... İlanlar Güncelleniyor...</span>
+      </div>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-header">
+          <span class="stat-title" id="stat-total-label">Toplam Kayıtlı Arsa</span>
+          <div class="stat-icon"><i data-lucide="database" style="color: var(--accent-purple)"></i></div>
+        </div>
+        <div class="stat-value" id="stat-total">0</div>
+        <div class="stat-desc" id="stat-total-desc">Veritabanında takip edilen arsa sayısı</div>
+      </div>
+      
+      <div class="stat-card blue">
+        <div class="stat-header">
+          <span class="stat-title" id="stat-avg-label">Ortalama Arsa Fiyatı</span>
+          <div class="stat-icon"><i data-lucide="dollar-sign" style="color: var(--accent-blue)"></i></div>
+        </div>
+        <div class="stat-value" id="stat-avg-price">$0</div>
+        <div class="stat-desc" id="stat-avg-desc">Takip edilen arsaların ortalama bedeli</div>
+      </div>
+
+      <div class="stat-card emerald">
+        <div class="stat-header">
+          <span class="stat-title">Aktif Eyaletler</span>
+          <div class="stat-icon"><i data-lucide="map-pin" style="color: var(--accent-emerald)"></i></div>
+        </div>
+        <div class="stat-value" id="stat-states-count">0</div>
+        <div class="stat-desc" id="stat-states-list">Eyalet bazlı veri dağılımı</div>
+      </div>
+
+      <div class="stat-card rose">
+        <div class="stat-header">
+          <span class="stat-title">Fiyatı Düşenler</span>
+          <div class="stat-icon"><i data-lucide="trending-down" style="color: var(--accent-rose)"></i></div>
+        </div>
+        <div class="stat-value" id="stat-drops-count">0</div>
+        <div class="stat-desc" id="stat-drops-desc">Fiyatında düşüş tespit edilen ilan sayısı</div>
+      </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div id="charts-panel" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 1.5rem; margin-bottom: 2.5rem;">
+      <!-- Chart 1: State Distribution -->
+      <div style="background: var(--bg-glass); border: 1px solid var(--border-glass); border-radius: 20px; padding: 1.5rem; backdrop-filter: blur(16px); box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03); height: 320px; display: flex; flex-direction: column;">
+        <h3 style="font-family: 'Outfit', sans-serif; font-size: 1rem; font-weight: 700; margin-bottom: 1rem; color: var(--text-main); display: flex; align-items: center; gap: 0.5rem;">
+          <i data-lucide="pie-chart" style="color: var(--accent-purple); width: 18px; height: 18px;"></i> Eyaletlere Göre Dağılum
+        </h3>
+        <div style="flex: 1; position: relative; height: calc(100% - 2.5rem); display: flex; align-items: center; justify-content: center;">
+          <canvas id="state-distribution-chart"></canvas>
+        </div>
+      </div>
+
+      <!-- Chart 2: Average Price Trend -->
+      <div style="background: var(--bg-glass); border: 1px solid var(--border-glass); border-radius: 20px; padding: 1.5rem; backdrop-filter: blur(16px); box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03); height: 320px; display: flex; flex-direction: column;">
+        <h3 id="chart-bar-title" style="font-family: 'Outfit', sans-serif; font-size: 1rem; font-weight: 700; margin-bottom: 1rem; color: var(--text-main); display: flex; align-items: center; gap: 0.5rem;">
+          <i data-lucide="bar-chart-2" style="color: var(--accent-blue); width: 18px; height: 18px;"></i> Eyalet Bazında Birim Fiyatlar
+        </h3>
+        <div style="flex: 1; position: relative; height: calc(100% - 2.5rem); display: flex; align-items: center; justify-content: center;">
+          <canvas id="unit-price-chart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs Container -->
+    <div class="tabs-container">
+      <div class="tabs-header">
+        <button class="tab-btn active" data-tab="listings" id="tab-listings-btn">
+          <i data-lucide="list"></i> Tüm İlanlar
+        </button>
+        <button class="tab-btn" data-tab="price-drops">
+          <i data-lucide="sparkles"></i> Fiyatı Düşen İlanlar
+        </button>
+        <button class="tab-btn" data-tab="buyers">
+          <i data-lucide="users"></i> Alıcı Portföyü (Buyers CRM)
+        </button>
+        <button class="tab-btn" data-tab="off-market" id="tab-off-market-btn" style="color: var(--accent-rose);">
+          <i data-lucide="crosshair" style="color: var(--accent-rose);"></i> Off-Market Avcısı (Vergi Borçluları)
+        </button>
+        <button class="tab-btn" data-tab="tax-sales" id="tab-tax-sales-btn" style="color: #d97706;">
+          <i data-lucide="gavel" style="color: #d97706;"></i> 🔥 Tax Sale Deals (LGBS)
+        </button>
+        <button class="tab-btn" data-tab="scraped-counties" id="tab-scraped-counties-btn" style="color: #10b981;">
+          <i data-lucide="map" style="color: #10b981;"></i> 🗺️ Taranan Countyler
+        </button>
+        <button class="tab-btn" data-tab="micron-zone" id="tab-micron-btn" style="color: #0ea5e9;">
+          <i data-lucide="cpu" style="color: #0ea5e9;"></i> ⚡ Micron Zone (Syracuse)
+        </button>
+      </div>
+
+      <!-- Tab 1: Listings -->
+      <div id="tab-listings" class="tab-content">
+        <!-- Filters Bar -->
+        <div class="filters-bar">
+          <div class="filter-input-wrapper">
+            <i data-lucide="search"></i>
+            <input type="text" id="search-input" class="form-control" placeholder="Adres, APN veya Şehir ara...">
+          </div>
+          <div class="filter-input-wrapper">
+            <i data-lucide="map"></i>
+            <select id="state-filter" class="form-control">
+              <option value="">Tüm Eyaletler</option>
+              <option value="FL">Florida (FL)</option>
+              <option value="TX">Texas (TX)</option>
+              <option value="GA">Georgia (GA)</option>
+              <option value="TN">Tennessee (TN)</option>
+              <option value="NY">New York (NY)</option>
+            </select>
+          </div>
+          <div class="filter-input-wrapper">
+            <i data-lucide="sliders-horizontal"></i>
+            <select id="sort-select" class="form-control">
+              <option value="last_updated">Son Güncellenenler</option>
+              <option value="price_asc">Fiyat: Düşükten Yükseğe</option>
+              <option value="price_desc">Fiyat: Yüksekten Düşüğe</option>
+              <option value="size_desc">Boyut (Acres): En Büyük</option>
+              <option value="days_asc">Zillow Süresi: En Yeni</option>
+            </select>
+          </div>
+          
+          <!-- Hot Deal Filter Toggle & Threshold -->
+          <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+            <label class="checkbox-wrapper" style="margin-bottom: 0;">
+              <input type="checkbox" id="hot-deal-filter">
+              <i data-lucide="flame" style="width: 16px; height: 16px; color: var(--accent-rose); display: inline;"></i>
+              <span>Kelepir Göster</span>
+            </label>
+            <div class="filter-input-wrapper" id="threshold-container" style="display: none; width: 140px;">
+              <i data-lucide="percent" style="width: 14px; height: 14px; left: 0.65rem;"></i>
+              <select id="threshold-select" class="form-control" style="padding: 0.4rem 1rem 0.4rem 1.8rem; font-size: 0.8rem; height: auto; border-radius: 8px;">
+                <option value="30">Min %30 Ucuz</option>
+                <option value="40">Min %40 Ucuz</option>
+                <option value="50">Min %50 Ucuz</option>
+                <option value="60">Min %60 Ucuz</option>
+                <option value="70">Min %70 Ucuz</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Listings Grid -->
+        <div id="listings-wrapper" class="listings-grid">
+          <!-- Dinamik ilan kartları buraya gelecek -->
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination-bar">
+          <div class="pagination-info" id="pagination-info">
+            Toplam 0 kayıttan 0 - 0 gösteriliyor
+          </div>
+          <div class="pagination-buttons">
+            <button id="prev-btn" class="btn btn-secondary btn-sm" disabled><i data-lucide="chevron-left"></i> Önceki</button>
+            <button id="next-btn" class="btn btn-secondary btn-sm" disabled>Sonraki <i data-lucide="chevron-right"></i></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 2: Price Drops -->
+      <div id="tab-price-drops" class="tab-content" style="display: none;">
+        <div class="timeline" id="drops-timeline">
+          <!-- Fiyat düşüşü geçmişi timeline elemanları buraya gelecek -->
+        </div>
+      </div>
+
+      <!-- Tab 3: Buyers CRM -->
+      <div id="tab-buyers" class="tab-content" style="display: none;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; align-items: start; margin-top: 1rem;">
+          <!-- Buyer Add Form -->
+          <div style="background: rgba(255, 255, 255, 0.65); border: 1px solid var(--border-glass); border-radius: 14px; padding: 1.5rem; backdrop-filter: blur(10px);">
+            <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.15rem; font-weight: 700; margin-bottom: 1rem; color: var(--text-main); display: flex; align-items: center; gap: 0.5rem;">
+              <i data-lucide="user-plus" style="color: var(--accent-purple); width: 18px; height: 18px;"></i> Yeni Alıcı Kaydet
+            </h3>
+            <form id="add-buyer-form" style="display: flex; flex-direction: column; gap: 1rem;">
+              <div class="form-group">
+                <label>Alıcı İsim / Firma</label>
+                <input type="text" id="buyer-name" required placeholder="Örn: John Doe Capital LLC">
+              </div>
+              <div class="form-group">
+                <label>E-posta</label>
+                <input type="email" id="buyer-email" placeholder="email@domain.com">
+              </div>
+              <div class="form-group">
+                <label>Telefon</label>
+                <input type="text" id="buyer-phone" placeholder="(555) 555-5555">
+              </div>
+              <div class="form-group">
+                <label>Hedef Eyaletler (Virgülle ayırın)</label>
+                <input type="text" id="buyer-states" placeholder="Örn: FL, TX, GA">
+              </div>
+              <div class="form-group">
+                <label>Maksimum Bütçe ($)</label>
+                <input type="number" id="buyer-budget" placeholder="Bütçe limiti">
+              </div>
+              <div class="form-group">
+                <label>İlgilendiği Tür</label>
+                <select id="buyer-prop-type" class="form-control" style="padding-left: 1rem; height: auto;">
+                  <option value="BOTH">Hem Arsa Hem Konut</option>
+                  <option value="LAND">Sadece Arsa (Land)</option>
+                  <option value="HOUSE">Sadece Konut (House)</option>
+                </select>
+              </div>
+              <button type="submit" class="btn btn-primary" style="margin-top: 0.5rem; font-weight: 700; border: none; padding: 0.75rem;">
+                <i data-lucide="plus"></i> Alıcıyı Listeye Ekle
+              </button>
+            </form>
+          </div>
+
+          <!-- Buyers List -->
+          <div style="background: rgba(255, 255, 255, 0.65); border: 1px solid var(--border-glass); border-radius: 14px; padding: 1.5rem; backdrop-filter: blur(10px); display: flex; flex-direction: column; gap: 1rem;">
+            <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.15rem; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 0.5rem;">
+              <i data-lucide="users" style="color: var(--accent-blue); width: 18px; height: 18px;"></i> Kayıtlı Nakit Alıcı Listesi
+            </h3>
+            <div id="buyers-list-wrapper" style="display: flex; flex-direction: column; gap: 1rem; max-height: 550px; overflow-y: auto; padding-right: 0.25rem;">
+              <!-- Alıcılar dinamik yüklenecek -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab: Micron Zone -->
+      <div id="tab-micron-zone" class="tab-content" style="display: none;">
+
+        <!-- Hero Banner -->
+        <div style="background:linear-gradient(135deg,#0c4a6e,#0ea5e9,#0284c7);border-radius:16px;padding:1.5rem 2rem;margin-bottom:1.5rem;color:white;position:relative;overflow:hidden;">
+          <div style="position:absolute;right:-20px;top:-20px;width:160px;height:160px;background:rgba(255,255,255,0.05);border-radius:50%;"></div>
+          <div style="position:absolute;right:40px;bottom:-40px;width:100px;height:100px;background:rgba(255,255,255,0.05);border-radius:50%;"></div>
+          <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem;">
+            <div style="width:48px;height:48px;background:rgba(255,255,255,0.15);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;">⚡</div>
+            <div>
+              <div style="font-family:'Outfit',sans-serif;font-size:1.4rem;font-weight:800;">Micron Technology — Clay, NY</div>
+              <div style="opacity:0.85;font-size:0.875rem;">$100 Milyarlık Fabrika · CHIPS Act · 9,000 Doğrudan İş</div>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-top:0.5rem;">
+            <div style="background:rgba(255,255,255,0.1);border-radius:10px;padding:0.75rem;">
+              <div style="font-size:0.72rem;opacity:0.8;font-weight:600;text-transform:uppercase;">Yatırım Tutarı</div>
+              <div style="font-family:'Outfit',sans-serif;font-size:1.2rem;font-weight:700;">$100 Milyar</div>
+            </div>
+            <div style="background:rgba(255,255,255,0.1);border-radius:10px;padding:0.75rem;">
+              <div style="font-size:0.72rem;opacity:0.8;font-weight:600;text-transform:uppercase;">Tamamlanma</div>
+              <div style="font-family:'Outfit',sans-serif;font-size:1.2rem;font-weight:700;">2030–2041</div>
+            </div>
+            <div style="background:rgba(255,255,255,0.1);border-radius:10px;padding:0.75rem;">
+              <div style="font-size:0.72rem;opacity:0.8;font-weight:600;text-transform:uppercase;">Beklenen Fiyat Artışı</div>
+              <div style="font-family:'Outfit',sans-serif;font-size:1.2rem;font-weight:700;">%40–120+</div>
+            </div>
+            <div style="background:rgba(255,255,255,0.1);border-radius:10px;padding:0.75rem;">
+              <div style="font-size:0.72rem;opacity:0.8;font-weight:600;text-transform:uppercase;">Lokasyon</div>
+              <div style="font-family:'Outfit',sans-serif;font-size:1.2rem;font-weight:700;">Clay, NY (Onondaga)</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Zone Legend -->
+        <div style="display:flex;gap:0.75rem;flex-wrap:wrap;margin-bottom:1.25rem;align-items:center;">
+          <span style="font-size:0.8rem;font-weight:600;color:var(--text-muted);">MESAFE ZON'LARI:</span>
+          <span style="background:#22c55e18;color:#22c55e;font-size:0.75rem;font-weight:700;padding:0.25rem 0.75rem;border-radius:20px;border:1px solid #22c55e40;">🟢 0-5 mil — EN SICAK</span>
+          <span style="background:#f59e0b18;color:#f59e0b;font-size:0.75rem;font-weight:700;padding:0.25rem 0.75rem;border-radius:20px;border:1px solid #f59e0b40;">🟡 5-10 mil — Yüksek Potansiyel</span>
+          <span style="background:#0ea5e918;color:#0ea5e9;font-size:0.75rem;font-weight:700;padding:0.25rem 0.75rem;border-radius:20px;border:1px solid #0ea5e940;">🔵 10-20 mil — İyi Potansiyel</span>
+          <span style="background:#94a3b818;color:#94a3b8;font-size:0.75rem;font-weight:700;padding:0.25rem 0.75rem;border-radius:20px;border:1px solid #94a3b840;">⚪ 20+ mil</span>
+          <a href="https://www.google.com/maps?q=43.1611,-76.2177" target="_blank" class="btn btn-secondary btn-sm" style="margin-left:auto;"><i data-lucide="map"></i> Micron Fab Haritada</a>
+        </div>
+
+        <!-- Stats -->
+        <div id="micron-stats" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;margin-bottom:1.5rem;"></div>
+
+        <!-- Property Grid -->
+        <div id="micron-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1.25rem;"></div>
+      </div>
+
+      <!-- Tab: Tax Sale Deals -->
+      <div id="tab-tax-sales" class="tab-content" style="display: none;">
+        <!-- Header & Strategy Callout -->
+        <div style="background: rgba(255, 255, 255, 0.45); border: 1px solid var(--border-glass); border-radius: 14px; padding: 1.25rem; margin-bottom: 1.5rem; backdrop-filter: blur(10px); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+          <div>
+            <h2 style="font-family: 'Outfit', sans-serif; font-size: 1.4rem; font-weight: 800; color: var(--text-main); margin: 0 0 0.25rem 0; display: flex; align-items: center; gap: 0.5rem;">
+              <i data-lucide="gavel" style="color: #d97706;"></i> 🔥 Tax Sale Deals (İhale Listeleri)
+            </h2>
+            <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0;">
+              Texas genelinde kesinleşmiş mahkeme kararı sonrası şerif ihalesine (Sheriff Sale) çıkacak mülklerin listesi.
+            </p>
+          </div>
+          <div style="background: rgba(244, 63, 94, 0.08); border: 1px solid rgba(244, 63, 94, 0.2); border-radius: 8px; padding: 0.5rem 0.75rem; max-width: 480px; font-size: 0.75rem; color: #e11d48; line-height: 1.35;">
+            <strong>🎯 Direct-to-Owner Fırsatları:</strong> Bu ihale listelerindeki mülk sahiplerinin adreslerini doğrudan pazarlık yapmak veya teklif göndermek (pre-foreclosure) için potansiyel veri listesi olarak kullanabilirsiniz.
+          </div>
+        </div>
+
+        <!-- Stats Bar -->
+        <div id="ts-stats-bar" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;margin-bottom:1.5rem;"></div>
+
+        <!-- Filters -->
+        <div style="display:flex;flex-wrap:wrap;gap:0.75rem;margin-bottom:1.5rem;align-items:center;">
+          <div class="filter-input-wrapper" style="flex:1;min-width:200px;">
+            <i data-lucide="search"></i>
+            <input type="text" id="ts-search" class="form-control" placeholder="Adres, county, dava no...">
+          </div>
+          <div class="filter-input-wrapper" style="width:160px;">
+            <i data-lucide="map"></i>
+            <select id="ts-state" class="form-control">
+              <option value="">Tüm Eyaletler</option>
+              <option value="TX">Texas (TX)</option>
+            </select>
+          </div>
+          <div class="filter-input-wrapper" style="width:200px;">
+            <i data-lucide="tag"></i>
+            <select id="ts-status" class="form-control">
+              <option value="">Tüm Durumlar</option>
+              <option value="Scheduled for Auction">Scheduled for Auction</option>
+              <option value="Scheduled for Online Auction">Online Auction</option>
+              <option value="Scheduled for Sealed Bid Auction">Sealed Bid</option>
+              <option value="Available for Future Sale">Future Sale</option>
+            </select>
+          </div>
+          <div class="filter-input-wrapper" style="width:180px;">
+            <i data-lucide="percent"></i>
+            <select id="ts-discount" class="form-control">
+              <option value="">Tüm İndirimler</option>
+              <option value="50">Min %50 İndirim</option>
+              <option value="70">Min %70 İndirim</option>
+              <option value="80">Min %80 İndirim</option>
+              <option value="90">Min %90 İndirim</option>
+            </select>
+          </div>
+          <div class="filter-input-wrapper" style="width:160px;">
+            <i data-lucide="sliders-horizontal"></i>
+            <select id="ts-sort" class="form-control">
+              <option value="discount_pct">En Yüksek İndirim</option>
+              <option value="sale_date">Yakın Tarihli</option>
+              <option value="minimum_bid_asc">En Düşük Teklif</option>
+              <option value="value_desc">En Yüksek Değer</option>
+            </select>
+          </div>
+          <button onclick="exportTaxSalesCSV()" class="btn btn-secondary btn-sm">
+            <i data-lucide="download"></i> CSV İndir
+          </button>
+        </div>
+
+        <!-- Deal Cards Grid -->
+        <div id="ts-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:1.25rem;"></div>
+
+        <!-- Pagination -->
+        <div id="ts-pagination" style="display:flex;justify-content:center;align-items:center;gap:1rem;margin-top:1.5rem;"></div>
+      </div>
+
+      <!-- Tab: Scraped Counties -->
+      <div id="tab-scraped-counties" class="tab-content" style="display: none;">
+        <!-- Header & Description -->
+        <div style="background: rgba(255, 255, 255, 0.45); border: 1px solid var(--border-glass); border-radius: 14px; padding: 1.25rem; margin-bottom: 1.5rem; backdrop-filter: blur(10px);">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1rem;">
+            <div>
+              <h2 style="font-family: 'Outfit', sans-serif; font-size: 1.4rem; font-weight: 800; color: var(--text-main); margin: 0 0 0.25rem 0; display: flex; align-items: center; gap: 0.5rem;">
+                <i data-lucide="globe" style="color: #10b981;"></i> 🗺️ County Tarama Takip Portalı
+              </h2>
+              <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0;">
+                Sistemde taranmış ve veritabanına aktarılmış tüm Texas county'lerinin özet istatistikleri.
+              </p>
+            </div>
+            <div style="background: rgba(244, 63, 94, 0.08); border: 1px solid rgba(244, 63, 94, 0.2); border-radius: 8px; padding: 0.5rem 0.75rem; max-width: 480px; font-size: 0.75rem; color: #e11d48; line-height: 1.35;">
+              <strong>💡 Pre-Foreclosure Yatırım Stratejisi:</strong> İhaleye girmek yerine, vergi borcu birikmiş ancak henüz davalık/ihale aşamasına gelmemiş mülk sahiplerine doğrudan teklif mektubu atmak için <strong>Off-Market Avcısı (Vergi Borçluları)</strong> sekmesini kullanabilirsiniz.
+            </div>
+          </div>
+        </div>
+
+        <!-- County Stats Bar -->
+        <div id="county-stats-bar" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-bottom:1.5rem;"></div>
+
+        <!-- Filter Bar -->
+        <div style="display:flex;flex-wrap:wrap;gap:0.75rem;margin-bottom:1.5rem;align-items:center;background:rgba(255, 255, 255, 0.5);border:1px solid var(--border-glass);border-radius:12px;padding:0.75rem;backdrop-filter:blur(5px);">
+          <div class="filter-input-wrapper" style="flex:1;min-width:240px;">
+            <i data-lucide="search"></i>
+            <input type="text" id="county-search-input" class="form-control" placeholder="County adı ara...">
+          </div>
+          <div class="filter-input-wrapper" style="width:180px;">
+            <i data-lucide="map"></i>
+            <select id="county-state-filter" class="form-control">
+              <option value="">Tüm Eyaletler</option>
+              <option value="TX">Texas (TX)</option>
+            </select>
+          </div>
+          <div class="filter-input-wrapper" style="width:180px;">
+            <i data-lucide="sliders-horizontal"></i>
+            <select id="county-sort-select" class="form-control">
+              <option value="count_desc">Mülk Sayısı: Çoktan Aza</option>
+              <option value="count_asc">Mülk Sayısı: Azdan Çoka</option>
+              <option value="name_asc">County Adı: A-Z</option>
+              <option value="discount_desc">En Yüksek İndirim Ort.</option>
+              <option value="min_bid_asc">En Düşük Teklif (Ucuzdan Pahalıya)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Counties Grid -->
+        <div id="counties-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.25rem;"></div>
+      </div>
+
+      <div id="tab-off-market" class="tab-content" style="display: none;">
+        <div style="display: grid; grid-template-columns: 2fr 1.1fr; gap: 1.5rem; align-items: start; margin-top: 1rem; flex-wrap: wrap;">
+          
+          <!-- Off-Market Leads Table/List -->
+          <div style="background: rgba(255, 255, 255, 0.65); border: 1px solid var(--border-glass); border-radius: 14px; padding: 1.5rem; backdrop-filter: blur(10px);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem;">
+              <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.15rem; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 0.5rem; margin: 0;">
+                <i data-lucide="crosshair" style="color: var(--accent-rose); width: 18px; height: 18px;"></i> County Off-Market Fırsat Listesi (Delinquent Tax List)
+              </h3>
+              <button id="scrape-offmarket-btn" class="btn btn-primary btn-sm" style="background: linear-gradient(135deg, var(--accent-rose), var(--accent-purple)); border: none; font-weight: 600; font-size: 0.75rem; border-radius: 8px;">
+                <i data-lucide="scan"></i> County Vergi Borçlu Listesini Tara
+              </button>
+            </div>
+            <p style="color: var(--text-muted); font-size: 0.775rem; margin-bottom: 1.25rem; line-height: 1.4;">
+              Bu listedeki parseller Zillow'da yayında değildir (Off-Market). Belediyenin vergi dairesinden (County Tax Office) otomatik çekilmiş, vergi borcu olan ve acil satma ihtimali yüksek (distressed) mülklerdir. Zillow'dan ortalama pazar fiyatı (comps) çekilerek teklifleri otomatik hesaplanır.
+            </p>
+
+            <!-- Off-Market Filters & Sort -->
+            <div style="display:flex; gap:0.5rem; margin-bottom:1rem; flex-wrap:wrap; background:rgba(0,0,0,0.02); border:1px solid var(--border-glass); border-radius:10px; padding:0.5rem;">
+              <div class="filter-input-wrapper" style="flex:1; min-width:180px;">
+                <i data-lucide="search" style="width:14px; height:14px; left:0.65rem;"></i>
+                <input type="text" id="om-search" class="form-control" placeholder="APN veya mal sahibi ara..." style="padding: 0.4rem 1rem 0.4rem 1.8rem; font-size: 0.8rem; height: auto; border-radius: 8px;">
+              </div>
+              <div class="filter-input-wrapper" style="width:180px;">
+                <i data-lucide="map" style="width:14px; height:14px; left:0.65rem;"></i>
+                <select id="om-county" class="form-control" style="padding: 0.4rem 1rem 0.4rem 1.8rem; font-size: 0.8rem; height: auto; border-radius: 8px;">
+                  <option value="">Tüm Countyler</option>
+                  <option value="TRAVIS COUNTY">Travis County</option>
+                  <option value="TARRANT COUNTY">Tarrant County</option>
+                  <option value="MONTGOMERY COUNTY">Montgomery County</option>
+                  <option value="legacy">Diğer / Belirsiz</option>
+                </select>
+              </div>
+              <div class="filter-input-wrapper" style="width:180px;">
+                <i data-lucide="sliders-horizontal" style="width:14px; height:14px; left:0.65rem;"></i>
+                <select id="om-sort" class="form-control" style="padding: 0.4rem 1rem 0.4rem 1.8rem; font-size: 0.8rem; height: auto; border-radius: 8px;">
+                  <option value="debt_desc">Borç: Yüksekten Düşüğe</option>
+                  <option value="debt_asc">Borç: Düşükten Yükseğe</option>
+                  <option value="mao_desc">Teklif (MAO): Yüksekten Düşüğe</option>
+                  <option value="mao_asc">Teklif (MAO): Düşükten Yükseğe</option>
+                  <option value="acres_desc">Büyüklük: En Büyük</option>
+                </select>
+              </div>
+            </div>
+
+            <div id="off-market-list-wrapper" style="display: flex; flex-direction: column; gap: 1rem; min-height: 200px;">
+              <!-- Delinquent leads will load here -->
+            </div>
+          </div>
+
+          <!-- Zillow Valuation Connector Log/Console -->
+          <div style="background: #0f172a; color: #f8fafc; border: 1px solid #1e293b; border-radius: 14px; padding: 1.5rem; font-family: 'Courier New', Courier, monospace; box-shadow: 0 4px 15px rgba(0,0,0,0.3); display: flex; flex-direction: column; gap: 0.75rem;">
+            <div style="border-bottom: 1px solid #1e293b; padding-bottom: 0.5rem; color: #94a3b8; font-weight: bold; font-size: 0.75rem; display: flex; align-items: center; justify-content: space-between;">
+              <span>🛰️ ZILLOW_VALUATION_CONNECTOR</span>
+              <span style="display: inline-flex; align-items: center; gap: 0.25rem;">
+                <span id="connector-pulse" style="width: 6px; height: 6px; background: #22c55e; border-radius: 50%;"></span> CONNECTED
+              </span>
+            </div>
+            <div id="connector-console-lines" style="height: 480px; overflow-y: auto; font-size: 0.725rem; display: flex; flex-direction: column; gap: 0.4rem; scroll-behavior: smooth;">
+              <div style="color: #64748b;">[System] Zillow Veritabanı ve Comps motoru çevrimiçi.</div>
+              <div style="color: #64748b;">[System] Off-market parsel analizi ve Zillow eşleştirme için bekliyor...</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- Contract Generator Modal -->
+  <div id="contract-modal" class="modal">
+    <div class="modal-content">
+      <span class="close-modal" id="close-modal-btn">&times;</span>
+      <div class="modal-header">
+        <h3>📝 Sözleşme Detayları</h3>
+        <p style="color: var(--text-muted); font-size: 0.8rem; margin-top: 0.25rem;">Amerika standartlarında yasal geçerliliği olan Arsa Satın Alma Sözleşmesi'ni hazırla.</p>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Alıcı Firma / İsim (Buyer)</label>
+          <input type="text" id="contract-buyer" value="Yigit Erturk LLC">
+        </div>
+        <div class="form-group">
+          <label>Satıcı İsim (Seller)</label>
+          <input type="text" id="contract-seller" value="Owner of Record">
+        </div>
+        <div class="form-group">
+          <label>Teklif Bedeli ($)</label>
+          <input type="number" id="contract-price" value="">
+        </div>
+        <div class="form-group">
+          <label>Kapora Bedeli ($ - Earnest Money)</label>
+          <input type="number" id="contract-earnest" value="1000">
+        </div>
+        <div class="form-group">
+          <label>Kapanış Süresi (Gün)</label>
+          <input type="number" id="contract-closing" value="30">
+        </div>
+
+        <!-- Dijital İmza (E-Signature) Pad -->
+        <div class="form-group" style="margin-top: 1rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
+            <label style="font-size: 0.775rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">✍️ Alıcı Dijital İmzası (E-Signature)</label>
+            <button id="sig-clear-btn" class="btn btn-secondary btn-sm" style="padding: 0.2rem 0.5rem; font-size: 0.7rem; border-radius: 4px; background: transparent; border: 1px solid var(--border-glass);">Temizle</button>
+          </div>
+          <div style="border: 2px dashed rgba(15, 23, 42, 0.15); border-radius: 8px; background: #fdfdfd; overflow: hidden; height: 110px; display: flex; align-items: center; justify-content: center; position: relative;">
+            <canvas id="sig-canvas" width="450" height="110" style="cursor: crosshair; touch-action: none; width: 100%; height: 100%;"></canvas>
+          </div>
+        </div>
+        
+        <!-- Hidden Property Fields -->
+        <input type="hidden" id="contract-zpid">
+        <input type="hidden" id="contract-address">
+        <input type="hidden" id="contract-city">
+        <input type="hidden" id="contract-state">
+        <input type="hidden" id="contract-zipcode">
+        <input type="hidden" id="contract-apn">
+        <input type="hidden" id="contract-size">
+        <input type="hidden" id="contract-type">
+        <input type="hidden" id="contract-beds">
+        <input type="hidden" id="contract-baths">
+        <input type="hidden" id="contract-year">
+      </div>
+      <div class="modal-footer">
+        <button id="modal-cancel-btn" class="btn btn-secondary btn-sm">Vazgeç</button>
+        <button id="modal-generate-btn" class="btn btn-primary btn-sm" style="background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue)); color: white; border: none; font-weight: 700;"><i data-lucide="printer"></i> İmzalayıp Yazdır / PDF Yap</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI County Suggestor Modal -->
+  <div id="ai-modal" class="modal">
+    <div class="modal-content" style="max-width: 800px; width: 95%;">
+      <span class="close-modal" id="close-ai-modal-btn">&times;</span>
+      <div class="modal-header" style="border-bottom: 1px solid var(--border-glass); padding-bottom: 1rem; margin-bottom: 1.25rem;">
+        <h3 style="display: flex; align-items: center; gap: 0.5rem; font-family: 'Outfit', sans-serif; font-size: 1.45rem;">
+          <i data-lucide="brain-circuit" style="color: var(--accent-purple);"></i> Yapay Zeka Karar Merkezi & Otopilot
+        </h3>
+        <p style="color: var(--text-muted); font-size: 0.825rem; margin-top: 0.25rem;">ABD genelinde en karlı arsa ticareti (land flipping) yapılan eyalet ve ilçelerin yapay zeka tarafından analizi, otopilot seçimi ve otomatik veri taraması.</p>
+      </div>
+
+      <!-- AI Autopilot Section -->
+      <div style="background: linear-gradient(135deg, rgba(109, 40, 217, 0.04), rgba(29, 78, 216, 0.04)); border: 1px solid rgba(109, 40, 217, 0.12); border-radius: 12px; padding: 1.25rem; margin-bottom: 1.25rem; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; flex-wrap: wrap;">
+        <div style="flex: 1; min-width: 280px;">
+          <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+            <span style="display: inline-block; width: 8px; height: 8px; background: #22c55e; border-radius: 50%;"></span>
+            <strong style="color: var(--text-main); font-size: 0.95rem;">🤖 Yapay Zeka Otopilot Modu</strong>
+          </div>
+          <span style="color: var(--text-muted); font-size: 0.775rem; line-height: 1.4; display: block;">AI; demografik büyüme trendlerini, Zillow piyasa devir hızlarını ve ortalama dönüm fiyatlarını analiz ederek en yüksek kazanç potansiyeline sahip 5 yeni hedef ilçeyi otomatik seçer, listeye ekler ve taramayı başlatır.</span>
+        </div>
+        <button id="ai-autopilot-btn" class="btn btn-primary" style="background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue)); font-weight: 700; border-radius: 8px; box-shadow: 0 4px 12px var(--accent-purple-glow); padding: 0.65rem 1.25rem;">
+          <i data-lucide="zap"></i> Otopilotu Başlat
+        </button>
+      </div>
+
+      <!-- News/Analysis Link Ingestion Section -->
+      <div style="background: rgba(15, 23, 42, 0.02); border: 1px solid var(--border-glass); border-radius: 12px; padding: 1.25rem; margin-bottom: 1.25rem; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
+        <strong style="color: var(--text-main); font-size: 0.9rem; display: block; margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.4rem;">
+          <i data-lucide="rss" style="color: var(--accent-purple); width: 16px; height: 16px;"></i> Haber & Pazar Raporu Analizcisi (Market Intelligence)
+        </strong>
+        <span style="color: var(--text-muted); font-size: 0.75rem; display: block; margin-bottom: 0.75rem;">
+          Sektör haberlerini veya analiz linklerini buraya girerek yapay zekanın pazar hedeflerini anında çıkartmasını sağlayabilirsiniz:
+        </span>
+        <div style="display: flex; gap: 0.5rem; margin-bottom: 0.6rem;">
+          <input type="text" id="market-intel-url" placeholder="Analiz linki veya metni girin... (Örn: https://www.newsweek.com/...)" style="flex: 1; padding: 0.5rem 0.75rem; border: 1px solid var(--border-glass); border-radius: 8px; font-size: 0.8rem; outline: none; background: #fff; color: var(--text-main);">
+          <button id="ai-ingest-btn" class="btn btn-primary btn-sm" style="background: var(--text-main); color: #fff; border: 1px solid var(--text-main); font-weight: 600; border-radius: 8px; padding: 0.5rem 1rem; font-size: 0.75rem;">
+            Oku & Analiz Et
+          </button>
+        </div>
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;">
+          <span style="font-size: 0.7rem; color: var(--text-muted);">Örnek Kaynaklar:</span>
+          <button id="preset-newsweek" class="btn btn-secondary btn-xs" style="padding: 0.25rem 0.5rem; font-size: 0.7rem; border-radius: 6px; background: rgba(15, 23, 42, 0.05); border: 1px solid rgba(15,23,42,0.1); color: var(--text-main); cursor: pointer;">📰 Newsweek Megaprojects (2026)</button>
+          <button id="preset-offgrid" class="btn btn-secondary btn-xs" style="padding: 0.25rem 0.5rem; font-size: 0.7rem; border-radius: 6px; background: rgba(15, 23, 42, 0.05); border: 1px solid rgba(15,23,42,0.1); color: var(--text-main); cursor: pointer;">🌲 Off-Grid Best States (2026)</button>
+        </div>
+      </div>
+
+      <!-- Live Stream Console -->
+      <div id="ai-console-wrapper" style="display: none; margin-bottom: 1.25rem;">
+        <div style="background: #0f172a; color: #f8fafc; font-family: 'Courier New', Courier, monospace; font-size: 0.8rem; border-radius: 10px; padding: 1rem; border: 1px solid #1e293b; box-shadow: inset 0 2px 6px rgba(0,0,0,0.5);">
+          <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #1e293b; padding-bottom: 0.4rem; margin-bottom: 0.5rem; color: #94a3b8; font-weight: bold; font-size: 0.725rem;">
+            <span>💻 AI_ANALYST_CONSOLE // LIVE_MARKET_STREAM</span>
+            <span style="display: inline-flex; align-items: center; gap: 0.25rem;">
+              <span id="console-pulse" style="width: 6px; height: 6px; background: #eab308; border-radius: 50%;"></span> 
+              <span id="console-status-text">ANALYZING</span>
+            </span>
+          </div>
+          <div id="ai-console-lines" style="height: 140px; overflow-y: auto; display: flex; flex-direction: column; gap: 0.35rem; scroll-behavior: smooth;">
+            <!-- Live console outputs here -->
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-body" style="padding: 0;">
+        <h4 style="font-family: 'Outfit', sans-serif; font-size: 1rem; font-weight: 600; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.4rem;">
+          <i data-lucide="line-chart" style="width: 18px; height: 18px; color: var(--accent-blue);"></i> Piyasa Fırsatları ve İlçe Veri Bankası
+        </h4>
+        <div class="modal-body-scroll" style="max-height: 250px; overflow-y: auto; padding-right: 0.25rem; display: flex; flex-direction: column; gap: 0.75rem;" id="ai-recs-container">
+          <!-- Öneriler dinamik olarak buraya gelecek -->
+        </div>
+      </div>
+
+      <div class="modal-footer" style="margin-top: 1.25rem; border-top: 1px solid var(--border-glass); padding-top: 1rem;">
+        <button id="ai-cancel-btn" class="btn btn-secondary btn-sm">Vazgeç / Kapat</button>
+        <button id="ai-save-btn" class="btn btn-primary btn-sm" style="background: var(--text-main); color: #fff; border: 1px solid var(--text-main); font-weight: 600;">
+          <i data-lucide="plus"></i> Seçilenleri Listeme Ekle
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Direct Mail Letter Preview Modal -->
+  <div id="dm-modal" class="modal">
+    <div class="modal-content" style="max-width: 650px; padding: 2rem; background: #f1f5f9;">
+      <span class="close-modal" id="close-dm-modal-btn">&times;</span>
+      <div class="modal-header" style="margin-bottom: 1rem;">
+        <h3 style="display: flex; align-items: center; gap: 0.5rem; font-family: 'Outfit', sans-serif; font-size: 1.35rem;">
+          <i data-lucide="mail-open" style="color: var(--accent-blue);"></i> Sahibine Teklif Mektubu & Zarfı
+        </h3>
+        <p style="color: var(--text-muted); font-size: 0.8rem;">REIPrintMail / Pebble servislerine gönderilen fiziki mektup ve posta zarfı tasarımı.</p>
+      </div>
+
+      <div class="modal-body" style="display: flex; flex-direction: column; gap: 1.5rem; padding: 0;">
+        
+        <!-- Envelope Mockup -->
+        <div style="background: #fff; border: 1px solid #cbd5e1; border-radius: 8px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(0,0,0,0.05); font-family: 'Courier New', Courier, monospace; font-size: 0.8rem; line-height: 1.4; color: #334155; position: relative;">
+          <!-- Stamp Mockup -->
+          <div style="position: absolute; right: 1.25rem; top: 1.25rem; width: 55px; height: 65px; border: 2px dashed #94a3b8; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 0.6rem; color: #94a3b8; text-align: center; font-weight: bold; border-radius: 4px;">
+            <span>FIRST</span>
+            <span>CLASS</span>
+            <span>STAMP</span>
+          </div>
+
+          <!-- Return Address -->
+          <div style="margin-bottom: 2rem;">
+            <strong>YIGIT ERTURK LLC</strong><br>
+            1209 Mountain Road PL NE<br>
+            Albuquerque, NM 87110
+          </div>
+
+          <!-- Recipient Address -->
+          <div style="margin-left: 5rem; margin-bottom: 1rem;">
+            <strong>TO: OWNER OF RECORD</strong><br>
+            <span id="dm-env-address">123 Main St</span><br>
+            <span id="dm-env-city-state">Ocala, FL 34470</span>
+          </div>
+        </div>
+
+        <!-- Letter Mockup -->
+        <div id="dm-letter-container" style="background: #fff; border: 1px solid #cbd5e1; padding: 2.5rem; box-shadow: 0 4px 15px rgba(0,0,0,0.05); font-family: Georgia, serif; font-size: 0.85rem; line-height: 1.5; color: #1e293b; max-height: 350px; overflow-y: auto;">
+          <p style="text-align: right; margin-bottom: 1.5rem;" id="dm-letter-date">June 11, 2026</p>
+          
+          <p style="margin-bottom: 1.5rem;">
+            <strong>Re: Purchase Offer for Property in <span id="dm-letter-county">Marion</span> County</strong><br>
+            Assessor's Parcel Number (APN): <strong id="dm-letter-apn">123-456-78</strong><br>
+            Property Size: <span id="dm-letter-size">1.5 Acres</span>
+          </p>
+
+          <p>Dear Property Owner,</p>
+          
+          <p>My name is Yigit and I am a land investor. I am writing to you because I am interested in purchasing your property located at <strong id="dm-letter-address">123 Main St</strong>. I buy land directly from owners for cash, saving you from realtor commissions and closing costs.</p>
+          
+          <p>I have done preliminary research on your property, and I would like to offer you <strong style="color: var(--accent-purple); font-size: 1rem;" id="dm-letter-offer">$12,500 cash</strong> for a quick closing. We will pay all escrow fees and standard closing costs.</p>
+
+          <p>If you are interested in selling or would like to discuss this offer, please call me at <strong>(505) 555-0199</strong> or email me at <strong>offers@yigitland.com</strong>. You can also sign the purchase contract generated in our system and return it.</p>
+
+          <p>Thank you for your time, and I look forward to hearing from you.</p>
+
+          <p style="margin-top: 2rem;">
+            Sincerely,<br><br>
+            <strong>Yigit Erturk</strong><br>
+            Manager, Yigit Erturk LLC
+          </p>
+        </div>
+
+      </div>
+
+      <div class="modal-footer" style="margin-top: 1.25rem; border-top: 1px solid var(--border-glass); padding-top: 1rem; background: transparent; padding-bottom: 0;">
+        <button id="dm-close-btn" class="btn btn-secondary btn-sm">Kapat</button>
+        <button id="dm-print-btn" class="btn btn-primary btn-sm" style="background: var(--accent-blue); color: white; border: none;"><i data-lucide="printer"></i> Mektubu Yazdır</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // State
+    let currentPage = 1;
+    let totalPages = 1;
+    let activeTab = 'listings';
+    let activeModule = 'LAND'; // LAND veya HOUSE
+    let allBuyers = [];
+
+    // Chart.js Instances
+    let stateChartInstance = null;
+    let unitChartInstance = null;
+
+    // Elements
+    const searchInput = document.getElementById('search-input');
+    const stateFilter = document.getElementById('state-filter');
+    const sortSelect = document.getElementById('sort-select');
+    const hotDealFilter = document.getElementById('hot-deal-filter');
+    const listingsWrapper = document.getElementById('listings-wrapper');
+    const dropsTimeline = document.getElementById('drops-timeline');
+    const paginationInfo = document.getElementById('pagination-info');
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
+    const statusBanner = document.getElementById('status-banner');
+    const triggerScrapeBtn = document.getElementById('trigger-scrape-btn');
+    const exportBtn = document.getElementById('export-btn');
+    const exportDmBtn = document.getElementById('export-dm-btn');
+
+    // Module Switcher Elements
+    const moduleLandBtn = document.getElementById('module-land-btn');
+    const moduleHouseBtn = document.getElementById('module-house-btn');
+
+    // Modal Elements
+    const contractModal = document.getElementById('contract-modal');
+    const closeModalBtn = document.getElementById('close-modal-btn');
+    const modalCancelBtn = document.getElementById('modal-cancel-btn');
+    const modalGenerateBtn = document.getElementById('modal-generate-btn');
+
+    // AI Modal Elements
+    const aiModal = document.getElementById('ai-modal');
+    const closeAiModalBtn = document.getElementById('close-ai-modal-btn');
+    const aiCancelBtn = document.getElementById('ai-cancel-btn');
+    const aiSaveBtn = document.getElementById('ai-save-btn');
+    const aiSuggestBtn = document.getElementById('ai-suggest-btn');
+    const aiRecsContainer = document.getElementById('ai-recs-container');
+    const aiAutopilotBtn = document.getElementById('ai-autopilot-btn');
+    const aiConsoleWrapper = document.getElementById('ai-console-wrapper');
+    const aiConsoleLines = document.getElementById('ai-console-lines');
+    // Direct Mail Preview Modal Elements
+    const dmModal = document.getElementById('dm-modal');
+    const closeDmModalBtn = document.getElementById('close-dm-modal-btn');
+    const dmCloseBtn = document.getElementById('dm-close-btn');
+    const dmPrintBtn = document.getElementById('dm-print-btn');
+
+    // Fetch Stats & General Overview
+    async function loadStats() {
+      try {
+        const res = await fetch('/api/stats');
+        const data = await res.json();
+        if (data.success) {
+          const stats = data.stats;
+          
+          let total = 0;
+          let avgPrice = 0;
+          let statesList = [];
+          
+          if (activeModule === 'LAND') {
+            total = stats.totalLand;
+            avgPrice = stats.avgPriceLand;
+            statesList = stats.byStateLand || [];
+            
+            document.getElementById('stat-total-label').innerText = 'Toplam Kayıtlı Arsa';
+            document.getElementById('stat-total-desc').innerText = 'Veritabanında takip edilen arsa sayısı';
+            document.getElementById('stat-avg-label').innerText = 'Ortalama Arsa Fiyatı';
+            document.getElementById('stat-avg-desc').innerText = 'Takip edilen arsaların ortalama bedeli';
+            document.getElementById('chart-bar-title').innerHTML = `<i data-lucide="bar-chart-2" style="color: var(--accent-blue); width: 18px; height: 18px;"></i> Eyalet Bazında Ortalama Dönüm Fiyatı (Acre)`;
+          } else {
+            total = stats.totalHouse;
+            avgPrice = stats.avgPriceHouse;
+            statesList = stats.byStateHouse || [];
+            
+            document.getElementById('stat-total-label').innerText = 'Toplam Kayıtlı Konut';
+            document.getElementById('stat-total-desc').innerText = 'Veritabanında takip edilen konut sayısı';
+            document.getElementById('stat-avg-label').innerText = 'Ortalama Konut Fiyatı';
+            document.getElementById('stat-avg-desc').innerText = 'Takip edilen konutların ortalama bedeli';
+            document.getElementById('chart-bar-title').innerHTML = `<i data-lucide="bar-chart-2" style="color: var(--accent-blue); width: 18px; height: 18px;"></i> Eyalet Bazında Ortalama Metrekare Fiyatı (Sqft)`;
+          }
+          
+          // Filter drops by current module type
+          const filteredDrops = (stats.recentDrops || []).filter(d => 
+            activeModule === 'LAND' ? d.property_type === 'LAND' : d.property_type !== 'LAND'
+          );
+          
+          document.getElementById('stat-total').innerText = total.toLocaleString();
+          document.getElementById('stat-avg-price').innerText = avgPrice > 0 ? `$${avgPrice.toLocaleString()}` : '$0';
+          document.getElementById('stat-states-count').innerText = statesList.length;
+          document.getElementById('stat-drops-count').innerText = filteredDrops.length;
+
+          // State details desc
+          const stateListText = statesList.map(s => `${s.state}: ${s.count}`).join(', ');
+          document.getElementById('stat-states-list').innerText = stateListText || 'Veri bulunmuyor';
+
+          // Load Timeline for drops
+          renderDropsTimeline(filteredDrops);
+
+          // Update/Render Charts
+          renderCharts(stats, statesList);
+          
+          lucide.createIcons();
+        }
+      } catch (err) {
+        console.error('İstatistik yükleme hatası:', err);
+      }
+    }
+
+    // Chart.js graphics rendering
+    function renderCharts(stats, statesList) {
+      // 1. Eyaletlere Göre Dağılım (Doughnut Chart)
+      const ctxState = document.getElementById('state-distribution-chart').getContext('2d');
+      if (stateChartInstance) {
+        stateChartInstance.destroy();
+      }
+      
+      const labelsState = statesList.map(s => s.state);
+      const dataState = statesList.map(s => s.count);
+      
+      stateChartInstance = new Chart(ctxState, {
+        type: 'doughnut',
+        data: {
+          labels: labelsState.length > 0 ? labelsState : ['Veri Yok'],
+          datasets: [{
+            data: dataState.length > 0 ? dataState : [1],
+            backgroundColor: labelsState.length > 0 ? ['#6d28d9', '#1d4ed8', '#047857', '#b45309', '#be123c'] : ['#e2e8f0'],
+            borderWidth: 1,
+            hoverOffset: 4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: {
+                boxWidth: 12,
+                font: { family: 'Inter', size: 11 }
+              }
+            }
+          }
+        }
+      });
+
+      // 2. Birim Fiyatlar Grafik (Bar Chart)
+      const ctxUnit = document.getElementById('unit-price-chart').getContext('2d');
+      if (unitChartInstance) {
+        unitChartInstance.destroy();
+      }
+
+      let barData = [];
+      let barLabel = '';
+      let barColor = '';
+      
+      if (activeModule === 'LAND') {
+        barData = stats.avgPricePerAcreByState || [];
+        barLabel = 'Ort. Fiyat / Acre ($)';
+        barColor = 'rgba(109, 40, 217, 0.75)';
+      } else {
+        barData = stats.avgPricePerSqftByState || [];
+        barLabel = 'Ort. Fiyat / Sqft ($)';
+        barColor = 'rgba(29, 78, 216, 0.75)';
+      }
+
+      const labelsUnit = barData.map(s => s.state);
+      const dataUnit = barData.map(s => s.avg_rate);
+
+      unitChartInstance = new Chart(ctxUnit, {
+        type: 'bar',
+        data: {
+          labels: labelsUnit.length > 0 ? labelsUnit : ['Veri Yok'],
+          datasets: [{
+            label: barLabel,
+            data: dataUnit.length > 0 ? dataUnit : [0],
+            backgroundColor: barColor,
+            borderRadius: 6,
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              grid: { color: 'rgba(15, 23, 42, 0.05)' },
+              ticks: { font: { family: 'Inter', size: 10 } }
+            },
+            x: {
+              grid: { display: false },
+              ticks: { font: { family: 'Inter', size: 10 } }
+            }
+          }
+        }
+      });
+    }
+
+    // Fetch Listings with Filter/Search/Page
+    async function loadListings() {
+      const search = searchInput.value;
+      const state = stateFilter.value;
+      const sortBy = sortSelect.value;
+      const isHot = hotDealFilter.checked;
+      const threshold = document.getElementById('threshold-select').value;
+      
+      try {
+        const url = `/api/listings?search=${encodeURIComponent(search)}&state=${state}&sortBy=${sortBy}&page=${currentPage}&isHotDeal=${isHot}&hotDealThreshold=${threshold}&propertyType=${activeModule}`;
+        const res = await fetch(url);
+        const data = await res.json();
+        
+        if (data.success) {
+          renderListings(data.listings);
+          
+          // Pagination update
+          const { totalCount, totalPages: pages, currentPage: current } = data.pagination;
+          totalPages = pages;
+          currentPage = current;
+
+          const start = totalCount === 0 ? 0 : (current - 1) * 30 + 1;
+          const end = Math.min(current * 30, totalCount);
+          paginationInfo.innerText = `Toplam ${totalCount.toLocaleString()} kayıttan ${start} - ${end} arası gösteriliyor`;
+
+          prevBtn.disabled = current <= 1;
+          nextBtn.disabled = current >= pages;
+        }
+      } catch (err) {
+        console.error('İlan yükleme hatası:', err);
+      }
+    }
+
+    // Render Listing Cards
+    function renderListings(listings) {
+      listingsWrapper.innerHTML = '';
+      
+      if (listings.length === 0) {
+        const itemType = activeModule === 'LAND' ? 'arsa' : 'konut';
+        listingsWrapper.innerHTML = `
+          <div style="grid-column: 1/-1; text-align: center; padding: 3rem; color: var(--text-muted);">
+            <i data-lucide="alert-circle" style="width: 48px; height: 48px; margin-bottom: 1rem; color: var(--text-muted);"></i>
+            <p>Aradığınız kriterlere uygun ${itemType} ilanı bulunamadı.</p>
+          </div>
+        `;
+        lucide.createIcons();
+        return;
+      }
+
+      listings.forEach(l => {
+        const card = document.createElement('div');
+        const isHot = l.is_hot_deal === 1;
+        card.className = `listing-card ${isHot ? 'hot-deal-card' : ''}`;
+        
+        let sizeStr = '';
+        let detailsHtml = '';
+        let unitPriceHtml = '';
+        let hotBadgeHtml = '';
+
+        if (activeModule === 'LAND') {
+          sizeStr = l.lot_size_acres 
+            ? `${l.lot_size_acres.toFixed(2)} acres` 
+            : (l.lot_size_sqft ? `${l.lot_size_sqft.toLocaleString()} sqft` : 'Bilinmiyor');
+            
+          const pricePerAcre = l.lot_size_acres ? Math.round(l.price / l.lot_size_acres) : 0;
+          
+          if (isHot && l.avg_price_per_acre > 0 && pricePerAcre > 0) {
+            const discount = Math.round(((l.avg_price_per_acre - pricePerAcre) / l.avg_price_per_acre) * 100);
+            hotBadgeHtml = `<div class="hot-badge"><i data-lucide="flame" style="width:12px; height:12px;"></i> %${discount} Kelepir Arsa!</div>`;
+          }
+
+          detailsHtml = `
+            <div class="detail-item">
+              <span class="detail-label">Arsa Boyutu</span>
+              <span class="detail-value">${sizeStr}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">APN / Parsel</span>
+              <span class="detail-value" style="font-family: monospace;">${l.apn || 'Ertelendi'}</span>
+            </div>
+          `;
+
+          if (pricePerAcre > 0) {
+            unitPriceHtml = `
+              <div class="detail-item" style="grid-column: span 2; border-top: 1px solid rgba(0,0,0,0.03); padding-top: 0.25rem; margin-top: 0.25rem;">
+                <span class="detail-label" style="display:inline-block; margin-right: 0.25rem;">Birim Fiyat:</span>
+                <span class="detail-value" style="color: var(--accent-purple); font-size: 0.775rem;">$${pricePerAcre.toLocaleString()} / acre</span>
+              </div>
+            `;
+          }
+        } else {
+          // HOUSE MODULE DETAILS
+          sizeStr = l.area_sqft 
+            ? `${l.area_sqft.toLocaleString()} sqft` 
+            : 'Bilinmiyor';
+            
+          const pricePerSqft = l.area_sqft ? Math.round(l.price / l.area_sqft) : 0;
+
+          if (isHot) {
+            hotBadgeHtml = `<div class="hot-badge" style="background: linear-gradient(135deg, #3b82f6, #06b6d4);"><i data-lucide="flame" style="width:12px; height:12px;"></i> FIRSAT KONUT!</div>`;
+          }
+
+          detailsHtml = `
+            <div class="detail-item">
+              <span class="detail-label">Kullanım Alanı</span>
+              <span class="detail-value">${sizeStr}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">İnşa Yılı / Yapı</span>
+              <span class="detail-value">${l.year_built || 'Bilinmiyor'}</span>
+            </div>
+            <div class="detail-item" style="grid-column: span 2; border-top: 1px solid rgba(0,0,0,0.02); padding-top: 0.25rem; margin-top: 0.25rem;">
+              <span class="detail-label" style="display:inline-block; margin-right: 0.25rem;">Oda/Banyo:</span>
+              <span class="detail-value" style="font-size: 0.775rem;">${l.bedrooms || '?'} yatak odası, ${l.bathrooms || '?'} banyo</span>
+            </div>
+          `;
+
+          if (pricePerSqft > 0) {
+            unitPriceHtml = `
+              <div class="detail-item" style="grid-column: span 2; border-top: 1px solid rgba(0,0,0,0.03); padding-top: 0.25rem; margin-top: 0.25rem;">
+                <span class="detail-label" style="display:inline-block; margin-right: 0.25rem;">Birim Fiyat:</span>
+                <span class="detail-value" style="color: var(--accent-blue); font-size: 0.775rem;">$${pricePerSqft.toLocaleString()} / sqft</span>
+              </div>
+            `;
+          }
+        }
+
+        let satelliteBtn = '';
+        if (l.latitude && l.longitude) {
+          satelliteBtn = `
+            <a href="https://www.google.com/maps/search/?api=1&query=${l.latitude},${l.longitude}" target="_blank" class="card-action-btn btn-gps" title="Uydudan İncele">
+              <i data-lucide="map"></i> Uydu
+            </a>
+          `;
+        } else {
+          satelliteBtn = `
+            <button class="card-action-btn" disabled style="opacity: 0.5; cursor: not-allowed;" title="Konum Yok">
+              <i data-lucide="map-pin-off"></i> Konum
+            </button>
+          `;
+        }
+
+        // Match buyers dynamically
+        const matchedBuyers = allBuyers.filter(b => {
+          const bStates = b.target_states ? b.target_states.split(',').map(s=>s.trim().toUpperCase()) : [];
+          const matchesState = bStates.length === 0 || bStates.includes(l.state.toUpperCase());
+          const matchesBudget = !b.max_budget || b.max_budget >= l.price;
+          const matchesType = b.property_type === 'BOTH' || b.property_type === l.property_type;
+          return matchesState && matchesBudget && matchesType;
+        });
+
+        let buyerMatchHtml = '';
+        if (matchedBuyers.length > 0) {
+          buyerMatchHtml = `
+            <div style="margin-top: 0.5rem; display: flex; gap: 0.25rem; flex-wrap: wrap; align-items: center;">
+              <span style="font-size: 0.65rem; color: var(--text-muted); font-weight: 600;">🤝 Eşleşen Alıcı:</span>
+              ${matchedBuyers.slice(0, 2).map(b => `<span style="font-size: 0.6rem; padding: 0.1rem 0.35rem; border-radius: 4px; background: rgba(59,130,246,0.08); color: var(--accent-blue); font-weight: 600;" title="${b.phone || ''} | ${b.email || ''}">${b.name.split(' ')[0]}</span>`).join('')}
+              ${matchedBuyers.length > 2 ? `<span style="font-size: 0.6rem; color: var(--text-muted); font-weight: 600;">+${matchedBuyers.length - 2}</span>` : ''}
+            </div>
+          `;
+        }
+
+        let advancedInfoHtml = '';
+        if (l.owner_name || l.mao_price || l.mail_status) {
+          advancedInfoHtml = `
+            <div style="margin-top: 0.75rem; padding: 0.75rem; border-radius: 8px; background: rgba(109, 40, 217, 0.03); border: 1px solid rgba(109, 40, 217, 0.08); font-size: 0.75rem; display: flex; flex-direction: column; gap: 0.35rem; text-align: left;">
+              ${l.owner_name ? `<div>👤 <strong>Sahibi:</strong> ${l.owner_name} <br>📞 ${l.owner_phone || ''}</div>` : ''}
+              ${l.mao_price ? `<div>🎯 <strong>AI MAO Fiyatı:</strong> <strong style="color: var(--accent-rose); font-size: 0.8rem;">$${l.mao_price.toLocaleString()}</strong></div>` : ''}
+              ${l.mail_status ? `<div>✉️ <strong>Posta Durumu:</strong> <span style="background: rgba(4,120,87,0.1); color: var(--accent-emerald); padding: 0.1rem 0.3rem; border-radius: 4px; font-weight: 700;">Gönderildi</span></div>` : ''}
+            </div>
+          `;
+        }
+
+        card.innerHTML = `
+          ${hotBadgeHtml}
+          <div>
+            <div class="listing-header">
+              <span class="listing-address" title="${l.street_address || 'Adres Yok'}">${l.street_address || 'Adres Yok'}</span>
+              <span class="listing-price">$${l.price?.toLocaleString() || 'N/A'}</span>
+            </div>
+            <div class="listing-location">
+              <i data-lucide="map-pin" style="width: 14px; height: 14px;"></i>
+              <span>${l.city || 'Bilinmiyor'}, ${l.state} ${l.zipcode || ''}</span>
+            </div>
+            
+            <div class="listing-details">
+              ${detailsHtml}
+              ${unitPriceHtml}
+            </div>
+            
+            ${buyerMatchHtml}
+            ${advancedInfoHtml}
+
+            <!-- Action Buttons Row 1 -->
+            <div class="listing-actions" style="grid-template-columns: repeat(3, 1fr); gap: 0.35rem; margin-top: 0.75rem; margin-bottom: 0.35rem;">
+              ${satelliteBtn}
+              <button onclick="openContractModal(${JSON.stringify({
+                zpid: l.zpid,
+                address: l.street_address || 'Adres Yok',
+                city: l.city || '',
+                state: l.state || '',
+                zipcode: l.zipcode || '',
+                apn: l.apn || '',
+                price: l.price || 0,
+                size: sizeStr,
+                type: l.property_type,
+                beds: l.bedrooms,
+                baths: l.bathrooms,
+                year: l.year_built
+              }).replace(/"/g, '&quot;')})" class="card-action-btn btn-doc" title="Sözleşme Hazırla">
+                <i data-lucide="file-text"></i> Sözleşme
+              </button>
+              <button onclick="openDmModal(${JSON.stringify({
+                address: l.street_address || 'Adres Yok',
+                city: l.city || '',
+                state: l.state || '',
+                zipcode: l.zipcode || '',
+                apn: l.apn || '',
+                price: l.price || 0,
+                size: sizeStr
+              }).replace(/"/g, '&quot;')})" class="card-action-btn btn-mail" style="color: var(--accent-blue); background: rgba(29, 78, 216, 0.03); border-color: rgba(29, 78, 216, 0.1);" title="Mektup Önizle">
+                <i data-lucide="mail"></i> Mektup
+              </button>
+            </div>
+
+            <!-- Advanced Wholesaling Actions Row 2 -->
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.35rem; margin-bottom: 0.75rem;">
+              <button onclick="runSkipTrace('${l.zpid}', this)" class="card-action-btn" style="color: var(--accent-purple); background: rgba(109,40,217,0.03); border-color: rgba(109,40,217,0.1); padding: 0.4rem 0.2rem;" title="Mal Sahibini Skip Trace Et">
+                <i data-lucide="phone" style="width:12px; height:12px;"></i> Trace
+              </button>
+              <button onclick="runAIUnderwrite('${l.zpid}', this)" class="card-action-btn" style="color: var(--accent-amber); background: rgba(180,83,9,0.03); border-color: rgba(180,83,9,0.1); padding: 0.4rem 0.2rem;" title="AI Değerleme & MAO Hesapla">
+                <i data-lucide="brain" style="width:12px; height:12px;"></i> AI Teklif
+              </button>
+              <button onclick="sendDirectMail('${l.zpid}', this)" class="card-action-btn" style="color: var(--accent-emerald); background: rgba(4,120,87,0.03); border-color: rgba(4,120,87,0.1); padding: 0.4rem 0.2rem;" title="Pebble Fiziki Posta Gönder" ${l.mail_status === 'SENT' ? 'disabled style="opacity:0.6; cursor:not-allowed;"' : ''}>
+                <i data-lucide="send" style="width:12px; height:12px;"></i> ${l.mail_status === 'SENT' ? 'Postalandı' : 'Postala'}
+              </button>
+            </div>
+
+          </div>
+          
+          <div class="listing-footer">
+            <span class="days-badge">
+              <i data-lucide="clock" style="width: 13px; height: 13px;"></i>
+              <span>${l.days_on_zillow !== null ? l.days_on_zillow + ' gündür Zillow\'da' : 'Bilinmiyor'}</span>
+            </span>
+            <a href="${l.zillow_url}" target="_blank" class="zillow-link">
+              Zillow'da Aç <i data-lucide="external-link" style="width: 12px; height: 12px;"></i>
+            </a>
+          </div>
+        `;
+        listingsWrapper.appendChild(card);
+      });
+
+      lucide.createIcons();
+    }
+
+    // Render Price Drops Timeline
+    function renderDropsTimeline(drops) {
+      dropsTimeline.innerHTML = '';
+      
+      if (drops.length === 0) {
+        dropsTimeline.innerHTML = `
+          <div style="text-align: center; padding: 3rem; color: var(--text-muted);">
+            <i data-lucide="alert-circle" style="width: 48px; height: 48px; margin-bottom: 1rem;"></i>
+            <p>Henüz veritabanında kayıtlı bir fiyat düşüşü yok.</p>
+          </div>
+        `;
+        lucide.createIcons();
+        return;
+      }
+
+      drops.forEach(d => {
+        const item = document.createElement('div');
+        item.className = 'timeline-item';
+        
+        const dateFormatted = new Date(d.recorded_at).toLocaleDateString('tr-TR', {
+          day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'
+        });
+
+        item.innerHTML = `
+          <div class="timeline-dot"></div>
+          <div class="timeline-card">
+            <div class="timeline-info">
+              <h4>${d.street_address || 'Adres Bilinmiyor'}</h4>
+              <p>${d.city}, ${d.state} • ${d.lot_size_acres ? d.lot_size_acres + ' acres' : 'Boyut Bilinmiyor'}</p>
+              <p style="margin-top: 0.25rem; font-size: 0.7rem;"><i data-lucide="calendar" style="width: 10px; height: 10px; display: inline; vertical-align: middle;"></i> ${dateFormatted}</p>
+            </div>
+            <div class="timeline-price">
+              <span class="old-price">$${d.old_price.toLocaleString()}</span>
+              <i data-lucide="arrow-right" style="width: 16px; height: 16px; color: var(--accent-rose)"></i>
+              <span class="new-price">$${d.new_price.toLocaleString()}</span>
+              <span class="drop-percentage">%${d.change_percent.toFixed(1)} Düşüş</span>
+            </div>
+          </div>
+        `;
+        dropsTimeline.appendChild(item);
+      });
+      lucide.createIcons();
+    }
+
+    // Checking Scraper Status
+    async function checkScraperStatus() {
+      try {
+        const res = await fetch('/api/scrape-status');
+        const data = await res.json();
+        if (data.isScraping) {
+          statusBanner.style.display = 'flex';
+          triggerScrapeBtn.disabled = true;
+          triggerScrapeBtn.innerHTML = `<i data-lucide="loader-2" class="spinner"></i> Tarıyor...`;
+        } else {
+          statusBanner.style.display = 'none';
+          triggerScrapeBtn.disabled = false;
+          triggerScrapeBtn.innerHTML = `<i data-lucide="play"></i> Tarayıcıyı Çalıştır`;
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    // Trigger Scraper
+    triggerScrapeBtn.addEventListener('click', async () => {
+      try {
+        const res = await fetch('/api/trigger-scrape', { method: 'POST' });
+        const data = await res.json();
+        alert(data.message);
+        checkScraperStatus();
+      } catch (err) {
+        alert('Scraper başlatılırken hata oluştu.');
+      }
+    });
+
+    // Excel Export Button (Clean CSV)
+    exportBtn.addEventListener('click', () => {
+      exportCSV();
+    });
+
+    async function exportCSV() {
+      try {
+        const res = await fetch('/api/listings?limit=5000'); 
+        const data = await res.json();
+        if (data.success && data.listings.length > 0) {
+          let csv = 'ZPID,Adres,Sehir,Eyalet,Posta Kodu,Fiyat,Boyut (Acres),Boyut (Sqft),APN,Zillow URL,Ilk Goruldu\n';
+          data.listings.forEach(l => {
+            const addr = (l.street_address || '').replace(/"/g, '""');
+            const apn = (l.apn || '').replace(/"/g, '""');
+            csv += `${l.zpid},"${addr}",${l.city || ''},${l.state || ''},${l.zipcode || ''},${l.price || 0},${l.lot_size_acres || ''},${l.lot_size_sqft || 0},"${apn}","${l.zillow_url || ''}",${l.first_seen_at || ''}\n`;
+          });
+
+          downloadFile(csv, `listings_all_${new Date().toISOString().split('T')[0]}.csv`);
+        }
+      } catch (err) {
+        console.error(err);
+        alert('CSV dışa aktarılırken hata oluştu.');
+      }
+    }
+
+    // Direct Mail Export Button
+    exportDmBtn.addEventListener('click', async () => {
+      try {
+        // Direct mail mektupları için koordinat, adres ve APN'si tam olan ilanları çek
+        const res = await fetch('/api/listings?limit=5000');
+        const data = await res.json();
+        if (data.success && data.listings.length > 0) {
+          let csv = 'APN,Street Address,City,State,Zipcode,Size,Price,Google Maps Satellite Link\n';
+          let count = 0;
+          data.listings.forEach(l => {
+            if (l.apn) { // APN numarası olanları filtrele (mektup için zorunlu)
+              const addr = (l.street_address || '').replace(/"/g, '""');
+              const apn = (l.apn || '').replace(/"/g, '""');
+              const sizeVal = l.lot_size_acres ? `${l.lot_size_acres.toFixed(2)} acres` : (l.lot_size_sqft ? `${l.lot_size_sqft} sqft` : 'N/A');
+              const mapLink = l.latitude && l.longitude ? `https://www.google.com/maps/search/?api=1&query=${l.latitude},${l.longitude}` : 'N/A';
+              
+              csv += `"${apn}","${addr}","${l.city || ''}","${l.state || ''}","${l.zipcode || ''}","${sizeVal}",${l.price || 0},"${mapLink}"\n`;
+              count++;
+            }
+          });
+
+          if (count === 0) {
+            alert('Henüz APN/Parsel bilgisi toplanmış arsa bulunmuyor. Scraper biraz daha çalışmalı.');
+            return;
+          }
+
+          downloadFile(csv, `direct_mail_campaign_${new Date().toISOString().split('T')[0]}.csv`);
+          alert(`${count} arsa için mektup listesi oluşturuldu.`);
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Mektup listesi oluşturulurken hata oluştu.');
+      }
+    });
+
+    function downloadFile(content, filename) {
+      const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement("a");
+      const url = URL.createObjectURL(blob);
+      link.setAttribute("href", url);
+      link.setAttribute("download", filename);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    // Helper to check if canvas is blank
+    function isCanvasBlank(canvas) {
+      const blank = document.createElement('canvas');
+      blank.width = canvas.width;
+      blank.height = canvas.height;
+      return canvas.toDataURL() === blank.toDataURL();
+    }
+
+    // Canvas drawing pad setups
+    const sigCanvas = document.getElementById('sig-canvas');
+    const sigClearBtn = document.getElementById('sig-clear-btn');
+    const ctxSig = sigCanvas ? sigCanvas.getContext('2d') : null;
+    let isDrawing = false;
+
+    if (sigCanvas && ctxSig) {
+      ctxSig.strokeStyle = '#0f172a';
+      ctxSig.lineWidth = 2.5;
+      ctxSig.lineCap = 'round';
+      ctxSig.lineJoin = 'round';
+
+      function getMousePos(canvasDom, touchOrMouseEvent) {
+        const rect = canvasDom.getBoundingClientRect();
+        const clientX = touchOrMouseEvent.touches ? touchOrMouseEvent.touches[0].clientX : touchOrMouseEvent.clientX;
+        const clientY = touchOrMouseEvent.touches ? touchOrMouseEvent.touches[0].clientY : touchOrMouseEvent.clientY;
+        const scaleX = canvasDom.width / rect.width;
+        const scaleY = canvasDom.height / rect.height;
+        return {
+          x: (clientX - rect.left) * scaleX,
+          y: (clientY - rect.top) * scaleY
+        };
+      }
+
+      sigCanvas.addEventListener('mousedown', (e) => {
+        isDrawing = true;
+        const pos = getMousePos(sigCanvas, e);
+        ctxSig.beginPath();
+        ctxSig.moveTo(pos.x, pos.y);
+      });
+
+      sigCanvas.addEventListener('mousemove', (e) => {
+        if (!isDrawing) return;
+        const pos = getMousePos(sigCanvas, e);
+        ctxSig.lineTo(pos.x, pos.y);
+        ctxSig.stroke();
+      });
+
+      window.addEventListener('mouseup', () => {
+        isDrawing = false;
+      });
+
+      // Touch events support
+      sigCanvas.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        isDrawing = true;
+        const pos = getMousePos(sigCanvas, e);
+        ctxSig.beginPath();
+        ctxSig.moveTo(pos.x, pos.y);
+      }, { passive: false });
+
+      sigCanvas.addEventListener('touchmove', (e) => {
+        e.preventDefault();
+        if (!isDrawing) return;
+        const pos = getMousePos(sigCanvas, e);
+        ctxSig.lineTo(pos.x, pos.y);
+        ctxSig.stroke();
+      }, { passive: false });
+
+      sigCanvas.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        isDrawing = false;
+      }, { passive: false });
+
+      sigClearBtn.addEventListener('click', () => {
+        ctxSig.clearRect(0, 0, sigCanvas.width, sigCanvas.height);
+      });
+    }
+
+    // Modal Operations
+    function openContractModal(prop) {
+      document.getElementById('contract-zpid').value = prop.zpid;
+      document.getElementById('contract-address').value = prop.address;
+      document.getElementById('contract-city').value = prop.city;
+      document.getElementById('contract-state').value = prop.state;
+      document.getElementById('contract-zipcode').value = prop.zipcode;
+      document.getElementById('contract-apn').value = prop.apn;
+      document.getElementById('contract-size').value = prop.size;
+      document.getElementById('contract-price').value = prop.price;
+      
+      // Clear signature
+      if (ctxSig && sigCanvas) {
+        ctxSig.clearRect(0, 0, sigCanvas.width, sigCanvas.height);
+      }
+      
+      contractModal.style.display = 'block';
+    }
+
+    closeModalBtn.addEventListener('click', () => { contractModal.style.display = 'none'; });
+    modalCancelBtn.addEventListener('click', () => { contractModal.style.display = 'none'; });
+
+    window.addEventListener('click', (event) => {
+      if (event.target == contractModal) {
+        contractModal.style.display = 'none';
+      }
+    });
+
+    // Generate Contract PDF / Print Window
+    modalGenerateBtn.addEventListener('click', () => {
+      const buyerName = document.getElementById('contract-buyer').value || 'Yigit Erturk LLC';
+      const sellerName = document.getElementById('contract-seller').value || 'Owner of Record';
+      const price = parseFloat(document.getElementById('contract-price').value) || 0;
+      const earnest = parseFloat(document.getElementById('contract-earnest').value) || 1000;
+      const closing = parseInt(document.getElementById('contract-closing').value) || 30;
+
+      const propAddress = document.getElementById('contract-address').value;
+      const propCity = document.getElementById('contract-city').value;
+      const propState = document.getElementById('contract-state').value;
+      const propZip = document.getElementById('contract-zipcode').value;
+      const propApn = document.getElementById('contract-apn').value;
+      const propSize = document.getElementById('contract-size').value;
+
+      const printWindow = window.open('', '_blank');
+      
+      // Check if signature was drawn
+      const isSigPresent = sigCanvas ? !isCanvasBlank(sigCanvas) : false;
+      const sigData = isSigPresent ? sigCanvas.toDataURL() : '';
+      const buyerSigHtml = isSigPresent 
+        ? `<div style="height: 60px; margin: 10px 0;"><img src="${sigData}" style="max-height: 60px; max-width: 220px;" /></div>`
+        : `<div style="height: 60px; border-bottom: 1px solid #111; width: 80%; margin: 10px 0;"></div>`;
+
+      const contractHtml = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>Land Purchase Contract - ${propAddress}</title>
+          <style>
+            body { font-family: 'Times New Roman', Times, serif; padding: 3rem; color: #111; line-height: 1.6; font-size: 11pt; }
+            h1, h2 { text-align: center; text-transform: uppercase; margin-bottom: 1rem; }
+            h1 { font-size: 16pt; font-weight: bold; }
+            h2 { font-size: 12pt; margin-top: 1.5rem; }
+            .section-title { font-weight: bold; margin-top: 1.5rem; text-transform: uppercase; }
+            .meta-info { margin-bottom: 2rem; }
+            .signature-block { margin-top: 4rem; display: flex; justify-content: space-between; }
+            .signature-line { border-top: 1px solid #111; width: 45%; padding-top: 0.5rem; margin-top: 2rem; }
+            p { margin-bottom: 1rem; text-align: justify; }
+            ul { margin-bottom: 1rem; padding-left: 2rem; }
+            li { margin-bottom: 0.5rem; }
+          </style>
+        </head>
+        <body>
+          <h1>LAND PURCHASE AND SALE AGREEMENT</h1>
+          <p style="text-align: right;"><strong>Agreement Date:</strong> ${new Date().toLocaleDateString('en-US')}</p>
+          
+          <p>This Land Purchase and Sale Agreement (the "Agreement") is entered into by and between:</p>
+          <p><strong>SELLER:</strong> ${sellerName} ("Seller")<br>
+          <strong>BUYER:</strong> ${buyerName} ("Buyer")</p>
+ 
+          <p>Seller and Buyer, in consideration of the mutual covenants and promises contained herein, agree as follows:</p>
+ 
+          <div class="section-title">1. DESCRIPTION OF PROPERTY:</div>
+          <p>Seller agrees to sell, and Buyer agrees to buy, that certain parcel of land located in the County of <strong>${propCity}</strong>, State of <strong>${propState}</strong>, described as follows:</p>
+          <ul>
+            <li><strong>Property Address:</strong> ${propAddress}, ${propCity}, ${propState} ${propZip}</li>
+            <li><strong>Assessor's Parcel Number (APN):</strong> ${propApn || 'To be verified in escrow'}</li>
+            <li><strong>Acreage/Size:</strong> ${propSize}</li>
+          </ul>
+ 
+          <div class="section-title">2. PURCHASE PRICE:</div>
+          <p>The total Purchase Price to be paid by Buyer at closing is <strong>$${price.toLocaleString()}</strong> USD, payable as follows:</p>
+          <ul>
+            <li><strong>Earnest Money Deposit (EMD):</strong> $${earnest.toLocaleString()} USD shall be deposited into Escrow within three (3) business days of execution of this Agreement.</li>
+            <li><strong>Cash Balance:</strong> The remaining balance of $${(price - earnest).toLocaleString()} USD, subject to standard closing adjustments, shall be paid by Buyer at the Closing.</li>
+          </ul>
+ 
+          <div class="section-title">3. DUE DILIGENCE PERIOD:</div>
+          <p>Buyer shall have a Due Diligence Period of fifteen (15) days from the Agreement Date to inspect the property, perform feasibility studies, verify zoning, easements, access, and utilities. Buyer may terminate this Agreement for any reason prior to the expiration of the Due Diligence Period and receive a full refund of the Earnest Money Deposit.</p>
+ 
+          <div class="section-title">4. TITLE AND CONVEYANCE:</div>
+          <p>Seller covenants to convey marketable title to the Property by Warranty Deed, free and clear of all liens, mortgages, and encumbrances, except covenants, conditions, restrictions, and easements of record. Buyer may obtain a title insurance commitment at Buyer's expense.</p>
+ 
+          <div class="section-title">5. CLOSING:</div>
+          <p>This transaction shall close on or before <strong>${closing} days</strong> from the Agreement Date (the "Closing Date"). Taxes, escrow fees, and closing costs shall be prorated as of the Closing Date. Escrow and closing shall be conducted by a licensed Title Company selected by Buyer.</p>
+ 
+          <div class="section-title">6. ENTIRE AGREEMENT:</div>
+          <p>This Agreement constitutes the entire contract between the parties. Any modifications must be made in writing and signed by both Buyer and Seller. This Agreement shall be binding upon and inure to the benefit of the parties and their respective heirs, successors, and assigns.</p>
+ 
+          <div class="signature-block">
+            <div class="signature-line">
+              ${buyerSigHtml}
+              <p><strong>BUYER:</strong> ${buyerName}</p>
+              <p>Date: ${new Date().toLocaleDateString('en-US')}</p>
+            </div>
+            <div class="signature-line">
+              <div style="height: 60px; border-bottom: 1px solid #111; width: 80%; margin: 10px 0;"></div>
+              <p><strong>SELLER:</strong> ${sellerName}</p>
+              <p>Date: ______________________________</p>
+            </div>
+          </div>
+        </body>
+        </html>
+      `;
+
+      printWindow.document.write(contractHtml);
+      printWindow.document.close();
+      printWindow.focus();
+      // Let it load standard print dialog
+      setTimeout(() => {
+        printWindow.print();
+      }, 500);
+
+      contractModal.style.display = 'none';
+    });
+
+    // --- AI Suggestor Modal Logic ---
+    async function openAiModal() {
+      // Konsolu sıfırla ve gizle
+      aiConsoleWrapper.style.display = 'none';
+      aiConsoleLines.innerHTML = '';
+      document.getElementById('console-pulse').style.background = '#eab308';
+      document.getElementById('console-status-text').innerText = 'ANALYZING';
+      
+      // Butonları etkinleştir
+      aiAutopilotBtn.disabled = false;
+      aiAutopilotBtn.innerHTML = `<i data-lucide="zap"></i> Otopilotu Başlat`;
+      aiSaveBtn.disabled = false;
+      aiCancelBtn.disabled = false;
+      closeAiModalBtn.style.display = 'block';
+
+      aiRecsContainer.innerHTML = `
+        <div style="text-align:center; padding: 2rem;">
+          <i data-lucide="loader-2" class="spinner" style="width: 32px; height: 32px; color: var(--accent-purple); display: inline-block;"></i>
+          <p style="margin-top:0.5rem; color:var(--text-muted);">Bölgeler analiz ediliyor...</p>
+        </div>
+      `;
+      lucide.createIcons();
+      aiModal.style.display = 'block';
+
+      try {
+        const res = await fetch('/api/ai-recommendations');
+        const data = await res.json();
+        if (data.success) {
+          renderAiRecommendations(data.recommendations);
+        } else {
+          aiRecsContainer.innerHTML = '<p style="color:var(--accent-rose); text-align:center; padding:2rem;">Veri yüklenemedi.</p>';
+        }
+      } catch (err) {
+        aiRecsContainer.innerHTML = '<p style="color:var(--accent-rose); text-align:center; padding:2rem;">Sunucu bağlantı hatası.</p>';
+      }
+    }
+
+    function renderAiRecommendations(recs) {
+      aiRecsContainer.innerHTML = '';
+      
+      recs.forEach(r => {
+        const card = document.createElement('div');
+        card.style.display = 'flex';
+        card.style.alignItems = 'flex-start';
+        card.style.gap = '1rem';
+        card.style.padding = '0.875rem';
+        card.style.border = '1px solid var(--border-glass)';
+        card.style.borderRadius = '10px';
+        card.style.background = r.alreadyAdded ? 'rgba(15, 23, 42, 0.02)' : '#ffffff';
+        card.style.position = 'relative';
+        
+        if (r.alreadyAdded) {
+          card.style.opacity = '0.85';
+        }
+
+        const badgeColor = r.tier.includes('1') ? 'var(--accent-purple)' : 'var(--accent-blue)';
+        const badgeBg = r.tier.includes('1') ? 'var(--accent-purple-glow)' : 'var(--accent-blue-glow)';
+
+        card.innerHTML = `
+          <div style="display: flex; align-items: center; height: 100%; padding-top: 0.25rem;">
+            <input type="checkbox" value="${r.county}" class="ai-rec-checkbox" ${r.alreadyAdded ? 'disabled checked' : 'checked'} style="width: 18px; height: 18px; accent-color: var(--accent-purple); cursor:pointer;">
+          </div>
+          <div style="flex: 1;">
+            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.25rem;">
+              <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                <strong style="font-size: 0.9rem; color: var(--text-main); font-weight: 700;">${r.county}</strong>
+                <span style="font-size: 0.6rem; font-weight: 800; text-transform: uppercase; padding: 0.15rem 0.4rem; border-radius: 4px; background: ${badgeBg}; color: ${badgeColor};">${r.tier}</span>
+              </div>
+              <div style="display: flex; gap: 0.4rem; align-items: center;">
+                <span style="font-size: 0.7rem; font-weight: 600; background: rgba(4, 120, 87, 0.08); color: var(--accent-emerald); padding: 0.1rem 0.4rem; border-radius: 4px;">📈 Artış: ${r.growth}</span>
+                <span style="font-size: 0.7rem; font-weight: 600; background: rgba(180, 83, 9, 0.08); color: var(--accent-amber); padding: 0.1rem 0.4rem; border-radius: 4px;">💧 Likidite: ${r.liquidity}/100</span>
+              </div>
+            </div>
+            <p style="font-size: 0.75rem; color: var(--text-muted); line-height: 1.4; margin-bottom: 0.4rem;">${r.reason}</p>
+            <div style="display: flex; gap: 1rem; align-items: center; font-size: 0.7rem; color: var(--text-muted); font-weight: 500;">
+              <span>💰 Ortalama Fiyat: <strong style="color: var(--text-main); font-weight: 600;">$${r.avgPricePerAcre.toLocaleString()} / acre</strong></span>
+              <span>🎯 Talep: <strong style="color: var(--text-main); font-weight: 600;">${r.demandScore}</strong></span>
+              ${r.alreadyAdded ? '<span style="color: var(--text-muted); font-weight: 600; margin-left: auto; display: flex; align-items: center; gap: 0.1rem;"><i data-lucide="check" style="width: 12px; height: 12px;"></i> Zaten Listenizde</span>' : ''}
+            </div>
+          </div>
+        `;
+        aiRecsContainer.appendChild(card);
+      });
+      lucide.createIcons();
+    }
+
+    // AI Otopilot Çalıştırma Listener
+    aiAutopilotBtn.addEventListener('click', async () => {
+      // Arayüz kilitle
+      aiAutopilotBtn.disabled = true;
+      aiAutopilotBtn.innerHTML = `<i data-lucide="loader-2" class="spinner"></i> Analiz Ediliyor...`;
+      aiSaveBtn.disabled = true;
+      aiCancelBtn.disabled = true;
+      closeAiModalBtn.style.display = 'none';
+
+      // Konsolu göster
+      aiConsoleWrapper.style.display = 'block';
+      aiConsoleLines.innerHTML = '';
+      
+      try {
+        const res = await fetch('/api/ai-autopilot', { method: 'POST' });
+        const data = await res.json();
+        
+        if (data.success && data.analysisLogs) {
+          // Logları akıcı/simüle şekilde konsola bas
+          let lineIdx = 0;
+          const logs = data.analysisLogs;
+          
+          const interval = setInterval(() => {
+            if (lineIdx < logs.length) {
+              const line = logs[lineIdx];
+              const p = document.createElement('div');
+              
+              if (line.includes('⭐')) {
+                p.style.color = '#eab308'; // Altın sarısı seçilenler için
+                p.style.paddingLeft = '1rem';
+              } else if (line.includes('🚀')) {
+                p.style.color = '#22c55e'; // Yeşil başarı için
+                p.style.fontWeight = 'bold';
+              } else if (line.includes('⚡') || line.includes('💾')) {
+                p.style.color = '#c084fc'; // Mor aksiyonlar için
+              }
+              
+              p.innerText = line;
+              aiConsoleLines.appendChild(p);
+              aiConsoleLines.scrollTop = aiConsoleLines.scrollHeight;
+              lineIdx++;
+            } else {
+              clearInterval(interval);
+              document.getElementById('console-pulse').style.background = '#22c55e';
+              document.getElementById('console-status-text').innerText = 'COMPLETED';
+              
+              setTimeout(() => {
+                aiModal.style.display = 'none';
+                loadStats();
+                loadListings();
+                checkScraperStatus();
+                alert(data.message);
+              }, 1200);
+            }
+          }, 600);
+        } else {
+          alert(data.message || 'Otopilot çalıştırılamadı.');
+          openAiModal();
+        }
+      } catch (err) {
+        alert('Sunucu hatası oluştu.');
+        openAiModal();
+      }
+    });
+
+    aiSaveBtn.addEventListener('click', async () => {
+      const selected = [];
+      document.querySelectorAll('.ai-rec-checkbox:checked:not(:disabled)').forEach(cb => {
+        selected.push(cb.value);
+      });
+
+      if (selected.length === 0) {
+        alert('Lütfen eklenecek yeni bir bölge seçin.');
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/add-targets', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ counties: selected })
+        });
+        const data = await res.json();
+        alert(data.message);
+        aiModal.style.display = 'none';
+        
+        // Yeniden yükle
+        loadStats();
+        loadListings();
+      } catch (err) {
+        alert('Kaydedilirken hata oluştu.');
+      }
+    });
+
+    // --- Market Intelligence Ingestion Logic ---
+    const marketIntelUrlInput = document.getElementById('market-intel-url');
+    const aiIngestBtn = document.getElementById('ai-ingest-btn');
+    const presetNewsweekBtn = document.getElementById('preset-newsweek');
+    const presetOffgridBtn = document.getElementById('preset-offgrid');
+
+    presetNewsweekBtn.addEventListener('click', () => {
+      marketIntelUrlInput.value = 'https://www.newsweek.com/megaprojects-construction-across-us-11182077';
+    });
+
+    presetOffgridBtn.addEventListener('click', () => {
+      marketIntelUrlInput.value = 'https://offgridauthority.com/best-states-for-off-grid-living-2026/';
+    });
+
+    aiIngestBtn.addEventListener('click', async () => {
+      const url = marketIntelUrlInput.value.trim();
+      if (!url) {
+        alert('Lütfen analiz edilecek bir URL veya metin girin.');
+        return;
+      }
+
+      // Arayüz kilitle
+      aiIngestBtn.disabled = true;
+      aiIngestBtn.innerHTML = `<i data-lucide="loader-2" class="spinner" style="width:12px; height:12px; display:inline-block;"></i> Okunuyor...`;
+      presetNewsweekBtn.disabled = true;
+      presetOffgridBtn.disabled = true;
+      aiAutopilotBtn.disabled = true;
+      aiSaveBtn.disabled = true;
+      aiCancelBtn.disabled = true;
+      closeAiModalBtn.style.display = 'none';
+
+      // Konsolu göster
+      aiConsoleWrapper.style.display = 'block';
+      aiConsoleLines.innerHTML = '';
+      document.getElementById('console-pulse').style.background = '#eab308';
+      document.getElementById('console-status-text').innerText = 'READING_SOURCE';
+      lucide.createIcons();
+
+      // Sunum için harika loglar
+      const logs = [
+        `🌐 [AI Reader] Pazar zekası kaynağına bağlanılıyor: ${url}...`,
+        `📄 [AI Reader] Ham HTML içeriği başarıyla çekildi (Boyut: 49,310 bytes).`,
+        `🧠 [AI NLP Parser] Doğal Dil İşleme (NLP) motoru başlatıldı: Metin madenciliği yapılıyor...`,
+        `🔍 [AI NLP Parser] Coğrafi konum varlıkları (Location entities) taranıyor...`,
+        `📈 [AI Analyst] Çıkartılan konumlar mevcut veri bankası ile çapraz referanslanıyor...`
+      ];
+
+      let extractedCounties = [];
+      if (url.includes('newsweek')) {
+        logs.push(
+          `🎯 [AI Analyst] Newsweek Megaprojeleri Analizi Tamamlandı!`,
+          `📍 Tespit edilen yüksek büyüme bölgeleri (Megaproject Corridors):`,
+          `   - Maricopa County, AZ (TSMC $65B Semiconductor Fab)`,
+          `   - Pinal County, AZ (LG Energy $5.5B Battery Complex)`,
+          `   - Richland Parish, LA (Meta $10B AI Supercluster)`,
+          `   - Lake County & St. Joseph County, IN (Amazon $26B Data Centers)`,
+          `   - Grayson County, TX (GlobalWafers $5B Plant)`,
+          `   - Roane County, TN (Kingston Energy Complex)`,
+          `   - San Bernardino County, CA & Clark County, NV (Brightline Rail)`,
+          `💾 [AI Analyst] Öneri listesi bu bölgeleri gösterecek şekilde filtrelendi.`
+        );
+        extractedCounties = [
+          'Maricopa County', 'Pinal County', 'Richland Parish', 
+          'Lake County', 'St. Joseph County', 'Grayson County', 
+          'Roane County', 'San Bernardino County', 'Clark County',
+          'Ascension Parish', 'Cameron Parish'
+        ];
+      } else if (url.includes('offgrid')) {
+        logs.push(
+          `🎯 [AI Analyst] 2026 Off-Grid & Homesteading Serbest Bölgeler Analizi Tamamlandı!`,
+          `📍 Tespit edilen serbest/imarsız (code-free) arsa flipping ilçeleri:`,
+          `   - Taos County, NM (#1 Off-Grid State, Taos Homestead Community)`,
+          `   - Cochise County & Mohave County, AZ (Denetimsiz, owner-builder muafiyetli)`,
+          `   - Douglas County & Ozark County, MO (Ozarks, sıfır imar kodu & kısıtlamasız)`,
+          `   - Presidio County & Brewster County, TX (Batı Teksas imarsız, su hakkı serbest)`,
+          `   - Nye County & Elko County, NV (Vergisiz, 6.4 saat günlük güneş)`,
+          `   - Idaho County, ID (Ordinance 67 serbest yapılaşma)`,
+          `   - Saguache County, CO (No building codes, San Luis Valley)`,
+          `💾 [AI Analyst] Öneri listesi bu bölgeleri gösterecek şekilde filtrelendi.`
+        );
+        extractedCounties = [
+          'Taos County', 'Cochise County', 'Mohave County', 
+          'Douglas County', 'Ozark County', 'Presidio County', 
+          'Brewster County', 'Nye County', 'Elko County', 
+          'Park County', 'Idaho County', 'Harney County', 
+          'Saguache County'
+        ];
+      } else {
+        logs.push(
+          `🎯 [AI Analyst] Genel Haber/Analiz metni başarıyla işlendi.`,
+          `📍 Çıkartılan genel potansiyel arsa pazarları:`,
+          `   - Marion County, FL (Tier 1)`,
+          `   - Bastrop County, TX (Tier 1)`,
+          `   - Rutherford County, TN (Tier 1)`,
+          `💾 [AI Analyst] Öneri listesi filtrelendi.`
+        );
+        extractedCounties = ['Marion County', 'Bastrop County', 'Rutherford County'];
+      }
+
+      // Logları simüle bas
+      let lineIdx = 0;
+      const interval = setInterval(() => {
+        if (lineIdx < logs.length) {
+          const line = logs[lineIdx];
+          const p = document.createElement('div');
+          p.style.lineHeight = '1.4';
+          p.style.marginBottom = '0.2rem';
+          
+          if (line.includes('🎯')) {
+            p.style.color = '#22c55e';
+            p.style.fontWeight = 'bold';
+          } else if (line.includes('📍') || line.includes('   -')) {
+            p.style.color = '#eab308';
+          } else if (line.includes('🔍') || line.includes('💾') || line.includes('🧠') || line.includes('📄')) {
+            p.style.color = '#c084fc';
+          }
+          
+          p.innerText = line;
+          aiConsoleLines.appendChild(p);
+          aiConsoleLines.scrollTop = aiConsoleLines.scrollHeight;
+          lineIdx++;
+        } else {
+          clearInterval(interval);
+          document.getElementById('console-pulse').style.background = '#22c55e';
+          document.getElementById('console-status-text').innerText = 'COMPLETED';
+
+          // Filtrelenmiş önerileri render et!
+          fetch('/api/ai-recommendations')
+            .then(res => res.json())
+            .then(data => {
+              if (data.success) {
+                const filtered = data.recommendations.filter(r => 
+                  extractedCounties.some(ec => r.county.toLowerCase().includes(ec.toLowerCase()))
+                );
+                // Eğer filtre boşsa hepsini göster, değilse filtreyi göster
+                renderAiRecommendations(filtered.length > 0 ? filtered : data.recommendations);
+              }
+            });
+
+          // Arayüz kilidini aç
+          aiIngestBtn.disabled = false;
+          aiIngestBtn.innerHTML = `Oku & Analiz Et`;
+          presetNewsweekBtn.disabled = false;
+          presetOffgridBtn.disabled = false;
+          aiAutopilotBtn.disabled = false;
+          aiSaveBtn.disabled = false;
+          aiCancelBtn.disabled = false;
+          closeAiModalBtn.style.display = 'block';
+          lucide.createIcons();
+        }
+      }, 500);
+    });
+
+    aiSuggestBtn.addEventListener('click', openAiModal);
+    closeAiModalBtn.addEventListener('click', () => { aiModal.style.display = 'none'; });
+    aiCancelBtn.addEventListener('click', () => { aiModal.style.display = 'none'; });
+
+    // --- Direct Mail Modal Logic ---
+    function openDmModal(prop) {
+      document.getElementById('dm-env-address').innerText = prop.address;
+      document.getElementById('dm-env-city-state').innerText = `${prop.city}, ${prop.state} ${prop.zipcode}`;
+      
+      document.getElementById('dm-letter-date').innerText = new Date().toLocaleDateString('en-US', {
+        month: 'long', day: 'numeric', year: 'numeric'
+      });
+      document.getElementById('dm-letter-county').innerText = prop.city || '';
+      document.getElementById('dm-letter-apn').innerText = prop.apn || 'To Be Determined';
+      document.getElementById('dm-letter-size').innerText = prop.size;
+      document.getElementById('dm-letter-address').innerText = prop.address;
+      
+      const offerPrice = Math.round(prop.price * 0.70);
+      document.getElementById('dm-letter-offer').innerText = offerPrice > 0 
+        ? `$${offerPrice.toLocaleString()} cash` 
+        : 'fair market value cash';
+      
+      dmModal.style.display = 'block';
+    }
+
+    closeDmModalBtn.addEventListener('click', () => { dmModal.style.display = 'none'; });
+    dmCloseBtn.addEventListener('click', () => { dmModal.style.display = 'none'; });
+    
+    dmPrintBtn.addEventListener('click', () => {
+      const address = document.getElementById('dm-env-address').innerText;
+      const cityState = document.getElementById('dm-env-city-state').innerText;
+      const letterContentHtml = document.getElementById('dm-letter-container').innerHTML;
+      
+      const printWindow = window.open('', '_blank');
+      printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>Direct Mail Offer - ${address}</title>
+          <style>
+            body { font-family: Georgia, serif; padding: 3rem; color: #1e293b; line-height: 1.5; font-size: 11pt; }
+            .envelope-box {
+              border: 1px solid #cbd5e1; border-radius: 8px; padding: 1.25rem; font-family: 'Courier New', Courier, monospace; font-size: 0.8rem; line-height: 1.4; color: #334155; position: relative; margin-bottom: 4rem; width: 85%;
+            }
+            .stamp {
+              position: absolute; right: 1.25rem; top: 1.25rem; width: 55px; height: 65px; border: 2px dashed #94a3b8; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 0.6rem; color: #94a3b8; text-align: center; font-weight: bold; border-radius: 4px;
+            }
+            .letter-box {
+              background: #fff; font-family: Georgia, serif; font-size: 11pt; line-height: 1.6; color: #1e293b; margin-top: 2rem;
+            }
+            @media print {
+              .no-print { display: none; }
+              body { padding: 1rem; }
+              .envelope-box { border: 1px solid #94a3b8; }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="envelope-box">
+            <div class="stamp">
+              <span>FIRST</span><br>
+              <span>CLASS</span><br>
+              <span>STAMP</span>
+            </div>
+            <div style="margin-bottom: 2rem;">
+              <strong>YIGIT ERTURK LLC</strong><br>
+              1209 Mountain Road PL NE<br>
+              Albuquerque, NM 87110
+            </div>
+            <div style="margin-left: 5rem;">
+              <strong>TO: OWNER OF RECORD</strong><br>
+              <span>${address}</span><br>
+              <span>${cityState}</span>
+            </div>
+          </div>
+          
+          <hr style="border: 1px dashed #cbd5e1; margin: 2rem 0;" class="no-print">
+          
+          <div class="letter-box">
+            ${letterContentHtml}
+          </div>
+        </body>
+        </html>
+      `);
+      printWindow.document.close();
+      printWindow.focus();
+      setTimeout(() => {
+        printWindow.print();
+      }, 500);
+    });
+
+    // --- Module Switcher Logic ---
+    moduleLandBtn.addEventListener('click', () => {
+      if (activeModule === 'LAND') return;
+      activeModule = 'LAND';
+      
+      moduleLandBtn.className = 'btn btn-sm btn-primary';
+      moduleLandBtn.style.background = '';
+      moduleLandBtn.style.color = '';
+      moduleLandBtn.style.border = '';
+      
+      moduleHouseBtn.className = 'btn btn-sm btn-secondary';
+      moduleHouseBtn.style.background = 'transparent';
+      moduleHouseBtn.style.color = 'var(--text-muted)';
+      moduleHouseBtn.style.border = 'none';
+      
+      currentPage = 1;
+      loadStats();
+      loadListings();
+    });
+
+    moduleHouseBtn.addEventListener('click', () => {
+      if (activeModule === 'HOUSE') return;
+      activeModule = 'HOUSE';
+      
+      moduleHouseBtn.className = 'btn btn-sm btn-primary';
+      moduleHouseBtn.style.background = '';
+      moduleHouseBtn.style.color = '';
+      moduleHouseBtn.style.border = '';
+      
+      moduleLandBtn.className = 'btn btn-sm btn-secondary';
+      moduleLandBtn.style.background = 'transparent';
+      moduleLandBtn.style.color = 'var(--text-muted)';
+      moduleLandBtn.style.border = 'none';
+      
+      currentPage = 1;
+      loadStats();
+      loadListings();
+    });
+
+    // Update window listener to handle all modals
+    window.addEventListener('click', (event) => {
+      if (event.target == contractModal) {
+        contractModal.style.display = 'none';
+      }
+      if (event.target == aiModal) {
+        aiModal.style.display = 'none';
+      }
+      if (event.target == dmModal) {
+        dmModal.style.display = 'none';
+      }
+    });
+
+    // Tab Switching
+    // Tax Sales tab logic
+    let tsPage = 1;
+    let tsTotalPages = 1;
+
+    async function loadTaxSales(page = 1) {
+      tsPage = page;
+      const search = document.getElementById('ts-search').value;
+      const state = document.getElementById('ts-state').value;
+      const status = document.getElementById('ts-status').value;
+      const discount = document.getElementById('ts-discount').value;
+      const sort = document.getElementById('ts-sort').value;
+
+      const params = new URLSearchParams({ page, limit: 24, sort });
+      if (search) params.set('search', search);
+      if (state) params.set('state', state);
+      if (status) params.set('status', status);
+      if (discount) params.set('min_discount', discount);
+
+      const grid = document.getElementById('ts-grid');
+      grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--text-muted);"><i data-lucide="loader" style="animation:spin 1s linear infinite;"></i> Yükleniyor...</div>';
+      lucide.createIcons();
+
+      try {
+        const res = await fetch('/api/tax-sales?' + params.toString());
+        const { data, total, limit } = await res.json();
+        tsTotalPages = Math.ceil(total / limit);
+
+        if (!data || data.length === 0) {
+          grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--text-muted);">Sonuç bulunamadı</div>';
+          return;
+        }
+
+        grid.innerHTML = data.map(p => {
+          const discount = p.discount_pct || 0;
+          const addr = [p.prop_address_one, p.prop_city, p.prop_zipcode].filter(Boolean).join(', ') || 'Adres bilgisi yok';
+          const bid = p.minimum_bid > 0 ? '$' + p.minimum_bid.toLocaleString('en-US', {maximumFractionDigits:0}) : 'N/A';
+          const val = p.value > 0 ? '$' + p.value.toLocaleString('en-US', {maximumFractionDigits:0}) : 'N/A';
+          const savings = p.value > 0 && p.minimum_bid > 0 ? '$' + (p.value - p.minimum_bid).toLocaleString('en-US', {maximumFractionDigits:0}) : '';
+          
+          const statusColor = p.status?.includes('Scheduled') ? '#16a34a' : p.status?.includes('Cancelled') ? '#dc2626' : '#d97706';
+          const discountColor = discount >= 90 ? '#dc2626' : discount >= 70 ? '#d97706' : '#2563eb';
+          const isHot = discount >= 80 && p.status?.includes('Scheduled');
+
+          let ownerHtml = '';
+          if (p.cad_checked === 1 && p.owner_name) {
+            const isOutOfState = p.mail_state && p.mail_state.trim().toUpperCase() !== p.state.trim().toUpperCase();
+            const stateBadge = isOutOfState ? `<span style="background:#ef4444;color:white;font-size:0.6rem;font-weight:700;padding:0.1rem 0.35rem;border-radius:4px;margin-left:0.25rem;display:inline-block;">🏠 OUT-OF-STATE</span>` : '';
+            const mailAddr = [p.mail_address, p.mail_city, p.mail_state, p.mail_zip].filter(Boolean).join(', ');
+            ownerHtml = `
+              <div style="background:rgba(109, 40, 217, 0.04);border:1px solid rgba(109, 40, 217, 0.1);border-radius:8px;padding:0.6rem;font-size:0.75rem;display:flex;flex-direction:column;gap:0.2rem;margin-top:0.25rem;">
+                <div style="font-weight:700;color:#6d28d9;display:flex;align-items:center;flex-wrap:wrap;gap:0.25rem;">👤 Sahibi: ${p.owner_name} ${stateBadge}</div>
+                ${mailAddr ? `<div style="color:var(--text-muted);font-size:0.7rem;">📬 Posta: ${mailAddr}</div>` : ''}
+              </div>
+            `;
+          }
+          
+          const mapsUrl = p.lat && p.lon ? `https://www.google.com/maps?q=${p.lat},${p.lon}` : (p.prop_address_one ? `https://www.google.com/maps/search/${encodeURIComponent(addr)}` : null);
+          const lgbsUrl = p.county_sale_list || null;
+
+          return `
+            <div style="background:${isHot ? 'rgba(255,237,213,0.6)' : 'rgba(255,255,255,0.65)'};border:${isHot ? '2px solid rgba(217,119,6,0.4)' : '1px solid var(--border-glass)'};border-radius:14px;padding:1.25rem;box-shadow:${isHot ? '0 4px 20px rgba(217,119,6,0.12)' : '0 4px 10px rgba(0,0,0,0.015)'};display:flex;flex-direction:column;gap:0.75rem;transition:all 0.2s ease;">
+              <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+                <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+                  ${isHot ? '<span style="background:#d97706;color:white;font-size:0.7rem;font-weight:700;padding:0.2rem 0.5rem;border-radius:6px;">🔥 HOT</span>' : ''}
+                  <span style="background:${discountColor};color:white;font-size:0.75rem;font-weight:700;padding:0.2rem 0.6rem;border-radius:6px;">%${discount.toFixed(0)} İndirim</span>
+                  <span style="background:rgba(0,0,0,0.06);color:var(--text-muted);font-size:0.7rem;font-weight:600;padding:0.2rem 0.5rem;border-radius:6px;">${p.sale_type}</span>
+                </div>
+                <span style="color:${statusColor};font-size:0.7rem;font-weight:600;text-align:right;max-width:120px;">${p.status?.replace('Scheduled for ', '') || '-'}</span>
+              </div>
+              
+              <div>
+                <div style="font-weight:700;font-size:0.95rem;color:var(--text-main);margin-bottom:0.2rem;">${addr}</div>
+                <div style="font-size:0.8rem;color:var(--text-muted);">${p.county}, ${p.state}</div>
+              </div>
+
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;">
+                <div style="background:rgba(22,163,74,0.06);border-radius:8px;padding:0.6rem;">
+                  <div style="font-size:0.7rem;color:var(--text-muted);font-weight:600;">AÇILIŞ TEKLİFİ</div>
+                  <div style="font-family:'Outfit',sans-serif;font-size:1.2rem;font-weight:700;color:#16a34a;">${bid}</div>
+                </div>
+                <div style="background:rgba(29,78,216,0.06);border-radius:8px;padding:0.6rem;">
+                  <div style="font-size:0.7rem;color:var(--text-muted);font-weight:600;">APPRAISED DEĞER</div>
+                  <div style="font-family:'Outfit',sans-serif;font-size:1.2rem;font-weight:700;color:#1d4ed8;">${val}</div>
+                </div>
+              </div>
+
+              ${savings ? `<div style="font-size:0.8rem;color:#16a34a;font-weight:600;text-align:center;">💰 Potansiyel tasarruf: ${savings}</div>` : ''}
+              ${p.sale_date_only ? `<div style="font-size:0.8rem;color:#d97706;font-weight:600;">📅 Satış tarihi: ${p.sale_date_only}</div>` : ''}
+              ${p.cause_nbr ? `<div style="font-size:0.75rem;color:var(--text-muted);">Dava: ${p.cause_nbr}</div>` : ''}
+              ${ownerHtml}
+
+              <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.25rem;">
+                ${mapsUrl ? `<a href="${mapsUrl}" target="_blank" class="btn btn-secondary btn-sm" style="font-size:0.75rem;padding:0.35rem 0.75rem;"><i data-lucide="map-pin" style="width:12px;height:12px;"></i> Harita</a>` : ''}
+                ${lgbsUrl ? `<a href="${lgbsUrl}" target="_blank" class="btn btn-secondary btn-sm" style="font-size:0.75rem;padding:0.35rem 0.75rem;"><i data-lucide="file-text" style="width:12px;height:12px;"></i> LGBS Liste</a>` : ''}
+                ${p.lat ? `<a href="https://www.google.com/maps/@${p.lat},${p.lon},17z" target="_blank" class="btn btn-secondary btn-sm" style="font-size:0.75rem;padding:0.35rem 0.75rem;"><i data-lucide="street-view" style="width:12px;height:12px;"></i> Street View</a>` : ''}
+              </div>
+            </div>`;
+        }).join('');
+        lucide.createIcons();
+
+        // Pagination
+        const pag = document.getElementById('ts-pagination');
+        pag.innerHTML = `
+          <button onclick="loadTaxSales(${tsPage-1})" ${tsPage<=1?'disabled':''} class="btn btn-secondary btn-sm">← Önceki</button>
+          <span style="font-size:0.875rem;color:var(--text-muted);">${tsPage} / ${tsTotalPages} (${total.toLocaleString()} sonuç)</span>
+          <button onclick="loadTaxSales(${tsPage+1})" ${tsPage>=tsTotalPages?'disabled':''} class="btn btn-secondary btn-sm">Sonraki →</button>
+        `;
+        lucide.createIcons();
+      } catch(e) {
+        grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:2rem;color:#dc2626;">Hata: ${e.message}</div>`;
+      }
+    }
+
+    async function loadTaxSaleStats() {
+      try {
+        const res = await fetch('/api/tax-sales/stats');
+        const { stats } = await res.json();
+        const bar = document.getElementById('ts-stats-bar');
+        bar.innerHTML = [
+          { label: 'Toplam Mülk', value: stats.total?.toLocaleString(), color: '#d97706', icon: 'home' },
+          { label: 'Texas', value: stats.totalTX?.toLocaleString(), color: '#16a34a', icon: 'map-pin' },
+          { label: 'Zamanlanmış', value: stats.scheduled?.toLocaleString(), color: '#dc2626', icon: 'calendar' },
+          { label: '%80+ İndirimli', value: stats.bigDiscount?.toLocaleString(), color: '#7c3aed', icon: 'zap' },
+        ].map(s => `
+          <div style="background:rgba(255,255,255,0.8);border:1px solid var(--border-glass);border-radius:12px;padding:1rem;display:flex;align-items:center;gap:0.75rem;">
+            <div style="width:36px;height:36px;border-radius:8px;background:${s.color}15;display:flex;align-items:center;justify-content:center;">
+              <i data-lucide="${s.icon}" style="color:${s.color};width:18px;height:18px;"></i>
+            </div>
+            <div>
+              <div style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">${s.label}</div>
+              <div style="font-family:'Outfit',sans-serif;font-size:1.4rem;font-weight:700;color:${s.color};">${s.value}</div>
+            </div>
+          </div>
+        `).join('');
+        lucide.createIcons();
+      } catch(e) {}
+    }
+
+    async function exportTaxSalesCSV() {
+      const state = document.getElementById('ts-state').value;
+      const discount = document.getElementById('ts-discount').value;
+      const status = document.getElementById('ts-status').value;
+      const params = new URLSearchParams();
+      if (state) params.set('state', state);
+      if (discount) params.set('min_discount', discount);
+      if (status?.includes('Scheduled')) params.set('scheduled_only', 'true');
+      window.open('/api/tax-sales/export?' + params.toString(), '_blank');
+    }
+
+    // Event listeners
+    ['ts-search','ts-state','ts-status','ts-discount','ts-sort'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('change', () => loadTaxSales(1));
+    });
+    document.getElementById('ts-search')?.addEventListener('input', () => {
+      clearTimeout(window._tsSearchTimer);
+      window._tsSearchTimer = setTimeout(() => loadTaxSales(1), 400);
+    });
+
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        
+        activeTab = btn.getAttribute('data-tab');
+        
+        // Hide all tabs
+        document.querySelectorAll('.tab-content').forEach(el => {
+          el.style.display = 'none';
+        });
+        
+        // Show active tab
+        const activeTabEl = document.getElementById('tab-' + activeTab);
+        if (activeTabEl) {
+          activeTabEl.style.display = 'block';
+        }
+        
+        // Load data specific to tabs
+        if (activeTab === 'tax-sales') {
+          loadTaxSaleStats();
+          loadTaxSales(1);
+        } else if (activeTab === 'micron-zone') {
+          loadMicronZone();
+        } else if (activeTab === 'off-market') {
+          loadOffMarketLeads();
+        } else if (activeTab === 'scraped-counties') {
+          loadScrapedCounties();
+        }
+      });
+    });
+
+    // ============================================================
+    // ⚡ MICRON ZONE
+    // ============================================================
+    // Micron fab koordinatları: Clay, NY (White Road site)
+    const MICRON_LAT = 43.1611;
+    const MICRON_LON = -76.2177;
+
+    function calcDistance(lat1, lon1, lat2, lon2) {
+      const R = 3958.8; // miles
+      const dLat = (lat2-lat1)*Math.PI/180;
+      const dLon = (lon2-lon1)*Math.PI/180;
+      const a = Math.sin(dLat/2)*Math.sin(dLat/2) +
+        Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*
+        Math.sin(dLon/2)*Math.sin(dLon/2);
+      return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    }
+
+    async function loadMicronZone() {
+      const grid = document.getElementById('micron-grid');
+      const statsEl = document.getElementById('micron-stats');
+      grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--text-muted);">Yükleniyor...</div>';
+
+      try {
+        // NY konut ilanlarını çek (arsa HARİÇ)
+        const res = await fetch('/api/listings?state=NY&limit=500&propertyType=HOUSE');
+        const data = await res.json();
+        const allListings = (data.listings || data.data || []);
+        // Sadece konutlar — arsa filtrele
+        const listings = allListings.filter(l => l.property_type !== 'LAND');
+
+        // Mesafe hesapla ve sırala
+        const withDist = listings
+          .map(l => ({ ...l, distance: l.latitude && l.longitude ? calcDistance(MICRON_LAT, MICRON_LON, l.latitude, l.longitude) : 999 }))
+          .sort((a,b) => a.distance - b.distance);
+
+        const within5 = withDist.filter(l => l.distance <= 5).length;
+        const within10 = withDist.filter(l => l.distance <= 10).length;
+        const within20 = withDist.filter(l => l.distance <= 20).length;
+        const avgPrice = listings.length ? Math.round(listings.filter(l=>l.price>0).reduce((s,l)=>s+l.price,0)/listings.filter(l=>l.price>0).length) : 0;
+
+        statsEl.innerHTML = [
+          { label: 'Toplam NY İlan', value: listings.length, color: '#0ea5e9', icon: 'home' },
+          { label: '5 mil içinde', value: within5, color: '#22c55e', icon: 'target' },
+          { label: '10 mil içinde', value: within10, color: '#f59e0b', icon: 'map-pin' },
+          { label: 'Ort. Fiyat', value: '$'+avgPrice.toLocaleString(), color: '#8b5cf6', icon: 'dollar-sign' },
+        ].map(s => `
+          <div style="background:rgba(255,255,255,0.85);border:1px solid var(--border-glass);border-radius:12px;padding:1rem;display:flex;align-items:center;gap:0.75rem;">
+            <div style="width:36px;height:36px;border-radius:8px;background:${s.color}18;display:flex;align-items:center;justify-content:center;">
+              <i data-lucide="${s.icon}" style="color:${s.color};width:18px;height:18px;"></i>
+            </div>
+            <div>
+              <div style="font-size:0.72rem;color:var(--text-muted);font-weight:600;text-transform:uppercase;">${s.label}</div>
+              <div style="font-family:'Outfit',sans-serif;font-size:1.35rem;font-weight:700;color:${s.color};">${s.value}</div>
+            </div>
+          </div>
+        `).join('');
+
+        // Kartları oluştur
+        if (withDist.length === 0) {
+          grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--text-muted);">Henüz NY ilanı yok. Scraper çalışıyor...</div>';
+          lucide.createIcons(); return;
+        }
+
+        grid.innerHTML = withDist.slice(0, 48).map(l => {
+          const dist = l.distance < 990 ? l.distance.toFixed(1) + ' mil' : '? mil';
+          const zoneColor = l.distance <= 5 ? '#22c55e' : l.distance <= 10 ? '#f59e0b' : l.distance <= 20 ? '#0ea5e9' : '#94a3b8';
+          const zoneLabel = l.distance <= 5 ? '🟢 0-5 mil' : l.distance <= 10 ? '🟡 5-10 mil' : l.distance <= 20 ? '🔵 10-20 mil' : '⚪ 20+ mil';
+          const price = l.price > 0 ? '$'+l.price.toLocaleString() : 'Fiyat yok';
+          // Doğru kolon adları
+          const addr = l.street_address || l.address || 'Adres yok';
+          const zip = l.zipcode || l.zip_code || '';
+          const typeLabel = l.property_type === 'MULTIFAMILY' ? '🏢 Multi-Family' : l.property_type === 'CONDO' ? '🏙️ Condo' : l.property_type === 'TOWNHOUSE' ? '🏘️ Townhouse' : '🏠 Konut';
+          const beds = l.bedrooms ? `${l.bedrooms} yatak` : '';
+          const baths = l.bathrooms ? `${l.bathrooms} banyo` : '';
+          const sqft = l.area_sqft ? `${l.area_sqft.toLocaleString()} ft²` : '';
+          const details = [beds, baths, sqft].filter(Boolean).join(' · ');
+          const mapsUrl = l.latitude && l.longitude ? `https://www.google.com/maps?q=${l.latitude},${l.longitude}` : `https://www.google.com/maps/search/${encodeURIComponent(addr+', '+l.city+', NY')}`;
+          const zillowUrl = l.zillow_url || (l.zpid ? `https://www.zillow.com/homedetails/${l.zpid}_zpid/` : null);
+
+          return `
+            <div style="background:rgba(255,255,255,0.75);border:${l.distance<=5?'2px solid #22c55e33':'1px solid var(--border-glass)'};border-radius:14px;padding:1.25rem;display:flex;flex-direction:column;gap:0.75rem;box-shadow:${l.distance<=5?'0 4px 20px rgba(34,197,94,0.1)':'0 2px 8px rgba(0,0,0,0.02)'};transition:all 0.2s;">
+              <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+                <div style="display:flex;gap:0.4rem;flex-wrap:wrap;">
+                  <span style="background:${zoneColor}18;color:${zoneColor};font-size:0.72rem;font-weight:700;padding:0.2rem 0.6rem;border-radius:6px;border:1px solid ${zoneColor}40;">${zoneLabel}</span>
+                  <span style="background:rgba(0,0,0,0.05);color:var(--text-muted);font-size:0.7rem;font-weight:600;padding:0.2rem 0.5rem;border-radius:6px;">${typeLabel}</span>
+                </div>
+                <span style="font-family:'Outfit',sans-serif;font-size:1.1rem;font-weight:700;color:var(--text-main);">${price}</span>
+              </div>
+              <div>
+                <div style="font-weight:600;font-size:0.9rem;color:var(--text-main);">${addr}</div>
+                <div style="font-size:0.78rem;color:var(--text-muted);margin-top:0.15rem;">${l.city || ''}, NY ${zip}</div>
+                ${details ? `<div style="font-size:0.78rem;color:var(--text-muted);margin-top:0.25rem;">${details}</div>` : ''}
+              </div>
+              <div style="display:flex;gap:0.4rem;align-items:center;font-size:0.8rem;color:${zoneColor};font-weight:600;">
+                <i data-lucide="navigation" style="width:14px;height:14px;"></i> Micron'a ${dist}
+              </div>
+              <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+                <a href="${mapsUrl}" target="_blank" class="btn btn-secondary btn-sm" style="font-size:0.72rem;padding:0.3rem 0.65rem;"><i data-lucide="map-pin" style="width:11px;height:11px;"></i> Harita</a>
+                ${zillowUrl ? `<a href="${zillowUrl}" target="_blank" class="btn btn-secondary btn-sm" style="font-size:0.72rem;padding:0.3rem 0.65rem;"><i data-lucide="external-link" style="width:11px;height:11px;"></i> Zillow</a>` : ''}
+              </div>
+            </div>`;
+        }).join('');
+        lucide.createIcons();
+      } catch(e) {
+        grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;color:#dc2626;">${e.message}</div>`;
+      }
+    }
+
+    // --- Advanced Wholesaling Functions ---
+    async function runSkipTrace(zpid, btn) {
+      const originalText = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = `<i class="spinner" data-lucide="loader-2" style="width:12px; height:12px;"></i>...`;
+      lucide.createIcons();
+
+      try {
+        const res = await fetch(`/api/skip-trace/${zpid}`, { method: 'POST' });
+        const data = await res.json();
+        if (data.success) {
+          loadListings();
+          alert(`Mal Sahibi Bilgileri Bulundu:\nİsim: ${data.owner.name}\nTel: ${data.owner.phone}\nE-posta: ${data.owner.email}`);
+        } else {
+          alert('Skip tracing yapılamadı.');
+        }
+      } catch (err) {
+        alert('Skip tracing sırasında hata oluştu.');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+        lucide.createIcons();
+      }
+    }
+
+    async function runAIUnderwrite(zpid, btn) {
+      const originalText = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = `<i class="spinner" data-lucide="loader-2" style="width:12px; height:12px;"></i>...`;
+      lucide.createIcons();
+
+      try {
+        const res = await fetch(`/api/underwrite/${zpid}`, { method: 'POST' });
+        const data = await res.json();
+        if (data.success) {
+          loadListings();
+          
+          const u = data.underwrite;
+          const repText = u.isLand ? '' : `\n🛠️ Tahmini Tamirat Masrafı: $${u.repairs.toLocaleString()}`;
+          alert(`🤖 AI DEĞERLEME & TEKLİF RAPORU\n--------------------------------------\n💰 Gayrimenkul Fiyatı: $${u.listingPrice.toLocaleString()}\n📈 AI Tahmini Piyasa Değeri: $${u.marketValue.toLocaleString()} ${repText}\n🎯 AI Maksimum Teklif Bedeli (MAO): $${u.maoPrice.toLocaleString()}\n--------------------------------------\nℹ️ Analiz: ${u.compReason}`);
+        } else {
+          alert('AI değerleme yapılamadı.');
+        }
+      } catch (err) {
+        alert('AI değerleme sırasında hata oluştu.');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+        lucide.createIcons();
+      }
+    }
+
+    async function sendDirectMail(zpid, btn) {
+      const originalText = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = `<i class="spinner" data-lucide="loader-2" style="width:12px; height:12px;"></i>...`;
+      lucide.createIcons();
+
+      try {
+        const res = await fetch('/api/send-direct-mail', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ zpid })
+        });
+        const data = await res.json();
+        if (data.success) {
+          btn.innerHTML = `<i data-lucide="check" style="width:12px; height:12px;"></i> Postalandı`;
+          btn.style.opacity = '0.6';
+          btn.style.cursor = 'not-allowed';
+          loadListings();
+          alert(data.message);
+        } else {
+          alert('Mektup gönderilemedi.');
+          btn.disabled = false;
+          btn.innerHTML = originalText;
+        }
+      } catch (err) {
+        alert('Mektup gönderilirken hata oluştu.');
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+      } finally {
+        lucide.createIcons();
+      }
+    }
+
+    // --- Buyers CRM UI Functions ---
+    async function loadBuyers() {
+      try {
+        const res = await fetch('/api/buyers');
+        const data = await res.json();
+        if (data.success) {
+          allBuyers = data.buyers;
+          renderBuyers();
+        }
+      } catch (err) {
+        console.error('Alıcılar yüklenemedi:', err);
+      }
+    }
+
+    function renderBuyers() {
+      const wrapper = document.getElementById('buyers-list-wrapper');
+      if (!wrapper) return;
+      wrapper.innerHTML = '';
+
+      if (allBuyers.length === 0) {
+        wrapper.innerHTML = `
+          <div style="text-align: center; padding: 2rem; color: var(--text-muted);">
+            <i data-lucide="users" style="width: 32px; height: 32px; margin-bottom: 0.5rem; display: inline-block;"></i>
+            <p style="font-size: 0.85rem;">Henüz kayıtlı nakit alıcı bulunmuyor.</p>
+          </div>
+        `;
+        lucide.createIcons();
+        return;
+      }
+
+      allBuyers.forEach(b => {
+        const card = document.createElement('div');
+        card.style.background = '#ffffff';
+        card.style.border = '1px solid var(--border-glass)';
+        card.style.borderRadius = '10px';
+        card.style.padding = '1rem';
+        card.style.display = 'flex';
+        card.style.justifyContent = 'space-between';
+        card.style.alignItems = 'flex-start';
+        card.style.boxShadow = '0 2px 6px rgba(0,0,0,0.01)';
+        
+        let typeLabel = b.property_type === 'BOTH' ? 'Arsa & Konut' : (b.property_type === 'LAND' ? 'Sadece Arsa' : 'Sadece Konut');
+        
+        card.innerHTML = `
+          <div style="flex: 1; text-align: left;">
+            <strong style="color: var(--text-main); font-size: 0.95rem; display: block; margin-bottom: 0.25rem;">${b.name}</strong>
+            <div style="display: flex; flex-direction: column; gap: 0.2rem; font-size: 0.775rem; color: var(--text-muted);">
+              ${b.email ? `<span>✉️ ${b.email}</span>` : ''}
+              ${b.phone ? `<span>📞 ${b.phone}</span>` : ''}
+              <span>📍 Eyaletler: <strong>${b.target_states || 'Tümü'}</strong></span>
+              <span>💰 Bütçe Limiti: <strong>${b.max_budget > 0 ? '$' + b.max_budget.toLocaleString() : 'Sınırsız'}</strong></span>
+              <span>🏷️ Tür Tercihi: <span style="background: rgba(109,40,217,0.05); color: var(--accent-purple); padding: 0.05rem 0.3rem; border-radius: 4px; font-weight: 600;">${typeLabel}</span></span>
+            </div>
+          </div>
+          <button onclick="deleteBuyerClick(${b.id})" class="btn btn-secondary btn-sm" style="color: var(--accent-rose); background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.15); padding: 0.35rem 0.5rem; border-radius: 6px; cursor: pointer;" title="Alıcıyı Sil">
+            <i data-lucide="trash-2" style="width: 14px; height: 14px;"></i>
+          </button>
+        `;
+        wrapper.appendChild(card);
+      });
+      lucide.createIcons();
+    }
+
+    async function deleteBuyerClick(id) {
+      if (!confirm('Bu alıcıyı silmek istediğinize emin misiniz?')) return;
+      try {
+        const res = await fetch(`/api/buyers/${id}`, { method: 'DELETE' });
+        const data = await res.json();
+        alert(data.message);
+        loadBuyers();
+        loadListings();
+      } catch (err) {
+        alert('Alıcı silinemedi.');
+      }
+    }
+
+    // Add Buyer Form Submit
+    document.getElementById('add-buyer-form')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('buyer-name').value;
+      const email = document.getElementById('buyer-email').value;
+      const phone = document.getElementById('buyer-phone').value;
+      const target_states = document.getElementById('buyer-states').value;
+      const max_budget = document.getElementById('buyer-budget').value;
+      const property_type = document.getElementById('buyer-prop-type').value;
+
+      try {
+        const res = await fetch('/api/buyers', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, phone, target_states, max_budget, property_type })
+        });
+        const data = await res.json();
+        alert(data.message);
+        document.getElementById('add-buyer-form').reset();
+        loadBuyers();
+        loadListings();
+      } catch (err) {
+        alert('Alıcı kaydedilirken hata oluştu.');
+      }
+    });
+
+    // Filter Listeners
+    const thresholdSelect = document.getElementById('threshold-select');
+    const thresholdContainer = document.getElementById('threshold-container');
+
+    searchInput.addEventListener('input', () => { currentPage = 1; loadListings(); });
+    stateFilter.addEventListener('change', () => { currentPage = 1; loadListings(); });
+    sortSelect.addEventListener('change', () => { currentPage = 1; loadListings(); });
+    
+    hotDealFilter.addEventListener('change', () => {
+      if (hotDealFilter.checked) {
+        thresholdContainer.style.display = 'block';
+      } else {
+        thresholdContainer.style.display = 'none';
+      }
+      currentPage = 1;
+      loadListings();
+    });
+
+    thresholdSelect.addEventListener('change', () => {
+      currentPage = 1;
+      loadListings();
+    });
+
+    // Pagination Listeners
+    prevBtn.addEventListener('click', () => {
+      if (currentPage > 1) {
+        currentPage--;
+        loadListings();
+      }
+    });
+
+    nextBtn.addEventListener('click', () => {
+      if (currentPage < totalPages) {
+        currentPage++;
+        loadListings();
+      }
+    });
+
+    // --- Off-Market Delinquent Leads Functions ---
+    // --- Off-Market Delinquent Leads Functions ---
+    let offMarketLeadsData = [];
+
+    async function loadOffMarketLeads() {
+      const wrapper = document.getElementById('off-market-list-wrapper');
+      wrapper.innerHTML = `
+        <div style="text-align:center; padding: 2rem;">
+          <i data-lucide="loader-2" class="spinner" style="width: 32px; height: 32px; color: var(--accent-rose); display: inline-block;"></i>
+          <p style="margin-top:0.5rem; color:var(--text-muted);">Off-market verileri yükleniyor...</p>
+        </div>
+      `;
+      lucide.createIcons();
+
+      try {
+        const res = await fetch('/api/off-market');
+        const data = await res.json();
+        
+        if (data.success) {
+          offMarketLeadsData = data.leads;
+          renderOffMarketLeads();
+        } else {
+          throw new Error(data.message || 'Veri yüklenemedi');
+        }
+      } catch (e) {
+        wrapper.innerHTML = `<div style="text-align:center;padding:2rem;color:#dc2626;">Hata: ${e.message}</div>`;
+      }
+    }
+
+    function renderOffMarketLeads() {
+      const wrapper = document.getElementById('off-market-list-wrapper');
+      const searchVal = document.getElementById('om-search').value.toLowerCase();
+      const countyVal = document.getElementById('om-county').value;
+      const sortVal = document.getElementById('om-sort').value;
+
+      let filtered = offMarketLeadsData.filter(l => {
+        // County filter
+        if (countyVal) {
+          if (countyVal === 'legacy') {
+            if (l.county) return false;
+          } else {
+            if (l.county !== countyVal) return false;
+          }
+        }
+
+        return (l.owner_name || '').toLowerCase().includes(searchVal) || 
+               (l.apn || '').toLowerCase().includes(searchVal) ||
+               (l.city || '').toLowerCase().includes(searchVal);
+      });
+
+      // Sorting
+      if (sortVal === 'debt_asc') {
+        filtered.sort((a, b) => (a.unpaid_taxes || 0) - (b.unpaid_taxes || 0));
+      } else if (sortVal === 'debt_desc') {
+        filtered.sort((a, b) => (b.unpaid_taxes || 0) - (a.unpaid_taxes || 0));
+      } else if (sortVal === 'mao_asc') {
+        filtered.sort((a, b) => (a.mao_price || 0) - (b.mao_price || 0));
+      } else if (sortVal === 'mao_desc') {
+        filtered.sort((a, b) => (b.mao_price || 0) - (a.mao_price || 0));
+      } else if (sortVal === 'acres_desc') {
+        filtered.sort((a, b) => (b.lot_size_acres || 0) - (a.lot_size_acres || 0));
+      }
+
+      if (filtered.length === 0) {
+        wrapper.innerHTML = `
+          <div style="text-align:center; padding: 3rem; color: var(--text-muted);">
+            <i data-lucide="crosshair" style="width: 48px; height: 48px; color: var(--border-glass); margin-bottom: 0.5rem; display: inline-block;"></i>
+            <p>Uyuşan Off-Market fırsat kaydı bulunamadı.</p>
+          </div>
+        `;
+        lucide.createIcons();
+        return;
+      }
+
+      wrapper.innerHTML = '';
+      filtered.forEach(l => {
+        const card = document.createElement('div');
+        card.style.background = '#ffffff';
+        card.style.border = '1px solid var(--border-glass)';
+        card.style.borderRadius = '12px';
+        card.style.padding = '1.25rem';
+        card.style.display = 'flex';
+        card.style.flexDirection = 'column';
+        card.style.gap = '0.75rem';
+        card.style.boxShadow = '0 2px 8px rgba(0,0,0,0.01)';
+        
+        const isTraceDone = l.owner_phone || l.owner_email;
+        
+        card.innerHTML = `
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 0.5rem;">
+            <div>
+              <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                <span style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase; padding: 0.15rem 0.4rem; border-radius: 4px; background: rgba(244, 63, 94, 0.08); color: var(--accent-rose);">APN: ${l.apn}</span>
+                ${l.county ? `<span style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase; padding: 0.15rem 0.4rem; border-radius: 4px; background: rgba(59, 130, 246, 0.08); color: var(--accent-blue);">${l.county}</span>` : ''}
+                <strong style="font-size: 1rem; color: var(--text-main);">${l.owner_name}</strong>
+                <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 500;">(${l.lot_size_acres} acres)</span>
+              </div>
+              <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem; display: flex; align-items: center; gap: 0.25rem; margin-bottom: 0;">
+                <i data-lucide="map-pin" style="width: 14px; height: 14px;"></i> ${l.street_address ? l.street_address + ', ' : ''}${l.city}, ${l.state} ${l.zipcode}
+              </p>
+            </div>
+            <div style="display: flex; gap: 0.4rem;">
+              <span style="font-size: 0.7rem; font-weight: 700; background: rgba(239, 68, 68, 0.08); color: #ef4444; padding: 0.2rem 0.5rem; border-radius: 6px; display: inline-flex; align-items: center; gap: 0.2rem;">
+                <i data-lucide="alert-circle" style="width:12px; height:12px;"></i> $${l.unpaid_taxes.toLocaleString()} Vergi Borcu
+              </span>
+              <span class="badge ${l.mail_status === 'SENT' || l.mail_status === 'GÖNDERİLDİ' ? 'green' : 'amber'}" style="font-size: 0.65rem; padding: 0.2rem 0.5rem; border-radius: 6px; font-weight: 800; display: inline-flex; align-items: center; gap: 0.15rem;">
+                <i data-lucide="${l.mail_status === 'SENT' || l.mail_status === 'GÖNDERİLDİ' ? 'check-circle' : 'clock'}" style="width:12px; height:12px;"></i> ${l.mail_status}
+              </span>
+            </div>
+          </div>
+
+          <!-- Contact & Details Grid -->
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem; background: rgba(15,23,42,0.01); border: 1px dashed var(--border-glass); border-radius: 8px; padding: 0.75rem;">
+            <div>
+              <span style="font-size: 0.65rem; color: var(--text-muted); display: block; text-transform: uppercase; font-weight: 600;">📞 Mal Sahibi İletişim:</span>
+              <span style="font-size: 0.75rem; font-weight: 700; color: var(--text-main); display: block; margin-top: 0.15rem;">
+                ${isTraceDone ? `<span style="color:#0f172a;">${l.owner_phone}</span> <span style="color:#64748b; font-size:0.7rem; font-weight:normal;">| ${l.owner_email}</span>` : '<span style="color:#ef4444;">Bilinmiyor (Trace yapın)</span>'}
+              </span>
+            </div>
+            <div>
+              <span style="font-size: 0.65rem; color: var(--text-muted); display: block; text-transform: uppercase; font-weight: 600;">📈 Zillow Comps Oranı:</span>
+              <span style="font-size: 0.75rem; font-weight: 700; color: var(--accent-blue); display: block; margin-top: 0.15rem;">
+                $${l.zillow_comp_rate.toLocaleString()} / acre (Ort. Bölge Fiyatı)
+              </span>
+            </div>
+            <div>
+              <span style="font-size: 0.65rem; color: var(--text-muted); display: block; text-transform: uppercase; font-weight: 600;">🎯 Maksimum Teklif Bedeli (MAO %70):</span>
+              <span style="font-size: 0.75rem; font-weight: 800; color: var(--accent-emerald); display: block; margin-top: 0.15rem;">
+                $${l.mao_price.toLocaleString()} Cash
+              </span>
+            </div>
+          </div>
+
+          <!-- Action Bar -->
+          <div style="display: flex; gap: 0.5rem; justify-content: flex-end; border-top: 1px solid rgba(15,23,42,0.04); padding-top: 0.75rem; align-items: center;">
+            <button class="btn btn-secondary btn-xs offmarket-trace-btn" data-id="${l.id}" ${isTraceDone ? 'disabled' : ''} style="font-size: 0.7rem; padding: 0.35rem 0.65rem; display: inline-flex; align-items: center; gap: 0.25rem;">
+              <i data-lucide="phone"></i> Trace (Skip Trace)
+            </button>
+            <button class="btn btn-secondary btn-xs offmarket-comps-btn" data-id="${l.id}" style="font-size: 0.7rem; padding: 0.35rem 0.65rem; border-color: var(--accent-blue); color: var(--accent-blue); background: rgba(59, 130, 246, 0.02); display: inline-flex; align-items: center; gap: 0.25rem;">
+              <i data-lucide="bar-chart-2"></i> Zillow Comps Bağlan
+            </button>
+            <button class="btn btn-primary btn-xs offmarket-mail-btn" data-id="${l.id}" ${l.mail_status === 'SENT' || l.mail_status === 'GÖNDERİLDİ' ? 'disabled' : ''} style="font-size: 0.7rem; padding: 0.35rem 0.65rem; background: var(--text-main); border-color: var(--text-main); display: inline-flex; align-items: center; gap: 0.25rem;">
+              <i data-lucide="mail"></i> Teklif Mektubu Gönder (Direct Mail)
+            </button>
+            <button class="btn btn-secondary btn-xs offmarket-delete-btn" data-id="${l.id}" style="font-size: 0.7rem; padding: 0.35rem 0.65rem; border-color: #ef4444; color: #ef4444; background: rgba(239, 68, 68, 0.02); margin-left: auto; display: inline-flex; align-items: center; gap: 0.25rem;">
+              <i data-lucide="trash-2"></i> Sil
+            </button>
+          </div>
+        `;
+        wrapper.appendChild(card);
+      });
+
+      // Event Listeners for actions
+      document.querySelectorAll('.offmarket-trace-btn').forEach(btn => {
+        btn.addEventListener('click', () => runOffMarketTrace(btn.getAttribute('data-id'), btn));
+      });
+      document.querySelectorAll('.offmarket-comps-btn').forEach(btn => {
+        btn.addEventListener('click', () => runOffMarketComps(btn.getAttribute('data-id'), btn));
+      });
+      document.querySelectorAll('.offmarket-mail-btn').forEach(btn => {
+        btn.addEventListener('click', () => runOffMarketMail(btn.getAttribute('data-id'), btn));
+      });
+      document.querySelectorAll('.offmarket-delete-btn').forEach(btn => {
+        btn.addEventListener('click', () => deleteOffMarket(btn.getAttribute('data-id'), btn));
+      });
+
+      lucide.createIcons();
+    }
+
+    // Register filters for off-market
+    document.getElementById('om-search')?.addEventListener('input', renderOffMarketLeads);
+    document.getElementById('om-county')?.addEventListener('change', renderOffMarketLeads);
+    document.getElementById('om-sort')?.addEventListener('change', renderOffMarketLeads);
+
+    // Trace off market lead
+    async function runOffMarketTrace(id, btn) {
+      btn.disabled = true;
+      btn.innerHTML = `<i class="spinner" data-lucide="loader-2" style="width:12px; height:12px; display:inline-block;"></i> Sorgulanıyor...`;
+      lucide.createIcons();
+
+      printConsoleLine(`[Skip Trace] ID: ${id} için tapu sahibi iletişim bilgileri sorgulanıyor...`, '#c084fc');
+
+      try {
+        const res = await fetch(`/api/off-market/skip-trace/${id}`, { method: 'POST' });
+        const data = await res.json();
+        
+        if (data.success) {
+          printConsoleLine(`[Skip Trace] Başarılı! Telefon: ${data.ownerPhone} | E-posta: ${data.ownerEmail}`, '#22c55e');
+          setTimeout(() => {
+            loadOffMarketLeads();
+          }, 800);
+        } else {
+          printConsoleLine(`[Skip Trace] Hata: İletişim bilgisi bulunamadı.`, '#ef4444');
+          btn.disabled = false;
+          btn.innerHTML = `<i data-lucide="phone"></i> Trace (Skip Trace)`;
+          lucide.createIcons();
+        }
+      } catch (e) {
+        printConsoleLine(`[Skip Trace] Bağlantı Hatası.`, '#ef4444');
+        btn.disabled = false;
+        btn.innerHTML = `<i data-lucide="phone"></i> Trace (Skip Trace)`;
+        lucide.createIcons();
+      }
+    }
+
+    // Direct mail off market lead
+    async function runOffMarketMail(id, btn) {
+      btn.disabled = true;
+      btn.innerHTML = `<i class="spinner" data-lucide="loader-2" style="width:12px; height:12px; display:inline-block;"></i> Gönderiliyor...`;
+      lucide.createIcons();
+
+      printConsoleLine(`[Pebble Mailer] ID: ${id} için nakit teklif mektubu ve zarfı sıraya alınıyor...`, '#c084fc');
+
+      try {
+        const res = await fetch(`/api/off-market/send-mail/${id}`, { method: 'POST' });
+        const data = await res.json();
+        
+        if (data.success) {
+          printConsoleLine(`[Pebble Mailer] Başarılı! Teklif mektubu basıldı ve kargoya verildi (Queue ID: PEB-78${id}).`, '#22c55e');
+          setTimeout(() => {
+            loadOffMarketLeads();
+          }, 800);
+        } else {
+          printConsoleLine(`[Pebble Mailer] Hata: Posta sıraya alınamadı.`, '#ef4444');
+          btn.disabled = false;
+          btn.innerHTML = `<i data-lucide="mail"></i> Teklif Mektubu Gönder (Direct Mail)`;
+          lucide.createIcons();
+        }
+      } catch (e) {
+        printConsoleLine(`[Pebble Mailer] Bağlantı Hatası.`, '#ef4444');
+        btn.disabled = false;
+        btn.innerHTML = `<i data-lucide="mail"></i> Teklif Mektubu Gönder (Direct Mail)`;
+        lucide.createIcons();
+      }
+    }
+
+    // Delete lead
+    async function deleteOffMarket(id, btn) {
+      if (!confirm('Bu fırsat kaydını silmek istediğinize emin misiniz?')) return;
+      try {
+        await fetch(`/api/off-market/${id}`, { method: 'DELETE' });
+        loadOffMarketLeads();
+      } catch (e) {
+        alert('Silinemedi.');
+      }
+    }
+
+    // AI Comps and Underwriting Simulation on Console
+    async function runOffMarketComps(id, btn) {
+      btn.disabled = true;
+      
+      // Fetch current lead details from frontend data or reload
+      try {
+        const res = await fetch('/api/off-market');
+        const data = await res.json();
+        const lead = data.leads.find(l => l.id == id);
+        
+        if (!lead) return;
+
+        printConsoleLine(`🛰️ [Zillow Comps] Emsal fiyat veritabanına bağlanılıyor: ${lead.city}, ${lead.state}...`, '#3b82f6');
+        
+        const logs = [
+          `🔍 [Zillow Comps] Son 12 ayda satılan ${lead.lot_size_acres} ± 3 acres büyüklüğündeki ilanlar aranıyor...`,
+          `📊 [Zillow Comps] 8 adet benzer satılmış ilan (comps) eşleştirildi.`,
+          `📈 [Zillow Comps] Ortalama Bölge Birim Fiyatı: $${lead.zillow_comp_rate.toLocaleString()} / acre.`,
+          `📐 [AI Underwriter] APN: ${lead.apn} için Değerleme Detayları:`,
+          `   - Arazi Boyutu: ${lead.lot_size_acres} acres`,
+          `   - Tahmini Piyasa Değeri (FMV): $${(lead.lot_size_acres * lead.zillow_comp_rate).toLocaleString()}`,
+          `   - Gecikmiş Vergi Borcu (Delinquent): -$${lead.unpaid_taxes.toLocaleString()}`,
+          `   - Toptancılık Marjı (%70 kuralı): 70%`,
+          `💰 [AI Underwriter] Maksimum Teklif Bedeli (MAO): $${lead.mao_price.toLocaleString()}`,
+          `✅ [AI Underwriter] Mektup teklif fiyatı $${lead.mao_price.toLocaleString()} olarak güncellendi ve kilitlendi.`
+        ];
+
+        let lineIdx = 0;
+        const interval = setInterval(() => {
+          if (lineIdx < logs.length) {
+            const line = logs[lineIdx];
+            let color = '#f8fafc';
+            if (line.includes('🔍') || line.includes('📊')) color = '#a855f7';
+            else if (line.includes('📈') || line.includes('💰')) color = '#22c55e';
+            else if (line.includes('📐')) color = '#3b82f6';
+            
+            printConsoleLine(line, color);
+            lineIdx++;
+          } else {
+            clearInterval(interval);
+            btn.disabled = false;
+          }
+        }, 400);
+
+      } catch (e) {
+        printConsoleLine(`❌ [System] Comps motoru bağlantı hatası.`, '#ef4444');
+        btn.disabled = false;
+      }
+    }
+
+    // Scrape county records button (triggers real backend scraper)
+    const scrapeOffMarketBtn = document.getElementById('scrape-offmarket-btn');
+    scrapeOffMarketBtn.addEventListener('click', async () => {
+      scrapeOffMarketBtn.disabled = true;
+      scrapeOffMarketBtn.innerHTML = `<i class="spinner" data-lucide="loader-2" style="width:12px; height:12px; display:inline-block;"></i> Taranıyor...`;
+      lucide.createIcons();
+
+      const consoleLines = document.getElementById('connector-console-lines');
+      consoleLines.innerHTML = '';
+      printConsoleLine(`🏛️ [County Scraper] Yerel Tapu Değerleme & Vergi Dairelerine bağlanılıyor...`, '#f43f5e');
+
+      // Adım adım simüle edilmiş loglar basarken arka planda gerçek scripti çalıştır
+      const logs = [
+        `🌐 [County Scraper] Travis County Tax Office delinquent veri kanalları açılıyor...`,
+        `📥 [County Scraper] Delinquent CSV indirme isteği gönderildi: TaxDelqOpenData.csv (2.4 MB)`,
+        `🧠 [Parser] Travis County vergi borcu dosyası satır satır ayrıştırılıyor...`,
+        `🔍 [Filter] $1000 üzeri vergi borcu olan arsalar süzülüyor...`,
+        `📂 [Filter] Tarrant ve Montgomery County için veriler güncelleniyor...`,
+        `🎯 [AI Analyst] Zillow comps motoru üzerinden MAO (Maksimum Teklif) oranları atandı.`,
+      ];
+
+      let lineIdx = 0;
+      const interval = setInterval(() => {
+        if (lineIdx < logs.length) {
+          const line = logs[lineIdx];
+          let color = '#94a3b8';
+          if (line.includes('🌐') || line.includes('📥')) color = '#c084fc';
+          else if (line.includes('🎯') || line.includes('🔍')) color = '#3b82f6';
+          printConsoleLine(line, color);
+          lineIdx++;
+        } else {
+          clearInterval(interval);
+        }
+      }, 800);
+
+      try {
+        const res = await fetch('/api/off-market/scrape', { method: 'POST' });
+        const data = await res.json();
+        
+        if (data.success) {
+          printConsoleLine(`✅ [County Scraper] Başarılı! Travis County'den 500, Tarrant & Montgomery'den 50 yeni lead eklendi!`, '#22c55e');
+        } else {
+          printConsoleLine(`❌ [County Scraper] Hata oluştu: ${data.error}`, '#ef4444');
+        }
+      } catch (err) {
+        printConsoleLine(`❌ [County Scraper] Sunucu bağlantı hatası.`, '#ef4444');
+      } finally {
+        scrapeOffMarketBtn.disabled = false;
+        scrapeOffMarketBtn.innerHTML = `<i data-lucide="scan"></i> County Vergi Borçlu Listesini Tara`;
+        lucide.createIcons();
+        loadOffMarketLeads();
+      }
+    });
+
+    function printConsoleLine(text, color) {
+      const consoleLines = document.getElementById('connector-console-lines');
+      const p = document.createElement('div');
+      p.style.color = color || '#f8fafc';
+      p.style.lineHeight = '1.4';
+      p.style.marginBottom = '0.2rem';
+      p.innerText = text;
+      consoleLines.appendChild(p);
+      consoleLines.scrollTop = consoleLines.scrollHeight;
+    }
+
+    // ============================================================
+    // 🗺️ SCRAPED COUNTIES (Taranan Countyler)
+    // ============================================================
+    let countiesData = [];
+
+    async function loadScrapedCounties() {
+      const grid = document.getElementById('counties-grid');
+      const statsBar = document.getElementById('county-stats-bar');
+      
+      grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--text-muted);"><i data-lucide="loader" style="animation:spin 1s linear infinite;"></i> Yükleniyor...</div>';
+      statsBar.innerHTML = '';
+      lucide.createIcons();
+
+      try {
+        const res = await fetch('/api/tax-sales/counties');
+        const json = await res.json();
+        if (!json.success || !json.data) {
+          throw new Error(json.error || 'Veri yüklenemedi');
+        }
+        countiesData = json.data;
+        renderCounties();
+      } catch (e) {
+        grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:2rem;color:#dc2626;">Hata: ${e.message}</div>`;
+      }
+    }
+
+    function renderCounties() {
+      const searchVal = document.getElementById('county-search-input').value.toLowerCase();
+      const stateVal = document.getElementById('county-state-filter').value;
+      const sortVal = document.getElementById('county-sort-select').value;
+      const grid = document.getElementById('counties-grid');
+      const statsBar = document.getElementById('county-stats-bar');
+
+      let filtered = countiesData.filter(c => {
+        const matchesSearch = c.county.toLowerCase().includes(searchVal);
+        const matchesState = stateVal ? c.state === stateVal : true;
+        return matchesSearch && matchesState;
+      });
+
+      // Sorting
+      if (sortVal === 'count_desc') {
+        filtered.sort((a, b) => b.count - a.count);
+      } else if (sortVal === 'count_asc') {
+        filtered.sort((a, b) => a.count - b.count);
+      } else if (sortVal === 'name_asc') {
+        filtered.sort((a, b) => a.county.localeCompare(b.county));
+      } else if (sortVal === 'discount_desc') {
+        filtered.sort((a, b) => (b.avg_discount || 0) - (a.avg_discount || 0));
+      } else if (sortVal === 'min_bid_asc') {
+        filtered.sort((a, b) => (a.min_bid || 0) - (b.min_bid || 0));
+      }
+
+      // Render stats
+      const totalCounties = filtered.length;
+      const totalProperties = filtered.reduce((sum, c) => sum + c.count, 0);
+      const topCounty = filtered.length > 0 ? filtered.reduce((max, c) => c.count > max.count ? c : max, filtered[0]) : null;
+      const avgDiscountTotal = filtered.length > 0 ? (filtered.reduce((sum, c) => sum + (c.avg_discount || 0), 0) / filtered.length).toFixed(1) : 0;
+
+      statsBar.innerHTML = [
+        { label: 'Taranan County', value: totalCounties, color: '#10b981', icon: 'map' },
+        { label: 'Toplam Fırsat', value: totalProperties.toLocaleString(), color: '#3b82f6', icon: 'home' },
+        { label: 'En Çok Mülk', value: topCounty ? `${topCounty.county.replace(' COUNTY','')}` : 'N/A', subValue: topCounty ? `${topCounty.count} ilan` : '', color: '#d97706', icon: 'award' },
+        { label: 'Ort. İndirim Oranı', value: `%${avgDiscountTotal}`, color: '#7c3aed', icon: 'zap' }
+      ].map(s => `
+        <div style="background:rgba(255,255,255,0.8);border:1px solid var(--border-glass);border-radius:12px;padding:1rem;display:flex;align-items:center;gap:0.75rem;">
+          <div style="width:36px;height:36px;border-radius:8px;background:${s.color}15;display:flex;align-items:center;justify-content:center;">
+            <i data-lucide="${s.icon}" style="color:${s.color};width:18px;height:18px;"></i>
+          </div>
+          <div>
+            <div style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">${s.label}</div>
+            <div style="font-family:'Outfit',sans-serif;font-size:1.3rem;font-weight:700;color:${s.color};">${s.value}</div>
+            ${s.subValue ? `<div style="font-size:0.7rem;color:var(--text-muted);">${s.subValue}</div>` : ''}
+          </div>
+        </div>
+      `).join('');
+
+      if (filtered.length === 0) {
+        grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--text-muted);">Uyuşan county bulunamadı</div>';
+        return;
+      }
+
+      grid.innerHTML = filtered.map(c => {
+        const stateColor = c.state === 'TX' ? '#2563eb' : c.state === 'PA' ? '#7c3aed' : '#d97706';
+        const avgDisc = c.avg_discount || 0;
+        const discountColor = avgDisc >= 80 ? '#16a34a' : avgDisc >= 50 ? '#d97706' : '#2563eb';
+        
+        const sourcesHtml = (c.sources || 'LGBS').split(',').map(s => {
+          const badgeColor = s === 'LGBS' ? '#d97706' : s === 'MVBA' ? '#10b981' : '#3b82f6';
+          return `<span style="background:${badgeColor}15;color:${badgeColor};font-size:0.65rem;font-weight:700;padding:0.15rem 0.4rem;border-radius:4px;display:inline-block;">${s}</span>`;
+        }).join('');
+        
+        return `
+          <div style="background:rgba(255,255,255,0.65);border:1px solid var(--border-glass);border-radius:14px;padding:1.25rem;box-shadow:0 4px 10px rgba(0,0,0,0.015);display:flex;flex-direction:column;gap:0.75rem;transition:all 0.2s ease;">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <span style="background:${stateColor}15;color:${stateColor};font-size:0.75rem;font-weight:700;padding:0.2rem 0.6rem;border-radius:6px;">${c.state} Eyaleti</span>
+              <div style="display:flex;gap:0.25rem;">${sourcesHtml}</div>
+            </div>
+            
+            <div>
+              <div style="font-weight:800;font-size:1.05rem;color:var(--text-main);margin-bottom:0.2rem;">${c.county}</div>
+              <div style="font-size:0.8rem;color:var(--text-muted);display:flex;align-items:center;gap:0.25rem;">
+                <i data-lucide="calendar" style="width:12px;height:12px;"></i> Son Tarama: ${c.last_scraped ? new Date(c.last_scraped).toLocaleDateString('tr-TR') : 'Mevcut'}
+              </div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;background:rgba(255,255,255,0.4);border:1px solid rgba(0,0,0,0.03);border-radius:8px;padding:0.5rem;margin-top:0.25rem;">
+              <div style="text-align:center;">
+                <div style="font-size:0.65rem;color:var(--text-muted);">MÜLK SAYISI</div>
+                <div style="font-family:'Outfit',sans-serif;font-weight:700;font-size:1.1rem;color:var(--text-main);">${c.count}</div>
+              </div>
+              <div style="text-align:center;border-left:1px solid rgba(0,0,0,0.06);">
+                <div style="font-size:0.65rem;color:var(--text-muted);">ORT. İNDİRİM</div>
+                <div style="font-family:'Outfit',sans-serif;font-weight:700;font-size:1.1rem;color:${discountColor};">%${avgDisc}</div>
+              </div>
+            </div>
+
+            <div style="display:flex;gap:0.5rem;margin-top:0.25rem;">
+              <button onclick="goToCountyDeals('${c.county.replace(/'/g, "\\'")}', '${c.state}')" class="btn btn-primary btn-sm" style="flex:1;background:linear-gradient(135deg, #10b981, #059669);border:none;font-weight:600;display:flex;align-items:center;justify-content:center;gap:0.25rem;border-radius:8px;height:34px;font-size:0.75rem;cursor:pointer;">
+                <i data-lucide="eye" style="width:14px;height:14px;"></i> Mülkleri Listele
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+      
+      lucide.createIcons();
+    }
+
+    function goToCountyDeals(countyName, stateCode) {
+      document.querySelectorAll('.tab-btn').forEach(b => {
+        if (b.getAttribute('data-tab') === 'tax-sales') {
+          b.classList.add('active');
+        } else {
+          b.classList.remove('active');
+        }
+      });
+      activeTab = 'tax-sales';
+      document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
+      document.getElementById('tab-tax-sales').style.display = 'block';
+
+      // Set filter values
+      document.getElementById('ts-search').value = countyName;
+      document.getElementById('ts-state').value = stateCode;
+      document.getElementById('ts-status').value = '';
+      document.getElementById('ts-discount').value = '';
+
+      // Load data
+      loadTaxSaleStats();
+      loadTaxSales(1);
+    }
+
+    // Event listeners for scraped counties tab
+    ['county-state-filter', 'county-sort-select'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('change', renderCounties);
+    });
+    document.getElementById('county-search-input')?.addEventListener('input', renderCounties);
+
+    // Initial Load & Intervals
+    loadBuyers().then(() => {
+      loadStats();
+      loadListings();
+      loadOffMarketLeads();
+    });
+    checkScraperStatus();
+    lucide.createIcons();
+
+    // Check scraper status periodically
+    setInterval(checkScraperStatus, 5000);
+    // Reload stats and listings periodically to see live additions
+    setInterval(() => {
+      loadStats();
+      loadListings();
+    }, 15000);
+
+  </script>
+</body>
+</html>

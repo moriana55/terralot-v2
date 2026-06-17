@@ -1,0 +1,14 @@
+<svg width="340" height="120" viewBox="0 0 340 120" xmlns="http://www.w3.org/2000/svg">
+  <rect width="340" height="120" rx="16" fill="#0a1a3f"/>
+  <g transform="translate(28,18)">
+    <circle cx="32" cy="32" r="29" stroke="#8ed1df" stroke-width="1.5" opacity="0.22"/>
+    <path d="M18 16 L27 25 L20 27 Z" fill="#8ed1df"/>
+    <path d="M46 16 L37 25 L44 27 Z" fill="#8ed1df"/>
+    <path d="M21 23 H43 L46 35 L38 47 L32 51 L26 47 L18 35 Z" fill="#8ed1df"/>
+    <path d="M24.5 31 L30 33 L29 36 L24 34 Z" fill="#0a1a3f"/>
+    <path d="M39.5 31 L34 33 L35 36 L40 34 Z" fill="#0a1a3f"/>
+    <path d="M32 42 L35.5 47 L28.5 47 Z" fill="#0a1a3f"/>
+  </g>
+  <text x="104" y="58" font-family="Geist, Inter, Arial, sans-serif" font-size="30" font-weight="800" letter-spacing="5" fill="#ffffff">CERBERUS</text>
+  <text x="106" y="80" font-family="Geist, Inter, Arial, sans-serif" font-size="10.5" letter-spacing="1.5" fill="#8ed1df" opacity="0.7">DEAL SOURCING ENGINE</text>
+</svg>

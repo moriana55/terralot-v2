@@ -1,0 +1,19 @@
+node_modules/
+.env
+*.db
+*.log
+logs/
+*.plist
+
+# Scraped data & artifacts — live in the DB / are regenerated, do not commit
+*.zip
+*.csv
+*.png
+*.pdf
+*.txt
+*.json
+!package.json
+!package-lock.json
+downloads/
+data/
+lgbs_raw.html

@@ -1,172 +1,350 @@
 "use client";
 
-import { useState } from "react";
-import { Target, Plus, MapPin, DollarSign, Mail, Clock, CheckCircle2, AlertTriangle, Search, FileText, Gavel, Eye, EyeOff, Send, TrendingUp, BarChart3 } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { supabase } from "@/lib/supabase";
+import { ScoreBadge, gradeOf } from "@/components/ScoreBadge";
+import { Target, Plus, MapPin, Mail, CheckCircle2, AlertTriangle, Search, FileText, Gavel, Eye, EyeOff, Send, BarChart3, LayoutGrid, Calculator, DollarSign, TrendingUp, ExternalLink, Loader2, ShieldCheck, Star } from "lucide-react";
 
-type AcqStatus = "researching" | "mailed" | "responded" | "negotiating" | "under_contract" | "closed" | "dead";
-type AcqSource = "tax_deed" | "direct_mail" | "cold_call" | "absentee_list" | "wholesaler" | "driving_for_dollars";
-type MarketType = "off_market" | "on_market";
-
-interface Acquisition {
+// --- Real row shape from Supabase: tax_delinquent_properties ---
+interface TaxLeadRow {
   id: string;
-  title: string;
-  state: string;
-  county: string;
-  acres: number;
-  ownerName: string;
-  ownerType: "absentee" | "local" | "estate" | "corporate" | "tax_delinquent";
-  askingPrice: number | null;
-  offerPrice: number;
-  estimatedValue: number;
-  source: AcqSource;
-  status: AcqStatus;
-  marketType: MarketType;
-  mailedDate: string | null;
-  responseDate: string | null;
-  followUpCount: number;
-  notes: string;
-  apn: string;
-  roadAccess: boolean;
-  waterRights: boolean;
-  titleClear: boolean;
-  taxDelinquent: boolean;
-  yearsDelinquent: number | null;
-  campaignId: string | null;
+  source: string | null;
+  state: string | null;
+  county: string | null;
+  apn: string | null;
+  owner_name: string | null;
+  owner_address: string | null;
+  property_address: string | null;
+  legal_description: string | null;
+  acres: number | null;
+  minimum_bid: number | null;
+  judgment_amount: number | null;
+  sale_date: string | null;
+  case_number: string | null;
+  raw_url: string | null;
+  scraped_at: string | null;
+  created_at: string | null;
+  deal_score: number | null;
+  discount_pct: number | null;
+  savings: number | null;
+  liquidity_score: number | null;
+  county_pop_growth: number | null;
+  road_access: string | null;
+  flood_score: number | null;
+  dd_checked: boolean | null;
+  final_score: number | null;
+  flip_score: number | null;
+  ownerfinance_score: number | null;
+  confidence: number | null;
 }
 
-interface MailCampaign {
-  id: string;
-  name: string;
-  targetState: string;
-  targetCounty: string;
-  listType: "absentee" | "tax_delinquent" | "estate" | "vacant_land";
-  totalSent: number;
-  responded: number;
-  underContract: number;
-  closed: number;
-  sentDate: string;
-  costPerLetter: number;
+type OwnerType = "absentee" | "local" | "estate" | "corporate" | "tax_delinquent";
+
+// Derive owner type from the real owner_name / source strings (no fabricated data).
+function deriveOwnerType(row: TaxLeadRow): OwnerType {
+  const n = (row.owner_name || "").toLowerCase();
+  const src = (row.source || "").toLowerCase();
+  if (n.includes("estate")) return "estate";
+  if (n.includes("llc") || n.includes("inc") || n.includes("corp") || n.includes("holdings") || n.includes("trust")) return "corporate";
+  if (n.includes("absentee")) return "absentee";
+  if (src.includes("tax") || src.includes("delinquent") || src.includes("lgbs") || src.includes("mvba") || src.includes("pbfcm")) return "tax_delinquent";
+  return "local";
 }
 
-const campaigns: MailCampaign[] = [
-  { id: "c1", name: "Torrance Co. Absentee #1", targetState: "New Mexico", targetCounty: "Torrance", listType: "absentee", totalSent: 500, responded: 23, underContract: 2, closed: 1, sentDate: "2026-04-01", costPerLetter: 0.85 },
-  { id: "c2", name: "Navajo Tax Delinquent", targetState: "Arizona", targetCounty: "Navajo", listType: "tax_delinquent", totalSent: 300, responded: 18, underContract: 1, closed: 0, sentDate: "2026-05-10", costPerLetter: 0.85 },
-  { id: "c3", name: "Hudspeth Co. Tax Sale", targetState: "Texas", targetCounty: "Hudspeth", listType: "tax_delinquent", totalSent: 200, responded: 12, underContract: 0, closed: 1, sentDate: "2026-03-15", costPerLetter: 0.85 },
-  { id: "c4", name: "Costilla Absentee Owners", targetState: "Colorado", targetCounty: "Costilla", listType: "absentee", totalSent: 400, responded: 15, underContract: 1, closed: 0, sentDate: "2026-05-01", costPerLetter: 0.85 },
-  { id: "c5", name: "Luna Co. Vacant Land", targetState: "New Mexico", targetCounty: "Luna", listType: "vacant_land", totalSent: 350, responded: 20, underContract: 1, closed: 0, sentDate: "2026-04-20", costPerLetter: 0.85 },
-];
+function deriveTitle(row: TaxLeadRow): string {
+  const acrePart = row.acres ? `${row.acres}-Acre` : "Parcel";
+  const loc = [row.county, row.state].filter(Boolean).join(", ");
+  return `${acrePart}${loc ? " — " + loc : ""}`;
+}
 
-const acquisitions: Acquisition[] = [
-  {
-    id: "a1", title: "Torrance County 40-Acre", state: "New Mexico", county: "Torrance",
-    acres: 40, ownerName: "Margaret Ellis (Estate)", ownerType: "estate",
-    askingPrice: null, offerPrice: 15000, estimatedValue: 42000,
-    source: "direct_mail", status: "negotiating", marketType: "off_market",
-    mailedDate: "2026-04-10", responseDate: "2026-04-28", followUpCount: 3,
-    notes: "Heir wants quick sale. Estate probated. Clear title confirmed. Counter-offered $18K, we offered $16K.", apn: "TC-4420-001",
-    roadAccess: true, waterRights: false, titleClear: true, taxDelinquent: false, yearsDelinquent: null, campaignId: "c1",
-  },
-  {
-    id: "a2", title: "Navajo County 80-Acre Ranch", state: "Arizona", county: "Navajo",
-    acres: 80, ownerName: "Richard & Carol Dunn", ownerType: "absentee",
-    askingPrice: 55000, offerPrice: 28000, estimatedValue: 72000,
-    source: "direct_mail", status: "mailed", marketType: "off_market",
-    mailedDate: "2026-05-15", responseDate: null, followUpCount: 0,
-    notes: "Owners in Florida, haven't visited in 10 years. Tax current. Sending 2nd mailer in 30 days.", apn: "NV-8810-003",
-    roadAccess: true, waterRights: false, titleClear: true, taxDelinquent: false, yearsDelinquent: null, campaignId: "c2",
-  },
-  {
-    id: "a3", title: "Hudspeth County Tax Deed", state: "Texas", county: "Hudspeth",
-    acres: 20, ownerName: "County Tax Sale", ownerType: "tax_delinquent",
-    askingPrice: 3200, offerPrice: 3200, estimatedValue: 14000,
-    source: "tax_deed", status: "closed", marketType: "off_market",
-    mailedDate: null, responseDate: null, followUpCount: 0,
-    notes: "Won at county auction. Deed recorded. Ready for subdivision into 4 x 5-acre lots.", apn: "HC-2204-009",
-    roadAccess: true, waterRights: false, titleClear: true, taxDelinquent: true, yearsDelinquent: 3, campaignId: null,
-  },
-  {
-    id: "a4", title: "Costilla County Mountain View", state: "Colorado", county: "Costilla",
-    acres: 35, ownerName: "James Franklin", ownerType: "absentee",
-    askingPrice: null, offerPrice: 12000, estimatedValue: 38000,
-    source: "direct_mail", status: "responded", marketType: "off_market",
-    mailedDate: "2026-05-01", responseDate: "2026-05-20", followUpCount: 1,
-    notes: "Owner called, interested. Wants $18K. Counter at $14K. Motivated — paying taxes on land he never uses.", apn: "CC-3305-011",
-    roadAccess: true, waterRights: true, titleClear: true, taxDelinquent: false, yearsDelinquent: null, campaignId: "c4",
-  },
-  {
-    id: "a5", title: "Cochise County Desert Flat", state: "Arizona", county: "Cochise",
-    acres: 40, ownerName: "Southwest Holdings LLC", ownerType: "corporate",
-    askingPrice: 22000, offerPrice: 10000, estimatedValue: 28000,
-    source: "absentee_list", status: "dead", marketType: "off_market",
-    mailedDate: "2026-04-05", responseDate: null, followUpCount: 2,
-    notes: "No road access. Landlocked. Passed after due diligence.", apn: "CO-5501-007",
-    roadAccess: false, waterRights: false, titleClear: true, taxDelinquent: false, yearsDelinquent: null, campaignId: null,
-  },
-  {
-    id: "a6", title: "Luna County 60-Acre", state: "New Mexico", county: "Luna",
-    acres: 60, ownerName: "Patricia Moore", ownerType: "absentee",
-    askingPrice: null, offerPrice: 9000, estimatedValue: 30000,
-    source: "cold_call", status: "under_contract", marketType: "off_market",
-    mailedDate: null, responseDate: "2026-05-10", followUpCount: 2,
-    notes: "Verbal agreement at $11K. Purchase agreement sent. Title search in progress. Closing target: June 15.", apn: "LN-7702-015",
-    roadAccess: true, waterRights: false, titleClear: false, taxDelinquent: false, yearsDelinquent: null, campaignId: "c5",
-  },
-  {
-    id: "a7", title: "Mohave County Split Candidate", state: "Arizona", county: "Mohave",
-    acres: 100, ownerName: "Tax Delinquent Sale", ownerType: "tax_delinquent",
-    askingPrice: 8500, offerPrice: 8500, estimatedValue: 65000,
-    source: "tax_deed", status: "researching", marketType: "off_market",
-    mailedDate: null, responseDate: null, followUpCount: 0,
-    notes: "Upcoming auction June 15. Minor split possible (4 x 25 acres). Checking road access and zoning.", apn: "MH-1103-022",
-    roadAccess: true, waterRights: false, titleClear: false, taxDelinquent: true, yearsDelinquent: 5, campaignId: null,
-  },
-  {
-    id: "a8", title: "Valencia County 10-Acre", state: "New Mexico", county: "Valencia",
-    acres: 10, ownerName: "Robert & Helen Shaw", ownerType: "absentee",
-    askingPrice: null, offerPrice: 4000, estimatedValue: 12000,
-    source: "driving_for_dollars", status: "mailed", marketType: "off_market",
-    mailedDate: "2026-05-25", responseDate: null, followUpCount: 0,
-    notes: "Found vacant lot with overgrown vegetation. Looked up owner — lives in California. Sent yellow letter.", apn: "VL-9901-004",
-    roadAccess: true, waterRights: false, titleClear: true, taxDelinquent: false, yearsDelinquent: null, campaignId: null,
-  },
-];
+const sourceConfig: Record<string, { label: string; icon: typeof Mail }> = {
+  ZILLOW_LAND: { label: "Zillow Land", icon: Search },
+  LGBS: { label: "LGBS Tax Sale", icon: Gavel },
+  MVBA: { label: "MVBA Tax Sale", icon: Gavel },
+  PBFCM: { label: "PBFCM Tax Sale", icon: Gavel },
+  default: { label: "Scraped Lead", icon: Search },
+};
+function srcCfg(s: string | null) {
+  return sourceConfig[(s || "").toUpperCase()] || sourceConfig.default;
+}
 
-const statusConfig: Record<AcqStatus, { label: string; bg: string; text: string }> = {
-  researching: { label: "Researching", bg: "rgba(142,209,223,0.1)", text: "#8ed1df" },
-  mailed: { label: "Mailed", bg: "rgba(168,130,255,0.1)", text: "#a882ff" },
-  responded: { label: "Responded", bg: "rgba(255,180,60,0.1)", text: "#ffb43c" },
-  negotiating: { label: "Negotiating", bg: "rgba(255,150,50,0.1)", text: "#ff9632" },
-  under_contract: { label: "Under Contract", bg: "rgba(80,220,140,0.1)", text: "#50dc8c" },
-  closed: { label: "Closed", bg: "rgba(80,220,140,0.15)", text: "#30c070" },
-  dead: { label: "Dead", bg: "rgba(255,80,80,0.1)", text: "#ff5050" },
+const ownerTypeLabel: Record<OwnerType, { label: string; color: string }> = {
+  absentee: { label: "Absentee", color: "#a882ff" },
+  estate: { label: "Estate", color: "#ffb43c" },
+  corporate: { label: "Corporate", color: "#8ed1df" },
+  tax_delinquent: { label: "Tax Delinquent", color: "#ff5050" },
+  local: { label: "Local", color: "#50dc8c" },
 };
 
-const sourceConfig: Record<AcqSource, { label: string; icon: typeof Mail }> = {
-  tax_deed: { label: "Tax Deed", icon: Gavel },
-  direct_mail: { label: "Direct Mail", icon: Mail },
-  cold_call: { label: "Cold Call", icon: Target },
-  absentee_list: { label: "Absentee List", icon: Search },
-  wholesaler: { label: "Wholesaler", icon: Target },
-  driving_for_dollars: { label: "Driving for $$$", icon: Eye },
-};
+const PAGE_SIZE = 60;
 
 export default function AcquisitionsPage() {
-  const [tab, setTab] = useState<"pipeline" | "campaigns">("pipeline");
-  const [filter, setFilter] = useState<string>("all");
+  const [leads, setLeads] = useState<TaxLeadRow[]>([]);
+  const [total, setTotal] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const [tab, setTab] = useState<"pipeline" | "predictor">("pipeline");
+  const [viewType, setViewType] = useState<"list" | "kanban">("list");
+  const [stateFilter, setStateFilter] = useState<string>("all");
+  const [sort, setSort] = useState<"best" | "flip" | "ownerfinance" | "recent">("best");
+  const [search, setSearch] = useState("");
+  const [searchInput, setSearchInput] = useState("");
+  const [srcFilter, setSrcFilter] = useState<"all" | "tax" | "national" | "zillow">("all");
   const [selected, setSelected] = useState<string | null>(null);
+  const [page, setPage] = useState(0);
+  const [rates, setRates] = useState<Record<string, number>>({});
+  const [catalysts, setCatalysts] = useState<Set<string>>(new Set());
+  const [stats, setStats] = useState<null | {
+    total: number; evaluable: number; states: number; counties: number; taxCount: number;
+    score45: number; score70: number; score90: number; struckOff: number; withOwner: number;
+  }>(null);
 
-  const filtered = filter === "all" ? acquisitions : acquisitions.filter(a => a.status === filter);
-  const sel = acquisitions.find(a => a.id === selected);
-  const offMarketCount = acquisitions.filter(a => a.marketType === "off_market").length;
+  useEffect(() => {
+    const sp = new URLSearchParams(window.location.search);
+    const q = sp.get("q");
+    if (q) { setSearch(q); setSearchInput(q); }
+    const src = sp.get("src");
+    if (src === "tax" || src === "national" || src === "zillow") setSrcFilter(src);
+  }, []);
 
-  const pipeline = acquisitions.filter(a => !["closed", "dead"].includes(a.status));
-  const pipelineValue = pipeline.reduce((s, a) => s + a.estimatedValue, 0);
-  const totalMailSent = campaigns.reduce((s, c) => s + c.totalSent, 0);
-  const totalResponses = campaigns.reduce((s, c) => s + c.responded, 0);
-  const responseRate = totalMailSent > 0 ? ((totalResponses / totalMailSent) * 100).toFixed(1) : "0";
-  const closedDeals = acquisitions.filter(a => a.status === "closed");
-  const totalSaved = closedDeals.reduce((s, a) => s + (a.estimatedValue - a.offerPrice), 0);
-  const mailCost = campaigns.reduce((s, c) => s + c.totalSent * c.costPerLetter, 0);
+  useEffect(() => {
+    fetch("/api/acquisition-stats").then(r => r.json()).then(setStats).catch(() => {});
+    fetch("/api/market-rates").then(r => r.json()).then((j) => {
+      const m: Record<string, number> = {};
+      (j.rates || []).forEach((r: { state: string; perAcre: number }) => { m[r.state] = r.perAcre; });
+      setRates(m);
+    }).catch(() => {});
+    fetch("/api/growth-catalysts").then(r => r.json()).then((j) => setCatalysts(new Set(j.counties || []))).catch(() => {});
+  }, []);
+
+  const isCatalyst = (l: TaxLeadRow): boolean => {
+    const st = l.state && /^[A-Za-z]{2}$/.test(l.state) ? l.state.toUpperCase() : (l.state ? FULL2[l.state] : null);
+    return !!st && !!l.county && catalysts.has(`${st}/${l.county.toUpperCase().replace(/ COUNTY$/i, "").trim()}`);
+  };
+
+  const [chips, setChips] = useState({ catalyst: false, top: false, struck: false, starred: false });
+
+  // Deal tracking (#6 lifecycle · #7 watchlist · #8 outreach · #9 portfolio)
+  type Track = { lead_id: string; stage?: string; starred?: boolean; notes?: string; max_offer?: number | null; acquired_cost?: number | null; list_price?: number | null; sold_price?: number | null };
+  const [tracking, setTracking] = useState<Record<string, Track>>({});
+  useEffect(() => {
+    if (!leads.length) return;
+    supabase.from("deal_tracking").select("*").in("lead_id", leads.map(l => l.id)).then(({ data }) => {
+      const m: Record<string, Track> = {};
+      (data as Track[] | null)?.forEach(t => { m[t.lead_id] = t; });
+      setTracking(prev => ({ ...prev, ...m }));
+    });
+  }, [leads]);
+  const saveTrack = async (leadId: string, patch: Partial<Track>) => {
+    const next = { ...(tracking[leadId] || { lead_id: leadId }), ...patch, lead_id: leadId };
+    setTracking(p => ({ ...p, [leadId]: next }));
+    await supabase.from("deal_tracking").upsert({ ...next, updated_at: new Date().toISOString() }, { onConflict: "lead_id" });
+  };
+  const STAGES: [string, string][] = [["new", "Yeni"], ["researching", "Araştırılıyor"], ["offer", "Teklif verildi"], ["won", "Kazanıldı"], ["owned", "Sahipli"], ["listed", "Listede"], ["sold", "Satıldı"], ["dead", "Vazgeçildi"]];
+
+  // #10 County Playbook — eyalet bazlı tax-sale kuralı (almadan önce bilinmesi gereken)
+  const STATE_RULES: Record<string, { type: string; redemption: string; tip: string }> = {
+    TX: { type: "Tax Deed (redeemable)", redemption: "6 ay (genel) / 2 yıl (homestead+tarım)", tip: "Redeem edilirse %25-50 ceza alırsın — yine de kârlı çıkabilirsin." },
+    FL: { type: "Tax Deed", redemption: "Deed sonrası yok (lien aşamasında var)", tip: "Tiny lot çok; $/acre yanıltır, mutlak değere bak." },
+    GA: { type: "Redeemable Deed", redemption: "12 ay (%20 premium)", tip: "Barment bildirimi ile redemption süresini kısaltabilirsin." },
+    TN: { type: "Tax Deed", redemption: "1 yıl", tip: "Mahkeme onayı sonrası 1 yıl redemption." },
+    AZ: { type: "Tax Lien", redemption: "3 yıl, sonra foreclose", tip: "Lien al, 3 yıl sonra deed için dava." },
+    CO: { type: "Tax Lien", redemption: "3 yıl", tip: "Lien faizi yüksek; deed nadir." },
+    NM: { type: "Tax Deed", redemption: "Yok", tip: "Temiz deed — redemption riski düşük." },
+    NC: { type: "Upset-bid", redemption: "10 gün upset-bid dönemi", tip: "Teklifin 10 gün açık artırılabilir." },
+    NY: { type: "Değişken (county)", redemption: "County'ye göre", tip: "Her county farklı; kuralı doğrula." },
+    LA: { type: "Tax Sale (redeemable)", redemption: "3 yıl", tip: "Adjudicated property ucuz ama redemption uzun." },
+    MD: { type: "Tax Lien", redemption: "6 ay", tip: "Lien sonrası foreclosure davası gerekir." },
+  };
+  const [ddLive, setDdLive] = useState<Record<string, { loading?: boolean; road?: string; roadNote?: string; flood?: string } | undefined>>({});
+
+  // Investor-ready one-page deal sheet (print / PDF).
+  const printDealSheet = (l: TaxLeadRow) => {
+    const score = l.final_score ?? l.deal_score;
+    const grade = score != null ? gradeOf(score).letter : "—";
+    const disc = l.discount_pct != null ? `-${l.discount_pct}%` : "—";
+    const cv = compValue(l);
+    const row = (k: string, v: string) => `<tr><td style="padding:6px 0;color:#5b6472">${k}</td><td style="padding:6px 0;text-align:right;font-weight:700">${v}</td></tr>`;
+    const html = `<!doctype html><html><head><meta charset="utf-8"><title>Deal Sheet — ${l.county}, ${l.state}</title>
+    <style>body{font-family:-apple-system,Inter,Arial,sans-serif;color:#0a1a3f;max-width:720px;margin:32px auto;padding:0 24px}
+    .hd{display:flex;justify-content:space-between;align-items:center;border-bottom:3px solid #0a1a3f;padding-bottom:16px}
+    .badge{width:64px;height:64px;border-radius:50%;border:4px solid #0f9d58;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:800;color:#0f9d58}
+    h1{margin:18px 0 2px;font-size:22px} .sub{color:#5b6472;margin:0 0 18px}
+    table{width:100%;border-collapse:collapse;font-size:14px} h2{font-size:13px;text-transform:uppercase;letter-spacing:1px;color:#0e7d97;margin:22px 0 6px}
+    .tag{display:inline-block;background:#eef4ff;color:#0e7d97;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700;margin-right:6px}
+    .foot{margin-top:32px;color:#9aa3b2;font-size:11px;border-top:1px solid #e5e9f0;padding-top:12px}</style></head>
+    <body>
+    <div class="hd"><div><div style="font-size:13px;letter-spacing:3px;font-weight:800;color:#0a1a3f">CERBERUS · TERRALOT</div><div style="color:#5b6472;font-size:12px">Off-Market Land Deal Sheet</div></div>
+    <div class="badge">${grade}</div></div>
+    <h1>${l.county}, ${l.state}</h1><p class="sub">${l.property_address || l.acres ? `${l.acres ?? "—"} acres` : "Parsel"} · ${l.source?.replace(/^TAX:/, "").replace(/:/g, " · ") || ""}</p>
+    ${isCatalyst(l) ? '<span class="tag">🏭 Megaproje county</span>' : ""}${/STRUCK/i.test(l.source || "") ? '<span class="tag">Struck-off (rakipsiz)</span>' : ""}
+    <h2>Finansal</h2><table>
+    ${row("Minimum teklif", l.minimum_bid != null ? "$" + l.minimum_bid.toLocaleString() : "—")}
+    ${row("Tahmini değer (judgment)", l.judgment_amount != null ? "$" + l.judgment_amount.toLocaleString() : "—")}
+    ${row("İndirim", disc)}
+    ${row("Tahmini kâr", l.savings != null ? "+$" + l.savings.toLocaleString() : "—")}
+    ${cv ? row("Comp piyasa değeri (×$/acre)", "$" + cv.toLocaleString()) : ""}
+    </table>
+    <h2>Skor sinyalleri</h2><table>
+    ${row("Cerberus skoru", (score ?? "—") + "/100 (" + grade + ")")}
+    ${row("Likidite (talep)", (l.liquidity_score ?? "—") + "/100" + (l.county_pop_growth != null ? " · nüfus " + (l.county_pop_growth * 100).toFixed(1) + "%" : ""))}
+    ${row("Yol durumu", l.dd_checked ? (l.road_access === "landlocked" ? "Landlocked (riskli)" : l.road_access || "—") : "Taranmadı")}
+    ${row("Sahip", l.owner_name || "—")}
+    ${row("APN", l.apn || "—")}
+    ${l.sale_date ? row("Satış tarihi", l.sale_date) : ""}
+    </table>
+    <div class="foot">Cerberus deal-sourcing engine tarafından üretildi · ${new Date().toLocaleDateString("tr-TR")} · Veriler kamuya açık vergi-satış kayıtlarından, doğrulama alıcının sorumluluğundadır.</div>
+    </body></html>`;
+    const w = window.open("", "_blank");
+    if (!w) return;
+    w.document.write(html); w.document.close();
+    setTimeout(() => w.print(), 400);
+  };
+
+  const runDDLive = async (l: TaxLeadRow) => {
+    if (!l.lat || !l.lng) return;
+    setDdLive(p => ({ ...p, [l.id]: { loading: true } }));
+    try {
+      const r = await fetch(`/api/dd-check?lat=${l.lat}&lon=${l.lng}`);
+      const j = await r.json();
+      setDdLive(p => ({ ...p, [l.id]: { road: j.road?.accessType, roadNote: j.road?.accessNote, flood: j.flood?.riskLabel } }));
+    } catch {
+      setDdLive(p => ({ ...p, [l.id]: { road: "error" } }));
+    }
+  };
+  const [exporting, setExporting] = useState(false);
+  const exportCSV = async () => {
+    setExporting(true);
+    const { data } = await supabase
+      .from("tax_delinquent_properties")
+      .select("final_score,deal_score,discount_pct,savings,state,county,apn,owner_name,property_address,acres,minimum_bid,judgment_amount,road_access,source,sale_date,raw_url")
+      .order("final_score", { ascending: false, nullsFirst: false })
+      .limit(500);
+    const rows = (data as TaxLeadRow[]) || [];
+    const cols = ["grade", "final_score", "discount_pct", "savings", "state", "county", "apn", "owner_name", "property_address", "acres", "minimum_bid", "judgment_amount", "road_access", "megaproject", "source", "sale_date", "raw_url"];
+    const esc = (v: unknown) => { const s = v == null ? "" : String(v); return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+    const lines = [cols.join(",")];
+    for (const r of rows) {
+      const grade = r.final_score != null ? gradeOf(r.final_score).letter : "";
+      lines.push([grade, r.final_score, r.discount_pct, r.savings, r.state, r.county, r.apn, r.owner_name, r.property_address, r.acres, r.minimum_bid, r.judgment_amount, r.road_access, isCatalyst(r) ? "yes" : "", r.source, r.sale_date, r.raw_url].map(esc).join(","));
+    }
+    const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `terralot-top-deals-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    setExporting(false);
+  };
+
+  // Direct-mail list: only contactable owners with a real mailing address.
+  const [mailExporting, setMailExporting] = useState(false);
+  const exportMailList = async () => {
+    setMailExporting(true);
+    const { data } = await supabase
+      .from("tax_delinquent_properties")
+      .select("owner_name,owner_address,county,state,apn,minimum_bid,judgment_amount,final_score,sale_date,source")
+      .not("owner_name", "is", null).not("owner_address", "is", null)
+      .order("final_score", { ascending: false, nullsFirst: false })
+      .limit(2000);
+    const junk = /no owner|no address|n\/a|^unknown|absentee|county tax/i;
+    const rows = ((data as TaxLeadRow[]) || []).filter(r => r.owner_address && !junk.test(r.owner_address) && r.owner_name && !junk.test(r.owner_name));
+    const parseAddr = (a: string) => {
+      const p = a.split(",").map(s => s.trim());
+      const zip = p.length && /\d{5}/.test(p[p.length - 1]) ? p.pop()! : "";
+      const st = p.length && /^[A-Z]{2}$/.test(p[p.length - 1]) ? p.pop()! : "";
+      const street = p.shift() || "";
+      const city = p.join(", ");
+      return { street, city, st, zip };
+    };
+    const cols = ["owner_name", "mail_street", "mail_city", "mail_state", "mail_zip", "property_county", "property_state", "apn", "min_bid", "value", "grade", "sale_date"];
+    const esc = (v: unknown) => { const s = v == null ? "" : String(v); return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+    const lines = [cols.join(",")];
+    for (const r of rows) {
+      const m = parseAddr(r.owner_address!);
+      const grade = r.final_score != null ? gradeOf(r.final_score).letter : "";
+      lines.push([r.owner_name, m.street, m.city, m.st, m.zip, r.county, r.state, r.apn, r.minimum_bid, r.judgment_amount, grade, r.sale_date].map(esc).join(","));
+    }
+    const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = `terralot-mail-list-${new Date().toISOString().slice(0, 10)}.csv`; a.click();
+    URL.revokeObjectURL(url);
+    setMailExporting(false);
+  };
+
+  // Comp value from acreage × state retail $/acre (only when we have both).
+  const FULL2: Record<string, string> = { Texas: "TX", Florida: "FL", Georgia: "GA", Tennessee: "TN", "North Carolina": "NC", "New York": "NY", Arizona: "AZ", "New Mexico": "NM", Colorado: "CO", California: "CA", Arkansas: "AR", Nevada: "NV", Kentucky: "KY" };
+  const compValue = (l: TaxLeadRow): number | null => {
+    if (!l.acres || l.acres <= 0) return null;
+    const st = l.state && /^[A-Za-z]{2}$/.test(l.state) ? l.state.toUpperCase() : (l.state ? FULL2[l.state] : null);
+    const rate = st ? rates[st] : null;
+    return rate ? Math.round(l.acres * rate) : null;
+  };
+
+  // ROI predictor (a planning calculator — not stored data)
+  const [lettersSim, setLettersSim] = useState(1000);
+  const [responsePctSim, setResponsePctSim] = useState(1.5);
+  const [convPctSim, setConvPctSim] = useState(10);
+  const [acqCostSim, setAcqCostSim] = useState(3000);
+  const [marketValSim, setMarketValSim] = useState(15000);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      setLoading(true);
+      setError(null);
+      let query = supabase
+        .from("tax_delinquent_properties")
+        .select("*", { count: "exact" });
+      const orderCol = sort === "flip" ? "flip_score" : sort === "ownerfinance" ? "ownerfinance_score" : sort === "best" ? "final_score" : null;
+      query = orderCol
+        ? query.order(orderCol, { ascending: false, nullsFirst: false }).order("deal_score", { ascending: false, nullsFirst: false })
+        : query.order("created_at", { ascending: false });
+      query = query.range(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE - 1);
+      if (stateFilter !== "all") query = query.eq("state", stateFilter);
+      const srcPat = srcFilter === "tax" ? "TAX:%" : srcFilter === "national" ? "SOCRATA:%" : srcFilter === "zillow" ? "ZILLOW%" : null;
+      if (srcPat) query = query.like("source", srcPat);
+      if (search.trim()) {
+        const q = search.trim().replace(/[%,]/g, "");
+        query = query.or(`county.ilike.%${q}%,owner_name.ilike.%${q}%,apn.ilike.%${q}%`);
+      }
+
+      const { data, count, error: err } = await query;
+      if (cancelled) return;
+      if (err) {
+        setError(err.message);
+        setLeads([]);
+      } else {
+        setLeads((data as TaxLeadRow[]) || []);
+        setTotal(count ?? 0);
+        if (data && data.length && !selected) setSelected((data[0] as TaxLeadRow).id);
+      }
+      setLoading(false);
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page, stateFilter, sort, search, srcFilter]);
+
+  const states = useMemo(() => {
+    const s = new Set<string>();
+    leads.forEach(l => l.state && s.add(l.state));
+    return Array.from(s).sort();
+  }, [leads]);
+
+  const sel = leads.find(l => l.id === selected) || leads[0];
+
+  // Predictor
+  const simResponses = Math.round(lettersSim * (responsePctSim / 100));
+  const simDeals = Math.round(simResponses * (convPctSim / 100));
+  const totalSimCost = lettersSim * 0.85;
+  const totalSimAcqCost = simDeals * acqCostSim;
+  const totalProjectedValue = simDeals * marketValSim;
+  const netProjectedProfit = totalProjectedValue - (totalSimCost + totalSimAcqCost);
+
+  const fmt = (n: number | null | undefined) => (n == null ? "—" : `$${n.toLocaleString()}`);
 
   return (
     <div className="p-6 space-y-6">
@@ -175,269 +353,489 @@ export default function AcquisitionsPage() {
           <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--muted)" }}>Off-Market Land Hunting</p>
           <h1 className="text-2xl font-bold mt-1">Acquisition Pipeline</h1>
           <p className="text-xs mt-1 flex items-center gap-1.5" style={{ color: "var(--muted)" }}>
-            <EyeOff className="w-3 h-3" /> {offMarketCount}/{acquisitions.length} deals are off-market
+            <EyeOff className="w-3 h-3" /> {total.toLocaleString()} scraped leads · live from <code className="font-mono">tax_delinquent_properties</code>
           </p>
         </div>
-        <button className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold" style={{ background: "var(--primary)", color: "#000" }}>
-          <Plus className="w-4 h-4" /> New Lead
-        </button>
-      </div>
-
-      {/* Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
-        {[
-          { label: "Pipeline Value", value: `$${pipelineValue.toLocaleString()}`, icon: DollarSign, color: "var(--primary)" },
-          { label: "Active Leads", value: pipeline.length.toString(), icon: Target, color: "#a882ff" },
-          { label: "Mail Sent", value: totalMailSent.toLocaleString(), icon: Send, color: "#ffb43c" },
-          { label: "Response Rate", value: `${responseRate}%`, icon: BarChart3, color: "#8ed1df" },
-          { label: "Equity Captured", value: `$${totalSaved.toLocaleString()}`, icon: TrendingUp, color: "#50dc8c" },
-        ].map(s => (
-          <div key={s.label} className="rounded-xl p-4 border" style={{ background: "var(--surface)", borderColor: "rgba(255,255,255,0.05)" }}>
-            <div className="flex items-center gap-2 mb-2">
-              <s.icon className="w-4 h-4" style={{ color: s.color }} />
-              <span className="text-xs" style={{ color: "var(--muted)" }}>{s.label}</span>
-            </div>
-            <p className="text-xl font-bold">{s.value}</p>
-          </div>
-        ))}
-      </div>
-
-      {/* Tab Toggle */}
-      <div className="flex gap-2">
-        {(["pipeline", "campaigns"] as const).map(t => (
-          <button key={t} onClick={() => setTab(t)}
-            className="px-4 py-2 rounded-lg text-xs font-semibold transition-colors capitalize"
-            style={{ background: tab === t ? "var(--primary)" : "var(--surface)", color: tab === t ? "#000" : "var(--muted)" }}>
-            {t === "pipeline" ? "Deal Pipeline" : "Mail Campaigns"}
+        <div className="flex items-center gap-2">
+          <button onClick={exportMailList} disabled={mailExporting} className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all hover:opacity-90 active:scale-95 disabled:opacity-60 border" style={{ borderColor: "var(--outline)", color: "var(--foreground)" }}>
+            {mailExporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Mail className="w-4 h-4" />} Mail Listesi
           </button>
-        ))}
+          <button onClick={exportCSV} disabled={exporting} className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all hover:opacity-90 active:scale-95 disabled:opacity-60 border" style={{ borderColor: "var(--outline)", color: "var(--foreground)" }}>
+            {exporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <ExternalLink className="w-4 h-4" />} Export CSV (top 500)
+          </button>
+          <button className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all hover:opacity-90 active:scale-95" style={{ background: "var(--primary)", color: "#fff" }}>
+            <Plus className="w-4 h-4" /> New Lead
+          </button>
+        </div>
       </div>
 
-      {tab === "campaigns" ? (
-        <div className="space-y-4">
-          <div className="rounded-xl border p-4" style={{ background: "var(--surface)", borderColor: "rgba(255,255,255,0.05)" }}>
-            <div className="flex items-center justify-between mb-3">
-              <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--muted)" }}>Campaign Performance</p>
-              <p className="text-xs" style={{ color: "var(--muted)" }}>Total mail cost: <strong style={{ color: "var(--foreground)" }}>${mailCost.toLocaleString()}</strong></p>
+      {/* Sourcing funnel — real coverage from the whole dataset */}
+      {stats && (
+        <div className="rounded-xl border p-5" style={{ background: "var(--surface)", borderColor: "rgba(255,255,255,0.05)" }}>
+          <div className="flex items-center justify-between mb-4">
+            <p className="text-xs font-bold uppercase tracking-widest" style={{ color: "var(--muted)" }}>Sourcing Funnel</p>
+            <p className="text-[11px]" style={{ color: "var(--muted)" }}>
+              {stats.states} states · {stats.counties.toLocaleString()} counties scanned · {stats.struckOff.toLocaleString()} struck-off · {stats.withOwner.toLocaleString()} contactable
+            </p>
+          </div>
+          <div className="flex items-stretch gap-1.5 overflow-x-auto">
+            {[
+              { label: "Records scraped", value: stats.total, color: "#8ed1df" },
+              { label: "Evaluable", value: stats.evaluable, color: "#a882ff" },
+              { label: "Deals (45+)", value: stats.score45, color: "#ffb43c" },
+              { label: "Hot (70+)", value: stats.score70, color: "#50dc8c" },
+              { label: "Elite (90+)", value: stats.score90, color: "#30c070" },
+            ].map((f, i, arr) => (
+              <div key={f.label} className="flex items-center gap-1.5 flex-shrink-0">
+                <div className="rounded-lg px-4 py-3 min-w-[120px]" style={{ background: "var(--surface-low)", borderLeft: `3px solid ${f.color}` }}>
+                  <p className="text-2xl font-extrabold font-mono" style={{ color: f.color }}>{f.value.toLocaleString()}</p>
+                  <p className="text-[10px] mt-0.5" style={{ color: "var(--muted)" }}>{f.label}</p>
+                </div>
+                {i < arr.length - 1 && <span className="text-stone-600 text-lg">→</span>}
+              </div>
+            ))}
+          </div>
+          <p className="text-[11px] mt-3" style={{ color: "var(--muted)" }}>
+            {stats.total.toLocaleString()} kayıttan <strong style={{ color: "#50dc8c" }}>{stats.score70.toLocaleString()} sıcak fırsat</strong> süzüldü — deal_score ile sıralı, en iyiler altta.
+          </p>
+        </div>
+      )}
+
+      {/* Tabs + filters */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-[var(--surface-low)] p-2 rounded-xl border" style={{ borderColor: "var(--outline)" }}>
+        <div className="flex gap-1.5">
+          {([["pipeline", "Lead Pipeline"], ["predictor", "ROI Predictor"]] as const).map(([t, label]) => (
+            <button key={t} onClick={() => setTab(t)}
+              className="px-4 py-2 rounded-lg text-xs font-bold transition-all uppercase tracking-wider"
+              style={{ background: tab === t ? "var(--primary)" : "transparent", color: tab === t ? "#fff" : "var(--muted)" }}>
+              {label}
+            </button>
+          ))}
+        </div>
+
+        {tab === "pipeline" && (
+          <div className="flex items-center gap-2">
+            <div className="flex gap-1 rounded-lg border p-0.5" style={{ background: "var(--surface)", borderColor: "var(--outline)" }}>
+              {([["best", "🔥 Best"], ["flip", "💸 Flip"], ["ownerfinance", "🏦 O.Finance"], ["recent", "Recent"]] as const).map(([k, label]) => (
+                <button key={k} onClick={() => { setSort(k); setPage(0); }}
+                  className="px-3 py-1.5 rounded-md text-xs font-semibold transition-colors"
+                  style={{ background: sort === k ? "rgba(142,209,223,0.1)" : "transparent", color: sort === k ? "var(--primary)" : "var(--muted)" }}>
+                  {label}
+                </button>
+              ))}
             </div>
-            <div className="space-y-3">
-              {campaigns.map(c => {
-                const responseRate = ((c.responded / c.totalSent) * 100).toFixed(1);
-                const roi = c.closed > 0 ? "Active" : "Pending";
-                return (
-                  <div key={c.id} className="rounded-lg p-4 border" style={{ background: "var(--surface-low)", borderColor: "rgba(255,255,255,0.05)" }}>
-                    <div className="flex items-center justify-between mb-3">
-                      <div>
-                        <h3 className="font-semibold text-sm">{c.name}</h3>
-                        <p className="text-[10px] flex items-center gap-1 mt-0.5" style={{ color: "var(--muted)" }}>
-                          <MapPin className="w-3 h-3" /> {c.targetCounty}, {c.targetState} · {c.sentDate}
-                        </p>
-                      </div>
-                      <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full" style={{
-                        background: c.listType === "tax_delinquent" ? "rgba(255,80,80,0.1)" : c.listType === "absentee" ? "rgba(168,130,255,0.1)" : "rgba(142,209,223,0.1)",
-                        color: c.listType === "tax_delinquent" ? "#ff5050" : c.listType === "absentee" ? "#a882ff" : "#8ed1df",
-                      }}>
-                        {c.listType.replace("_", " ")}
-                      </span>
-                    </div>
-                    <div className="grid grid-cols-5 gap-3 text-xs text-center">
-                      <div><p style={{ color: "var(--muted)" }}>Sent</p><p className="font-bold text-lg">{c.totalSent}</p></div>
-                      <div><p style={{ color: "var(--muted)" }}>Responded</p><p className="font-bold text-lg" style={{ color: "#ffb43c" }}>{c.responded}</p></div>
-                      <div><p style={{ color: "var(--muted)" }}>Response %</p><p className="font-bold text-lg" style={{ color: "#8ed1df" }}>{responseRate}%</p></div>
-                      <div><p style={{ color: "var(--muted)" }}>Under Contract</p><p className="font-bold text-lg" style={{ color: "#a882ff" }}>{c.underContract}</p></div>
-                      <div><p style={{ color: "var(--muted)" }}>Closed</p><p className="font-bold text-lg" style={{ color: "#50dc8c" }}>{c.closed}</p></div>
-                    </div>
-                    {/* Funnel bar */}
-                    <div className="mt-3 h-2 rounded-full overflow-hidden flex" style={{ background: "rgba(255,255,255,0.05)" }}>
-                      <div className="h-full" style={{ width: `${(c.responded / c.totalSent) * 100}%`, background: "#ffb43c" }} />
-                      <div className="h-full" style={{ width: `${(c.underContract / c.totalSent) * 100}%`, background: "#a882ff" }} />
-                      <div className="h-full" style={{ width: `${(c.closed / c.totalSent) * 100}%`, background: "#50dc8c" }} />
-                    </div>
-                    <div className="flex justify-between text-[10px] mt-1" style={{ color: "var(--muted)" }}>
-                      <span>Cost: ${(c.totalSent * c.costPerLetter).toFixed(0)}</span>
-                      <span>Cost per response: ${c.responded > 0 ? ((c.totalSent * c.costPerLetter) / c.responded).toFixed(2) : "—"}</span>
-                    </div>
-                  </div>
-                );
-              })}
+            <form onSubmit={(e) => { e.preventDefault(); setPage(0); setSearch(searchInput); }} className="relative">
+              <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2" style={{ color: "var(--muted)" }} />
+              <input value={searchInput} onChange={(e) => setSearchInput(e.target.value)} placeholder="County / owner / APN ara…"
+                className="bg-[var(--surface)] border rounded-lg pl-8 pr-3 py-1.5 text-xs outline-none w-48" style={{ borderColor: "var(--outline)", color: "var(--foreground)" }} />
+              {search && <button type="button" onClick={() => { setSearch(""); setSearchInput(""); setPage(0); }} className="absolute right-2 top-1/2 -translate-y-1/2 text-xs" style={{ color: "var(--muted)" }}>✕</button>}
+            </form>
+            <select value={srcFilter} onChange={e => { setSrcFilter(e.target.value as typeof srcFilter); setPage(0); }}
+              className="bg-[var(--surface)] border rounded-lg px-3 py-1.5 text-xs outline-none" style={{ borderColor: "var(--outline)", color: "var(--foreground)" }}>
+              <option value="all">Tüm kaynaklar</option>
+              <option value="tax">Tax · TX</option>
+              <option value="national">National</option>
+              <option value="zillow">Zillow</option>
+            </select>
+            <select value={stateFilter} onChange={e => { setStateFilter(e.target.value); setPage(0); }}
+              className="bg-[var(--surface)] border rounded-lg px-3 py-1.5 text-xs outline-none" style={{ borderColor: "var(--outline)", color: "var(--foreground)" }}>
+              <option value="all">All states (page)</option>
+              {states.map(s => <option key={s} value={s}>{s}</option>)}
+            </select>
+            <div className="flex gap-1 rounded-lg border p-0.5" style={{ background: "var(--surface)", borderColor: "var(--outline)" }}>
+              {(["list", "kanban"] as const).map(vt => (
+                <button key={vt} onClick={() => setViewType(vt)}
+                  className="px-3 py-1.5 rounded-md text-xs font-semibold transition-colors capitalize"
+                  style={{ background: viewType === vt ? "rgba(142,209,223,0.1)" : "transparent", color: viewType === vt ? "var(--primary)" : "var(--muted)" }}>
+                  <span className="flex items-center gap-1.5">
+                    {vt === "kanban" ? <LayoutGrid className="w-3.5 h-3.5" /> : <Search className="w-3.5 h-3.5" />}
+                    {vt}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {error && (
+        <div className="rounded-lg p-3 text-sm" style={{ background: "rgba(255,80,80,0.08)", color: "#ff5050", border: "1px solid rgba(255,80,80,0.2)" }}>
+          Supabase error: {error}
+        </div>
+      )}
+
+      {loading ? (
+        <div className="flex items-center justify-center py-24 text-sm gap-2" style={{ color: "var(--muted)" }}>
+          <Loader2 className="w-4 h-4 animate-spin" /> Loading real leads…
+        </div>
+      ) : tab === "predictor" ? (
+        <div className="max-w-md">
+          {/* Campaign ROI Predictor — a planning calculator, clearly not stored data */}
+          <div className="rounded-xl border p-5 space-y-4" style={{ background: "var(--surface)", borderColor: "var(--outline)" }}>
+            <h3 className="font-bold text-sm flex items-center gap-2">
+              <Calculator className="w-4 h-4 text-[var(--primary)]" />
+              <span>Campaign ROI Predictor</span>
+            </h3>
+            <p className="text-[11px]" style={{ color: "var(--muted)" }}>Planning tool — assumptions you enter, not stored deal data.</p>
+            <div className="space-y-3 text-xs">
+              <div>
+                <label className="block mb-1 text-stone-400">Total Letters to Send</label>
+                <input type="number" value={lettersSim} onChange={e => setLettersSim(Number(e.target.value))}
+                  className="w-full bg-[var(--surface-low)] border rounded p-2 outline-none" style={{ borderColor: "var(--outline)" }} />
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="block mb-1 text-stone-400">Response Rate (%)</label>
+                  <input type="number" step="0.1" value={responsePctSim} onChange={e => setResponsePctSim(Number(e.target.value))}
+                    className="w-full bg-[var(--surface-low)] border rounded p-2 outline-none" style={{ borderColor: "var(--outline)" }} />
+                </div>
+                <div>
+                  <label className="block mb-1 text-stone-400">Purchase Rate (%)</label>
+                  <input type="number" step="0.5" value={convPctSim} onChange={e => setConvPctSim(Number(e.target.value))}
+                    className="w-full bg-[var(--surface-low)] border rounded p-2 outline-none" style={{ borderColor: "var(--outline)" }} />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="block mb-1 text-stone-400">Avg Buy Offer ($)</label>
+                  <input type="number" value={acqCostSim} onChange={e => setAcqCostSim(Number(e.target.value))}
+                    className="w-full bg-[var(--surface-low)] border rounded p-2 outline-none" style={{ borderColor: "var(--outline)" }} />
+                </div>
+                <div>
+                  <label className="block mb-1 text-stone-400">Avg Market Val ($)</label>
+                  <input type="number" value={marketValSim} onChange={e => setMarketValSim(Number(e.target.value))}
+                    className="w-full bg-[var(--surface-low)] border rounded p-2 outline-none" style={{ borderColor: "var(--outline)" }} />
+                </div>
+              </div>
+              <div className="border-t pt-4 mt-2 space-y-2.5" style={{ borderColor: "var(--outline)" }}>
+                <div className="flex justify-between"><span className="text-stone-400">Mail Cost ($0.85/pc)</span><span className="font-semibold">${totalSimCost.toLocaleString()}</span></div>
+                <div className="flex justify-between"><span className="text-stone-400">Est. Owner Responses</span><span className="font-semibold text-amber-500">{simResponses} calls</span></div>
+                <div className="flex justify-between"><span className="text-stone-400">Est. Deals Closed</span><span className="font-semibold text-emerald-400">{simDeals} properties</span></div>
+                <div className="flex justify-between"><span className="text-stone-400">Acquisition Capital</span><span className="font-semibold">${totalSimAcqCost.toLocaleString()}</span></div>
+                <div className="flex justify-between"><span className="text-stone-400">Projected Market Value</span><span className="font-semibold">${totalProjectedValue.toLocaleString()}</span></div>
+                <div className="p-3 rounded-lg text-center mt-2" style={{ background: netProjectedProfit >= 0 ? "rgba(16,185,129,0.08)" : "rgba(239,68,68,0.08)", border: netProjectedProfit >= 0 ? "1px solid rgba(16,185,129,0.2)" : "1px solid rgba(239,68,68,0.2)" }}>
+                  <p className="text-[10px] uppercase tracking-wider text-stone-400 font-bold">Estimated Campaign Profit</p>
+                  <p className="text-xl font-extrabold font-mono" style={{ color: netProjectedProfit >= 0 ? "var(--success)" : "var(--error)" }}>${netProjectedProfit.toLocaleString()}</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
+      ) : viewType === "kanban" ? (
+        /* Kanban grouped by owner type (a real attribute we can derive) */
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 overflow-x-auto pb-4">
+          {(["tax_delinquent", "absentee", "estate", "corporate", "local"] as OwnerType[]).map(ot => {
+            const group = leads.filter(l => deriveOwnerType(l) === ot);
+            const cfg = ownerTypeLabel[ot];
+            return (
+              <div key={ot} className="rounded-xl border flex flex-col min-w-[200px] h-[550px]" style={{ background: "var(--surface)", borderColor: "var(--outline)" }}>
+                <div className="p-3 border-b flex justify-between items-center" style={{ borderColor: "rgba(255,255,255,0.05)", background: "var(--surface-low)" }}>
+                  <span className="text-[10px] font-extrabold uppercase tracking-wider" style={{ color: cfg.color }}>{cfg.label}</span>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded" style={{ background: "rgba(255,255,255,0.05)", color: "var(--muted)" }}>{group.length}</span>
+                </div>
+                <div className="flex-1 p-2 overflow-y-auto space-y-2.5">
+                  {group.map(l => {
+                    const active = selected === l.id;
+                    return (
+                      <div key={l.id} onClick={() => setSelected(l.id)}
+                        className="rounded-lg p-3 border cursor-pointer transition-all hover:translate-y-[-1px] active:scale-[0.98]"
+                        style={{ background: active ? "rgba(142,209,223,0.04)" : "var(--surface-high)", borderColor: active ? "var(--primary)" : "rgba(255,255,255,0.05)" }}>
+                        <h4 className="font-semibold text-xs text-stone-200 truncate">{deriveTitle(l)}</h4>
+                        <p className="text-[10px] text-stone-400 mt-1 flex items-center gap-1"><MapPin className="w-3 h-3 text-stone-500" /> {l.county}, {l.state}</p>
+                        <div className="flex items-center justify-between text-[10px] text-stone-500 mt-3 pt-2 border-t" style={{ borderColor: "rgba(255,255,255,0.02)" }}>
+                          <span>{l.acres ?? "—"} ac</span>
+                          <span className="text-emerald-400 font-bold">{fmt(l.minimum_bid)}</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                  {group.length === 0 && <div className="text-center text-[10px] text-stone-600 italic py-12">None on this page</div>}
+                </div>
+              </div>
+            );
+          })}
+        </div>
       ) : (
-        <>
-          {/* Pipeline Funnel */}
-          <div className="rounded-xl border p-5" style={{ background: "var(--surface)", borderColor: "rgba(255,255,255,0.05)" }}>
-            <p className="text-xs font-semibold uppercase tracking-wider mb-3" style={{ color: "var(--muted)" }}>Pipeline Funnel</p>
-            <div className="flex gap-2">
-              {(["researching", "mailed", "responded", "negotiating", "under_contract", "closed"] as AcqStatus[]).map(status => {
-                const count = acquisitions.filter(a => a.status === status).length;
-                const st = statusConfig[status];
-                return (
-                  <div key={status} className="flex-1 rounded-lg p-3 text-center cursor-pointer transition-all hover:scale-[1.02]"
-                    style={{ background: st.bg }} onClick={() => setFilter(filter === status ? "all" : status)}>
-                    <p className="text-lg font-bold" style={{ color: st.text }}>{count}</p>
-                    <p className="text-[10px] font-semibold uppercase" style={{ color: st.text }}>{st.label}</p>
-                  </div>
-                );
-              })}
+        /* List view */
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 space-y-3">
+            <div className="flex gap-2 flex-wrap">
+              {([["catalyst", "🔥 Megaproje"], ["top", "A+ · A"], ["struck", "Struck-off"], ["starred", "⭐ Takipte"]] as const).map(([k, label]) => (
+                <button key={k} onClick={() => setChips(c => ({ ...c, [k]: !c[k] }))}
+                  className="text-[11px] font-semibold px-2.5 py-1 rounded-full border transition-colors"
+                  style={{ borderColor: chips[k] ? "var(--accent-ink)" : "var(--outline)", background: chips[k] ? "rgba(14,125,151,0.1)" : "transparent", color: chips[k] ? "var(--accent-ink)" : "var(--muted)" }}>
+                  {label}
+                </button>
+              ))}
             </div>
-          </div>
-
-          {/* Filters */}
-          <div className="flex gap-2 flex-wrap">
-            {[
-              { key: "all", label: "All" },
-              ...Object.entries(statusConfig).map(([k, v]) => ({ key: k, label: v.label })),
-            ].map(f => (
-              <button key={f.key} onClick={() => setFilter(f.key)}
-                className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors"
-                style={{ background: filter === f.key ? "var(--primary)" : "var(--surface)", color: filter === f.key ? "#000" : "var(--muted)" }}>
-                {f.label}
-              </button>
-            ))}
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Lead List */}
-            <div className="lg:col-span-2 space-y-3">
-              {filtered.map(a => {
-                const st = statusConfig[a.status];
-                const src = sourceConfig[a.source];
-                const margin = a.estimatedValue - a.offerPrice;
-                const marginPct = Math.round((margin / a.offerPrice) * 100);
-                const active = selected === a.id;
-                return (
-                  <button key={a.id} onClick={() => setSelected(a.id)}
-                    className="w-full text-left rounded-xl p-4 border transition-all"
-                    style={{ background: active ? "rgba(142,209,223,0.04)" : "var(--surface)", borderColor: active ? "var(--primary)" : "rgba(255,255,255,0.05)" }}>
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <h3 className="font-semibold text-sm">{a.title}</h3>
-                        {a.marketType === "off_market" && (
-                          <span className="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded" style={{ background: "rgba(255,80,80,0.1)", color: "#ff5050" }}>
-                            <EyeOff className="w-2.5 h-2.5 inline mr-0.5" />OFF MKT
-                          </span>
-                        )}
-                      </div>
-                      <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full" style={{ background: st.bg, color: st.text }}>
-                        {st.label}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-3 text-xs mb-2" style={{ color: "var(--muted)" }}>
-                      <span className="flex items-center gap-1"><MapPin className="w-3 h-3" /> {a.county}, {a.state}</span>
-                      <span>{a.acres} acres</span>
-                      <span className="flex items-center gap-1"><src.icon className="w-3 h-3" /> {src.label}</span>
-                      {a.taxDelinquent && <span className="text-[10px] font-bold" style={{ color: "#ff5050" }}>TAX DELINQ.</span>}
-                    </div>
-                    <div className="flex items-center gap-4 text-xs">
-                      <span>Offer: <strong>${a.offerPrice.toLocaleString()}</strong></span>
-                      <span>Est. Value: <strong>${a.estimatedValue.toLocaleString()}</strong></span>
-                      <span style={{ color: "#50dc8c" }}>Margin: <strong>+{marginPct}% (${margin.toLocaleString()})</strong></span>
-                      {a.followUpCount > 0 && <span style={{ color: "var(--muted)" }}>{a.followUpCount} follow-ups</span>}
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Detail */}
-            <div>
-              {sel ? (() => {
-                const st = statusConfig[sel.status];
-                const src = sourceConfig[sel.source];
-                const margin = sel.estimatedValue - sel.offerPrice;
-                const marginPct = Math.round((margin / sel.offerPrice) * 100);
-                const campaign = sel.campaignId ? campaigns.find(c => c.id === sel.campaignId) : null;
-                return (
-                  <div className="rounded-xl border p-5 space-y-4" style={{ background: "var(--surface)", borderColor: "rgba(255,255,255,0.05)" }}>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <h3 className="font-bold text-lg">{sel.title}</h3>
-                        {sel.marketType === "off_market" && <EyeOff className="w-4 h-4" style={{ color: "#ff5050" }} />}
-                      </div>
-                      <p className="text-sm mt-1" style={{ color: "var(--muted)" }}>{sel.county}, {sel.state} · {sel.acres} acres</p>
-                    </div>
-
-                    <div className="flex gap-2 flex-wrap">
-                      <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full" style={{ background: st.bg, color: st.text }}>{st.label}</span>
-                      <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full" style={{ background: "rgba(142,209,223,0.1)", color: "#8ed1df" }}>
-                        <src.icon className="w-3 h-3 inline mr-1" />{src.label}
-                      </span>
-                      {sel.taxDelinquent && (
-                        <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full" style={{ background: "rgba(255,80,80,0.1)", color: "#ff5050" }}>
-                          Tax Delinquent {sel.yearsDelinquent ? `(${sel.yearsDelinquent}yr)` : ""}
-                        </span>
+            {leads.filter(l => (!chips.catalyst || isCatalyst(l)) && (!chips.top || ((l.final_score ?? l.deal_score ?? 0) >= 70)) && (!chips.struck || /STRUCK/i.test(l.source || "")) && (!chips.starred || tracking[l.id]?.starred)).map(l => {
+              const ot = deriveOwnerType(l);
+              const src = srcCfg(l.source);
+              const active = selected === l.id;
+              return (
+                <button key={l.id} onClick={() => setSelected(l.id)}
+                  className="w-full text-left rounded-xl p-4 border transition-all"
+                  style={{ background: active ? "rgba(142,209,223,0.04)" : "var(--surface)", borderColor: active ? "var(--primary)" : "rgba(255,255,255,0.05)" }}>
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <ScoreBadge score={sort === "flip" ? l.flip_score : sort === "ownerfinance" ? l.ownerfinance_score : (l.final_score ?? l.deal_score)} size={34} />
+                      <h3 className="font-semibold text-sm">{deriveTitle(l)}</h3>
+                      {l.road_access === "landlocked" && (
+                        <span className="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded" style={{ background: "rgba(255,80,80,0.12)", color: "#ff5050" }}>LANDLOCKED</span>
+                      )}
+                      {l.flood_score != null && l.flood_score >= 80 && (
+                        <span className="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded" style={{ background: "rgba(80,150,255,0.12)", color: "#5096ff" }}>FLOOD</span>
+                      )}
+                      {/STRUCK/i.test(l.source || "") && (
+                        <span className="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded" style={{ background: "rgba(168,130,255,0.12)", color: "#a882ff" }}>STRUCK OFF</span>
+                      )}
+                      {isCatalyst(l) && (
+                        <span className="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded" style={{ background: "rgba(15,157,88,0.14)", color: "var(--grade-a)" }}>🔥 MEGAPROJE</span>
+                      )}
+                      {tracking[l.id]?.starred && <Star className="w-3 h-3" style={{ color: "#ffb43c", fill: "#ffb43c" }} />}
+                      {tracking[l.id]?.stage && tracking[l.id]?.stage !== "new" && (
+                        <span className="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded" style={{ background: "var(--surface-high)", color: "var(--accent-ink)" }}>{STAGES.find(s => s[0] === tracking[l.id]?.stage)?.[1]}</span>
                       )}
                     </div>
-
-                    <div className="grid grid-cols-2 gap-3 text-xs">
-                      <div><p style={{ color: "var(--muted)" }}>Owner</p><p className="font-semibold">{sel.ownerName}</p></div>
-                      <div><p style={{ color: "var(--muted)" }}>Owner Type</p><p className="font-semibold capitalize">{sel.ownerType.replace("_", " ")}</p></div>
-                      <div><p style={{ color: "var(--muted)" }}>APN</p><p className="font-mono font-semibold">{sel.apn}</p></div>
-                      <div><p style={{ color: "var(--muted)" }}>Follow-ups</p><p className="font-semibold">{sel.followUpCount}</p></div>
-                    </div>
-
-                    {/* Financials */}
-                    <div className="p-3 rounded-lg" style={{ background: "rgba(80,220,140,0.06)", border: "1px solid rgba(80,220,140,0.15)" }}>
-                      <div className="grid grid-cols-3 gap-2 text-xs text-center">
-                        <div><p style={{ color: "var(--muted)" }}>Offer</p><p className="font-bold">${sel.offerPrice.toLocaleString()}</p></div>
-                        <div><p style={{ color: "var(--muted)" }}>Est. Value</p><p className="font-bold">${sel.estimatedValue.toLocaleString()}</p></div>
-                        <div><p style={{ color: "#50dc8c" }}>Margin</p><p className="font-bold" style={{ color: "#50dc8c" }}>+{marginPct}%</p></div>
-                      </div>
-                    </div>
-
-                    {/* Due Diligence */}
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: "var(--muted)" }}>Due Diligence</p>
-                      <div className="space-y-1.5">
-                        {[
-                          { label: "Road Access", ok: sel.roadAccess },
-                          { label: "Water Rights", ok: sel.waterRights },
-                          { label: "Title Clear", ok: sel.titleClear },
-                        ].map(c => (
-                          <div key={c.label} className="flex items-center gap-2 text-xs">
-                            {c.ok ? <CheckCircle2 className="w-3.5 h-3.5" style={{ color: "#50dc8c" }} /> : <AlertTriangle className="w-3.5 h-3.5" style={{ color: "#ff5050" }} />}
-                            <span style={{ color: c.ok ? "var(--foreground)" : "#ff5050" }}>{c.label}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Campaign Link */}
-                    {campaign && (
-                      <div className="p-3 rounded-lg text-xs" style={{ background: "rgba(168,130,255,0.06)", border: "1px solid rgba(168,130,255,0.15)" }}>
-                        <p className="font-semibold" style={{ color: "#a882ff" }}>
-                          <Mail className="w-3 h-3 inline mr-1" /> Campaign: {campaign.name}
-                        </p>
-                        <p style={{ color: "var(--muted)" }} className="mt-1">
-                          {campaign.totalSent} sent · {campaign.responded} responses · {campaign.sentDate}
-                        </p>
-                      </div>
+                    <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full" style={{ background: `${ownerTypeLabel[ot].color}1a`, color: ownerTypeLabel[ot].color }}>
+                      {ownerTypeLabel[ot].label}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-3 text-xs mb-2 flex-wrap" style={{ color: "var(--muted)" }}>
+                    <span className="flex items-center gap-1"><MapPin className="w-3 h-3" /> {l.county}, {l.state}</span>
+                    <span>{l.acres ?? "—"} acres</span>
+                    <span className="flex items-center gap-1"><src.icon className="w-3 h-3" /> {src.label}</span>
+                  </div>
+                  <div className="flex items-center gap-4 text-xs flex-wrap">
+                    <span>Bid: <strong>{fmt(l.minimum_bid)}</strong></span>
+                    <span>Value: <strong>{fmt(l.judgment_amount)}</strong></span>
+                    {l.discount_pct != null && l.discount_pct > 0 && (
+                      <span style={{ color: "#50dc8c" }}>-{l.discount_pct}% · <strong>+{fmt(l.savings)}</strong></span>
                     )}
-
-                    {/* Timeline */}
-                    <div className="text-xs space-y-1 pt-3 border-t" style={{ borderColor: "rgba(255,255,255,0.05)" }}>
-                      {sel.mailedDate && <p style={{ color: "var(--muted)" }}><Mail className="w-3 h-3 inline mr-1" /> Mailed: {sel.mailedDate}</p>}
-                      {sel.responseDate && <p style={{ color: "var(--muted)" }}><CheckCircle2 className="w-3 h-3 inline mr-1" /> Response: {sel.responseDate}</p>}
-                    </div>
-
-                    {sel.notes && (
-                      <div className="p-3 rounded-lg text-xs" style={{ background: "rgba(255,255,255,0.03)", color: "var(--muted)" }}>
-                        <FileText className="w-3 h-3 inline mr-1" /> {sel.notes}
-                      </div>
+                    {l.county_pop_growth != null && (
+                      <span style={{ color: l.county_pop_growth >= 0.02 ? "#50dc8c" : l.county_pop_growth < 0 ? "#ff5050" : "var(--muted)" }}>
+                        {l.county_pop_growth >= 0 ? "📈" : "📉"} {(l.county_pop_growth * 100).toFixed(1)}% nüfus/5y
+                      </span>
+                    )}
+                    {l.sale_date && <span style={{ color: "#ffb43c" }}>Sale: <strong>{l.sale_date}</strong></span>}
+                    {l.confidence != null && (
+                      <span title="Veri güveni" style={{ color: l.confidence >= 70 ? "var(--muted)" : "#ffb43c" }}>
+                        🛈 %{l.confidence} güven
+                      </span>
                     )}
                   </div>
-                );
-              })() : (
-                <div className="rounded-xl border p-12 flex flex-col items-center justify-center text-center" style={{ background: "var(--surface)", borderColor: "rgba(255,255,255,0.05)" }}>
-                  <Target className="w-10 h-10 mb-3" style={{ color: "var(--muted)" }} />
-                  <p className="font-semibold">Select a lead</p>
-                  <p className="text-sm mt-1" style={{ color: "var(--muted)" }}>Click a lead to view details and due diligence</p>
-                </div>
-              )}
+                </button>
+              );
+            })}
+            {/* Pagination */}
+            <div className="flex items-center justify-between pt-2">
+              <button disabled={page === 0} onClick={() => setPage(p => Math.max(0, p - 1))}
+                className="px-3 py-1.5 rounded-lg text-xs font-semibold border disabled:opacity-40" style={{ borderColor: "var(--outline)" }}>← Prev</button>
+              <span className="text-xs" style={{ color: "var(--muted)" }}>Page {page + 1} / {Math.max(1, Math.ceil(total / PAGE_SIZE))}</span>
+              <button disabled={(page + 1) * PAGE_SIZE >= total} onClick={() => setPage(p => p + 1)}
+                className="px-3 py-1.5 rounded-lg text-xs font-semibold border disabled:opacity-40" style={{ borderColor: "var(--outline)" }}>Next →</button>
             </div>
           </div>
-        </>
+
+          {/* Detail sidebar */}
+          <div>
+            {sel ? (
+              <div className="rounded-xl border p-5 space-y-4 sticky top-6" style={{ background: "var(--surface)", borderColor: "rgba(255,255,255,0.05)" }}>
+                <div className="flex items-start gap-3">
+                  <ScoreBadge score={sel.final_score ?? sel.deal_score} size={46} />
+                  <div className="min-w-0">
+                    <h3 className="font-bold text-lg leading-tight">{deriveTitle(sel)}</h3>
+                    <p className="text-sm mt-0.5" style={{ color: "var(--muted)" }}>{sel.county}, {sel.state} · {sel.acres ?? "—"} acres</p>
+                  </div>
+                </div>
+
+                <div className="flex gap-2 flex-wrap">
+                  <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full" style={{ background: `${ownerTypeLabel[deriveOwnerType(sel)].color}1a`, color: ownerTypeLabel[deriveOwnerType(sel)].color }}>{ownerTypeLabel[deriveOwnerType(sel)].label}</span>
+                  <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full" style={{ background: "rgba(142,209,223,0.1)", color: "#8ed1df" }}>{srcCfg(sel.source).label}</span>
+                </div>
+
+                {/* Skor kırılımı — neden bu skor */}
+                <div className="rounded-lg p-3 space-y-1.5" style={{ background: "var(--surface-low)" }}>
+                  <p className="text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: "var(--muted)" }}>Skor sinyalleri</p>
+                  {[
+                    { k: "İndirim", ok: (sel.discount_pct ?? 0) >= 50, v: sel.discount_pct != null ? `-${sel.discount_pct}%` : "—" },
+                    { k: "Kâr", ok: (sel.savings ?? 0) >= 10000, v: sel.savings != null ? `+$${sel.savings.toLocaleString()}` : "—" },
+                    { k: "Likidite (talep)", ok: (sel.liquidity_score ?? 0) >= 50, v: sel.liquidity_score != null ? `${sel.liquidity_score}/100${sel.county_pop_growth != null ? ` · nüfus ${(sel.county_pop_growth * 100).toFixed(1)}%` : ""}` : "—" },
+                    { k: "Rekabet", ok: /STRUCK/i.test(sel.source || ""), v: /STRUCK/i.test(sel.source || "") ? "struck-off (rakipsiz)" : /^TAX:/.test(sel.source || "") ? "açık artırma" : "retail" },
+                    { k: "Sahip iletişimi", ok: !!sel.owner_name && !/absentee|unknown|county tax/i.test(sel.owner_name), v: sel.owner_name && !/absentee|unknown|county tax/i.test(sel.owner_name) ? "var ✓" : "yok" },
+                    ...(sel.dd_checked ? [{ k: "Yol", ok: sel.road_access !== "landlocked", v: sel.road_access === "landlocked" ? "landlocked ✗" : "erişim var ✓" }] : []),
+                  ].map((s) => (
+                    <div key={s.k} className="flex items-center justify-between text-[11px]">
+                      <span style={{ color: "var(--muted)" }}>{s.k}</span>
+                      <span className="font-semibold" style={{ color: s.ok ? "var(--grade-a)" : "var(--muted)" }}>{s.v}</span>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 text-xs">
+                  <div><p style={{ color: "var(--muted)" }}>Owner</p><p className="font-semibold">{sel.owner_name || "—"}</p></div>
+                  <div><p style={{ color: "var(--muted)" }}>APN</p><p className="font-mono font-semibold">{sel.apn || "—"}</p></div>
+                  <div className="col-span-2"><p style={{ color: "var(--muted)" }}>Owner Address</p><p className="font-semibold">{sel.owner_address || "—"}</p></div>
+                  <div className="col-span-2"><p style={{ color: "var(--muted)" }}>Property Address</p><p className="font-semibold">{sel.property_address || "—"}</p></div>
+                  <div><p style={{ color: "var(--muted)" }}>Case #</p><p className="font-mono font-semibold">{sel.case_number || "—"}</p></div>
+                  <div><p style={{ color: "var(--muted)" }}>Sale Date</p><p className="font-semibold">{sel.sale_date || "—"}</p></div>
+                </div>
+
+                <div className="p-3 rounded-lg" style={{ background: "rgba(80,220,140,0.06)", border: "1px solid rgba(80,220,140,0.15)" }}>
+                  <div className="grid grid-cols-2 gap-2 text-xs text-center">
+                    <div><p style={{ color: "var(--muted)" }}>Min Bid</p><p className="font-bold">{fmt(sel.minimum_bid)}</p></div>
+                    <div><p style={{ color: "var(--muted)" }}>Judgment</p><p className="font-bold">{fmt(sel.judgment_amount)}</p></div>
+                  </div>
+                  {(() => {
+                    const cv = compValue(sel);
+                    if (!cv) return null;
+                    const disc = sel.minimum_bid && sel.minimum_bid > 0 ? Math.round(((cv - sel.minimum_bid) / cv) * 100) : null;
+                    return (
+                      <div className="mt-2 pt-2 border-t flex items-center justify-between text-xs" style={{ borderColor: "rgba(80,220,140,0.18)" }}>
+                        <span style={{ color: "var(--muted)" }}>≈ Piyasa ({sel.acres} ac × $/acre)</span>
+                        <span className="font-bold">{fmt(cv)}{disc != null && disc > 0 && <span style={{ color: "var(--grade-a)" }}> · -{disc}%</span>}</span>
+                      </div>
+                    );
+                  })()}
+                  {(() => {
+                    // MAO = değerin %60'ı (yeniden satış maliyeti + marj bırakır)
+                    const arv = compValue(sel) ?? sel.judgment_amount;
+                    if (!arv || arv <= 0) return null;
+                    const mao = Math.round(arv * 0.6);
+                    const ok = sel.minimum_bid != null && sel.minimum_bid <= mao;
+                    return (
+                      <div className="mt-2 pt-2 border-t" style={{ borderColor: "rgba(80,220,140,0.18)" }}>
+                        <div className="flex items-center justify-between text-xs">
+                          <span style={{ color: "var(--muted)" }}>🎯 Max teklif (MAO)</span>
+                          <span className="font-extrabold" style={{ color: "var(--accent-ink)" }}>{fmt(mao)}</span>
+                        </div>
+                        {sel.minimum_bid != null && (
+                          <p className="text-[10px] mt-0.5" style={{ color: ok ? "var(--grade-a)" : "var(--danger)" }}>
+                            {ok ? `✓ Min teklif (${fmt(sel.minimum_bid)}) MAO altında — kârlı aralık` : `⚠ Min teklif (${fmt(sel.minimum_bid)}) MAO üstünde — dikkat`}
+                          </p>
+                        )}
+                      </div>
+                    );
+                  })()}
+                </div>
+
+                {/* Due diligence — real results when dd_checked, else honest pending */}
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wider mb-2 flex items-center gap-1.5" style={{ color: "var(--muted)" }}>
+                    <ShieldCheck className="w-3 h-3" /> Due Diligence {sel.dd_checked ? "" : "— bekliyor"}
+                  </p>
+                  {sel.dd_checked ? (
+                    <div className="space-y-1.5">
+                      <div className="flex items-center gap-2 text-xs">
+                        {sel.road_access === "landlocked"
+                          ? <><AlertTriangle className="w-3.5 h-3.5" style={{ color: "var(--danger)" }} /><span style={{ color: "var(--danger)" }}>Yol yok — landlocked (riskli)</span></>
+                          : <><CheckCircle2 className="w-3.5 h-3.5" style={{ color: "var(--grade-a)" }} /><span>Yol erişimi: <strong>{sel.road_access === "direct" ? "doğrudan" : sel.road_access === "near" ? "yakın" : sel.road_access}</strong></span></>}
+                      </div>
+                      <div className="flex items-center gap-2 text-xs">
+                        {sel.flood_score == null
+                          ? <span style={{ color: "var(--muted)" }}>Sel: kontrol edilemedi (ABD-dışı IP)</span>
+                          : sel.flood_score >= 80
+                            ? <><AlertTriangle className="w-3.5 h-3.5" style={{ color: "#5096ff" }} /><span style={{ color: "#5096ff" }}>Sel bölgesi (yüksek risk)</span></>
+                            : <><CheckCircle2 className="w-3.5 h-3.5" style={{ color: "var(--grade-a)" }} /><span>Sel riski düşük</span></>}
+                      </div>
+                    </div>
+                  ) : ddLive[sel.id] && !ddLive[sel.id]!.loading ? (
+                    <div className="space-y-1.5 text-xs">
+                      <div className="flex items-center gap-2">
+                        {ddLive[sel.id]!.road === "landlocked"
+                          ? <><AlertTriangle className="w-3.5 h-3.5" style={{ color: "var(--danger)" }} /><span style={{ color: "var(--danger)" }}>Yol yok — landlocked</span></>
+                          : <><CheckCircle2 className="w-3.5 h-3.5" style={{ color: "var(--grade-a)" }} /><span>Yol: <strong>{ddLive[sel.id]!.road}</strong></span></>}
+                      </div>
+                      <p style={{ color: "var(--muted)" }}>Sel riski: {ddLive[sel.id]!.flood || "—"}</p>
+                    </div>
+                  ) : (
+                    <>
+                      <p className="text-[11px] mb-2" style={{ color: "var(--muted)" }}>Bu lead henüz taranmadı.</p>
+                      {sel.lat && sel.lng && (
+                        <button onClick={() => runDDLive(sel)} disabled={ddLive[sel.id]?.loading}
+                          className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg border disabled:opacity-60" style={{ borderColor: "var(--accent-ink)", color: "var(--accent-ink)" }}>
+                          {ddLive[sel.id]?.loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ShieldCheck className="w-3.5 h-3.5" />} DD çalıştır (canlı)
+                        </button>
+                      )}
+                    </>
+                  )}
+                </div>
+
+                {sel.legal_description && (
+                  <div className="p-3 rounded-lg text-xs" style={{ background: "rgba(255,255,255,0.03)", color: "var(--muted)" }}>
+                    <FileText className="w-3 h-3 inline mr-1" /> {sel.legal_description}
+                  </div>
+                )}
+
+                {/* #10 Eyalet playbook — redemption / sale-type kuralı */}
+                {(() => {
+                  const st = sel.state && /^[A-Za-z]{2}$/.test(sel.state) ? sel.state.toUpperCase() : (sel.state ? FULL2[sel.state] : null);
+                  const rule = st ? STATE_RULES[st] : null;
+                  if (!rule) return null;
+                  return (
+                    <div className="rounded-lg p-3 text-xs" style={{ background: "rgba(255,180,60,0.08)", border: "1px solid rgba(255,180,60,0.2)" }}>
+                      <p className="font-bold mb-1" style={{ color: "var(--warn)" }}>📋 {st} kuralı · {rule.type}</p>
+                      <p style={{ color: "var(--muted)" }}><strong>Redemption:</strong> {rule.redemption}</p>
+                      <p className="mt-1" style={{ color: "var(--muted)" }}>{rule.tip}</p>
+                    </div>
+                  );
+                })()}
+
+                {/* Pipeline yönetimi — #6 lifecycle · #7 watchlist · #8 outreach · #9 P&L */}
+                {(() => {
+                  const t = tracking[sel.id] || { lead_id: sel.id };
+                  const owned = ["owned", "listed", "sold"].includes(t.stage || "");
+                  const profit = t.sold_price != null && t.acquired_cost != null ? t.sold_price - t.acquired_cost - (sel.minimum_bid ?? 0) * 0 : null;
+                  return (
+                    <div className="rounded-lg p-3 space-y-2.5" style={{ background: "var(--surface-low)" }}>
+                      <div className="flex items-center justify-between">
+                        <p className="text-[10px] font-bold uppercase tracking-wider" style={{ color: "var(--muted)" }}>Pipeline</p>
+                        <button onClick={() => saveTrack(sel.id, { starred: !t.starred })} title="Watchlist">
+                          <Star className="w-4 h-4" style={{ color: t.starred ? "#ffb43c" : "var(--muted)", fill: t.starred ? "#ffb43c" : "none" }} />
+                        </button>
+                      </div>
+                      <select value={t.stage || "new"} onChange={e => saveTrack(sel.id, { stage: e.target.value })}
+                        className="w-full bg-[var(--surface)] border rounded-lg px-2 py-1.5 text-xs outline-none" style={{ borderColor: "var(--outline)" }}>
+                        {STAGES.map(([k, l]) => <option key={k} value={k}>{l}</option>)}
+                      </select>
+                      <input type="number" placeholder="Max teklifim ($)" defaultValue={t.max_offer ?? ""} onBlur={e => saveTrack(sel.id, { max_offer: e.target.value ? Number(e.target.value) : null })}
+                        className="w-full bg-[var(--surface)] border rounded-lg px-2 py-1.5 text-xs outline-none" style={{ borderColor: "var(--outline)" }} />
+                      <textarea placeholder="Not…" defaultValue={t.notes ?? ""} onBlur={e => saveTrack(sel.id, { notes: e.target.value })} rows={2}
+                        className="w-full bg-[var(--surface)] border rounded-lg px-2 py-1.5 text-xs outline-none resize-none" style={{ borderColor: "var(--outline)" }} />
+                      {owned && (
+                        <div className="space-y-1.5 pt-1 border-t" style={{ borderColor: "var(--outline)" }}>
+                          <div className="grid grid-cols-3 gap-1.5">
+                            <input type="number" placeholder="Alış $" defaultValue={t.acquired_cost ?? ""} onBlur={e => saveTrack(sel.id, { acquired_cost: e.target.value ? Number(e.target.value) : null })} className="bg-[var(--surface)] border rounded px-1.5 py-1 text-[11px] outline-none" style={{ borderColor: "var(--outline)" }} />
+                            <input type="number" placeholder="Liste $" defaultValue={t.list_price ?? ""} onBlur={e => saveTrack(sel.id, { list_price: e.target.value ? Number(e.target.value) : null })} className="bg-[var(--surface)] border rounded px-1.5 py-1 text-[11px] outline-none" style={{ borderColor: "var(--outline)" }} />
+                            <input type="number" placeholder="Satış $" defaultValue={t.sold_price ?? ""} onBlur={e => saveTrack(sel.id, { sold_price: e.target.value ? Number(e.target.value) : null })} className="bg-[var(--surface)] border rounded px-1.5 py-1 text-[11px] outline-none" style={{ borderColor: "var(--outline)" }} />
+                          </div>
+                          {profit != null && <p className="text-xs font-bold" style={{ color: profit >= 0 ? "var(--grade-a)" : "var(--danger)" }}>Kâr: {profit >= 0 ? "+" : ""}{fmt(profit)}</p>}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()}
+
+                <button onClick={() => printDealSheet(sel)}
+                  className="flex items-center justify-center gap-2 w-full py-2.5 rounded-lg text-sm font-semibold transition-all hover:opacity-90" style={{ background: "var(--primary)", color: "#fff" }}>
+                  <FileText className="w-3.5 h-3.5" /> Deal Sheet (Yazdır / PDF)
+                </button>
+                {sel.raw_url && (
+                  <a href={sel.raw_url} target="_blank" rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-2 w-full py-2.5 rounded-lg text-sm font-semibold transition-all hover:opacity-90" style={{ background: "var(--surface-high)", color: "var(--foreground)" }}>
+                    <ExternalLink className="w-3.5 h-3.5" /> View source listing
+                  </a>
+                )}
+              </div>
+            ) : (
+              <div className="rounded-xl border p-12 flex flex-col items-center justify-center text-center" style={{ background: "var(--surface)", borderColor: "rgba(255,255,255,0.05)" }}>
+                <Target className="w-10 h-10 mb-3" style={{ color: "var(--muted)" }} />
+                <p className="font-semibold">Select a lead</p>
+                <p className="text-sm mt-1" style={{ color: "var(--muted)" }}>Click a lead to view details</p>
+              </div>
+            )}
+          </div>
+        </div>
       )}
     </div>
   );

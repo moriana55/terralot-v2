@@ -108,7 +108,7 @@ export default function SubdivisionsPage() {
           <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--muted)" }}>Land Splits</p>
           <h1 className="text-2xl font-bold mt-1">Subdivision Tracker</h1>
         </div>
-        <button className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold" style={{ background: "var(--primary)", color: "#000" }}>
+        <button className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold" style={{ background: "var(--primary)", color: "#fff" }}>
           <Plus className="w-4 h-4" /> New Split
         </button>
       </div>

@@ -1,0 +1,47 @@
+name: Zillow Land Scraper
+
+on:
+  schedule:
+    # Her gün saat 08:00 UTC (Türkiye 11:00) çalışır
+    - cron: '0 8 * * *'
+  # Elle de çalıştırabilirsin
+  workflow_dispatch:
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Restore database
+        uses: actions/cache@v4
+        with:
+          path: zillow_listings.db
+          key: zillow-db-${{ github.run_number }}
+          restore-keys: |
+            zillow-db-
+
+      - name: Run scraper
+        env:
+          RAPIDAPI_KEY: ${{ secrets.RAPIDAPI_KEY }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          PRICE_DROP_THRESHOLD: 5
+        run: node scraper.js
+
+      - name: Upload database as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: zillow-database-${{ github.run_number }}
+          path: zillow_listings.db
+          retention-days: 30

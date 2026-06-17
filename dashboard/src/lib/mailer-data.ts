@@ -154,4 +154,10 @@ export const LETTER_TEMPLATES: { id: string; name: string; type: MailType; previ
     type: "follow_up",
     preview: "Hi {{owner_name}},\n\nI reached out a few weeks ago about your property in {{county}}. I wanted to follow up — our offer still stands and we're flexible on terms.\n\nIf you've thought about it, I'd love to chat.\n\nBest,\nTerraLot Team",
   },
+  {
+    id: "tpl5",
+    name: "Legal Purchase Agreement (All-Cash Offer)",
+    type: "offer_letter",
+    preview: "REAL ESTATE PURCHASE CONTRACT (ALL-CASH OFFER)\n\n1. PARTIES: TerraLot Acquisitions LLC (\"Buyer\") agrees to buy, and {{owner_name}} (\"Seller\") agrees to sell the property described below.\n2. PROPERTY DESCRIPTION: Land parcel located in {{county}} County, {{state}}, APN: {{apn}}.\n3. PURCHASE PRICE: Buyer shall pay Seller at closing: ${{offer_amount}} (All-Cash, no financing contingencies).\n4. CLOSING: Closing shall occur within 30 days. Title and escrow fees to be split equally.\n5. CONVEYANCE: Seller warrants marketable title, free of liens, conveyed by General Warranty Deed.\n\nSELLER SIGNATURE: _______________________ DATE: _________\n\nBUYER SIGNATURE: TerraLot Acquisitions Authorized Signatory",
+  },
 ];

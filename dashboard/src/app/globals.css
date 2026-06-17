@@ -14,6 +14,19 @@
   --success: #006c49;
   --outline: #c6c6cd;
   --muted: #45464d;
+
+  /* Brand accent — cyan. -ink variants are readable as TEXT on white. */
+  --accent: #8ed1df;
+  --accent-ink: #0e7d97;
+  --warn: #b9770a;
+  --danger: #ba1a1a;
+  --ink: #0a1a3f;
+
+  /* Deal grade scale (readable on light surfaces) */
+  --grade-a: #0f9d58;   /* A+/A — strong buy */
+  --grade-b: #0e7d97;   /* B — solid */
+  --grade-c: #b9770a;   /* C — marginal */
+  --grade-d: #8a8b92;   /* D — skip */
 }
 
 body {
