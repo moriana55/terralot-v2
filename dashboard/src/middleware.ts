@@ -19,6 +19,27 @@ const PUBLIC_API = [
 const isPublicApi = (req: NextRequest) =>
   PUBLIC_API.some((p) => req.nextUrl.pathname === p || req.nextUrl.pathname.startsWith(p + "/"));
 
+// Cron-authenticated machine endpoints: a scheduled job can't carry the admin
+// gate cookie or a Clerk session, so it authenticates with a bearer CRON_SECRET.
+// We let such a request bypass the page/gate auth ONLY when CRON_SECRET is set
+// AND the presented token matches (constant-time) — fail closed otherwise. The
+// route handler re-verifies the secret, so this is defense-in-depth, not the
+// sole check. Currently only the scraper→dashboard sync endpoint opts in.
+const CRON_ENDPOINTS = ["/api/admin/sync-deals"];
+function cronBearerOk(req: NextRequest): boolean {
+  const secret = process.env.CRON_SECRET;
+  if (!secret) return false;
+  if (!CRON_ENDPOINTS.some((p) => req.nextUrl.pathname === p)) return false;
+  const header = req.headers.get("authorization") || "";
+  const fromHeader = header.startsWith("Bearer ") ? header.slice(7).trim() : "";
+  const fromQuery = req.nextUrl.searchParams.get("secret") || "";
+  const presented = fromHeader || fromQuery;
+  if (!presented || presented.length !== secret.length) return false;
+  let out = 0;
+  for (let i = 0; i < presented.length; i++) out |= presented.charCodeAt(i) ^ secret.charCodeAt(i);
+  return out === 0;
+}
+
 // Protect admin/investor pages AND all API routes EXCEPT the public allowlist.
 const isProtectedRoute = (req: NextRequest) =>
   !isPublicApi(req) && matchProtected(req);
@@ -26,6 +47,7 @@ const matchProtected = createRouteMatcher(["/admin(.*)", "/investor(.*)", "/buye
 const isApi = (req: NextRequest) => req.nextUrl.pathname.startsWith("/api/");
 
 async function gateMiddleware(req: NextRequest) {
+  if (cronBearerOk(req)) return NextResponse.next(); // valid CRON_SECRET bearer
   if (!isProtectedRoute(req)) return NextResponse.next();
   const cookie = req.cookies.get(GATE_COOKIE)?.value;
   // Fail closed: if the token can't be derived (e.g. SESSION_SECRET missing),
@@ -46,6 +68,7 @@ async function gateMiddleware(req: NextRequest) {
 }
 
 const clerk = clerkMiddleware(async (auth, req) => {
+  if (cronBearerOk(req)) return; // valid CRON_SECRET bearer → machine access
   if (isProtectedRoute(req)) await auth.protect();
 });
 
@@ -69,7 +92,9 @@ function denyUnconfigured(req: NextRequest): NextResponse {
 export default function middleware(req: NextRequest, ev: NextFetchEvent) {
   if (clerkIsReal()) return clerk(req, ev);
   if (gateEnabled()) return gateMiddleware(req);
-  // No real auth configured: allow public routes, deny anything protected.
+  // No real auth configured: a valid cron bearer may still reach its endpoint
+  // (the route re-checks the secret); otherwise allow public, deny protected.
+  if (cronBearerOk(req)) return NextResponse.next();
   if (isProtectedRoute(req)) return denyUnconfigured(req);
   return NextResponse.next();
 }

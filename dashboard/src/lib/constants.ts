@@ -15,3 +15,9 @@ export const DD_OVERPASS_TIMEOUT_MS = 4000;
 // Hot-counties / catalysts result caps (src/app/api/hot-counties/route.ts)
 export const HOT_COUNTIES_CAP = 25;
 export const HOT_STATES_CAP = 20;
+
+// Scraper → dashboard sync (src/app/api/admin/sync-deals/route.ts)
+// Hard cap on rows accepted per import so a hostile/buggy payload can't exhaust
+// memory or hammer Supabase. Batches are upserted in chunks of this size.
+export const SYNC_MAX_ROWS = 5000;
+export const SYNC_BATCH_SIZE = 200;

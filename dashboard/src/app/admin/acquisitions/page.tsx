@@ -578,7 +578,22 @@ export default function AcquisitionsPage() {
                 </button>
               ))}
             </div>
-            {leads.filter(l => (!chips.catalyst || isCatalyst(l)) && (!chips.top || ((l.final_score ?? l.deal_score ?? 0) >= 70)) && (!chips.struck || /STRUCK/i.test(l.source || "")) && (!chips.starred || tracking[l.id]?.starred)).map(l => {
+            {(() => {
+              const listFiltered = leads.filter(l => (!chips.catalyst || isCatalyst(l)) && (!chips.top || ((l.final_score ?? l.deal_score ?? 0) >= 70)) && (!chips.struck || /STRUCK/i.test(l.source || "")) && (!chips.starred || tracking[l.id]?.starred));
+              if (listFiltered.length === 0) {
+                return (
+                  <div className="text-center py-16 px-6 rounded-xl border border-dashed" style={{ borderColor: "var(--outline)" }}>
+                    <Search className="w-7 h-7 mx-auto mb-3" style={{ color: "var(--muted)" }} />
+                    <p className="text-sm font-semibold mb-1">{leads.length === 0 ? "Bu sayfada lead yok" : "Filtrelerle eşleşen lead yok"}</p>
+                    <p className="text-xs" style={{ color: "var(--muted)" }}>
+                      {leads.length === 0
+                        ? "Arama/eyalet filtresini gevşet ya da scraper senkronunu çalıştır (/api/admin/sync-deals)."
+                        : "Üstteki chip filtrelerini (Megaproje / A+ / Struck-off / Takipte) temizle."}
+                    </p>
+                  </div>
+                );
+              }
+              return listFiltered.map(l => {
               const ot = deriveOwnerType(l);
               const src = srcCfg(l.source);
               const active = selected === l.id;
@@ -636,7 +651,8 @@ export default function AcquisitionsPage() {
                   </div>
                 </button>
               );
-            })}
+              });
+            })()}
             {/* Pagination */}
             <div className="flex items-center justify-between pt-2">
               <button disabled={page === 0} onClick={() => setPage(p => Math.max(0, p - 1))}

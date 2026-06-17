@@ -11,15 +11,19 @@ export default function DealsPage() {
   const [deals, setDeals] = useState<any[]>([]);
   const [contacts, setContacts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [view, setView] = useState<"pipeline" | "table">("pipeline");
   const [matchDealId, setMatchDealId] = useState<string | null>(null);
   const [confirmId, setConfirmId] = useState<string | null>(null);
 
   useEffect(() => {
     Promise.all([
-      fetch("/api/admin/deals?ordered=1").then(r => r.json()).catch(() => ({ deals: [] })),
+      fetch("/api/admin/deals?ordered=1").then(r => r.json()).catch(() => ({ deals: [], error: "Deal API'sine ulaşılamadı" })),
       fetch("/api/admin/contacts?view=brief").then(r => r.json()).catch(() => ({ contacts: [] })),
-    ]).then(([{ deals: d }, { contacts: c }]) => {
+    ]).then(([dRes, cRes]) => {
+      const { deals: d, error: dErr } = dRes;
+      const { contacts: c } = cRes;
+      if (dErr) setError(dErr);
       setDeals(d?.map((x: any) => ({ ...x, status: x.status?.toLowerCase() })) ?? []);
       setContacts(c ?? []);
       setLoading(false);
@@ -56,6 +60,21 @@ export default function DealsPage() {
               <button onClick={() => deleteDeal(confirmId)} className="flex-1 py-2 rounded-lg text-sm font-semibold" style={{ background: "var(--error)", color: "white" }}>Delete</button>
             </div>
           </div>
+        </div>
+      )}
+
+      {error && (
+        <div className="rounded-lg p-3 text-sm mb-6 flex items-center gap-2" style={{ background: "rgba(255,80,80,0.08)", color: "#ff5050", border: "1px solid rgba(255,80,80,0.2)" }}>
+          {error}
+        </div>
+      )}
+
+      {!error && deals.length === 0 && (
+        <div className="rounded-xl border border-dashed p-8 text-center mb-6" style={{ borderColor: "var(--outline)" }}>
+          <p className="text-sm font-semibold mb-1">Henüz network deal&apos;i yok</p>
+          <p className="text-xs" style={{ color: "var(--muted)" }}>
+            Bu sayfa ağ ortaklarından gelen off-market deal&apos;leri (Deal tablosu) gösterir. Bir deal ekle ya da scraper kaynaklı lead&apos;ler için Deal Buy-Box ekranını kullan.
+          </p>
         </div>
       )}
 
