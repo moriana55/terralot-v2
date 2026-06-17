@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
 import { enforceRateLimit, requireGate } from "@/lib/api-guard";
+import { saneAcres, saneBid, medianPpa, intrinsicValue, DISCOUNT_CAP, type Basis, type Confidence } from "@/lib/land-valuation";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -8,20 +9,19 @@ export const dynamic = "force-dynamic";
 // ─────────────────────────────────────────────────────────────────────────────
 // TAX-DEAL ARBITRAGE RADAR
 //
-// Scans tax_delinquent_properties and estimates INTRINSIC value for each parcel,
-// then ranks by discount % vs the tax/min-bid (the price you can actually pay).
+// Scans tax_delinquent_properties and estimates INTRINSIC land value for each
+// parcel, then ranks by the dollar value gap vs the min-bid (the price you can
+// actually pay).
 //
-// Intrinsic value, best-available source (in priority order):
-//   1) acres × county-median $/acre  (county comp — most accurate, needs county data)
-//   2) acres × state-median $/acre   (state retail benchmark from competitor_listings)
-//   3) judgment_amount               (assessor/judgment proxy)
+// Intrinsic value = acres × median $/acre comp (county comp preferred, else
+// state comp). We deliberately DO NOT fall back to judgment_amount — back taxes
+// owed are not land value, and using them produced misleading "discounts".
 //
-// price floor = minimum_bid (fallback judgment_amount when no bid)
-// discount %  = (intrinsicValue − price) / intrinsicValue
-// value gap $ = intrinsicValue − price
-//
-// Only parcels with a positive, computable gap are ranked. Graceful when the
-// pricing columns / market data are missing (returns whatever it can compute).
+// All inputs are sanitized (see lib/land-valuation): acreage outliers (the data
+// has 80,000-acre parsing errors), billion-dollar bids, and $/acre comp outliers
+// are rejected. Parcels we cannot value honestly (no acreage, ~66% of rows, or
+// no comparable $/acre data for their market) are reported as skipped, NOT given
+// a fake valuation.
 // ─────────────────────────────────────────────────────────────────────────────
 
 const FULL: Record<string, string> = {
@@ -44,12 +44,6 @@ function normState(s: string | null): string | null {
   return null;
 }
 const normCounty = (c: string | null) => (c || "").toUpperCase().replace(/ COUNTY$/i, "").replace(/\(county n\/a\)/i, "").trim();
-const median = (a: number[]) => {
-  if (!a.length) return null;
-  const b = [...a].sort((x, y) => x - y);
-  const m = Math.floor(b.length / 2);
-  return b.length % 2 ? b[m] : (b[m - 1] + b[m]) / 2;
-};
 
 export async function GET(req: NextRequest) {
   const limited = enforceRateLimit(req);
@@ -61,37 +55,36 @@ export async function GET(req: NextRequest) {
   const stateFilter = req.nextUrl.searchParams.get("state");
   const minGap = Number(req.nextUrl.searchParams.get("minGap") || "0"); // min discount %
 
-  // 1) Build county + state median $/acre tables from competitor_listings ----
+  // 1) Build county + state median $/acre tables (outlier-stripped) ----------
   const stateRates: Record<string, number> = {};
   const countyRates: Record<string, number> = {};
   let benchmarkAvailable = false;
   try {
     const { data } = await s.from("competitor_listings").select("state,county,price,acres");
-    const byState: Record<string, number[]> = {};
-    const byCounty: Record<string, number[]> = {};
+    const byState: Record<string, { price: unknown; acres: unknown }[]> = {};
+    const byCounty: Record<string, { price: unknown; acres: unknown }[]> = {};
     for (const r of (data as { state: string; county: string; price: number; acres: number }[]) || []) {
       const st = normState(r.state);
-      if (!st || !(r.price > 0) || !(r.acres > 0)) continue;
-      const ppa = r.price / r.acres;
-      (byState[st] ||= []).push(ppa);
+      if (!st) continue;
+      (byState[st] ||= []).push({ price: r.price, acres: r.acres });
       const cty = normCounty(r.county);
-      if (cty) (byCounty[`${st}/${cty}`] ||= []).push(ppa);
+      if (cty) (byCounty[`${st}/${cty}`] ||= []).push({ price: r.price, acres: r.acres });
     }
-    for (const [k, arr] of Object.entries(byState)) if (arr.length >= 3) stateRates[k] = Math.round(median(arr) || 0);
-    for (const [k, arr] of Object.entries(byCounty)) if (arr.length >= 3) countyRates[k] = Math.round(median(arr) || 0);
+    for (const [k, arr] of Object.entries(byState)) { const m = medianPpa(arr); if (m) stateRates[k] = m; }
+    for (const [k, arr] of Object.entries(byCounty)) { const m = medianPpa(arr); if (m) countyRates[k] = m; }
     benchmarkAvailable = Object.keys(stateRates).length > 0;
   } catch { /* graceful */ }
 
   // 2) Sweep tax leads -------------------------------------------------------
   interface Opp {
     id: string; state: string | null; county: string | null; apn: string | null;
-    acres: number | null; price: number | null; intrinsic: number; gap: number;
-    discountPct: number; basis: "county_comp" | "state_comp" | "judgment";
+    acres: number | null; price: number; intrinsic: number; gap: number;
+    discountPct: number; flagged: boolean; basis: Basis; confidence: Confidence; ppa: number;
     finalScore: number | null; source: string | null; saleDate: string | null;
     ownerName: string | null; rawUrl: string | null;
   }
   const opps: Opp[] = [];
-  let scanned = 0;
+  let scanned = 0, skippedNoPrice = 0, skippedNoAcreage = 0, skippedNoComps = 0, valued = 0;
 
   try {
     let from = 0;
@@ -108,31 +101,32 @@ export async function GET(req: NextRequest) {
         scanned++;
         const st = normState(r.state as string);
         const cty = normCounty(r.county as string);
-        const acres = (r.acres as number) ?? null;
-        const price = (r.minimum_bid as number) ?? (r.judgment_amount as number) ?? null;
-        if (price == null || price <= 0) continue;
+        const acres = saneAcres(r.acres);
+        const price = saneBid(r.minimum_bid) ?? saneBid(r.judgment_amount);
 
-        // intrinsic value
-        let intrinsic: number | null = null;
-        let basis: Opp["basis"] = "judgment";
-        if (acres && acres > 0 && st) {
-          const cr = countyRates[`${st}/${cty}`];
-          const sr = stateRates[st];
-          if (cr) { intrinsic = Math.round(acres * cr); basis = "county_comp"; }
-          else if (sr) { intrinsic = Math.round(acres * sr); basis = "state_comp"; }
-        }
-        if (intrinsic == null && r.judgment_amount && (r.judgment_amount as number) > 0) {
-          intrinsic = r.judgment_amount as number; basis = "judgment";
-        }
-        if (intrinsic == null || intrinsic <= price) continue; // need a real positive gap
+        if (price == null) { skippedNoPrice++; continue; }
+        if (acres == null) { skippedNoAcreage++; continue; }
 
+        const countyRate = st ? countyRates[`${st}/${cty}`] ?? null : null;
+        const stateRate = st ? stateRates[st] ?? null : null;
+        const { value: intrinsic, basis, confidence: baseConf } = intrinsicValue({ acres, countyRate, stateRate });
+        if (intrinsic == null) { skippedNoComps++; continue; }
+        valued++;
+
+        if (intrinsic <= price) continue; // no positive gap → not an opportunity
         const gap = intrinsic - price;
-        const discountPct = Math.round((gap / intrinsic) * 100);
+        const rawDiscount = Math.round((gap / intrinsic) * 100);
+        // A >70% discount on raw land almost always means incomplete price data
+        // (min-bid = back-taxes only) — cap the displayed figure and flag for review.
+        const flagged = rawDiscount > DISCOUNT_CAP;
+        const discountPct = Math.min(rawDiscount, DISCOUNT_CAP);
+        const confidence: Confidence = flagged ? "low" : baseConf;
         if (discountPct < minGap) continue;
 
         opps.push({
           id: r.id as string, state: (r.state as string) ?? null, county: (r.county as string) ?? null,
-          apn: (r.apn as string) ?? null, acres, price, intrinsic, gap, discountPct, basis,
+          apn: (r.apn as string) ?? null, acres, price, intrinsic, gap, discountPct, flagged, basis, confidence,
+          ppa: Math.round(intrinsic / acres),
           finalScore: (r.final_score as number) ?? null, source: (r.source as string) ?? null,
           saleDate: (r.sale_date as string) ?? null, ownerName: (r.owner_name as string) ?? null,
           rawUrl: (r.raw_url as string) ?? null,
@@ -143,14 +137,28 @@ export async function GET(req: NextRequest) {
     }
   } catch { /* graceful */ }
 
-  opps.sort((a, b) => b.discountPct - a.discountPct || b.gap - a.gap);
+  // Rank real, confident opportunities first: unflagged before "too-good/verify",
+  // then by confidence, then by absolute dollar gap.
+  const confRank = { high: 2, medium: 1, low: 0 } as const;
+  opps.sort((a, b) =>
+    Number(a.flagged) - Number(b.flagged) ||
+    confRank[b.confidence] - confRank[a.confidence] ||
+    b.gap - a.gap ||
+    b.discountPct - a.discountPct
+  );
   const top = opps.slice(0, 100);
+  const solid = opps.filter((o) => !o.flagged);
 
   const summary = {
     scanned,
-    opportunities: opps.length,
-    totalGap: opps.reduce((a, o) => a + o.gap, 0),
-    avgDiscount: opps.length ? Math.round(opps.reduce((a, o) => a + o.discountPct, 0) / opps.length) : 0,
+    scoreable: valued, // parcels we could value honestly (sane acreage + comps)
+    opportunities: opps.length, // of those, the ones trading below intrinsic
+    flagged: opps.length - solid.length, // shown but need manual verification (capped discount)
+    skippedNoPrice,
+    skippedNoAcreage, // ~66% of the data lacks acreage
+    skippedNoComps, // no comparable $/acre for that market
+    totalGap: solid.reduce((a, o) => a + o.gap, 0),
+    avgDiscount: solid.length ? Math.round(solid.reduce((a, o) => a + o.discountPct, 0) / solid.length) : 0,
     benchmarkAvailable,
     countyComps: opps.filter((o) => o.basis === "county_comp").length,
   };

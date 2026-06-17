@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
 import { Building2, Search, Compass, DollarSign, ArrowUpRight, TrendingUp, AlertTriangle, Layers, Percent, MapPin, Loader2, Calculator, HelpCircle } from "lucide-react";
 
 interface CompetitorListing {
@@ -73,18 +72,19 @@ export default function CompetitorAnalysisPage() {
     fetch("/api/market-rates").then((r) => r.json()).then((j) => setRates(j.rates || [])).catch(() => {});
   }, []);
 
-  // Pull real competitor listings from Supabase (fed by the competitor scraper module).
+  // Pull real competitor listings via the service-role API route (the table has
+  // RLS enabled, so reading it with the browser anon client returns 0 rows).
   const loadListings = async () => {
     setError(null);
-    const { data, error: err } = await supabase
-      .from("competitor_listings")
-      .select("*")
-      .order("created_at", { ascending: false });
-    if (err) setError(err.message);
-    else {
-      const mapped = ((data as CompetitorRow[]) || []).map(mapRow);
+    try {
+      const res = await fetch("/api/competitor-listings");
+      const j = await res.json();
+      if (j.error) setError(j.error);
+      const mapped = ((j.listings as CompetitorRow[]) || []).map(mapRow);
       setListings(mapped);
       setSelectedListingId(prev => prev || mapped[0]?.id || "");
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Yüklenemedi");
     }
   };
 

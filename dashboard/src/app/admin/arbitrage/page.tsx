@@ -11,14 +11,19 @@ import { TrendingDown, Loader2, AlertCircle, Zap, ArrowRight } from "lucide-reac
 interface Opp {
   id: string; state: string | null; county: string | null; apn: string | null;
   acres: number | null; price: number | null; intrinsic: number; gap: number;
-  discountPct: number; basis: "county_comp" | "state_comp" | "judgment";
+  discountPct: number; flagged: boolean; basis: "county_comp" | "state_comp";
+  confidence: "high" | "medium" | "low"; ppa: number;
   finalScore: number | null; source: string | null; saleDate: string | null;
   ownerName: string | null; rawUrl: string | null;
 }
-interface Summary { scanned: number; opportunities: number; totalGap: number; avgDiscount: number; benchmarkAvailable: boolean; countyComps: number }
+interface Summary {
+  scanned: number; scoreable: number; opportunities: number; flagged: number;
+  skippedNoPrice: number; skippedNoAcreage: number; skippedNoComps: number;
+  totalGap: number; avgDiscount: number; benchmarkAvailable: boolean; countyComps: number;
+}
 
 const fmtMoney = (v: number | null) => (v == null ? "—" : `$${Math.round(v).toLocaleString()}`);
-const BASIS_LABEL: Record<string, string> = { county_comp: "county comp", state_comp: "state $/acre", judgment: "judgment proxy" };
+const BASIS_LABEL: Record<string, string> = { county_comp: "county comp", state_comp: "state $/acre" };
 
 export default function ArbitragePage() {
   const [opps, setOpps] = useState<Opp[]>([]);
@@ -83,9 +88,18 @@ export default function ArbitragePage() {
         </div>
       )}
 
+      {summary && (
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 px-4 py-2.5 rounded-lg text-[11px] mb-4" style={{ background: "var(--surface-low)", color: "var(--muted)" }}>
+          <span><b style={{ color: "var(--foreground)" }}>{summary.scoreable.toLocaleString()}</b> / {summary.scanned.toLocaleString()} parsel değerlenebildi</span>
+          <span>· {summary.skippedNoAcreage.toLocaleString()} parselde acre verisi yok</span>
+          <span>· {summary.skippedNoComps.toLocaleString()} parselde comp $/acre yok</span>
+          {summary.flagged > 0 && <span style={{ color: "var(--warn)" }}>· {summary.flagged.toLocaleString()} "doğrulanmalı" (şüpheli yüksek indirim)</span>}
+        </div>
+      )}
+
       {summary && !summary.benchmarkAvailable && (
         <div className="flex items-center gap-2 px-4 py-3 rounded-lg text-xs mb-4" style={{ background: "rgba(255,180,60,0.08)", color: "var(--warn)" }}>
-          <AlertCircle className="w-4 h-4" /> Piyasa $/acre benchmark'ı yok (competitor_listings boş) — judgment_amount proxy'sine düşülüyor.
+          <AlertCircle className="w-4 h-4" /> Piyasa $/acre benchmark'ı çok zayıf (competitor_listings neredeyse boş) — rakip scraper'ı çalıştırılmalı.
         </div>
       )}
 
@@ -124,9 +138,15 @@ export default function ArbitragePage() {
                     <td className="px-4 py-2.5 text-xs tabular-nums font-semibold">{fmtMoney(o.intrinsic)}</td>
                     <td className="px-4 py-2.5 text-xs tabular-nums font-extrabold" style={{ color: "var(--grade-a)" }}>+{fmtMoney(o.gap)}</td>
                     <td className="px-4 py-2.5">
-                      <span className="inline-flex items-center gap-1 text-xs font-extrabold px-2 py-0.5 rounded-full" style={{ background: "rgba(80,220,140,0.12)", color: "var(--grade-a)" }}>
-                        <Zap className="w-3 h-3" /> -{o.discountPct}%
-                      </span>
+                      {o.flagged ? (
+                        <span title="Tahmini değer belirsiz — min teklif eksik veri olabilir, manuel doğrulayın" className="inline-flex items-center gap-1 text-xs font-bold px-2 py-0.5 rounded-full whitespace-nowrap" style={{ background: "rgba(255,180,60,0.14)", color: "var(--warn)" }}>
+                          <AlertCircle className="w-3 h-3" /> %{o.discountPct}+ · doğrula
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 text-xs font-extrabold px-2 py-0.5 rounded-full" style={{ background: "rgba(80,220,140,0.12)", color: "var(--grade-a)" }}>
+                          <Zap className="w-3 h-3" /> %{o.discountPct}
+                        </span>
+                      )}
                     </td>
                     <td className="px-4 py-2.5 text-[10px]" style={{ color: "var(--muted)" }}>{BASIS_LABEL[o.basis]}</td>
                     <td className="px-4 py-2.5 text-right">
