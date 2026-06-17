@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
 import { enforceRateLimit, requireGate } from "@/lib/api-guard";
 import { aiEnabled, aiNarrative } from "@/lib/ai-narrative";
+import { saneAcres, saneBid, medianPpa, intrinsicValue } from "@/lib/land-valuation";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -33,6 +34,13 @@ export const dynamic = "force-dynamic";
 //
 // If OPENAI_API_KEY is set, the structured signals are also turned into a short
 // investor narrative; otherwise a deterministic narrative template is returned.
+//
+// VALUATION HONESTY (see lib/land-valuation): acreage and bids are sanitized
+// (the scraped data has 80,000-acre parsing errors and billion-dollar bids), the
+// $/acre benchmark is an outlier-stripped median, and the intrinsic value is
+// bulk-adjusted for parcel size and hard-capped. When we can't value a parcel
+// honestly (no sane acreage or no comparable $/acre), we report NO number and
+// the value-gap facet falls back to recorded signals — never a fabricated value.
 // ─────────────────────────────────────────────────────────────────────────────
 
 const WEIGHTS = {
@@ -152,22 +160,23 @@ export async function POST(req: NextRequest) {
   }
   if (demo.income == null) dataGaps.push("county_demographics (income/population)");
 
-  // 3) Market $/acre benchmark ----------------------------------------------
-  let perAcre: number | null = null;
+  // 3) Market $/acre benchmark (outlier-stripped median; county comp preferred) -
+  // medianPpa rejects acreage parsing errors and $/acre outliers before the median.
+  let countyRate: number | null = null;
+  let stateRate: number | null = null;
   if (st) {
     try {
-      const { data } = await s.from("competitor_listings").select("price,acres").eq("state", st).limit(2000);
-      const arr: number[] = [];
-      for (const r of (data as { price: number; acres: number }[]) || []) {
-        if (r.price > 0 && r.acres > 0) arr.push(r.price / r.acres);
-      }
-      if (arr.length >= 3) {
-        arr.sort((a, b) => a - b);
-        const m = Math.floor(arr.length / 2);
-        perAcre = Math.round(arr.length % 2 ? arr[m] : (arr[m - 1] + arr[m]) / 2);
+      const { data } = await s.from("competitor_listings").select("county,price,acres").eq("state", st).limit(2000);
+      const all = (data as { county: string; price: unknown; acres: unknown }[]) || [];
+      stateRate = medianPpa(all.map((r) => ({ price: r.price, acres: r.acres })));
+      if (cty) {
+        const inCounty = all.filter((r) => normCounty(r.county) === cty);
+        countyRate = medianPpa(inCounty.map((r) => ({ price: r.price, acres: r.acres })));
       }
     } catch { /* graceful */ }
   }
+  // The headline $/acre signal we show: county comp if we have it, else state.
+  const perAcre: number | null = countyRate ?? stateRate;
   if (perAcre == null) dataGaps.push("market $/acre benchmark (competitor_listings)");
 
   // 4) Live flood + road via dd-check when coords exist ----------------------
@@ -187,26 +196,33 @@ export async function POST(req: NextRequest) {
   if (floodScore == null) dataGaps.push("flood risk (no lat/lng or FEMA unavailable)");
   if (roadAccess == null) dataGaps.push("road access (no lat/lng)");
 
-  // 5) Intrinsic comp value --------------------------------------------------
-  const compValue = lead.acres && perAcre ? Math.round(lead.acres * perAcre) : null;
-  const benchValue = compValue ?? lead.judgment_amount ?? null;
-  const minBid = lead.minimum_bid ?? null;
+  // 5) Intrinsic comp value (sanitized + bulk-adjusted + capped) -------------
+  // saneAcres rejects parsing-error acreage; intrinsicValue refuses to value a
+  // parcel without acreage or comps (returns null) and bulk-discounts big tracts.
+  // We deliberately do NOT fall back to judgment_amount — back-taxes ≠ land value.
+  const sAcres = saneAcres(lead.acres);
+  const { value: compValue, confidence: valueConf } = intrinsicValue({ acres: sAcres, countyRate, stateRate });
+  const benchValue = compValue; // honest comp value or null — never a fabricated number
+  const minBid = saneBid(lead.minimum_bid);
+  if (sAcres == null && lead.acres != null) dataGaps.push("acreage missing/implausible (no honest value)");
+  else if (compValue == null && sAcres != null) dataGaps.push("intrinsic value (no comparable $/acre for this market)");
 
   // ── Rubric facets (each 0..1) ────────────────────────────────────────────
   const reasons: { label: string; pts: number; note: string }[] = [];
 
-  // value gap
+  // value gap — honest comp value vs sane min-bid; else fall back to recorded
+  // signals (never invent a value). Gap is bounded 0..1 so it can't blow up.
   let valueGapN = 0;
-  let valueGapNote = "değer açığı verisi yok";
+  let valueGapNote = "değer açığı verisi yok (acreage/comp eksik)";
   let hardFailValue = false;
-  if (benchValue && minBid != null && minBid >= 0) {
-    const gap = benchValue > 0 ? (benchValue - minBid) / benchValue : 0; // 0..1 (or negative)
+  if (benchValue && benchValue > 0 && minBid != null) {
+    const gap = (benchValue - minBid) / benchValue; // 0..1 (or negative)
     valueGapN = clamp(gap, 0, 1);
-    if (gap < 0) { hardFailValue = true; valueGapNote = `min teklif değerin üstünde (${Math.round(gap * 100)}%)`; }
-    else valueGapNote = `~${Math.round(gap * 100)}% indirim (değer $${benchValue.toLocaleString()} vs teklif $${minBid.toLocaleString()})`;
+    if (gap < 0) { hardFailValue = true; valueGapNote = `min teklif comp değerin üstünde (${Math.round(gap * 100)}%)`; }
+    else valueGapNote = `~${Math.round(gap * 100)}% indirim (comp $${benchValue.toLocaleString()} vs teklif $${minBid.toLocaleString()})${valueConf !== "high" ? " · doğrulanmalı" : ""}`;
   } else if (lead.discount_pct != null) {
     valueGapN = clamp(lead.discount_pct / 100, 0, 1);
-    valueGapNote = `kayıtlı indirim %${lead.discount_pct}`;
+    valueGapNote = `kayıtlı indirim %${lead.discount_pct} (comp yok)`;
   } else if (lead.final_score != null) {
     valueGapN = clamp(lead.final_score / 100, 0, 1);
     valueGapNote = `Cerberus skoru proxy (${lead.final_score}/100)`;
@@ -305,7 +321,11 @@ export async function POST(req: NextRequest) {
     score,
     rubric: WEIGHTS,
     reasons: reasons.map((r) => ({ ...r, pts: Math.round(r.pts) })),
-    signals: { compValue, perAcre, minBid, floodScore, roadAccess, popGrowth: growth, income: demo.income },
+    signals: {
+      compValue, perAcre, minBid, floodScore, roadAccess, popGrowth: growth, income: demo.income,
+      valueConfidence: compValue != null ? valueConf : null,
+      valueBasis: compValue != null ? (countyRate ? "county_comp" : "state_comp") : "none",
+    },
     dataGaps,
     narrative,
     narrativeSource,

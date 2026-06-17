@@ -15,7 +15,7 @@ interface Verdict {
   verdict: "BUY" | "WATCH" | "PASS";
   score: number;
   reasons: Reason[];
-  signals: { compValue: number | null; perAcre: number | null; minBid: number | null; floodScore: number | null; roadAccess: string | null; popGrowth: number | null; income: number | null };
+  signals: { compValue: number | null; perAcre: number | null; minBid: number | null; floodScore: number | null; roadAccess: string | null; popGrowth: number | null; income: number | null; valueConfidence: "high" | "medium" | "low" | null; valueBasis: "county_comp" | "state_comp" | "none" };
   dataGaps: string[];
   narrative: string;
   narrativeSource: "ai" | "rule-based";
@@ -173,8 +173,10 @@ export default function UnderwritePage() {
             <div className="rounded-xl border p-5 text-xs space-y-1.5" style={{ background: "var(--surface)", borderColor: "var(--surface-high)" }}>
               <p className="text-[10px] font-bold uppercase tracking-widest mb-2" style={{ color: "var(--muted)" }}>Sinyaller</p>
               {[
-                ["Comp değer", fmtMoney(result.signals.compValue)],
-                ["$/acre (state)", fmtMoney(result.signals.perAcre)],
+                ["Comp değer", result.signals.compValue == null
+                  ? "veri yetersiz"
+                  : `${fmtMoney(result.signals.compValue)}${result.signals.valueConfidence && result.signals.valueConfidence !== "high" ? " · doğrulanmalı" : ""}`],
+                [result.signals.valueBasis === "county_comp" ? "$/acre (county)" : "$/acre (state)", fmtMoney(result.signals.perAcre)],
                 ["Min teklif", fmtMoney(result.signals.minBid)],
                 ["Sel skoru", result.signals.floodScore == null ? "—" : `${result.signals.floodScore}/100`],
                 ["Yol", result.signals.roadAccess || "—"],

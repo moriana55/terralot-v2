@@ -274,11 +274,23 @@ export default function DealScreenerPage() {
         </div>
       )}
 
-      {/* Empty */}
+      {/* Empty — county_demographics not populated yet */}
       {noData && (
-        <div className="text-center py-20 rounded-xl border border-dashed" style={{ borderColor: "var(--outline)", color: "var(--muted)" }}>
-          <p className="text-sm font-medium mb-1">Demografi verisi yok</p>
-          <p className="text-xs">scraper/build-county-demographics.js çalıştır ve county_demographics tablosunu doldur (PUSH_SUPABASE=1)</p>
+        <div className="max-w-xl mx-auto text-center py-16 px-6 rounded-xl border border-dashed" style={{ borderColor: "var(--outline)" }}>
+          <SlidersHorizontal className="w-8 h-8 mx-auto mb-3" style={{ color: "var(--accent-ink)" }} />
+          <p className="text-sm font-semibold mb-1">Demografi verisi henüz yüklenmedi</p>
+          <p className="text-xs mb-4" style={{ color: "var(--muted)" }}>
+            Deal Screener, <code className="font-mono">county_demographics</code> tablosuna dayanır ve bu tablo şu an boş.
+            Census zenginleştirmesini çalıştırınca county skorları burada görünür.
+          </p>
+          <div className="text-left rounded-lg p-3 font-mono text-[11px] leading-relaxed" style={{ background: "var(--surface-low)", color: "var(--foreground)" }}>
+            <p style={{ color: "var(--muted)" }}># 1) Supabase&apos;de tabloyu oluştur</p>
+            <p>scraper/sql/county_demographics.sql</p>
+            <p className="mt-2" style={{ color: "var(--muted)" }}># 2) veriyi derle</p>
+            <p>node scraper/build-county-demographics.js</p>
+            <p className="mt-2" style={{ color: "var(--muted)" }}># 3) Supabase&apos;e yükle</p>
+            <p>PUSH_SUPABASE=1 node scraper/build-county-demographics.js</p>
+          </div>
         </div>
       )}
 
