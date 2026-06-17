@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { LayoutDashboard, MapPin, MessageSquare, CreditCard, ArrowLeft, BarChart3, Users, Handshake, CircleDollarSign, Activity, Map, Gauge, Mail, Split, Wallet, Target, Globe, EyeOff, Tv, FileSearch, ShieldCheck, ChevronLeft, ChevronRight, ChevronDown, Cpu, SlidersHorizontal } from "lucide-react";
+import { LayoutDashboard, MapPin, MessageSquare, CreditCard, ArrowLeft, BarChart3, Users, Handshake, CircleDollarSign, Activity, Map, Gauge, Mail, Split, Wallet, Target, Globe, EyeOff, Tv, FileSearch, ShieldCheck, ChevronLeft, ChevronRight, ChevronDown, Cpu, SlidersHorizontal, Brain, TrendingDown, Rocket, Hammer } from "lucide-react";
 import { CerberusLogo } from "@/components/DealHoundLogo";
 
 const SECTIONS: { label: string | null; items: { href: string; icon: typeof MapPin; label: string }[] }[] = [
@@ -25,6 +25,15 @@ const SECTIONS: { label: string | null; items: { href: string; icon: typeof MapP
       { href: "/admin/competitor-analysis", icon: BarChart3, label: "Competitor Intel" },
       { href: "/admin/parcels", icon: Globe, label: "Parcel Explorer" },
       { href: "/admin/dd-checker", icon: ShieldCheck, label: "DD Checker" },
+    ],
+  },
+  {
+    label: "Cerberus · AI Intel",
+    items: [
+      { href: "/admin/underwrite", icon: Brain, label: "AI Underwriting" },
+      { href: "/admin/arbitrage", icon: TrendingDown, label: "Arbitrage Radar" },
+      { href: "/admin/path-of-growth", icon: Rocket, label: "Path of Growth" },
+      { href: "/admin/buildability", icon: Hammer, label: "Buildability AI" },
     ],
   },
   {

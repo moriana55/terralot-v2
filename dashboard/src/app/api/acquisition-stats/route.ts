@@ -15,8 +15,8 @@ export async function GET(req: NextRequest) {
   const s = supabaseAdmin();
   const TABLE = "tax_delinquent_properties";
 
+  const base = () => s.from(TABLE).select("*", { count: "exact", head: true });
   const count = async (apply?: (q: ReturnType<typeof base>) => unknown) => {
-    const base = () => s.from(TABLE).select("*", { count: "exact", head: true });
     let q = base();
     if (apply) q = apply(q) as ReturnType<typeof base>;
     const { count } = await q;

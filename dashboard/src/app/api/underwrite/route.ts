@@ -1,0 +1,334 @@
+import { NextRequest, NextResponse } from "next/server";
+import { supabaseAdmin } from "@/lib/supabase";
+import { enforceRateLimit, requireGate } from "@/lib/api-guard";
+import { aiEnabled, aiNarrative } from "@/lib/ai-narrative";
+
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
+// ─────────────────────────────────────────────────────────────────────────────
+// AI PARCEL UNDERWRITING
+//
+// Input (POST JSON): { leadId? } OR { apn?, address?, state?, county?, acres?, lat?, lng? }
+//   • leadId      → pulls the row from tax_delinquent_properties (richest signals)
+//   • apn/address → looks up a matching lead; if none, underwrites from the raw
+//                   fields the caller passed (manual mode)
+//
+// Output: a structured BUY / WATCH / PASS verdict with an explainable score and
+// a list of weighted reasons, synthesized from every signal we can find:
+//   final_score, discount/savings, county demographics + growth, market $/acre,
+// road access + flood (live dd-check when lat/lng exist), owner contactability.
+//
+// RUBRIC (documented & deterministic — 0..100):
+//   value gap      30%  intrinsic comp value vs minimum bid (or final_score proxy)
+//   demand         20%  county population growth + median income (liquidity)
+//   access         15%  road access (landlocked = 0) — unbuildable killer
+//   flood          10%  inverse of FEMA flood risk
+//   market         10%  parcel size vs county retail $/acre availability
+//   competition    10%  struck-off / off-market beats live auction
+//   contact         5%  reachable owner (direct-mail path) bonus
+//
+//   verdict: score>=65 BUY · 45-64 WATCH · <45 PASS
+//   Any HARD FAIL (landlocked, or value gap negative) caps verdict at PASS/WATCH.
+//
+// If OPENAI_API_KEY is set, the structured signals are also turned into a short
+// investor narrative; otherwise a deterministic narrative template is returned.
+// ─────────────────────────────────────────────────────────────────────────────
+
+const WEIGHTS = {
+  valueGap: 30,
+  demand: 20,
+  access: 15,
+  flood: 10,
+  market: 10,
+  competition: 10,
+  contact: 5,
+} as const;
+
+const FULL2: Record<string, string> = {
+  Texas: "TX", Florida: "FL", Georgia: "GA", Tennessee: "TN", "North Carolina": "NC",
+  "New York": "NY", Arizona: "AZ", "New Mexico": "NM", Colorado: "CO", California: "CA",
+  Arkansas: "AR", Nevada: "NV", Kentucky: "KY",
+};
+const abbr = (s: string | null): string | null => {
+  if (!s) return null;
+  if (/^[A-Za-z]{2}$/.test(s)) return s.toUpperCase();
+  return FULL2[s] ?? null;
+};
+const normCounty = (c: string | null) =>
+  (c || "").toUpperCase().replace(/ COUNTY$/i, "").replace(/\(county n\/a\)/i, "").trim();
+const clamp = (v: number, lo = 0, hi = 100) => Math.max(lo, Math.min(hi, v));
+
+interface LeadShape {
+  id?: string;
+  apn?: string | null;
+  state?: string | null;
+  county?: string | null;
+  acres?: number | null;
+  minimum_bid?: number | null;
+  judgment_amount?: number | null;
+  final_score?: number | null;
+  deal_score?: number | null;
+  discount_pct?: number | null;
+  savings?: number | null;
+  liquidity_score?: number | null;
+  county_pop_growth?: number | null;
+  road_access?: string | null;
+  flood_score?: number | null;
+  dd_checked?: boolean | null;
+  owner_name?: string | null;
+  source?: string | null;
+  lat?: number | null;
+  lng?: number | null;
+  property_address?: string | null;
+}
+
+export async function POST(req: NextRequest) {
+  const limited = enforceRateLimit(req, { limit: 30 });
+  if (limited) return limited;
+  const unauth = await requireGate(req);
+  if (unauth) return unauth;
+
+  const body = await req.json().catch(() => ({} as Record<string, unknown>));
+  const s = supabaseAdmin();
+
+  // 1) Resolve the parcel ----------------------------------------------------
+  let lead: LeadShape | null = null;
+  try {
+    if (body.leadId) {
+      const { data } = await s.from("tax_delinquent_properties").select("*").eq("id", body.leadId).maybeSingle();
+      lead = (data as LeadShape) ?? null;
+    } else if (body.apn) {
+      const { data } = await s.from("tax_delinquent_properties").select("*").ilike("apn", `%${String(body.apn).trim()}%`).limit(1);
+      lead = (data?.[0] as LeadShape) ?? null;
+    } else if (body.address) {
+      const q = String(body.address).replace(/[%,]/g, "").trim();
+      const { data } = await s.from("tax_delinquent_properties").select("*").ilike("property_address", `%${q}%`).limit(1);
+      lead = (data?.[0] as LeadShape) ?? null;
+    }
+  } catch {
+    lead = null;
+  }
+
+  // manual mode: build a lead from the caller-supplied fields
+  if (!lead) {
+    lead = {
+      apn: (body.apn as string) ?? null,
+      state: (body.state as string) ?? null,
+      county: (body.county as string) ?? null,
+      acres: typeof body.acres === "number" ? body.acres : body.acres ? Number(body.acres) : null,
+      minimum_bid: typeof body.minBid === "number" ? body.minBid : body.minBid ? Number(body.minBid) : null,
+      lat: typeof body.lat === "number" ? body.lat : null,
+      lng: typeof body.lng === "number" ? body.lng : null,
+      property_address: (body.address as string) ?? null,
+    };
+  }
+
+  const st = abbr(lead.state ?? null);
+  const cty = normCounty(lead.county ?? null);
+  const dataGaps: string[] = [];
+
+  // 2) County demographics ---------------------------------------------------
+  let demo: { income: number | null; population: number | null; popGrowth: number | null } = {
+    income: null, population: null, popGrowth: lead.county_pop_growth ?? null,
+  };
+  if (st && cty) {
+    try {
+      const { data } = await s
+        .from("county_demographics")
+        .select("median_household_income,population,pop_growth_5y")
+        .eq("state", st)
+        .ilike("county", `%${cty}%`)
+        .limit(1);
+      const d = data?.[0] as { median_household_income?: number; population?: number; pop_growth_5y?: number } | undefined;
+      if (d) {
+        demo = {
+          income: d.median_household_income ?? null,
+          population: d.population ?? null,
+          popGrowth: d.pop_growth_5y ?? lead.county_pop_growth ?? null,
+        };
+      }
+    } catch { /* graceful */ }
+  }
+  if (demo.income == null) dataGaps.push("county_demographics (income/population)");
+
+  // 3) Market $/acre benchmark ----------------------------------------------
+  let perAcre: number | null = null;
+  if (st) {
+    try {
+      const { data } = await s.from("competitor_listings").select("price,acres").eq("state", st).limit(2000);
+      const arr: number[] = [];
+      for (const r of (data as { price: number; acres: number }[]) || []) {
+        if (r.price > 0 && r.acres > 0) arr.push(r.price / r.acres);
+      }
+      if (arr.length >= 3) {
+        arr.sort((a, b) => a - b);
+        const m = Math.floor(arr.length / 2);
+        perAcre = Math.round(arr.length % 2 ? arr[m] : (arr[m - 1] + arr[m]) / 2);
+      }
+    } catch { /* graceful */ }
+  }
+  if (perAcre == null) dataGaps.push("market $/acre benchmark (competitor_listings)");
+
+  // 4) Live flood + road via dd-check when coords exist ----------------------
+  let floodScore: number | null = lead.flood_score ?? null;
+  let roadAccess: string | null = lead.road_access ?? null;
+  if (lead.lat && lead.lng && (!lead.dd_checked || floodScore == null)) {
+    try {
+      const base = req.nextUrl.origin;
+      const r = await fetch(`${base}/api/dd-check?lat=${lead.lat}&lon=${lead.lng}`, {
+        headers: { cookie: req.headers.get("cookie") || "" },
+      });
+      const j = await r.json();
+      floodScore = j?.flood?.riskScore ?? floodScore;
+      roadAccess = j?.road?.accessType ?? roadAccess;
+    } catch { /* graceful */ }
+  }
+  if (floodScore == null) dataGaps.push("flood risk (no lat/lng or FEMA unavailable)");
+  if (roadAccess == null) dataGaps.push("road access (no lat/lng)");
+
+  // 5) Intrinsic comp value --------------------------------------------------
+  const compValue = lead.acres && perAcre ? Math.round(lead.acres * perAcre) : null;
+  const benchValue = compValue ?? lead.judgment_amount ?? null;
+  const minBid = lead.minimum_bid ?? null;
+
+  // ── Rubric facets (each 0..1) ────────────────────────────────────────────
+  const reasons: { label: string; pts: number; note: string }[] = [];
+
+  // value gap
+  let valueGapN = 0;
+  let valueGapNote = "değer açığı verisi yok";
+  let hardFailValue = false;
+  if (benchValue && minBid != null && minBid >= 0) {
+    const gap = benchValue > 0 ? (benchValue - minBid) / benchValue : 0; // 0..1 (or negative)
+    valueGapN = clamp(gap, 0, 1);
+    if (gap < 0) { hardFailValue = true; valueGapNote = `min teklif değerin üstünde (${Math.round(gap * 100)}%)`; }
+    else valueGapNote = `~${Math.round(gap * 100)}% indirim (değer $${benchValue.toLocaleString()} vs teklif $${minBid.toLocaleString()})`;
+  } else if (lead.discount_pct != null) {
+    valueGapN = clamp(lead.discount_pct / 100, 0, 1);
+    valueGapNote = `kayıtlı indirim %${lead.discount_pct}`;
+  } else if (lead.final_score != null) {
+    valueGapN = clamp(lead.final_score / 100, 0, 1);
+    valueGapNote = `Cerberus skoru proxy (${lead.final_score}/100)`;
+  }
+  reasons.push({ label: "Değer açığı", pts: WEIGHTS.valueGap * valueGapN, note: valueGapNote });
+
+  // demand / liquidity
+  let demandN = 0;
+  const growth = demo.popGrowth;
+  if (growth != null) demandN += clamp((growth + 0.02) / 0.12); // -2%..+10% → 0..1
+  if (demo.income != null) demandN += clamp((demo.income - 35000) / 55000); // $35k..$90k
+  if (lead.liquidity_score != null) demandN += clamp(lead.liquidity_score / 100);
+  demandN = demandN === 0 ? 0 : clamp(demandN / (Number(growth != null) + Number(demo.income != null) + Number(lead.liquidity_score != null)));
+  reasons.push({
+    label: "Talep / likidite",
+    pts: WEIGHTS.demand * demandN,
+    note: growth != null ? `nüfus ${(growth * 100).toFixed(1)}%/5y${demo.income ? ` · gelir $${demo.income.toLocaleString()}` : ""}` : "demografi verisi sınırlı",
+  });
+
+  // access (HARD FAIL if landlocked)
+  let accessN = 0.5;
+  let landlocked = false;
+  if (roadAccess === "direct") accessN = 1;
+  else if (roadAccess === "near") accessN = 0.75;
+  else if (roadAccess === "landlocked") { accessN = 0; landlocked = true; }
+  reasons.push({
+    label: "Yol erişimi",
+    pts: WEIGHTS.access * accessN,
+    note: roadAccess ? (landlocked ? "LANDLOCKED — değer kırıcı" : roadAccess) : "bilinmiyor (orta varsayıldı)",
+  });
+
+  // flood
+  const floodN = floodScore == null ? 0.5 : clamp(1 - floodScore / 100);
+  reasons.push({
+    label: "Sel riski",
+    pts: WEIGHTS.flood * floodN,
+    note: floodScore == null ? "bilinmiyor" : floodScore >= 80 ? "yüksek risk" : floodScore >= 35 ? "orta" : "düşük",
+  });
+
+  // market data availability
+  const marketN = perAcre ? 1 : 0.3;
+  reasons.push({
+    label: "Piyasa benchmark",
+    pts: WEIGHTS.market * marketN,
+    note: perAcre ? `state medyanı $${perAcre.toLocaleString()}/acre` : "yetersiz comp",
+  });
+
+  // competition
+  const src = (lead.source || "").toUpperCase();
+  const competitionN = /STRUCK/.test(src) ? 1 : /^TAX:/.test(src) ? 0.6 : 0.4;
+  reasons.push({
+    label: "Rekabet",
+    pts: WEIGHTS.competition * competitionN,
+    note: /STRUCK/.test(src) ? "struck-off (rakipsiz)" : /^TAX:/.test(src) ? "açık artırma" : "retail / bilinmiyor",
+  });
+
+  // owner contact
+  const reachable = !!lead.owner_name && !/absentee|unknown|county tax|no owner/i.test(lead.owner_name);
+  reasons.push({
+    label: "Sahip iletişimi",
+    pts: WEIGHTS.contact * (reachable ? 1 : 0.2),
+    note: reachable ? "ulaşılabilir (direct-mail)" : "iletişim zor",
+  });
+
+  let score = Math.round(reasons.reduce((a, r) => a + r.pts, 0));
+  // hard caps
+  if (landlocked) score = Math.min(score, 40);
+  if (hardFailValue) score = Math.min(score, 44);
+  score = clamp(score);
+
+  const verdict: "BUY" | "WATCH" | "PASS" = score >= 65 ? "BUY" : score >= 45 ? "WATCH" : "PASS";
+
+  // 6) Narrative -------------------------------------------------------------
+  const det = deterministicNarrative(verdict, score, reasons, { st, cty, acres: lead.acres ?? null, compValue, minBid, landlocked, hardFailValue });
+  let narrative = det;
+  let narrativeSource: "ai" | "rule-based" = "rule-based";
+  if (aiEnabled()) {
+    const ai = await aiNarrative({
+      system: "You are a land-acquisition underwriter. Be concise (<120 words), decisive, and reference the numbers given. Output one tight paragraph, no markdown headers.",
+      prompt: `Underwrite this US raw-land parcel. Verdict=${verdict}, score=${score}/100.\nLocation: ${cty || "?"}, ${st || "?"} · ${lead.acres ?? "?"} acres.\nComp value: ${compValue ? "$" + compValue.toLocaleString() : "unknown"}; min bid: ${minBid != null ? "$" + minBid.toLocaleString() : "unknown"}.\nSignals: ${reasons.map((r) => `${r.label}=${Math.round(r.pts)}pt (${r.note})`).join("; ")}.\nData gaps: ${dataGaps.join(", ") || "none"}.\nGive a crisp BUY/WATCH/PASS rationale.`,
+    });
+    if (ai) { narrative = ai; narrativeSource = "ai"; }
+  }
+
+  return NextResponse.json({
+    resolved: !!lead.id,
+    parcel: {
+      id: lead.id ?? null,
+      apn: lead.apn ?? null,
+      state: st,
+      county: cty || lead.county || null,
+      acres: lead.acres ?? null,
+      address: lead.property_address ?? null,
+    },
+    verdict,
+    score,
+    rubric: WEIGHTS,
+    reasons: reasons.map((r) => ({ ...r, pts: Math.round(r.pts) })),
+    signals: { compValue, perAcre, minBid, floodScore, roadAccess, popGrowth: growth, income: demo.income },
+    dataGaps,
+    narrative,
+    narrativeSource,
+    aiAvailable: aiEnabled(),
+  });
+}
+
+function deterministicNarrative(
+  verdict: string,
+  score: number,
+  reasons: { label: string; pts: number; note: string }[],
+  ctx: { st: string | null; cty: string; acres: number | null; compValue: number | null; minBid: number | null; landlocked: boolean; hardFailValue: boolean },
+): string {
+  const loc = [ctx.cty, ctx.st].filter(Boolean).join(", ") || "bu parsel";
+  const top = [...reasons].sort((a, b) => b.pts - a.pts).slice(0, 2).map((r) => r.note);
+  const weak = [...reasons].sort((a, b) => a.pts - b.pts).slice(0, 2).map((r) => `${r.label.toLowerCase()} (${r.note})`);
+  const head =
+    verdict === "BUY" ? `AL — ${loc} ${score}/100 ile güçlü bir fırsat.`
+      : verdict === "WATCH" ? `İZLE — ${loc} ${score}/100; potansiyel var ama doğrulama gerek.`
+        : `GEÇ — ${loc} ${score}/100, risk/getiri zayıf.`;
+  const valuePart = ctx.compValue && ctx.minBid != null
+    ? ` Comp değeri ≈ $${ctx.compValue.toLocaleString()}, min teklif $${ctx.minBid.toLocaleString()}.`
+    : "";
+  const killers = ctx.landlocked ? " ⚠️ Landlocked — yol erişimi olmadan değer ciddi düşer." : ctx.hardFailValue ? " ⚠️ Min teklif tahmini değerin üstünde." : "";
+  return `${head}${valuePart} Güçlü yanlar: ${top.join("; ")}. Zayıf/riskli: ${weak.join("; ")}.${killers} (Kural-tabanlı; OPENAI_API_KEY ayarlanınca AI anlatımı devreye girer.)`;
+}

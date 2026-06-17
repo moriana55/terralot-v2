@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { ScoreBadge, gradeOf } from "@/components/ScoreBadge";
-import { Target, Plus, MapPin, Mail, CheckCircle2, AlertTriangle, Search, FileText, Gavel, Eye, EyeOff, Send, BarChart3, LayoutGrid, Calculator, DollarSign, TrendingUp, ExternalLink, Loader2, ShieldCheck, Star } from "lucide-react";
+import { Target, Plus, MapPin, Mail, CheckCircle2, AlertTriangle, Search, FileText, Gavel, Eye, EyeOff, Send, BarChart3, LayoutGrid, Calculator, DollarSign, TrendingUp, ExternalLink, Loader2, ShieldCheck, Star, Layers } from "lucide-react";
 
 // --- Real row shape from Supabase: tax_delinquent_properties ---
 interface TaxLeadRow {
@@ -36,6 +36,8 @@ interface TaxLeadRow {
   flip_score: number | null;
   ownerfinance_score: number | null;
   confidence: number | null;
+  lat: number | null;
+  lng: number | null;
 }
 
 type OwnerType = "absentee" | "local" | "estate" | "corporate" | "tax_delinquent";
@@ -761,6 +763,9 @@ export default function AcquisitionsPage() {
                   )}
                 </div>
 
+                {/* Raw-land comps engine — nearby comparables by county + acreage ±30% */}
+                <CompsPanel state={sel.state} county={sel.county} acres={sel.acres} />
+
                 {sel.legal_description && (
                   <div className="p-3 rounded-lg text-xs" style={{ background: "rgba(255,255,255,0.03)", color: "var(--muted)" }}>
                     <FileText className="w-3 h-3 inline mr-1" /> {sel.legal_description}
@@ -836,6 +841,79 @@ export default function AcquisitionsPage() {
             )}
           </div>
         </div>
+      )}
+    </div>
+  );
+}
+
+// ── Raw-land comps engine panel (Feature: /api/parcel-comps) ──────────────────
+// Fetches nearby comparables for the selected lead (county + acreage ±30%).
+interface CompRow { competitor: string | null; county: string | null; acres: number; price: number; perAcre: number; sold: boolean; date: string | null; rawUrl: string | null }
+interface CompSummary { count: number; scope: string; medianPerAcre: number | null; adjustedValue: number | null; soldCount: number; hasSoldData: boolean; dateRange: { from: string; to: string } | null }
+
+function CompsPanel({ state, county, acres }: { state: string | null; county: string | null; acres: number | null }) {
+  const [comps, setComps] = useState<CompRow[]>([]);
+  const [summary, setSummary] = useState<CompSummary | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    if (!state) { setLoading(false); return; }
+    let cancelled = false;
+    setLoading(true);
+    const params = new URLSearchParams();
+    params.set("state", state);
+    if (county) params.set("county", county);
+    if (acres) params.set("acres", String(acres));
+    fetch(`/api/parcel-comps?${params.toString()}`)
+      .then((r) => r.json())
+      .then((j) => { if (cancelled) return; setComps(j.comps || []); setSummary(j.summary || null); })
+      .catch(() => { if (!cancelled) { setComps([]); setSummary(null); } })
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
+  }, [state, county, acres]);
+
+  const fmt = (n: number | null | undefined) => (n == null ? "—" : `$${Math.round(n).toLocaleString()}`);
+
+  return (
+    <div className="rounded-lg p-3" style={{ background: "var(--surface-low)" }}>
+      <p className="text-xs font-semibold uppercase tracking-wider mb-2 flex items-center gap-1.5" style={{ color: "var(--muted)" }}>
+        <Layers className="w-3 h-3" /> Comps {summary ? `· ${summary.count}` : ""}
+      </p>
+      {loading ? (
+        <div className="flex items-center gap-2 text-[11px]" style={{ color: "var(--muted)" }}><Loader2 className="w-3 h-3 animate-spin" /> Yükleniyor…</div>
+      ) : !summary || summary.count === 0 ? (
+        <p className="text-[11px]" style={{ color: "var(--muted)" }}>
+          {state ? `Bu county/acreage için comp yok (competitor_listings).` : "Eyalet bilinmiyor."}
+        </p>
+      ) : (
+        <>
+          <div className="grid grid-cols-2 gap-2 text-xs mb-2">
+            <div><p style={{ color: "var(--muted)" }}>Medyan $/acre</p><p className="font-bold">{fmt(summary.medianPerAcre)}</p></div>
+            <div><p style={{ color: "var(--muted)" }}>Düzelt. değer</p><p className="font-bold" style={{ color: "var(--grade-a)" }}>{fmt(summary.adjustedValue)}</p></div>
+          </div>
+          <p className="text-[10px] mb-2" style={{ color: "var(--muted)" }}>
+            {summary.count} comp · {summary.scope === "county" ? "county" : "state geneli"} · ±30% acreage
+            {summary.soldCount > 0 && summary.hasSoldData ? ` · ${summary.soldCount} satılmış` : ""}
+            {summary.dateRange ? ` · ${summary.dateRange.from} → ${summary.dateRange.to}` : ""}
+          </p>
+          <button onClick={() => setOpen((o) => !o)} className="text-[11px] font-semibold" style={{ color: "var(--accent-ink)" }}>
+            {open ? "Gizle" : `Comp'ları gör (${comps.length})`}
+          </button>
+          {open && (
+            <div className="mt-2 max-h-48 overflow-y-auto space-y-1.5">
+              {comps.map((c, i) => (
+                <div key={i} className="flex items-center justify-between text-[11px] gap-2">
+                  <span className="truncate" style={{ color: "var(--muted)" }}>
+                    {c.sold && <span style={{ color: "var(--grade-a)" }}>● </span>}
+                    {c.acres}ac{c.competitor ? ` · ${c.competitor}` : ""}{c.date ? ` · ${c.date.slice(0, 10)}` : ""}
+                  </span>
+                  <span className="font-semibold tabular-nums shrink-0">{fmt(c.perAcre)}/ac</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </>
       )}
     </div>
   );
