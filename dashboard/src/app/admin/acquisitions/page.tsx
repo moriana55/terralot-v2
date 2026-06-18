@@ -108,6 +108,8 @@ export default function AcquisitionsPage() {
     if (q) { setSearch(q); setSearchInput(q); }
     const src = sp.get("src");
     if (src === "tax" || src === "national" || src === "zillow") setSrcFilter(src);
+    const st = sp.get("state");
+    if (st) setStateFilter(st);
   }, []);
 
   useEffect(() => {
