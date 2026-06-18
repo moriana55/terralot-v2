@@ -3,6 +3,7 @@ import { z } from "zod";
 import { supabaseAdmin } from "@/lib/supabase";
 import { enforceRateLimit, requireGate } from "@/lib/api-guard";
 import { analyzeLead, type LeadAnalysis, type MarketContext } from "@/lib/cerberus/analyze";
+import { enrichMany, enrichmentToApplied, type EnrichInput } from "@/lib/cerberus/enrich";
 import { aiEnabled, aiNarrative } from "@/lib/ai-narrative";
 import { normCounty, abbrState } from "@/lib/cerberus/analyze";
 import { medianPpa } from "@/lib/land-valuation";
@@ -43,11 +44,18 @@ const MAX_BATCH = 500; // hard cap per invocation (keeps a single run bounded)
 const DB_PAGE = 1000;
 const UPSERT_CHUNK = 200;
 const AI_NARRATIVE_CAP = 8; // only enrich the top-N with AI (cost/latency guard)
+// ENRICHMENT IS OPT-IN + CAPPED. Hitting FREE keyless APIs (FEMA/USGS/OSM/Census)
+// per parcel is slow and rate-limited, so a run only enriches when ?enrich=1 and
+// only the top-N by score (the ones a human will actually act on). This stops a
+// huge backlog from hammering the public APIs by accident.
+const ENRICH_CAP = 25;
 
 const bodySchema = z.object({
   limit: z.coerce.number().int().min(1).max(MAX_BATCH).optional(),
   reanalyze: z.coerce.boolean().optional(), // re-run even already-analyzed parcels
   dryRun: z.coerce.boolean().optional(),
+  enrich: z.coerce.boolean().optional(), // OPT-IN multi-source enrichment (free APIs)
+  enrichCap: z.coerce.number().int().min(1).max(100).optional(),
 });
 
 function safeEqual(a: string, b: string): boolean {
@@ -92,6 +100,8 @@ function toRow(a: LeadAnalysis) {
     components: a.components,
     reasons: a.reasons,
     risk_flags: a.riskFlags,
+    real_signals: a.realSignals,
+    enrichment: a.enrichment,
     data_gaps: a.dataGaps,
     suggested_action: a.suggestedAction,
     narrative: a.narrative,
@@ -164,6 +174,9 @@ export async function POST(req: NextRequest) {
   const limit = parsed.data.limit ?? MAX_BATCH;
   const reanalyze = !!parsed.data.reanalyze;
   const dryRun = !!parsed.data.dryRun;
+  // Opt-in via body OR ?enrich=1 query (documented: keeps free APIs from being hammered).
+  const enrich = !!parsed.data.enrich || req.nextUrl.searchParams.get("enrich") === "1";
+  const enrichCap = Math.min(parsed.data.enrichCap ?? ENRICH_CAP, 100);
 
   let s;
   try {
@@ -219,6 +232,7 @@ export async function POST(req: NextRequest) {
 
   // 4) Analyze the backlog one-by-one (pure) ------------------------------------
   const analyses: LeadAnalysis[] = [];
+  const leadByKey = new Map<string, Record<string, unknown>>(); // for enrichment re-analyze
   const seen = new Set<string>();
   let skippedNoIdentity = 0;
   let skippedAlready = 0;
@@ -229,7 +243,37 @@ export async function POST(req: NextRequest) {
     if (seen.has(a.parcelKey)) continue; // within-batch dedup
     if (!reanalyze && analyzedKeys.has(a.parcelKey)) { skippedAlready++; continue; }
     seen.add(a.parcelKey);
+    leadByKey.set(a.parcelKey, lead);
     analyses.push(a);
+  }
+
+  // 4b) OPT-IN multi-source ENRICHMENT (free keyless APIs), top-N by score only.
+  // Politely throttled (small concurrency + delay in enrichMany) so a backlog
+  // never hammers FEMA/USGS/OSM/Census. Re-analyzes the enriched parcels so the
+  // verdict/flags use REAL flood zone + road-access + demographics.
+  let enriched = 0;
+  if (enrich && analyses.length) {
+    const top = [...analyses].sort((x, y) => y.score - x.score).slice(0, enrichCap);
+    const inputs: EnrichInput[] = top.map((a) => ({
+      lat: typeof (leadByKey.get(a.parcelKey)?.lat) === "number" ? (leadByKey.get(a.parcelKey)!.lat as number) : null,
+      lng: typeof (leadByKey.get(a.parcelKey)?.lng) === "number" ? (leadByKey.get(a.parcelKey)!.lng as number) : null,
+      address: a.address,
+      state: a.state,
+      county: a.county,
+    }));
+    const results = await enrichMany(inputs, { concurrency: 2, delayMs: 350 });
+    for (let i = 0; i < top.length; i++) {
+      const e = results[i];
+      if (!e || e.sourcesOk.length === 0) continue; // nothing measured → keep heuristic
+      const lead = leadByKey.get(top[i].parcelKey);
+      if (!lead) continue;
+      const re = analyzeLead(lead, ctx, enrichmentToApplied(e));
+      if (re) {
+        const idx = analyses.findIndex((x) => x.parcelKey === top[i].parcelKey);
+        if (idx >= 0) analyses[idx] = re;
+        enriched++;
+      }
+    }
   }
 
   // 5) AI narrative for the top opportunities only (env-gated, cost-bounded) -----
@@ -259,6 +303,8 @@ export async function POST(req: NextRequest) {
       skippedAlready,
       skippedNoIdentity,
       verdictCounts,
+      enriched,
+      enrichApplied: enrich,
       aiEnriched,
       sample: analyses.slice(0, 3),
     });
@@ -298,6 +344,8 @@ export async function POST(req: NextRequest) {
       skippedAlready,
       skippedNoIdentity,
       verdictCounts,
+      enriched,
+      enrichApplied: enrich,
       aiEnriched,
       aiAvailable: aiEnabled(),
       remainingBacklog: Math.max(0, totalCaptured - analyzedKeys.size - analyses.length),

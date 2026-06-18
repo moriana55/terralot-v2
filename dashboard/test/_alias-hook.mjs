@@ -17,5 +17,16 @@ export async function resolve(specifier, context, nextResolve) {
     }
     return nextResolve(pathToFileURL(target).href, context);
   }
+  // Resolve extensionless RELATIVE imports (e.g. "./http" → "./http.ts") so TS
+  // source files don't need explicit .ts extensions to run under `node --test`.
+  if ((specifier.startsWith("./") || specifier.startsWith("../")) && context.parentURL?.startsWith("file:")) {
+    const parentDir = dirname(fileURLToPath(context.parentURL));
+    const base = resolvePath(parentDir, specifier);
+    if (!extname(base) || !existsSync(base)) {
+      for (const cand of [base + ".ts", base + ".tsx", resolvePath(base, "index.ts")]) {
+        if (existsSync(cand)) return nextResolve(pathToFileURL(cand).href, context);
+      }
+    }
+  }
   return nextResolve(specifier, context);
 }

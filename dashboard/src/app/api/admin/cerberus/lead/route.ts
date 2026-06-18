@@ -4,6 +4,7 @@ import { supabaseAdmin } from "@/lib/supabase";
 import { enforceRateLimit, requireGate } from "@/lib/api-guard";
 import { analyzeLead } from "@/lib/cerberus/analyze";
 import { abbrState, normCounty } from "@/lib/cerberus/analyze";
+import { enrichParcel, enrichmentToApplied } from "@/lib/cerberus/enrich";
 import { medianPpa } from "@/lib/land-valuation";
 
 export const runtime = "nodejs";
@@ -92,9 +93,24 @@ export async function GET(req: NextRequest) {
     } catch { /* graceful */ }
   }
 
-  const analysis = analyzeLead(lead, ctx);
+  // Opt-in live enrichment for THIS one parcel (?enrich=1) — drill-down "god mode".
+  // Single parcel, so the rate-limit budget is tiny; still fully defensive.
+  const wantEnrich = req.nextUrl.searchParams.get("enrich") === "1";
+  let analysis;
+  if (wantEnrich) {
+    const e = await enrichParcel({
+      lat: typeof lead.lat === "number" ? lead.lat : null,
+      lng: typeof lead.lng === "number" ? lead.lng : null,
+      address: typeof lead.property_address === "string" ? lead.property_address : null,
+      state: st,
+      county: cty,
+    });
+    analysis = analyzeLead(lead, ctx, e.sourcesOk.length ? enrichmentToApplied(e) : undefined);
+  } else {
+    analysis = analyzeLead(lead, ctx);
+  }
   if (!analysis) {
     return NextResponse.json({ error: "not_analyzable", message: "Lead'in kimliği yok (APN/konum), analiz edilemiyor." }, { status: 422 });
   }
-  return NextResponse.json({ stored: false, live: true, analysis });
+  return NextResponse.json({ stored: false, live: true, enriched: wantEnrich, analysis });
 }

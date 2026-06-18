@@ -50,14 +50,23 @@ create table if not exists public.lead_analyses (
   risk_flags        jsonb,           -- [{code, level, label}]
   data_gaps         jsonb,           -- string[]
 
+  -- ENRICHMENT (pipeline v2) — multi-source free public data + provenance.
+  real_signals      jsonb,           -- which signals are REAL vs estimated: { flood_score:"FEMA", road_access:"OSM", ... }
+  enrichment        jsonb,           -- EnrichmentSummary: flood zone, elevation, road distance, demographics, sources
+
   suggested_action  text,
   narrative         text,
   narrative_source  text,            -- ai | rule-based
-  pipeline_version  integer not null default 1,
+  pipeline_version  integer not null default 2,
 
   analyzed_at       timestamptz not null default now(),
   created_at        timestamptz not null default now()
 );
+
+-- Forward-compat: add the enrichment columns if upgrading an EXISTING table
+-- (created before pipeline v2). Safe to run repeatedly.
+alter table public.lead_analyses add column if not exists real_signals jsonb;
+alter table public.lead_analyses add column if not exists enrichment   jsonb;
 
 -- Idempotency: one analysis row per parcel. The batch endpoint upserts on this.
 create unique index if not exists lead_analyses_parcel_key_uidx

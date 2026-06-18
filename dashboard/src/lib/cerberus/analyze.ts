@@ -127,6 +127,16 @@ export interface LeadAnalysis {
   // risk
   riskFlags: RiskFlag[];
 
+  // enrichment provenance — which signals are REAL (measured) vs ESTIMATED
+  // (rule-based/heuristic). Mirrors the honesty contract for the UI badge.
+  // Maps a signal name → the source that measured it (FEMA/USGS/OSM/Census).
+  // Empty when the parcel wasn't enriched (everything stays estimated).
+  realSignals: Partial<
+    Record<"road_access" | "flood_score" | "county_pop_growth" | "elevation" | "demographics", string>
+  >;
+  /** Full enrichment payload (flood zone, elevation, road distance, demographics) when enriched. */
+  enrichment: EnrichmentSummary | null;
+
   // action + narrative
   suggestedAction: string; // Turkish, decisive
   narrative: string; // rule-based; caller may overwrite with AI
@@ -138,7 +148,30 @@ export interface LeadAnalysis {
   pipelineVersion: number;
 }
 
-export const PIPELINE_VERSION = 1;
+// Serializable enrichment summary persisted alongside the analysis + rendered in
+// the drill-down. Decoupled from enrich.ts's richer runtime types so the pure
+// pipeline stays import-light and the JSON stored in `lead_analyses` is stable.
+export interface EnrichmentSummary {
+  floodZone: string | null;
+  floodLabel: string | null;
+  elevationFt: number | null;
+  elevationM: number | null;
+  nearestRoadM: number | null;
+  roadAccess: string | null;
+  roadName: string | null;
+  population: number | null;
+  medianIncome: number | null;
+  popGrowth5y: number | null;
+  lat: number | null;
+  lng: number | null;
+  geocoded: boolean;
+  sourcesOk: string[]; // e.g. ["FEMA","USGS","OSM","Census"]
+  regridConnected: boolean;
+  attomConnected: boolean;
+  enrichedAt: string;
+}
+
+export const PIPELINE_VERSION = 2; // v2 = multi-source enrichment provenance
 
 // ── Helpers (shared normalization, aligned with api/underwrite) ──────────────
 const FULL2: Record<string, string> = {
@@ -207,13 +240,39 @@ function resolveRates(
 // score + reasons (reuses the exact rubric) → (d) risk/red-flags → (e) action +
 // rule-based narrative. Returns null ONLY when the lead has no identity at all.
 // ─────────────────────────────────────────────────────────────────────────────
-export function analyzeLead(raw: unknown, ctx: MarketContext = {}): LeadAnalysis | null {
+// Optional REAL-signal overrides folded in by the enrichment layer. Only the
+// fields we MEASURED are present; everything else falls back to the lead row's
+// heuristic value. `realSignals` records provenance for the honest UI badge.
+export interface EnrichmentApplied {
+  road_access?: string | null;
+  flood_score?: number | null;
+  county_pop_growth?: number | null;
+  realSignals?: Partial<
+    Record<"road_access" | "flood_score" | "county_pop_growth" | "elevation" | "demographics", string>
+  >;
+  summary?: EnrichmentSummary | null;
+}
+
+export function analyzeLead(
+  raw: unknown,
+  ctx: MarketContext = {},
+  enriched?: EnrichmentApplied,
+): LeadAnalysis | null {
   const parsed = RawLeadSchema.safeParse(raw);
   if (!parsed.success) return null;
   const r = parsed.data;
 
   const parcelKey = parcelKeyOf(r);
   if (!parcelKey) return null;
+
+  // Fold REAL measured signals over the heuristic lead row (only when present).
+  const realSignals = enriched?.realSignals ?? {};
+  const roadAccessEff =
+    enriched?.road_access != null ? enriched.road_access : (r.road_access ?? null);
+  const floodScoreEff =
+    enriched?.flood_score != null ? num(enriched.flood_score) : num(r.flood_score);
+  const popGrowthEff =
+    enriched?.county_pop_growth != null ? num(enriched.county_pop_growth) : num(r.county_pop_growth);
 
   const st = abbrState(r.state);
   const cty = normCounty(r.county);
@@ -248,9 +307,9 @@ export function analyzeLead(raw: unknown, ctx: MarketContext = {}): LeadAnalysis
     discount_pct: discountPct,
     savings: num(r.savings),
     liquidity_score: num(r.liquidity_score),
-    county_pop_growth: num(r.county_pop_growth),
-    road_access: r.road_access ?? null,
-    flood_score: num(r.flood_score),
+    county_pop_growth: popGrowthEff,
+    road_access: roadAccessEff,
+    flood_score: floodScoreEff,
     acres: sAcres,
     minimum_bid: minBid,
     compValue,
@@ -262,10 +321,10 @@ export function analyzeLead(raw: unknown, ctx: MarketContext = {}): LeadAnalysis
     margin: bx.margin,
     discountPct,
     finalScore: num(r.final_score) ?? num(r.deal_score),
-    popGrowth: num(r.county_pop_growth),
+    popGrowth: popGrowthEff,
     liquidity: num(r.liquidity_score),
-    roadAccess: r.road_access ?? null,
-    floodScore: num(r.flood_score),
+    roadAccess: roadAccessEff,
+    floodScore: floodScoreEff,
     savings: num(r.savings),
     compValue,
     minBid,
@@ -273,8 +332,8 @@ export function analyzeLead(raw: unknown, ctx: MarketContext = {}): LeadAnalysis
 
   // (e) risk / red-flags — structural killers + soft warnings.
   const riskFlags = detectRisks({
-    roadAccess: r.road_access ?? null,
-    floodScore: num(r.flood_score),
+    roadAccess: roadAccessEff,
+    floodScore: floodScoreEff,
     compValue,
     minBid,
     sAcres,
@@ -283,6 +342,7 @@ export function analyzeLead(raw: unknown, ctx: MarketContext = {}): LeadAnalysis
     ddChecked: !!r.dd_checked,
     valueConfidence,
     saleDate: r.sale_date ?? null,
+    enrichedDD: !!(realSignals.road_access || realSignals.flood_score),
   });
 
   const suggestedAction = suggestAction(bx.verdict, riskFlags, { reachableOwner: ownerReachable(r.owner_name ?? null) });
@@ -322,6 +382,8 @@ export function analyzeLead(raw: unknown, ctx: MarketContext = {}): LeadAnalysis
     confidence: bx.confidence,
     hardFail: bx.hardFail,
     riskFlags,
+    realSignals,
+    enrichment: enriched?.summary ?? null,
     suggestedAction,
     narrative,
     narrativeSource: "rule-based",
@@ -427,6 +489,7 @@ function detectRisks(s: {
   ddChecked: boolean;
   valueConfidence: Confidence;
   saleDate: string | null;
+  enrichedDD?: boolean;
 }): RiskFlag[] {
   const flags: RiskFlag[] = [];
 
@@ -436,7 +499,8 @@ function detectRisks(s: {
   if (s.floodScore != null && s.floodScore >= 80) flags.push({ code: "high_flood", level: "warn", label: "Yüksek sel riski (FEMA)" });
   if (s.rawAcres != null && s.sAcres == null) flags.push({ code: "bad_acreage", level: "warn", label: "Acreage implausible/parse hatası — değer doğrulanmalı" });
   if (s.sAcres == null && s.rawAcres == null) flags.push({ code: "no_acreage", level: "warn", label: "Acreage yok — dürüst değer hesaplanamıyor" });
-  if (!s.ddChecked) flags.push({ code: "no_dd", level: "info", label: "Due-diligence taraması yapılmamış (yol/sel doğrulanmadı)" });
+  if (s.enrichedDD) flags.push({ code: "enriched_verified", level: "info", label: "Yol/sel canlı kaynaklardan doğrulandı (FEMA/OSM)" });
+  else if (!s.ddChecked) flags.push({ code: "no_dd", level: "info", label: "Due-diligence taraması yapılmamış (yol/sel doğrulanmadı)" });
   if (!ownerReachable(s.ownerName)) flags.push({ code: "owner_unreachable", level: "info", label: "Sahip iletişimi zor (direct-mail yolu belirsiz)" });
   if (s.valueConfidence === "low" && s.compValue != null) flags.push({ code: "low_value_conf", level: "info", label: "Değer düşük güvenli (büyük tract / state comp)" });
 

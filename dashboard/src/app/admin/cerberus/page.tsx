@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
   Loader2, AlertCircle, Play, CheckCircle2, Eye, XCircle, ShieldAlert,
-  Database, Cpu, Layers, TrendingUp, Radio, Brain, RefreshCw, ArrowRight,
+  Database, Cpu, Layers, TrendingUp, Radio, Brain, RefreshCw, ArrowRight, Satellite,
 } from "lucide-react";
 import { ScoreBadge } from "@/components/ScoreBadge";
 import { CerberusLogo } from "@/components/DealHoundLogo";
@@ -68,14 +68,14 @@ export default function CerberusIntelPage() {
 
   useEffect(() => { load(); }, [load]);
 
-  const runAll = useCallback(async () => {
+  const runAll = useCallback(async (enrich = false) => {
     setRunning(true);
     setRunMsg(null);
     try {
       const r = await fetch("/api/admin/cerberus/analyze", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ limit: 500 }),
+        body: JSON.stringify({ limit: 500, enrich }),
       });
       const j = await r.json().catch(() => ({}));
       if (!r.ok) {
@@ -86,6 +86,7 @@ export default function CerberusIntelPage() {
         const vc = j.verdictCounts || {};
         setRunMsg(
           `${j.analyzed} parsel analiz edildi → AL ${vc.BUY ?? 0} · BEKLE ${vc.WATCH ?? 0} · GEÇ ${vc.PASS ?? 0}` +
+          (j.enriched ? ` · ${j.enriched} saha verisiyle zenginleştirildi (FEMA/USGS/OSM/Census)` : "") +
           (j.aiEnriched ? ` · ${j.aiEnriched} AI anlatım` : "") +
           (j.remainingBacklog ? ` · ${j.remainingBacklog} kaldı (tekrar çalıştır)` : "")
         );
@@ -128,12 +129,19 @@ export default function CerberusIntelPage() {
             style={{ background: "var(--surface)", border: "1px solid var(--outline)" }}>
             <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} /> Yenile
           </button>
-          <button onClick={runAll} disabled={running || !intel?.tableReady}
+          <button onClick={() => runAll(false)} disabled={running || !intel?.tableReady}
             className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold disabled:opacity-60"
             style={{ background: "var(--primary)", color: "#fff" }}
             title={!intel?.tableReady ? "Önce migration'ı uygula" : "Backlog'u analiz et"}>
             {running ? <Loader2 className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4" />}
             Tümünü Analiz Et
+          </button>
+          <button onClick={() => runAll(true)} disabled={running || !intel?.tableReady}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold disabled:opacity-60"
+            style={{ background: "var(--accent-ink)", color: "#fff" }}
+            title="Top-N parseli FEMA/USGS/OSM/Census ile zenginleştir (ücretsiz API'ler, nazikçe)">
+            {running ? <Loader2 className="w-4 h-4 animate-spin" /> : <Satellite className="w-4 h-4" />}
+            Analiz + Saha Verisi
           </button>
         </div>
       </div>
@@ -199,7 +207,7 @@ export default function CerberusIntelPage() {
             </div>
             {intel.pending > 0 && (
               <p className="text-[11px] mt-2" style={{ color: "var(--muted)" }}>
-                {intel.pending.toLocaleString()} parsel kuyrukta — <button onClick={runAll} disabled={running} className="underline font-semibold" style={{ color: "var(--accent-ink)" }}>Tümünü Analiz Et</button>&apos;e bas.
+                {intel.pending.toLocaleString()} parsel kuyrukta — <button onClick={() => runAll(false)} disabled={running} className="underline font-semibold" style={{ color: "var(--accent-ink)" }}>Tümünü Analiz Et</button>&apos;e bas.
               </p>
             )}
           </div>
