@@ -24,8 +24,9 @@ const isPublicApi = (req: NextRequest) =>
 // We let such a request bypass the page/gate auth ONLY when CRON_SECRET is set
 // AND the presented token matches (constant-time) — fail closed otherwise. The
 // route handler re-verifies the secret, so this is defense-in-depth, not the
-// sole check. Currently only the scraper→dashboard sync endpoint opts in.
-const CRON_ENDPOINTS = ["/api/admin/sync-deals"];
+// sole check. The scraper→dashboard sync and the Cerberus batch analyzer opt in
+// (both re-verify CRON_SECRET in their handler and remain fail-closed).
+const CRON_ENDPOINTS = ["/api/admin/sync-deals", "/api/admin/cerberus/analyze"];
 function cronBearerOk(req: NextRequest): boolean {
   const secret = process.env.CRON_SECRET;
   if (!secret) return false;

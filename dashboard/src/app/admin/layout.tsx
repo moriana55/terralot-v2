@@ -17,6 +17,7 @@ const SECTIONS: { label: string | null; items: { href: string; icon: typeof MapP
   {
     label: "Cerberus · Sourcing",
     items: [
+      { href: "/admin/cerberus", icon: Brain, label: "Cerberus Intel" },
       { href: "/admin/scraper", icon: Cpu, label: "Cerberus Botları" },
       { href: "/admin/tax-leads", icon: FileSearch, label: "Tax Leads" },
       { href: "/admin/acquisitions", icon: Target, label: "Acquisitions" },
