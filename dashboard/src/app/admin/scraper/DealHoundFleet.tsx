@@ -28,7 +28,7 @@ function freshness(iso: string | null): string {
 
 const META: Record<string, { Icon: typeof Gavel; color: string }> = {
   tax: { Icon: Gavel, color: "#8ed1df" },
-  national: { Icon: Globe2, color: "#a882ff" },
+  national: { Icon: Globe2, color: "#5aa9ff" },
   retail: { Icon: Home, color: "#ffb43c" },
   comp: { Icon: Building2, color: "#50dc8c" },
   calendar: { Icon: CalendarClock, color: "#ffc24d" },
@@ -74,7 +74,7 @@ export function DealHoundFleet() {
         boxShadow: "0 10px 34px rgba(8,18,42,0.45)",
       }}
     >
-      <div style={{ height: 2, background: "linear-gradient(90deg, transparent, #8ed1df, #a882ff, transparent)" }} />
+      <div style={{ height: 2, background: "linear-gradient(90deg, transparent, #8ed1df, #4fb8cf, transparent)" }} />
 
       <div className="px-6 pt-5 pb-5">
         {/* header */}

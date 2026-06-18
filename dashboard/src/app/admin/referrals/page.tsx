@@ -79,7 +79,7 @@ const referrals: Referral[] = [
 ];
 
 const statusConfig: Record<ReferralStatus, { label: string; bg: string; text: string }> = {
-  pending: { label: "Pending", bg: "rgba(168,130,255,0.1)", text: "#a882ff" },
+  pending: { label: "Pending", bg: "rgba(90,169,255,0.1)", text: "#5aa9ff" },
   qualified: { label: "Qualified", bg: "rgba(255,180,60,0.1)", text: "#ffb43c" },
   converted: { label: "Converted", bg: "rgba(80,220,140,0.1)", text: "#50dc8c" },
   paid: { label: "Paid", bg: "rgba(80,220,140,0.15)", text: "#30c070" },
@@ -88,7 +88,7 @@ const statusConfig: Record<ReferralStatus, { label: string; bg: string; text: st
 
 const typeConfig: Record<PartnerType, { label: string; color: string }> = {
   individual: { label: "Individual", color: "#8ed1df" },
-  agent: { label: "Real Estate Agent", color: "#a882ff" },
+  agent: { label: "Real Estate Agent", color: "#5aa9ff" },
   investor: { label: "Investor", color: "#ffb43c" },
   wholesaler: { label: "Wholesaler", color: "#50dc8c" },
 };
@@ -131,7 +131,7 @@ export default function ReferralsPage() {
         {[
           { label: "Total Paid Out", value: `$${totalEarned.toLocaleString()}`, icon: DollarSign, color: "#50dc8c" },
           { label: "Pending Payouts", value: `$${totalPending.toLocaleString()}`, icon: Clock, color: "#ffb43c" },
-          { label: "Conversion Rate", value: `${conversionRate}%`, icon: TrendingUp, color: "#a882ff" },
+          { label: "Conversion Rate", value: `${conversionRate}%`, icon: TrendingUp, color: "#5aa9ff" },
           { label: "Active Partners", value: partners.length.toString(), icon: Users, color: "var(--primary)" },
         ].map(s => (
           <div key={s.label} className="rounded-xl p-4 border" style={{ background: "var(--surface)", borderColor: "rgba(255,255,255,0.05)" }}>

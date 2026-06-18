@@ -170,7 +170,7 @@ export default function DDCheckerPage() {
           {/* Road Card */}
           <div className="rounded-xl border overflow-hidden" style={{ borderColor: "var(--outline)" }}>
             <div className="flex items-center gap-3 px-5 py-4 border-b" style={{ background: "var(--surface)", borderColor: "var(--outline)" }}>
-              <Route className="w-5 h-5" style={{ color: "#a78bfa" }} />
+              <Route className="w-5 h-5" style={{ color: "#5aa9ff" }} />
               <h2 className="font-bold">Road Access</h2>
               {road && (
                 <span className="ml-auto text-xs font-bold px-2 py-0.5 rounded"

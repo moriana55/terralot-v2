@@ -85,7 +85,7 @@ const subdivisions: Subdivision[] = [
 
 const statusColors: Record<string, { bg: string; text: string }> = {
   available: { bg: "rgba(100,200,255,0.1)", text: "#64c8ff" },
-  listed: { bg: "rgba(168,130,255,0.1)", text: "#a882ff" },
+  listed: { bg: "rgba(90,169,255,0.1)", text: "#5aa9ff" },
   pending: { bg: "rgba(255,180,60,0.1)", text: "#ffb43c" },
   sold: { bg: "rgba(80,220,140,0.1)", text: "#50dc8c" },
 };
@@ -117,7 +117,7 @@ export default function SubdivisionsPage() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
           { label: "Total Acquired", value: `$${totalAcquired.toLocaleString()}`, icon: DollarSign, color: "var(--primary)" },
-          { label: "Total Retail Value", value: `$${totalRetail.toLocaleString()}`, icon: TrendingUp, color: "#a882ff" },
+          { label: "Total Retail Value", value: `$${totalRetail.toLocaleString()}`, icon: TrendingUp, color: "#5aa9ff" },
           { label: "Revenue Collected", value: `$${soldRevenue.toLocaleString()}`, icon: DollarSign, color: "#50dc8c" },
           { label: "Projected Profit", value: `$${totalProfit.toLocaleString()}`, icon: TrendingUp, color: "#ffb43c" },
         ].map(s => (

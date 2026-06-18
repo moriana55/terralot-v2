@@ -1,15 +1,8 @@
 import { properties } from "@/lib/data";
 import { SampleDataBanner } from "@/components/SampleDataBanner";
+import { Card, StatusPill } from "@/components/InvestorUI";
 
 export const metadata = { title: "Financials" };
-
-function Card({ children, className = "" }: { children: React.ReactNode; className?: string }) {
-  return (
-    <div className={`rounded-xl border border-white/5 p-5 ${className}`} style={{ background: "var(--surface)" }}>
-      {children}
-    </div>
-  );
-}
 
 export default function FinancialsPage() {
   const totalCost = properties.reduce((s, p) => s + p.costPrice, 0);
@@ -55,7 +48,7 @@ export default function FinancialsPage() {
         ].map(s => (
           <Card key={s.label}>
             <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: "var(--muted)" }}>{s.label}</p>
-            <p className="text-2xl font-bold" style={{ color: s.color }}>{s.value}</p>
+            <p className="text-2xl font-bold tabular-nums" style={{ color: s.color }}>{s.value}</p>
           </Card>
         ))}
       </div>
@@ -67,8 +60,8 @@ export default function FinancialsPage() {
           <div className="flex items-end gap-3 h-40">
             {months.map(m => (
               <div key={m.month} className="flex-1 flex flex-col items-center gap-1">
-                <span className="text-[10px] font-bold" style={{ color: "var(--success)" }}>${(m.revenue / 1000).toFixed(1)}k</span>
-                <div className="w-full rounded-t-md" style={{ height: `${(m.revenue / maxRevenue) * 100}%`, background: "var(--primary)", minHeight: 8 }} />
+                <span className="text-[10px] font-bold tabular-nums" style={{ color: "var(--success)" }}>${(m.revenue / 1000).toFixed(1)}k</span>
+                <div className="w-full rounded-t-md transition-all" style={{ height: `${(m.revenue / maxRevenue) * 100}%`, background: "var(--primary)", minHeight: 8 }} />
                 <span className="text-[10px]" style={{ color: "var(--muted)" }}>{m.month}</span>
               </div>
             ))}
@@ -82,45 +75,45 @@ export default function FinancialsPage() {
             <div>
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm">Investor Share (60%)</span>
-                <span className="text-sm font-bold" style={{ color: "var(--success)" }}>${investorShare.toLocaleString()}</span>
+                <span className="text-sm font-bold tabular-nums" style={{ color: "var(--success)" }}>${investorShare.toLocaleString()}</span>
               </div>
-              <div className="h-3 rounded-full" style={{ background: "var(--surface-low)" }}>
+              <div className="h-3 rounded-full overflow-hidden" style={{ background: "var(--surface-high)" }}>
                 <div className="h-full rounded-full" style={{ width: "60%", background: "var(--success)" }} />
               </div>
             </div>
             <div>
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm">Operator Share (40%)</span>
-                <span className="text-sm font-bold" style={{ color: "var(--primary)" }}>${operatorShare.toLocaleString()}</span>
+                <span className="text-sm font-bold tabular-nums" style={{ color: "var(--primary)" }}>${operatorShare.toLocaleString()}</span>
               </div>
-              <div className="h-3 rounded-full" style={{ background: "var(--surface-low)" }}>
+              <div className="h-3 rounded-full overflow-hidden" style={{ background: "var(--surface-high)" }}>
                 <div className="h-full rounded-full" style={{ width: "40%", background: "var(--primary)" }} />
               </div>
             </div>
           </div>
 
-          <div className="mt-6 pt-4 border-t border-white/5 grid grid-cols-2 gap-4">
+          <div className="mt-6 pt-4 border-t grid grid-cols-2 gap-4" style={{ borderColor: "var(--border)" }}>
             <div>
               <p className="text-[10px] uppercase tracking-widest" style={{ color: "var(--muted)" }}>Monthly MRR</p>
-              <p className="text-xl font-bold" style={{ color: "var(--success)" }}>${monthlyMRR.toLocaleString()}</p>
+              <p className="text-xl font-bold tabular-nums" style={{ color: "var(--success)" }}>${monthlyMRR.toLocaleString()}</p>
             </div>
             <div>
               <p className="text-[10px] uppercase tracking-widest" style={{ color: "var(--muted)" }}>Net Monthly</p>
-              <p className="text-xl font-bold" style={{ color: netMonthly > 0 ? "var(--success)" : "var(--error, #ef4444)" }}>${netMonthly.toLocaleString()}</p>
+              <p className="text-xl font-bold tabular-nums" style={{ color: netMonthly > 0 ? "var(--success)" : "var(--error)" }}>${netMonthly.toLocaleString()}</p>
             </div>
           </div>
         </Card>
       </div>
 
       {/* P&L Table */}
-      <Card>
-        <h2 className="font-bold mb-4">Profit & Loss by Parcel</h2>
+      <Card className="!p-0 overflow-hidden">
+        <h2 className="font-bold px-5 pt-5 pb-4">Profit & Loss by Parcel</h2>
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+          <table className="w-full text-sm tl-table min-w-[760px]">
             <thead>
-              <tr className="border-b border-white/10">
+              <tr className="border-y" style={{ borderColor: "var(--border)", background: "var(--surface-low)" }}>
                 {["Property", "State", "Cost", "Sale Price", "Collected", "Remaining", "Margin", "Status"].map(h => (
-                  <th key={h} className="text-left py-2 text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--muted)" }}>{h}</th>
+                  <th key={h} className="text-left px-5 py-2.5">{h}</th>
                 ))}
               </tr>
             </thead>
@@ -130,22 +123,15 @@ export default function FinancialsPage() {
                 const remaining = p.price - collected;
                 const margin = Math.round(((p.price - p.costPrice) / p.price) * 100);
                 return (
-                  <tr key={p.id} className="border-b border-white/5">
-                    <td className="py-3 font-medium">{p.title}</td>
-                    <td className="py-3 text-xs" style={{ color: "var(--muted)" }}>{p.state}</td>
-                    <td className="py-3 text-xs">${p.costPrice.toLocaleString()}</td>
-                    <td className="py-3 text-xs font-semibold">${p.price.toLocaleString()}</td>
-                    <td className="py-3 text-xs font-semibold" style={{ color: "var(--success)" }}>${collected.toLocaleString()}</td>
-                    <td className="py-3 text-xs" style={{ color: "var(--muted)" }}>${remaining.toLocaleString()}</td>
-                    <td className="py-3 text-xs font-bold" style={{ color: margin > 40 ? "var(--success)" : "var(--primary)" }}>{margin}%</td>
-                    <td className="py-3">
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase" style={{
-                        background: p.status === "sold" ? "rgba(34,197,94,0.1)" : p.status === "pending" ? "rgba(234,179,8,0.1)" : "rgba(142,209,223,0.1)",
-                        color: p.status === "sold" ? "#22c55e" : p.status === "pending" ? "#eab308" : "#8ed1df",
-                      }}>
-                        {p.status}
-                      </span>
-                    </td>
+                  <tr key={p.id} className="border-b transition-colors hover:bg-[var(--surface-low)]" style={{ borderColor: "var(--border)" }}>
+                    <td className="px-5 py-3 font-medium">{p.title}</td>
+                    <td className="px-5 py-3 text-xs" style={{ color: "var(--muted)" }}>{p.state}</td>
+                    <td className="px-5 py-3 text-xs tabular-nums">${p.costPrice.toLocaleString()}</td>
+                    <td className="px-5 py-3 text-xs font-semibold tabular-nums">${p.price.toLocaleString()}</td>
+                    <td className="px-5 py-3 text-xs font-semibold tabular-nums" style={{ color: "var(--success)" }}>${collected.toLocaleString()}</td>
+                    <td className="px-5 py-3 text-xs tabular-nums" style={{ color: "var(--muted)" }}>${remaining.toLocaleString()}</td>
+                    <td className="px-5 py-3 text-xs font-bold tabular-nums" style={{ color: margin > 40 ? "var(--success)" : "var(--primary)" }}>{margin}%</td>
+                    <td className="px-5 py-3"><StatusPill status={p.status} /></td>
                   </tr>
                 );
               })}

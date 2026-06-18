@@ -172,7 +172,7 @@ export default function FinancingPage() {
         {[
           { label: "Total Financed", value: money(totalFinanced), icon: DollarSign, color: "var(--primary)" },
           { label: "Total Collected", value: money(totalCollected), icon: TrendingUp, color: "#50dc8c" },
-          { label: "Monthly Income", value: `${money(monthlyIncome)}/mo`, icon: Wallet, color: "#a882ff" },
+          { label: "Monthly Income", value: `${money(monthlyIncome)}/mo`, icon: Wallet, color: "#5aa9ff" },
           { label: "Active Buyers", value: activeBuyersCount.toString(), icon: Users, color: "#ffb43c" },
         ].map(s => (
           <div key={s.label} className="rounded-xl p-4 border" style={{ background: "var(--surface)", borderColor: "rgba(255,255,255,0.05)" }}>

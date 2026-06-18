@@ -58,14 +58,14 @@ export default function AdminDashboard() {
   return (
     <div className="p-7 max-w-6xl space-y-6">
       {error && (
-        <div className="rounded-lg p-3 text-sm" style={{ background: "rgba(255,80,80,0.08)", color: "#ff5050", border: "1px solid rgba(255,80,80,0.2)" }}>
+        <div className="rounded-lg p-3 text-sm" style={{ background: "var(--status-overdue-soft)", color: "var(--danger)", border: "1px solid rgba(186,26,26,0.2)" }}>
           {error}
         </div>
       )}
 
       {/* ── Cerberus command hero ── */}
       <div className="relative rounded-2xl overflow-hidden" style={{ background: "linear-gradient(135deg, #102a55 0%, #0a1a3f 62%)", boxShadow: "0 10px 34px rgba(8,18,42,0.4)" }}>
-        <div style={{ height: 2, background: "linear-gradient(90deg, transparent, #8ed1df, #a882ff, transparent)" }} />
+        <div style={{ height: 2, background: "linear-gradient(90deg, transparent, #8ed1df, #4fb8cf, transparent)" }} />
         <div className="p-6">
           <div className="flex items-center gap-3.5">
             <span className="shrink-0 rounded-xl p-1.5" style={{ background: "rgba(142,209,223,0.1)", border: "1px solid rgba(142,209,223,0.18)" }}><CerberusLogo size={38} /></span>
@@ -82,7 +82,7 @@ export default function AdminDashboard() {
           <div className="mt-5 grid grid-cols-2 md:grid-cols-5 gap-px rounded-xl overflow-hidden" style={{ background: "rgba(255,255,255,0.06)" }}>
             {[
               { label: "Toplam lead", value: funnel?.total, c: "#8ed1df" },
-              { label: "Değerlenebilir", value: funnel?.evaluable, c: "#a882ff" },
+              { label: "Değerlenebilir", value: funnel?.evaluable, c: "#7fd6e8" },
               { label: "Sıcak (A+/A)", value: funnel?.score70, c: "#62e39a" },
               { label: "Struck-off", value: funnel?.struckOff, c: "#ffc24d" },
               { label: "County kapsam", value: funnel?.counties, c: "#f4f7fb" },
@@ -103,7 +103,7 @@ export default function AdminDashboard() {
             <span>🌅</span>
             <h2 className="font-bold text-sm">Sabah Brifingi</h2>
             <span className="text-[10px]" style={{ color: "var(--muted)" }}>· son 36 saatte düşen yeni fırsatlar</span>
-            <span className="ml-auto text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: "rgba(15,157,88,0.12)", color: "var(--grade-a)" }}>{fresh.length} yeni</span>
+            <span className="ml-auto text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: "var(--status-paid-soft)", color: "var(--grade-a)" }}>{fresh.length} yeni</span>
           </div>
           <div className="flex gap-3 overflow-x-auto px-5 py-3">
             {fresh.map((d) => {

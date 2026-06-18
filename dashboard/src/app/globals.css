@@ -27,6 +27,59 @@
   --grade-b: #0e7d97;   /* B — solid */
   --grade-c: #b9770a;   /* C — marginal */
   --grade-d: #8a8b92;   /* D — skip */
+
+  /* Hairline borders — visible on light surfaces (replaces border-white/x) */
+  --border: #e7ebf3;
+  --border-strong: #d6dbe6;
+
+  /* Status semantics — text-readable on light, with -soft tints for fills */
+  --status-paid: #0f9d58;
+  --status-paid-soft: rgba(15,157,88,0.1);
+  --status-pending: #b9770a;
+  --status-pending-soft: rgba(185,119,10,0.1);
+  --status-overdue: #ba1a1a;
+  --status-overdue-soft: rgba(186,26,26,0.1);
+  --status-info: #0e7d97;
+  --status-info-soft: rgba(14,125,151,0.1);
+
+  /* Elevation */
+  --shadow-card: 0 1px 2px rgba(11,28,48,0.04), 0 1px 3px rgba(11,28,48,0.06);
+  --shadow-pop: 0 8px 24px rgba(11,28,48,0.1);
+
+  --radius-card: 14px;
+}
+
+/* ── Reusable surface primitives ── */
+.tl-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+}
+
+.tl-num { font-variant-numeric: tabular-nums; }
+
+/* Status pill */
+.tl-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.1rem 0.55rem;
+  border-radius: 9999px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  line-height: 1.4;
+}
+
+/* Sticky table head on light surfaces */
+.tl-table thead th {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
 }
 
 body {

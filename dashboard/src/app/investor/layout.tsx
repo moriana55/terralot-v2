@@ -41,7 +41,7 @@ function NavLinks({ pathname, onClose }: { pathname: string; onClose?: () => voi
           </Link>
         );
       })}
-      <div className="pt-3 mt-2 border-t border-white/5">
+      <div className="pt-3 mt-2 border-t" style={{ borderColor: "var(--border)" }}>
         <p className="px-3 pb-1 text-[9px] font-bold uppercase tracking-widest" style={{ color: "var(--muted)", opacity: 0.5 }}>Geliştirme</p>
         {devNav.map(n => {
           const active = pathname === n.href;
@@ -86,8 +86,8 @@ export default function InvestorLayout({ children }: { children: React.ReactNode
     <div className="min-h-screen flex" style={{ background: "var(--background)", color: "var(--foreground)" }}>
 
       {/* Desktop sidebar */}
-      <aside className="hidden md:flex w-60 shrink-0 border-r border-white/5 flex-col" style={{ background: "var(--surface-low)" }}>
-        <div className="p-5 border-b border-white/5">
+      <aside className="hidden md:flex w-60 shrink-0 border-r flex-col" style={{ background: "var(--surface)", borderColor: "var(--border)" }}>
+        <div className="p-5 border-b" style={{ borderColor: "var(--border)" }}>
           <Link href="/investor" className="text-lg font-bold">
             Terra<span style={{ color: "var(--primary)" }}>Lot</span>
           </Link>
@@ -96,11 +96,11 @@ export default function InvestorLayout({ children }: { children: React.ReactNode
         <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
           <NavLinks pathname={pathname} />
         </nav>
-        <div className="p-4 border-t border-white/5">{avatar}</div>
+        <div className="p-4 border-t" style={{ borderColor: "var(--border)" }}>{avatar}</div>
       </aside>
 
       {/* Mobile top bar */}
-      <div className="md:hidden fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-4 py-3 border-b border-white/5" style={{ background: "var(--surface-low)" }}>
+      <div className="md:hidden fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-4 py-3 border-b" style={{ background: "var(--surface)", borderColor: "var(--border)" }}>
         <Link href="/investor" className="text-base font-bold">
           Terra<span style={{ color: "var(--primary)" }}>Lot</span>
         </Link>
@@ -113,8 +113,8 @@ export default function InvestorLayout({ children }: { children: React.ReactNode
       {mobileOpen && (
         <div className="md:hidden fixed inset-0 z-50 flex">
           <div className="absolute inset-0 bg-black/50" onClick={() => setMobileOpen(false)} />
-          <div className="relative w-72 flex flex-col border-r border-white/5 z-10" style={{ background: "var(--surface-low)" }}>
-            <div className="p-5 border-b border-white/5 flex items-center justify-between">
+          <div className="relative w-72 flex flex-col border-r z-10" style={{ background: "var(--surface)", borderColor: "var(--border)" }}>
+            <div className="p-5 border-b flex items-center justify-between" style={{ borderColor: "var(--border)" }}>
               <Link href="/investor" className="text-lg font-bold">
                 Terra<span style={{ color: "var(--primary)" }}>Lot</span>
               </Link>
@@ -125,7 +125,7 @@ export default function InvestorLayout({ children }: { children: React.ReactNode
             <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
               <NavLinks pathname={pathname} onClose={() => setMobileOpen(false)} />
             </nav>
-            <div className="p-4 border-t border-white/5">{avatar}</div>
+            <div className="p-4 border-t" style={{ borderColor: "var(--border)" }}>{avatar}</div>
           </div>
         </div>
       )}

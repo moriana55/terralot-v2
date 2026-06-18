@@ -57,7 +57,7 @@ export default function DealMapPage() {
       </div>
 
       {error && (
-        <div className="rounded-lg p-3 text-sm" style={{ background: "rgba(186,26,26,0.08)", color: "var(--danger)", border: "1px solid rgba(186,26,26,0.2)" }}>
+        <div className="rounded-lg p-3 text-sm" style={{ background: "var(--status-overdue-soft)", color: "var(--danger)", border: "1px solid rgba(186,26,26,0.2)" }}>
           {error}
         </div>
       )}
@@ -70,7 +70,7 @@ export default function DealMapPage() {
         ))}
       </div>
 
-      <div className="rounded-xl border overflow-hidden relative" style={{ borderColor: "var(--surface-high)" }}>
+      <div className="tl-card overflow-hidden relative">
         <CerberusMap deals={deals} catalysts={catalysts} sales={sales} />
         {!loading && !error && deals.length === 0 && sales.length === 0 && (
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">

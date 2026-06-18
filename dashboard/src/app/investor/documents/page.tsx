@@ -1,15 +1,8 @@
 import { FileText, Calendar } from "lucide-react";
 import { SampleDataBanner } from "@/components/SampleDataBanner";
+import { Card } from "@/components/InvestorUI";
 
 export const metadata = { title: "Documents" };
-
-function Card({ children, className = "" }: { children: React.ReactNode; className?: string }) {
-  return (
-    <div className={`rounded-xl border border-white/5 p-5 ${className}`} style={{ background: "var(--surface)" }}>
-      {children}
-    </div>
-  );
-}
 
 const documents = [
   { id: "1", name: "Pazar Araştırması", desc: "US land market analysis, demand signals, target demographics", category: "Research", date: "2026-05-01", size: "2.4 MB" },
@@ -24,12 +17,13 @@ const documents = [
 
 const categories = [...new Set(documents.map(d => d.category))];
 
+// Category accents kept within the cyan/navy/green system (no purple/pink AI-tells).
 const categoryColors: Record<string, string> = {
-  Research: "#8ed1df",
-  Financial: "#22c55e",
-  Technical: "#a78bfa",
-  Legal: "#f97316",
-  Presentation: "#ec4899",
+  Research: "var(--accent-ink)",
+  Financial: "var(--grade-a)",
+  Technical: "var(--primary)",
+  Legal: "var(--warn)",
+  Presentation: "var(--tertiary)",
 };
 
 export default function DocumentsPage() {
@@ -41,10 +35,10 @@ export default function DocumentsPage() {
       <SampleDataBanner note="Dosya indirme henüz bağlanmadı; boyut/tarih bilgileri temsilidir." />
 
       {/* Category chips */}
-      <div className="flex gap-2 mb-6">
-        <span className="px-3 py-1.5 rounded-lg text-xs font-medium border border-white/20" style={{ color: "var(--primary)" }}>All ({documents.length})</span>
+      <div className="flex flex-wrap gap-2 mb-6">
+        <span className="px-3 py-1.5 rounded-lg text-xs font-semibold border" style={{ color: "var(--primary)", borderColor: "var(--border-strong)", background: "var(--surface)" }}>All ({documents.length})</span>
         {categories.map(c => (
-          <span key={c} className="px-3 py-1.5 rounded-lg text-xs font-medium border border-white/10 cursor-pointer transition-colors hover:border-white/20" style={{ color: "var(--muted)" }}>
+          <span key={c} className="px-3 py-1.5 rounded-lg text-xs font-medium border cursor-pointer transition-colors hover:border-[var(--border-strong)]" style={{ color: "var(--muted)", borderColor: "var(--border)", background: "var(--surface)" }}>
             {c} ({documents.filter(d => d.category === c).length})
           </span>
         ))}
@@ -52,14 +46,14 @@ export default function DocumentsPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {documents.map(doc => (
-          <Card key={doc.id} className="flex gap-4 items-start hover:border-white/10 transition-colors cursor-pointer">
-            <div className="w-12 h-12 rounded-lg flex items-center justify-center shrink-0" style={{ background: `${categoryColors[doc.category]}10` }}>
+          <Card key={doc.id} className="flex gap-4 items-start transition-all hover:shadow-[var(--shadow-pop)] cursor-pointer">
+            <div className="w-12 h-12 rounded-lg flex items-center justify-center shrink-0" style={{ background: "var(--surface-high)" }}>
               <FileText className="w-5 h-5" style={{ color: categoryColors[doc.category] }} />
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-start justify-between gap-2">
                 <h3 className="text-sm font-bold">{doc.name}</h3>
-                <span className="px-2 py-0.5 rounded text-[10px] font-bold shrink-0" style={{ background: `${categoryColors[doc.category]}15`, color: categoryColors[doc.category] }}>
+                <span className="tl-pill shrink-0" style={{ background: "var(--surface-high)", color: categoryColors[doc.category] }}>
                   {doc.category}
                 </span>
               </div>

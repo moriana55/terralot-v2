@@ -17,10 +17,10 @@ interface Payment {
 }
 
 const STATUS_COLORS: Record<string, { bg: string; color: string }> = {
-  PENDING: { bg: "rgba(251,185,131,0.1)", color: "var(--tertiary)" },
-  PAID: { bg: "rgba(34,197,94,0.1)", color: "#22c55e" },
-  OVERDUE: { bg: "rgba(255,180,171,0.15)", color: "var(--error)" },
-  FAILED: { bg: "rgba(186,26,26,0.1)", color: "var(--error)" },
+  PENDING: { bg: "var(--status-pending-soft)", color: "var(--status-pending)" },
+  PAID: { bg: "var(--status-paid-soft)", color: "var(--status-paid)" },
+  OVERDUE: { bg: "var(--status-overdue-soft)", color: "var(--status-overdue)" },
+  FAILED: { bg: "var(--status-overdue-soft)", color: "var(--error)" },
 };
 
 const STATUSES = ["PENDING", "PAID", "OVERDUE", "FAILED"];
@@ -89,14 +89,14 @@ export default function AdminPayments() {
           <h1 className="text-2xl font-bold mb-1">Payments</h1>
           <p className="text-sm" style={{ color: "var(--muted)" }}>{payments.length} total records</p>
         </div>
-        <div className="rounded-xl border px-4 py-2.5 text-right" style={{ background: "rgba(142,209,223,0.05)", borderColor: "rgba(142,209,223,0.2)" }}>
+        <div className="rounded-xl border px-4 py-2.5 text-right" style={{ background: "var(--surface-high)", borderColor: "var(--border-strong)" }}>
           <p className="text-[10px] uppercase font-bold tracking-widest" style={{ color: "var(--muted)" }}>Total Collected</p>
-          <p className="text-xl font-bold" style={{ color: "var(--primary)" }}>${total.toLocaleString()}</p>
+          <p className="text-xl font-bold tabular-nums" style={{ color: "var(--primary)" }}>${total.toLocaleString()}</p>
         </div>
       </div>
 
       {error && (
-        <div className="flex items-center gap-2 px-4 py-3 rounded-lg mb-4 text-sm" style={{ background: "rgba(186,26,26,0.08)", color: "var(--error)" }}>
+        <div className="flex items-center gap-2 px-4 py-3 rounded-lg mb-4 text-sm" style={{ background: "var(--status-overdue-soft)", color: "var(--error)" }}>
           <AlertCircle className="w-4 h-4" /> {error}
         </div>
       )}
@@ -124,13 +124,13 @@ export default function AdminPayments() {
               {payments.map(p => {
                 const sc = STATUS_COLORS[p.status] || STATUS_COLORS.PENDING;
                 return (
-                  <tr key={p.id} className="border-b hover:bg-white/[0.02]" style={{ borderColor: "var(--outline)" }}>
+                  <tr key={p.id} className="border-b transition-colors hover:bg-[var(--surface-low)]" style={{ borderColor: "var(--border)" }}>
                     <td className="py-3 px-4">
                       <p className="text-xs font-semibold">{p.buyerName}</p>
                       <p className="text-[11px]" style={{ color: "var(--muted)" }}>{p.buyerEmail}</p>
                     </td>
                     <td className="py-3 px-4 text-xs max-w-[160px] truncate" style={{ color: "var(--muted)" }}>{p.Property?.title || p.propertyId}</td>
-                    <td className="py-3 px-4 text-xs font-bold" style={{ color: "var(--primary)" }}>${p.amount.toLocaleString()}</td>
+                    <td className="py-3 px-4 text-xs font-bold tabular-nums" style={{ color: "var(--primary)" }}>${p.amount.toLocaleString()}</td>
                     <td className="py-3 px-4 text-xs">{p.type === "DOWN_PAYMENT" ? "Down" : "Monthly"}</td>
                     <td className="py-3 px-4">
                       <select value={p.status} onChange={e => updateStatus(p.id, e.target.value)}
@@ -141,7 +141,7 @@ export default function AdminPayments() {
                     </td>
                     <td className="py-3 px-4 text-xs" style={{ color: "var(--muted)" }}>{new Date(p.createdAt).toLocaleDateString()}</td>
                     <td className="py-3 px-4">
-                      <button onClick={() => setConfirmId(p.id)} className="w-7 h-7 rounded flex items-center justify-center hover:bg-white/5">
+                      <button onClick={() => setConfirmId(p.id)} className="w-7 h-7 rounded flex items-center justify-center transition-colors hover:bg-[var(--status-overdue-soft)]">
                         <Trash2 className="w-3.5 h-3.5" style={{ color: "var(--error)" }} />
                       </button>
                     </td>

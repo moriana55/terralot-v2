@@ -34,7 +34,7 @@ function NavLinks({ pathname, onClose }: { pathname: string; onClose?: () => voi
             onClick={onClose}
             className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors"
             style={{
-              background: active ? "rgba(142,209,223,0.08)" : "transparent",
+              background: active ? "var(--surface-high)" : "transparent",
               color: active ? "var(--primary)" : "var(--muted)",
               fontWeight: active ? 600 : 400,
             }}
@@ -64,21 +64,21 @@ export default function BuyerLayout({ children }: { children: React.ReactNode })
   return (
     <div className="min-h-screen flex" style={{ background: "var(--background)", color: "var(--foreground)" }}>
       {/* Desktop sidebar */}
-      <aside className="hidden md:flex w-60 shrink-0 border-r border-white/5 flex-col" style={{ background: "var(--surface-low)" }}>
-        <div className="p-5 border-b border-white/5">
+      <aside className="hidden md:flex w-60 shrink-0 border-r flex-col" style={{ background: "var(--surface)", borderColor: "var(--border)" }}>
+        <div className="p-5 border-b" style={{ borderColor: "var(--border)" }}>
           {brand}
           <p className="text-[10px] uppercase tracking-widest mt-1" style={{ color: "var(--muted)" }}>Buyer Portal</p>
         </div>
         <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
           <NavLinks pathname={pathname} />
         </nav>
-        <div className="p-4 border-t border-white/5 text-[10px]" style={{ color: "var(--muted)" }}>
+        <div className="p-4 border-t text-[10px]" style={{ color: "var(--muted)", borderColor: "var(--border)" }}>
           Secure owner-finance portal
         </div>
       </aside>
 
       {/* Mobile top bar */}
-      <div className="md:hidden fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-4 py-3 border-b border-white/5" style={{ background: "var(--surface-low)" }}>
+      <div className="md:hidden fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-4 py-3 border-b" style={{ background: "var(--surface)", borderColor: "var(--border)" }}>
         {brand}
         <button onClick={() => setMobileOpen(true)} style={{ color: "var(--muted)" }}>
           <Menu className="w-5 h-5" />
@@ -89,8 +89,8 @@ export default function BuyerLayout({ children }: { children: React.ReactNode })
       {mobileOpen && (
         <div className="md:hidden fixed inset-0 z-50 flex">
           <div className="absolute inset-0 bg-black/50" onClick={() => setMobileOpen(false)} />
-          <div className="relative w-72 flex flex-col border-r border-white/5 z-10" style={{ background: "var(--surface-low)" }}>
-            <div className="p-5 border-b border-white/5 flex items-center justify-between">
+          <div className="relative w-72 flex flex-col border-r z-10" style={{ background: "var(--surface)", borderColor: "var(--border)" }}>
+            <div className="p-5 border-b flex items-center justify-between" style={{ borderColor: "var(--border)" }}>
               {brand}
               <button onClick={() => setMobileOpen(false)} style={{ color: "var(--muted)" }}>
                 <X className="w-5 h-5" />

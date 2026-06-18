@@ -106,13 +106,13 @@ export default function Home() {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
             {[
               { icon: Target, title: "Acquisition Pipeline", desc: "Find off-market deals from tax deeds, direct mail, absentee lists, and driving for dollars. Track every lead from research to closing.", color: "#8ed1df" },
-              { icon: Mail, title: "Direct Mail Campaigns", desc: "Send mailers with Lob API integration. Track response rates, cost per lead, and follow-up sequences automatically.", color: "#a882ff" },
+              { icon: Mail, title: "Direct Mail Campaigns", desc: "Send mailers with Lob API integration. Track response rates, cost per lead, and follow-up sequences automatically.", color: "#3980f4" },
               { icon: Map, title: "Parcel Mapping", desc: "Satellite views, parcel boundaries, topo maps, and property data overlays. See every deal on the map.", color: "#50dc8c" },
               { icon: Split, title: "Subdivision Tracker", desc: "Manage minor splits and major subdivisions. Track each sub-parcel from available to sold with ROI calculations.", color: "#ffb43c" },
               { icon: Wallet, title: "Owner Financing", desc: "Track every buyer's payments — monthly installments, late payments, defaults, and reclaims. Built-in amortization.", color: "#ff9632" },
               { icon: Users, title: "Referral Program", desc: "Manage referral partners — agents, investors, wholesalers. Track commissions, payouts, and conversion rates.", color: "#ff5050" },
               { icon: Eye, title: "Off-Market Hunting", desc: "Scrape county records, find absentee owners, identify tax-delinquent parcels. Your competitive edge.", color: "#8ed1df" },
-              { icon: Send, title: "Buyer Website", desc: "Beautiful property listing pages with owner financing calculator. Capture leads and convert buyers 24/7.", color: "#a882ff" },
+              { icon: Send, title: "Buyer Website", desc: "Beautiful property listing pages with owner financing calculator. Capture leads and convert buyers 24/7.", color: "#3980f4" },
               { icon: TrendingUp, title: "Financial Dashboard", desc: "Revenue, expenses, ROI, cash flow — see your entire land business at a glance. Know your numbers.", color: "#50dc8c" },
             ].map(f => (
               <div key={f.title} className="rounded-xl p-6 transition-all hover:scale-[1.02]" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>

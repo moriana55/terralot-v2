@@ -1,22 +1,15 @@
 import { Search, FileCheck, Handshake, CheckCircle2, XCircle } from "lucide-react";
 import { SampleDataBanner } from "@/components/SampleDataBanner";
+import { Card } from "@/components/InvestorUI";
 
 export const metadata = { title: "Deal Pipeline" };
 
-function Card({ children, className = "" }: { children: React.ReactNode; className?: string }) {
-  return (
-    <div className={`rounded-xl border border-white/5 p-5 ${className}`} style={{ background: "var(--surface)" }}>
-      {children}
-    </div>
-  );
-}
-
 const stages = [
-  { id: "sourced", label: "Sourced", icon: Search, color: "#8ed1df" },
-  { id: "evaluating", label: "Evaluating", icon: FileCheck, color: "#eab308" },
-  { id: "offer", label: "Offer Made", icon: Handshake, color: "#f97316" },
-  { id: "closed", label: "Closed", icon: CheckCircle2, color: "#22c55e" },
-  { id: "dead", label: "Dead", icon: XCircle, color: "#ef4444" },
+  { id: "sourced", label: "Sourced", icon: Search, color: "var(--status-info)" },
+  { id: "evaluating", label: "Evaluating", icon: FileCheck, color: "var(--status-pending)" },
+  { id: "offer", label: "Offer Made", icon: Handshake, color: "var(--tertiary)" },
+  { id: "closed", label: "Closed", icon: CheckCircle2, color: "var(--status-paid)" },
+  { id: "dead", label: "Dead", icon: XCircle, color: "var(--status-overdue)" },
 ];
 
 const deals = [
@@ -39,30 +32,33 @@ export default function PipelinePage() {
       <SampleDataBanner note="Gerçek pipeline için admin → Acquisitions ekranına bakın." />
 
       {/* Pipeline columns */}
-      <div className="grid grid-cols-5 gap-4 mb-8">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
         {stages.map(stage => {
           const stageDeals = deals.filter(d => d.stage === stage.id);
           return (
-            <div key={stage.id}>
+            <div key={stage.id} className="rounded-xl p-3" style={{ background: "var(--surface-low)", border: "1px solid var(--border)" }}>
               <div className="flex items-center gap-2 mb-3">
                 <stage.icon className="w-4 h-4" style={{ color: stage.color }} />
-                <span className="text-xs font-bold uppercase tracking-widest" style={{ color: stage.color }}>{stage.label}</span>
-                <span className="ml-auto text-xs font-bold px-1.5 py-0.5 rounded" style={{ background: `${stage.color}15`, color: stage.color }}>
+                <span className="text-[11px] font-bold uppercase tracking-wider truncate" style={{ color: stage.color }}>{stage.label}</span>
+                <span className="ml-auto text-xs font-bold tabular-nums px-1.5 py-0.5 rounded" style={{ background: "var(--surface-high)", color: stage.color }}>
                   {stageDeals.length}
                 </span>
               </div>
               <div className="space-y-2">
+                {stageDeals.length === 0 && (
+                  <p className="text-[10px] text-center py-4" style={{ color: "var(--muted)", opacity: 0.7 }}>—</p>
+                )}
                 {stageDeals.map(deal => (
-                  <div key={deal.id} className="rounded-lg border border-white/5 p-3 transition-all hover:border-white/10" style={{ background: "var(--surface)" }}>
+                  <div key={deal.id} className="tl-card p-3 transition-all hover:shadow-[var(--shadow-pop)]">
                     <h3 className="text-xs font-bold mb-1">{deal.title}</h3>
                     <p className="text-[10px] mb-2" style={{ color: "var(--muted)" }}>{deal.state} · {deal.acres} ac · via {deal.source}</p>
                     <div className="flex items-center justify-between">
-                      <span className="text-[10px]" style={{ color: "var(--muted)" }}>Ask: ${deal.askPrice.toLocaleString()}</span>
-                      <span className="text-[10px] font-bold" style={{ color: "var(--success)" }}>Est: ${deal.estValue.toLocaleString()}</span>
+                      <span className="text-[10px] tabular-nums" style={{ color: "var(--muted)" }}>Ask: ${deal.askPrice.toLocaleString()}</span>
+                      <span className="text-[10px] font-bold tabular-nums" style={{ color: "var(--success)" }}>Est: ${deal.estValue.toLocaleString()}</span>
                     </div>
-                    <div className="mt-2 pt-2 border-t border-white/5 flex items-center justify-between">
-                      <span className="text-[10px]" style={{ color: "var(--muted)" }}>{new Date(deal.date).toLocaleDateString("en-US", { month: "short", day: "numeric" })}</span>
-                      <span className="text-[10px] font-bold" style={{ color: "var(--primary)" }}>
+                    <div className="mt-2 pt-2 border-t flex items-center justify-between" style={{ borderColor: "var(--border)" }}>
+                      <span className="text-[10px] tabular-nums" style={{ color: "var(--muted)" }}>{new Date(deal.date).toLocaleDateString("en-US", { month: "short", day: "numeric" })}</span>
+                      <span className="text-[10px] font-bold tabular-nums" style={{ color: "var(--primary)" }}>
                         {Math.round(((deal.estValue - deal.askPrice) / deal.askPrice) * 100)}% ROI
                       </span>
                     </div>
@@ -77,22 +73,22 @@ export default function PipelinePage() {
       {/* Summary */}
       <Card>
         <h2 className="font-bold mb-4">Pipeline Summary</h2>
-        <div className="grid grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           <div>
             <p className="text-[10px] uppercase tracking-widest mb-1" style={{ color: "var(--muted)" }}>Total Deals</p>
-            <p className="text-2xl font-bold">{deals.length}</p>
+            <p className="text-2xl font-bold tabular-nums">{deals.length}</p>
           </div>
           <div>
             <p className="text-[10px] uppercase tracking-widest mb-1" style={{ color: "var(--muted)" }}>Total Ask</p>
-            <p className="text-2xl font-bold">${deals.reduce((s, d) => s + d.askPrice, 0).toLocaleString()}</p>
+            <p className="text-2xl font-bold tabular-nums">${deals.reduce((s, d) => s + d.askPrice, 0).toLocaleString()}</p>
           </div>
           <div>
             <p className="text-[10px] uppercase tracking-widest mb-1" style={{ color: "var(--muted)" }}>Est. Portfolio Value</p>
-            <p className="text-2xl font-bold" style={{ color: "var(--success)" }}>${deals.reduce((s, d) => s + d.estValue, 0).toLocaleString()}</p>
+            <p className="text-2xl font-bold tabular-nums" style={{ color: "var(--success)" }}>${deals.reduce((s, d) => s + d.estValue, 0).toLocaleString()}</p>
           </div>
           <div>
             <p className="text-[10px] uppercase tracking-widest mb-1" style={{ color: "var(--muted)" }}>Avg. ROI Potential</p>
-            <p className="text-2xl font-bold" style={{ color: "var(--primary)" }}>
+            <p className="text-2xl font-bold tabular-nums" style={{ color: "var(--primary)" }}>
               {Math.round(deals.reduce((s, d) => s + ((d.estValue - d.askPrice) / d.askPrice) * 100, 0) / deals.length)}%
             </p>
           </div>

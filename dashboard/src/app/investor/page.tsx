@@ -4,16 +4,9 @@ import {
   Package,
 } from "lucide-react";
 import { SampleDataBanner } from "@/components/SampleDataBanner";
+import { Card, StatusPill } from "@/components/InvestorUI";
 
 export const metadata = { title: "Investor Overview" };
-
-function Card({ children, className = "" }: { children: React.ReactNode; className?: string }) {
-  return (
-    <div className={`rounded-xl border border-white/5 p-5 ${className}`} style={{ background: "var(--surface)" }}>
-      {children}
-    </div>
-  );
-}
 
 export default function InvestorDashboard() {
   const available = properties.filter(p => p.status === "available");
@@ -34,7 +27,7 @@ export default function InvestorDashboard() {
   const stats = [
     { icon: Package, label: "Total Parcels", value: properties.length, sub: `${available.length} available · ${pending.length} pending · ${sold.length} sold`, color: "var(--primary)", trend: null },
     { icon: DollarSign, label: "Portfolio Value", value: `$${totalPortfolioValue.toLocaleString()}`, sub: `Cost basis: $${totalCost.toLocaleString()}`, color: "var(--success)", trend: `+${profitMargin}% margin` },
-    { icon: TrendingUp, label: "Monthly MRR", value: `$${monthlyMRR.toLocaleString()}`, sub: "From active installments", color: "#8ed1df", trend: null },
+    { icon: TrendingUp, label: "Monthly MRR", value: `$${monthlyMRR.toLocaleString()}`, sub: "From active installments", color: "var(--accent-ink)", trend: null },
     { icon: CreditCard, label: "Total Collected", value: `$${totalReceived.toLocaleString()}`, sub: "All-time revenue", color: "var(--tertiary)", trend: null },
   ];
 
@@ -66,15 +59,17 @@ export default function InvestorDashboard() {
         {stats.map(s => (
           <Card key={s.label}>
             <div className="flex items-start justify-between mb-3">
-              <s.icon className="w-5 h-5" style={{ color: s.color }} />
+              <span className="inline-flex items-center justify-center w-9 h-9 rounded-lg" style={{ background: "var(--surface-high)" }}>
+                <s.icon className="w-[18px] h-[18px]" style={{ color: s.color }} />
+              </span>
               {s.trend && (
-                <span className="flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{ background: "rgba(34,197,94,0.1)", color: "#22c55e" }}>
+                <span className="flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: "var(--status-paid-soft)", color: "var(--status-paid)" }}>
                   {s.trend}
                 </span>
               )}
             </div>
             <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: "var(--muted)" }}>{s.label}</p>
-            <p className="text-2xl font-bold" style={{ color: s.color }}>{s.value}</p>
+            <p className="text-2xl font-bold tabular-nums tracking-tight" style={{ color: s.color }}>{s.value}</p>
             <p className="text-xs mt-1" style={{ color: "var(--muted)" }}>{s.sub}</p>
           </Card>
         ))}
@@ -82,36 +77,31 @@ export default function InvestorDashboard() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Recent Activity */}
-        <Card className="lg:col-span-2">
-          <h2 className="font-bold mb-4">Recent Sales Activity</h2>
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-white/10">
-                {["Property", "State", "Acres", "Sale Price", "Monthly", "Status"].map(h => (
-                  <th key={h} className="text-left py-2 text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--muted)" }}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {recentSales.map(p => (
-                <tr key={p.id} className="border-b border-white/5">
-                  <td className="py-3 font-medium text-sm">{p.title}</td>
-                  <td className="py-3 text-xs" style={{ color: "var(--muted)" }}>{p.state}</td>
-                  <td className="py-3 text-xs">{p.acres} ac</td>
-                  <td className="py-3 text-xs font-semibold" style={{ color: "var(--success)" }}>${p.price.toLocaleString()}</td>
-                  <td className="py-3 text-xs">${p.monthlyPayment}/mo</td>
-                  <td className="py-3">
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase" style={{
-                      background: p.status === "sold" ? "rgba(34,197,94,0.1)" : "rgba(234,179,8,0.1)",
-                      color: p.status === "sold" ? "#22c55e" : "#eab308",
-                    }}>
-                      {p.status}
-                    </span>
-                  </td>
+        <Card className="lg:col-span-2 !p-0 overflow-hidden">
+          <h2 className="font-bold px-5 pt-5 pb-4">Recent Sales Activity</h2>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm tl-table min-w-[560px]">
+              <thead>
+                <tr className="border-y" style={{ borderColor: "var(--border)", background: "var(--surface-low)" }}>
+                  {["Property", "State", "Acres", "Sale Price", "Monthly", "Status"].map(h => (
+                    <th key={h} className="text-left px-5 py-2.5">{h}</th>
+                  ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {recentSales.map(p => (
+                  <tr key={p.id} className="border-b transition-colors hover:bg-[var(--surface-low)]" style={{ borderColor: "var(--border)" }}>
+                    <td className="px-5 py-3 font-medium text-sm">{p.title}</td>
+                    <td className="px-5 py-3 text-xs" style={{ color: "var(--muted)" }}>{p.state}</td>
+                    <td className="px-5 py-3 text-xs tabular-nums">{p.acres} ac</td>
+                    <td className="px-5 py-3 text-xs font-semibold tabular-nums" style={{ color: "var(--success)" }}>${p.price.toLocaleString()}</td>
+                    <td className="px-5 py-3 text-xs tabular-nums">${p.monthlyPayment}/mo</td>
+                    <td className="px-5 py-3"><StatusPill status={p.status} /></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </Card>
 
         {/* Portfolio by State */}
@@ -124,9 +114,9 @@ export default function InvestorDashboard() {
                 <div key={state}>
                   <div className="flex items-center justify-between mb-1">
                     <span className="text-sm font-medium">{state}</span>
-                    <span className="text-xs font-bold" style={{ color: "var(--primary)" }}>{count} parcels</span>
+                    <span className="text-xs font-bold tabular-nums" style={{ color: "var(--primary)" }}>{count} parcels</span>
                   </div>
-                  <div className="h-1.5 rounded-full" style={{ background: "var(--surface-low)" }}>
+                  <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "var(--surface-high)" }}>
                     <div className="h-full rounded-full" style={{ width: `${pct}%`, background: "var(--primary)" }} />
                   </div>
                 </div>
@@ -134,17 +124,17 @@ export default function InvestorDashboard() {
             })}
           </div>
 
-          <div className="mt-6 pt-4 border-t border-white/5">
+          <div className="mt-6 pt-4 border-t" style={{ borderColor: "var(--border)" }}>
             <h3 className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: "var(--muted)" }}>Revenue Split</h3>
             <div className="flex items-center gap-4">
               <div className="flex-1">
                 <p className="text-xs" style={{ color: "var(--muted)" }}>Investor (60%)</p>
-                <p className="text-lg font-bold" style={{ color: "var(--success)" }}>${Math.round(totalReceived * 0.6).toLocaleString()}</p>
+                <p className="text-lg font-bold tabular-nums" style={{ color: "var(--success)" }}>${Math.round(totalReceived * 0.6).toLocaleString()}</p>
               </div>
-              <div className="w-px h-10" style={{ background: "var(--surface-low)" }} />
+              <div className="w-px h-10" style={{ background: "var(--border)" }} />
               <div className="flex-1">
                 <p className="text-xs" style={{ color: "var(--muted)" }}>Operator (40%)</p>
-                <p className="text-lg font-bold" style={{ color: "var(--primary)" }}>${Math.round(totalReceived * 0.4).toLocaleString()}</p>
+                <p className="text-lg font-bold tabular-nums" style={{ color: "var(--primary)" }}>${Math.round(totalReceived * 0.4).toLocaleString()}</p>
               </div>
             </div>
           </div>
@@ -159,12 +149,12 @@ export default function InvestorDashboard() {
             { label: "Total Acquisitions", value: `$${totalCost.toLocaleString()}`, color: "var(--muted)" },
             { label: "Total Revenue", value: `$${totalReceived.toLocaleString()}`, color: "var(--success)" },
             { label: "Unrealized Value", value: `$${(totalPortfolioValue - totalReceived).toLocaleString()}`, color: "var(--primary)" },
-            { label: "Net Profit", value: `$${(totalReceived - totalCost).toLocaleString()}`, color: totalReceived > totalCost ? "var(--success)" : "var(--error, #ef4444)" },
+            { label: "Net Profit", value: `$${(totalReceived - totalCost).toLocaleString()}`, color: totalReceived > totalCost ? "var(--success)" : "var(--error)" },
             { label: "ROI", value: totalCost > 0 ? `${Math.round(((totalReceived - totalCost) / totalCost) * 100)}%` : "N/A", color: "var(--tertiary)" },
           ].map(item => (
             <div key={item.label}>
               <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: "var(--muted)" }}>{item.label}</p>
-              <p className="text-xl font-bold" style={{ color: item.color }}>{item.value}</p>
+              <p className="text-xl font-bold tabular-nums" style={{ color: item.color }}>{item.value}</p>
             </div>
           ))}
         </div>

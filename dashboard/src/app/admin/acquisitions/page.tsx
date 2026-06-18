@@ -71,11 +71,11 @@ function srcCfg(s: string | null) {
 }
 
 const ownerTypeLabel: Record<OwnerType, { label: string; color: string }> = {
-  absentee: { label: "Absentee", color: "#a882ff" },
-  estate: { label: "Estate", color: "#ffb43c" },
-  corporate: { label: "Corporate", color: "#8ed1df" },
-  tax_delinquent: { label: "Tax Delinquent", color: "#ff5050" },
-  local: { label: "Local", color: "#50dc8c" },
+  absentee: { label: "Absentee", color: "#5aa9ff" },
+  estate: { label: "Estate", color: "#b9770a" },
+  corporate: { label: "Corporate", color: "#0e7d97" },
+  tax_delinquent: { label: "Tax Delinquent", color: "#ba1a1a" },
+  local: { label: "Local", color: "#0f9d58" },
 };
 
 const PAGE_SIZE = 60;
@@ -391,7 +391,7 @@ export default function AcquisitionsPage() {
           <div className="flex items-stretch gap-1.5 overflow-x-auto">
             {[
               { label: "Records scraped", value: stats.total, color: "#8ed1df" },
-              { label: "Evaluable", value: stats.evaluable, color: "#a882ff" },
+              { label: "Evaluable", value: stats.evaluable, color: "#5aa9ff" },
               { label: "Deals (45+)", value: stats.score45, color: "#ffb43c" },
               { label: "Hot (70+)", value: stats.score70, color: "#50dc8c" },
               { label: "Elite (90+)", value: stats.score90, color: "#30c070" },
@@ -612,7 +612,7 @@ export default function AcquisitionsPage() {
                         <span className="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded" style={{ background: "rgba(80,150,255,0.12)", color: "#5096ff" }}>FLOOD</span>
                       )}
                       {/STRUCK/i.test(l.source || "") && (
-                        <span className="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded" style={{ background: "rgba(168,130,255,0.12)", color: "#a882ff" }}>STRUCK OFF</span>
+                        <span className="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded" style={{ background: "rgba(90,169,255,0.12)", color: "#5aa9ff" }}>STRUCK OFF</span>
                       )}
                       {isCatalyst(l) && (
                         <span className="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded" style={{ background: "rgba(15,157,88,0.14)", color: "var(--grade-a)" }}>🔥 MEGAPROJE</span>

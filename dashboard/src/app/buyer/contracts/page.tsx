@@ -28,7 +28,7 @@ export default function BuyerContracts() {
       ) : (
         <div className="space-y-2">
           {docs.map((d) => (
-            <div key={d.id} className="flex items-center gap-3 rounded-xl border border-white/5 p-4" style={{ background: "var(--surface)" }}>
+            <div key={d.id} className="flex items-center gap-3 tl-card p-4">
               <FileText className="w-4 h-4" style={{ color: "var(--primary)" }} />
               <div className="flex-1">
                 <p className="text-sm font-semibold">{d.name}</p>

@@ -54,7 +54,7 @@ export default async function BuyerOverview() {
       {!CLERK_LIVE && (
         <div
           className="mb-6 flex items-start gap-3 rounded-xl border p-4 text-xs"
-          style={{ background: "rgba(142,209,223,0.06)", borderColor: "rgba(142,209,223,0.2)", color: "var(--muted)" }}
+          style={{ background: "var(--status-info-soft)", borderColor: "var(--border-strong)", color: "var(--muted)" }}
         >
           <Wallet className="w-4 h-4 shrink-0 mt-0.5" style={{ color: "var(--primary)" }} />
           <span>
@@ -70,10 +70,11 @@ export default async function BuyerOverview() {
           <Link
             key={l.href}
             href={l.href}
-            className="group rounded-xl border border-white/5 p-5 transition-all hover:border-white/10"
-            style={{ background: "var(--surface)" }}
+            className="group tl-card p-5 transition-all hover:shadow-[var(--shadow-pop)]"
           >
-            <l.icon className="w-5 h-5 mb-3" style={{ color: "var(--primary)" }} />
+            <span className="inline-flex items-center justify-center w-9 h-9 rounded-lg mb-3" style={{ background: "var(--surface-high)" }}>
+              <l.icon className="w-[18px] h-[18px]" style={{ color: "var(--primary)" }} />
+            </span>
             <p className="font-semibold text-sm mb-1 flex items-center gap-1">
               {l.label}
               <ArrowRight className="w-3.5 h-3.5 opacity-0 -translate-x-1 transition-all group-hover:opacity-100 group-hover:translate-x-0" />

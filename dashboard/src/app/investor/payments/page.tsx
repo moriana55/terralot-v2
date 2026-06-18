@@ -1,16 +1,9 @@
 import { properties } from "@/lib/data";
 import { CheckCircle2, Clock, AlertTriangle } from "lucide-react";
 import { SampleDataBanner } from "@/components/SampleDataBanner";
+import { Card } from "@/components/InvestorUI";
 
 export const metadata = { title: "Payments" };
-
-function Card({ children, className = "" }: { children: React.ReactNode; className?: string }) {
-  return (
-    <div className={`rounded-xl border border-white/5 p-5 ${className}`} style={{ background: "var(--surface)" }}>
-      {children}
-    </div>
-  );
-}
 
 interface PaymentRecord {
   id: string;
@@ -82,69 +75,71 @@ export default function PaymentsPage() {
 
       <SampleDataBanner note="Stripe bağlanınca gerçek ödeme geçmişiyle değişecek." />
 
-      <div className="grid grid-cols-3 gap-4 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
         <Card>
           <div className="flex items-center gap-2 mb-2">
-            <CheckCircle2 className="w-4 h-4" style={{ color: "var(--success)" }} />
+            <CheckCircle2 className="w-4 h-4" style={{ color: "var(--status-paid)" }} />
             <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--muted)" }}>Collected</p>
           </div>
-          <p className="text-2xl font-bold" style={{ color: "var(--success)" }}>${totalPaid.toLocaleString()}</p>
+          <p className="text-2xl font-bold tabular-nums" style={{ color: "var(--status-paid)" }}>${totalPaid.toLocaleString()}</p>
           <p className="text-xs mt-1" style={{ color: "var(--muted)" }}>{payments.filter(p => p.status === "paid").length} payments</p>
         </Card>
         <Card>
           <div className="flex items-center gap-2 mb-2">
-            <Clock className="w-4 h-4" style={{ color: "#eab308" }} />
+            <Clock className="w-4 h-4" style={{ color: "var(--status-pending)" }} />
             <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--muted)" }}>Upcoming</p>
           </div>
-          <p className="text-2xl font-bold" style={{ color: "#eab308" }}>${totalPending.toLocaleString()}</p>
+          <p className="text-2xl font-bold tabular-nums" style={{ color: "var(--status-pending)" }}>${totalPending.toLocaleString()}</p>
           <p className="text-xs mt-1" style={{ color: "var(--muted)" }}>{payments.filter(p => p.status === "pending").length} pending</p>
         </Card>
         <Card>
           <div className="flex items-center gap-2 mb-2">
-            <AlertTriangle className="w-4 h-4" style={{ color: "#ef4444" }} />
+            <AlertTriangle className="w-4 h-4" style={{ color: "var(--status-overdue)" }} />
             <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--muted)" }}>Overdue</p>
           </div>
-          <p className="text-2xl font-bold" style={{ color: "#ef4444" }}>${totalOverdue.toLocaleString()}</p>
+          <p className="text-2xl font-bold tabular-nums" style={{ color: "var(--status-overdue)" }}>${totalOverdue.toLocaleString()}</p>
           <p className="text-xs mt-1" style={{ color: "var(--muted)" }}>{payments.filter(p => p.status === "overdue").length} late</p>
         </Card>
       </div>
 
-      <Card>
-        <h2 className="font-bold mb-4">Payment History</h2>
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b border-white/10">
-              {["Date", "Property", "Buyer", "Type", "Amount", "Status"].map(h => (
-                <th key={h} className="text-left py-2 text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--muted)" }}>{h}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {payments.slice(0, 30).map(p => (
-              <tr key={p.id} className="border-b border-white/5">
-                <td className="py-3 text-xs" style={{ color: "var(--muted)" }}>{new Date(p.date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</td>
-                <td className="py-3 text-sm font-medium">{p.property}</td>
-                <td className="py-3 text-xs">{p.buyer}</td>
-                <td className="py-3">
-                  <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase" style={{
-                    background: p.type === "down_payment" ? "rgba(142,209,223,0.1)" : "rgba(255,255,255,0.05)",
-                    color: p.type === "down_payment" ? "#8ed1df" : "var(--muted)",
-                  }}>
-                    {p.type === "down_payment" ? "Down" : "Monthly"}
-                  </span>
-                </td>
-                <td className="py-3 text-sm font-bold">${p.amount.toLocaleString()}</td>
-                <td className="py-3">
-                  <span className="flex items-center gap-1 text-[10px] font-bold uppercase">
-                    {p.status === "paid" && <><CheckCircle2 className="w-3 h-3" style={{ color: "#22c55e" }} /><span style={{ color: "#22c55e" }}>Paid</span></>}
-                    {p.status === "pending" && <><Clock className="w-3 h-3" style={{ color: "#eab308" }} /><span style={{ color: "#eab308" }}>Pending</span></>}
-                    {p.status === "overdue" && <><AlertTriangle className="w-3 h-3" style={{ color: "#ef4444" }} /><span style={{ color: "#ef4444" }}>Overdue</span></>}
-                  </span>
-                </td>
+      <Card className="!p-0 overflow-hidden">
+        <h2 className="font-bold px-5 pt-5 pb-4">Payment History</h2>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm tl-table min-w-[640px]">
+            <thead>
+              <tr className="border-y" style={{ borderColor: "var(--border)", background: "var(--surface-low)" }}>
+                {["Date", "Property", "Buyer", "Type", "Amount", "Status"].map(h => (
+                  <th key={h} className="text-left px-5 py-2.5">{h}</th>
+                ))}
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {payments.slice(0, 30).map(p => (
+                <tr key={p.id} className="border-b transition-colors hover:bg-[var(--surface-low)]" style={{ borderColor: "var(--border)" }}>
+                  <td className="px-5 py-3 text-xs tabular-nums" style={{ color: "var(--muted)" }}>{new Date(p.date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</td>
+                  <td className="px-5 py-3 text-sm font-medium">{p.property}</td>
+                  <td className="px-5 py-3 text-xs">{p.buyer}</td>
+                  <td className="px-5 py-3">
+                    <span className="tl-pill" style={{
+                      background: p.type === "down_payment" ? "var(--status-info-soft)" : "var(--surface-high)",
+                      color: p.type === "down_payment" ? "var(--status-info)" : "var(--muted)",
+                    }}>
+                      {p.type === "down_payment" ? "Down" : "Monthly"}
+                    </span>
+                  </td>
+                  <td className="px-5 py-3 text-sm font-bold tabular-nums">${p.amount.toLocaleString()}</td>
+                  <td className="px-5 py-3">
+                    <span className="flex items-center gap-1 text-[10px] font-bold uppercase">
+                      {p.status === "paid" && <><CheckCircle2 className="w-3 h-3" style={{ color: "var(--status-paid)" }} /><span style={{ color: "var(--status-paid)" }}>Paid</span></>}
+                      {p.status === "pending" && <><Clock className="w-3 h-3" style={{ color: "var(--status-pending)" }} /><span style={{ color: "var(--status-pending)" }}>Pending</span></>}
+                      {p.status === "overdue" && <><AlertTriangle className="w-3 h-3" style={{ color: "var(--status-overdue)" }} /><span style={{ color: "var(--status-overdue)" }}>Overdue</span></>}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </Card>
     </div>
   );

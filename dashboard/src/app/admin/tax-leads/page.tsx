@@ -285,7 +285,7 @@ export default function TaxLeadsPage() {
 
                             {/* Road */}
                             <div className="flex items-start gap-3">
-                              <Route className="w-4 h-4 mt-0.5 shrink-0" style={{ color: "#a78bfa" }} />
+                              <Route className="w-4 h-4 mt-0.5 shrink-0" style={{ color: "#5aa9ff" }} />
                               <div>
                                 <p className="text-xs font-bold mb-1">Road Access</p>
                                 {dd.road?.error ? (

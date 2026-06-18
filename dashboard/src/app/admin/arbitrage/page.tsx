@@ -78,7 +78,7 @@ export default function ArbitragePage() {
             { label: "Taranan kayıt", value: summary.scanned.toLocaleString(), color: "#8ed1df" },
             { label: "Arbitraj fırsatı", value: summary.opportunities.toLocaleString(), color: "#50dc8c" },
             { label: "Toplam değer açığı", value: fmtMoney(summary.totalGap), color: "#ffb43c" },
-            { label: "Ort. indirim", value: `${summary.avgDiscount}%`, color: "#a882ff" },
+            { label: "Ort. indirim", value: `${summary.avgDiscount}%`, color: "#5aa9ff" },
           ].map((c) => (
             <div key={c.label} className="rounded-xl border p-4" style={{ background: "var(--surface)", borderColor: "var(--surface-high)" }}>
               <p className="text-2xl font-extrabold font-mono" style={{ color: c.color }}>{c.value}</p>

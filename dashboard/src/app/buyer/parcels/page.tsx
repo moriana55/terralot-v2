@@ -28,7 +28,7 @@ export default function BuyerParcels() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {parcels.map((p) => (
-            <div key={p.id} className="rounded-xl border border-white/5 p-5" style={{ background: "var(--surface)" }}>
+            <div key={p.id} className="tl-card p-5">
               <h3 className="font-bold text-sm mb-1">{p.title}</h3>
               <p className="text-xs flex items-center gap-1" style={{ color: "var(--muted)" }}>
                 <MapPin className="w-3 h-3" /> {p.county}, {p.state} · {p.acres} ac

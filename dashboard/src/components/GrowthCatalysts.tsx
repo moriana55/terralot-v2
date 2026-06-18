@@ -11,8 +11,8 @@ interface Catalyst {
 
 const SECTOR: Record<string, { Icon: typeof Factory; color: string }> = {
   "Çip": { Icon: Cpu, color: "#8ed1df" },
-  "EV": { Icon: Car, color: "#a882ff" },
-  "EV/Batarya": { Icon: Car, color: "#a882ff" },
+  "EV": { Icon: Car, color: "#5aa9ff" },
+  "EV/Batarya": { Icon: Car, color: "#5aa9ff" },
   "Batarya": { Icon: BatteryCharging, color: "#50dc8c" },
   "Veri Merkezi": { Icon: Server, color: "#ffb43c" },
 };
