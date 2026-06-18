@@ -36,13 +36,20 @@ export default function LookalikePage() {
   const [similar, setSimilar] = useState<Similar[]>([]);
   const [loading, setLoading] = useState(false);
   const [loadingUni, setLoadingUni] = useState(true);
+  const [demographicsEmpty, setDemographicsEmpty] = useState(false);
   const [q, setQ] = useState("");
 
-  // load universe once
+  // load universe once. Counties are sourced from county_demographics when it's
+  // populated, otherwise from the real scored leads (tax_delinquent_properties)
+  // — the same data the Deal Buy-Box screener shows — so the picker is never
+  // empty just because the demographics table hasn't been built yet.
   useEffect(() => {
     fetch("/api/lookalike")
       .then((r) => r.json())
-      .then((j) => setUniverse(j.universe || []))
+      .then((j) => {
+        setUniverse(j.universe || []);
+        setDemographicsEmpty(Boolean(j.demographicsEmpty));
+      })
       .catch(() => setUniverse([]))
       .finally(() => setLoadingUni(false));
   }, []);
@@ -101,20 +108,28 @@ export default function LookalikePage() {
           {loadingUni ? (
             <div className="flex items-center gap-1.5 text-xs" style={{ color: "var(--muted)" }}><Loader2 className="w-3 h-3 animate-spin" /> yükleniyor…</div>
           ) : universe.length === 0 ? (
-            <p className="text-xs" style={{ color: "var(--muted)" }}>county_demographics boş. county_demographics.sql + build-county-demographics.js çalıştır.</p>
+            <p className="text-xs" style={{ color: "var(--muted)" }}>Henüz county yok. Önce scraper&apos;ı çalıştırıp lead&apos;leri (tax_delinquent_properties) Supabase&apos;e senkronla.</p>
           ) : (
-            <div className="space-y-0.5 max-h-[60vh] overflow-y-auto">
-              {filteredUni.map((u) => {
-                const key = `${u.state}/${u.county}`;
-                return (
-                  <button key={key} onClick={() => run(key)}
-                    className="w-full text-left px-2.5 py-1.5 rounded-md text-xs transition-colors hover:bg-[var(--surface-high)]"
-                    style={{ background: winnerKey === key ? "var(--surface-high)" : "transparent", color: winnerKey === key ? "var(--accent-ink)" : "inherit", fontWeight: winnerKey === key ? 600 : 400 }}>
-                    {u.county}, {u.state}
-                  </button>
-                );
-              })}
-            </div>
+            <>
+              {demographicsEmpty && (
+                <p className="text-[10px] mb-2 leading-relaxed px-1" style={{ color: "var(--muted)" }}>
+                  Gerçek lead&apos;lerden ({universe.length} county) dolduruldu. Benzerlik skoru için demografi gerekir:
+                  county_demographics boş — county_demographics.sql + build-county-demographics.js çalıştır.
+                </p>
+              )}
+              <div className="space-y-0.5 max-h-[60vh] overflow-y-auto">
+                {filteredUni.map((u) => {
+                  const key = `${u.state}/${u.county}`;
+                  return (
+                    <button key={key} onClick={() => run(key)}
+                      className="w-full text-left px-2.5 py-1.5 rounded-md text-xs transition-colors hover:bg-[var(--surface-high)]"
+                      style={{ background: winnerKey === key ? "var(--surface-high)" : "transparent", color: winnerKey === key ? "var(--accent-ink)" : "inherit", fontWeight: winnerKey === key ? 600 : 400 }}>
+                      {u.county}, {u.state}
+                    </button>
+                  );
+                })}
+              </div>
+            </>
           )}
         </aside>
 
@@ -123,7 +138,19 @@ export default function LookalikePage() {
           {!winner && !loading && (
             <div className="text-center py-24 rounded-xl border border-dashed" style={{ borderColor: "var(--outline)", color: "var(--muted)" }}>
               <Copy className="w-8 h-8 mx-auto mb-3 opacity-40" />
-              <p className="text-sm">Soldan bir winner county seç.</p>
+              {demographicsEmpty && winnerKey ? (
+                <div className="max-w-md mx-auto px-6">
+                  <p className="text-sm font-semibold mb-1" style={{ color: "var(--foreground)" }}>
+                    {winnerKey.split("/")[1]}, {winnerKey.split("/")[0]} seçildi
+                  </p>
+                  <p className="text-xs">
+                    County seçimi gerçek lead verisinden çalışıyor, ama benzerlik skoru hesabı demografi facet&apos;lerine (gelir, yaş, nüfus, ev değeri, büyüme) ihtiyaç duyar.
+                    <code className="font-mono"> county_demographics</code> tablosu boş — doldurunca benzer county&apos;ler burada listelenir.
+                  </p>
+                </div>
+              ) : (
+                <p className="text-sm">Soldan bir winner county seç.</p>
+              )}
             </div>
           )}
           {loading && <div className="flex items-center gap-2 text-sm" style={{ color: "var(--muted)" }}><Loader2 className="w-4 h-4 animate-spin" /> benzerler hesaplanıyor…</div>}

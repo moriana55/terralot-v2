@@ -100,13 +100,17 @@ export async function GET(req: NextRequest) {
       if (data.length < 1000) break;
       from += 1000;
     }
-  } catch {
-    return NextResponse.json({ universe: [], similar: [] });
-  }
+  } catch { /* graceful — demographics may not exist yet; we still build a picker below */ }
 
-  if (facets.length === 0) return NextResponse.json({ universe: [], similar: [] });
+  const hasDemographics = facets.length > 0;
 
   // 2) deal density from tax_delinquent_properties ---------------------------
+  //    This is the SAME table the Deal Buy-Box screener reads, so its distinct
+  //    counties are always available even when county_demographics is empty.
+  //    We (a) accumulate A-grade deal density into any matching demographics
+  //    facet, and (b) collect every distinct ST/COUNTY so the picker can be
+  //    populated from real loaded data alone.
+  const dealCounties = new Map<string, { state: string; county: string }>();
   try {
     let from = 0;
     for (;;) {
@@ -114,8 +118,12 @@ export async function GET(req: NextRequest) {
       if (!data || data.length === 0) break;
       for (const r of data) {
         if (!r.state || !r.county) continue;
+        const st = String(r.state).toUpperCase();
         const nc = normCounty(r.county);
-        const f = byKey.get(`${String(r.state).toUpperCase()}/${nc}`);
+        if (!nc || nc === st) continue; // skip unresolved (e.g. "MD (county n/a)")
+        const key = `${st}/${nc}`;
+        dealCounties.set(key, { state: st, county: nc });
+        const f = byKey.get(key);
         if (f && (r.final_score ?? 0) >= 70) f.dealDensity++;
       }
       if (data.length < 1000) break;
@@ -123,10 +131,25 @@ export async function GET(req: NextRequest) {
     }
   } catch { /* graceful */ }
 
-  // universe list (lightweight) for the picker
-  const universe = facets
-    .map((f) => ({ state: f.state, county: f.county }))
+  // universe list (lightweight) for the picker.
+  // Source = demographics counties ∪ real lead/deal counties. This guarantees a
+  // non-empty picker whenever ANY scored leads exist, even with no demographics.
+  const universeMap = new Map<string, { state: string; county: string }>();
+  for (const f of facets) universeMap.set(`${f.state}/${f.county}`, { state: f.state, county: f.county });
+  for (const [key, v] of dealCounties) if (!universeMap.has(key)) universeMap.set(key, v);
+  const universe = [...universeMap.values()]
     .sort((a, b) => a.state.localeCompare(b.state) || a.county.localeCompare(b.county));
+
+  // If demographics are entirely absent we can still serve the picker, but we
+  // cannot compute similarity (the scoring vector needs demographic facets).
+  if (!hasDemographics) {
+    return NextResponse.json({
+      universe,
+      similar: [],
+      winner: null,
+      demographicsEmpty: true,
+    });
+  }
 
   // No winner selected → just return the universe so the UI can populate the picker.
   if (!wantState || !wantCounty) return NextResponse.json({ universe, similar: [], winner: null });

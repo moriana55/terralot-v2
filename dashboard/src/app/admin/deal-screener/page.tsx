@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { Loader2, AlertCircle, SlidersHorizontal, RotateCcw, Factory, CalendarClock, TrendingUp, Map as MapIcon, Target, Download, CheckCircle2, Eye, XCircle } from "lucide-react";
 import { ScoreBadge, gradeOf } from "@/components/ScoreBadge";
+import Dropdown from "@/components/Dropdown";
 import { supabase } from "@/lib/supabase";
 import { buyBox, dealMargin, VERDICT_TR, type Verdict, type DealSignals } from "@/lib/buy-box";
 
@@ -677,13 +678,19 @@ function DealBuyBoxScreener() {
               <SliderInput label="Min kâr marjı" value={minMargin} max={90} suffix="%" onChange={setMinMargin} />
               <div>
                 <label className="block text-[11px] font-semibold mb-1.5" style={{ color: "var(--muted)" }}>Sırala</label>
-                <select value={sort} onChange={(e) => setSort(e.target.value as typeof sort)}
-                  className="w-full bg-[var(--surface-low)] border rounded-lg px-3 py-2 text-sm outline-none" style={{ borderColor: "var(--outline)" }}>
-                  <option value="score">Cerberus skoru</option>
-                  <option value="discount">İndirim</option>
-                  <option value="margin">Kâr marjı</option>
-                  <option value="savings">Tahmini tasarruf</option>
-                </select>
+                <Dropdown
+                  size="sm"
+                  aria-label="Sırala"
+                  placeholder="Sırala"
+                  value={sort}
+                  onChange={(v) => setSort(v as typeof sort)}
+                  options={[
+                    { value: "score", label: "Cerberus skoru" },
+                    { value: "discount", label: "İndirim" },
+                    { value: "margin", label: "Kâr marjı" },
+                    { value: "savings", label: "Tahmini tasarruf" },
+                  ]}
+                />
               </div>
             </div>
             <p className="mt-4 pt-3 border-t text-[10px] leading-relaxed" style={{ borderColor: "var(--surface-high)", color: "var(--muted)" }}>
