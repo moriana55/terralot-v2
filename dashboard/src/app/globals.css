@@ -163,3 +163,40 @@ select {
 .blog-content strong {
   color: var(--foreground);
 }
+
+/* ── Tear-sheet / institutional report print styles ──────────────────────────
+   Used by /admin/cerberus/[key]/report. On print we hide app chrome (the admin
+   sidebar + any [data-no-print] controls), drop shadows/backgrounds for ink
+   economy, force black-on-white text, and add clean page breaks. CLS is kept
+   low by reserving the map thumbnail box in the report itself. */
+@media print {
+  /* Hide the whole admin sidebar (it's the first <aside> in the admin layout). */
+  aside { display: none !important; }
+  [data-no-print] { display: none !important; }
+
+  html, body {
+    background: #fff !important;
+    color: #000 !important;
+  }
+  main { overflow: visible !important; }
+
+  /* Flatten cards for print: no shadows, hairline borders only. */
+  .report-sheet .tl-card,
+  .report-sheet [data-report-card] {
+    box-shadow: none !important;
+    border: 1px solid #d0d4dc !important;
+    break-inside: avoid;
+  }
+
+  .report-sheet {
+    padding: 0 !important;
+    max-width: none !important;
+  }
+
+  .report-break-before { break-before: page; }
+  .report-avoid-break { break-inside: avoid; }
+
+  @page {
+    margin: 14mm;
+  }
+}

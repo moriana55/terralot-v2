@@ -740,11 +740,17 @@ function DealBuyBoxScreener() {
                           <td className="px-4 py-2.5 text-[10px] max-w-[220px]" style={{ color: "var(--muted)" }} title={bx.reasons.join(" · ")}>
                             <span className="line-clamp-2">{bx.reasons[0] || "—"}</span>
                           </td>
-                          <td className="px-4 py-2.5 text-right">
+                          <td className="px-4 py-2.5 text-right whitespace-nowrap">
                             {l.apn ? (
-                              <Link href={`/admin/cerberus/${encodeURIComponent("apn:" + l.apn.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, ""))}`}
-                                className="text-[11px] font-semibold px-2.5 py-1 rounded-md inline-block whitespace-nowrap"
-                                style={{ background: "var(--surface-high)", color: "var(--accent-ink)" }}>Analiz →</Link>
+                              <div className="inline-flex items-center gap-1.5">
+                                <Link href={`/admin/cerberus/${encodeURIComponent("apn:" + l.apn.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, ""))}`}
+                                  className="text-[11px] font-semibold px-2.5 py-1 rounded-md inline-block whitespace-nowrap"
+                                  style={{ background: "var(--surface-high)", color: "var(--accent-ink)" }}>Analiz →</Link>
+                                <Link href={`/admin/cerberus/${encodeURIComponent("apn:" + l.apn.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, ""))}/report`}
+                                  title="Tear-sheet raporu (PDF)"
+                                  className="text-[11px] font-semibold px-2 py-1 rounded-md inline-block whitespace-nowrap"
+                                  style={{ background: "var(--primary)", color: "#fff" }}>Rapor</Link>
+                              </div>
                             ) : (
                               <Link href={`/admin/acquisitions?q=${encodeURIComponent(l.county || "")}`}
                                 className="text-[11px] font-semibold px-2.5 py-1 rounded-md inline-block whitespace-nowrap"

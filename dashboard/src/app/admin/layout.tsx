@@ -33,6 +33,7 @@ const SECTIONS: { label: string | null; items: { href: string; icon: typeof MapP
   {
     label: "Cerberus · AI Intel",
     items: [
+      { href: "/admin/market", icon: BarChart3, label: "Market Analitik" },
       { href: "/admin/underwrite", icon: Brain, label: "AI Underwriting" },
       { href: "/admin/arbitrage", icon: TrendingDown, label: "Arbitrage Radar" },
       { href: "/admin/path-of-growth", icon: Rocket, label: "Path of Growth" },

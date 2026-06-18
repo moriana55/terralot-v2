@@ -4,7 +4,7 @@ import { use, useEffect, useState } from "react";
 import Link from "next/link";
 import {
   Loader2, AlertCircle, ArrowLeft, CheckCircle2, Eye, XCircle, ShieldAlert,
-  MapPin, Brain, Sparkles, Info, ExternalLink, Layers, Waves, Mountain, Route, Users, Satellite, Lock,
+  MapPin, Brain, Sparkles, Info, ExternalLink, Layers, Waves, Mountain, Route, Users, Satellite, Lock, FileText,
 } from "lucide-react";
 import { ScoreBadge } from "@/components/ScoreBadge";
 
@@ -358,6 +358,11 @@ export default function CerberusLeadPage({ params }: { params: Promise<{ key: st
           </div>
 
           <div className="mt-6 flex items-center gap-3 flex-wrap">
+            <Link href={`/admin/cerberus/${encodeURIComponent(key)}/report`}
+              className="inline-flex items-center gap-1.5 text-sm font-bold px-4 py-2 rounded-lg"
+              style={{ background: "var(--primary)", color: "#fff" }}>
+              <FileText className="w-4 h-4" /> Tear-Sheet Raporu (PDF)
+            </Link>
             <Link href={`/admin/underwrite?apn=${encodeURIComponent(a.apn || "")}`}
               className="inline-flex items-center gap-1.5 text-sm font-semibold px-4 py-2 rounded-lg"
               style={{ background: "var(--surface)", border: "1px solid var(--outline)" }}>

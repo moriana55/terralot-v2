@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
   Loader2, AlertCircle, Play, CheckCircle2, Eye, XCircle, ShieldAlert,
-  Database, Cpu, Layers, TrendingUp, Radio, Brain, RefreshCw, ArrowRight, Satellite,
+  Database, Cpu, Layers, TrendingUp, Radio, Brain, RefreshCw, ArrowRight, Satellite, FileText,
 } from "lucide-react";
 import { ScoreBadge } from "@/components/ScoreBadge";
 import { CerberusLogo } from "@/components/DealHoundLogo";
@@ -272,12 +272,20 @@ export default function CerberusIntelPage() {
                             <td className="px-4 py-2.5 text-xs font-bold tabular-nums" style={{ color: o.margin != null ? "var(--accent-ink)" : "var(--muted)" }}>{o.margin != null ? `${Math.round(o.margin * 100)}%` : "—"}</td>
                             <td className="px-4 py-2.5 text-xs tabular-nums">{fmtMoney(o.comp_value)}</td>
                             <td className="px-4 py-2.5 text-xs tabular-nums">{fmtMoney(o.min_bid)}</td>
-                            <td className="px-4 py-2.5 text-right">
-                              <Link href={`/admin/cerberus/${encodeURIComponent(o.parcel_key)}`}
-                                className="text-[11px] font-semibold px-2.5 py-1 rounded-md inline-flex items-center gap-1 whitespace-nowrap"
-                                style={{ background: "var(--surface-high)", color: "var(--accent-ink)" }}>
-                                Analiz <ArrowRight className="w-3 h-3" />
-                              </Link>
+                            <td className="px-4 py-2.5 text-right whitespace-nowrap">
+                              <div className="inline-flex items-center gap-1.5">
+                                <Link href={`/admin/cerberus/${encodeURIComponent(o.parcel_key)}`}
+                                  className="text-[11px] font-semibold px-2.5 py-1 rounded-md inline-flex items-center gap-1 whitespace-nowrap"
+                                  style={{ background: "var(--surface-high)", color: "var(--accent-ink)" }}>
+                                  Analiz <ArrowRight className="w-3 h-3" />
+                                </Link>
+                                <Link href={`/admin/cerberus/${encodeURIComponent(o.parcel_key)}/report`}
+                                  title="Tear-sheet raporu (PDF)"
+                                  className="text-[11px] font-semibold px-2 py-1 rounded-md inline-flex items-center gap-1 whitespace-nowrap"
+                                  style={{ background: "var(--primary)", color: "#fff" }}>
+                                  <FileText className="w-3 h-3" /> Rapor
+                                </Link>
+                              </div>
                             </td>
                           </tr>
                         );
