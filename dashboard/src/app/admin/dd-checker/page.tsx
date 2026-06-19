@@ -12,6 +12,7 @@ interface DDResult {
     riskScore: number | null;
     riskLabel: string;
     error?: string;
+    fallback?: boolean;
   };
   road: {
     hasRoadAccess: boolean | null;
@@ -22,6 +23,7 @@ interface DDResult {
     roadClass: string | null;
     accessNote: string;
     error?: string;
+    fallback?: boolean;
   };
 }
 
@@ -121,6 +123,15 @@ export default function DDCheckerPage() {
 
       {result && (
         <div className="space-y-4">
+          {(flood?.fallback || road?.fallback) && (
+            <div className="rounded-lg px-4 py-3 text-xs font-semibold flex items-center gap-2"
+              style={{ background: "rgba(234,179,8,0.12)", border: "1px solid rgba(234,179,8,0.4)", color: "#a16207" }}>
+              <AlertTriangle className="w-4 h-4 shrink-0" />
+              <span>
+                ⚠️ Tahmini veri: {[flood?.fallback ? "FEMA flood" : null, road?.fallback ? "yol erişimi" : null].filter(Boolean).join(" + ")} servisi yanıt vermedi, koordinattan TÜRETİLMİŞ değer gösteriliyor. Gerçek karar için doğrula.
+              </span>
+            </div>
+          )}
           {/* Flood Card */}
           <div className="rounded-xl border overflow-hidden" style={{ borderColor: "var(--outline)" }}>
             <div className="flex items-center gap-3 px-5 py-4 border-b" style={{ background: "var(--surface)", borderColor: "var(--outline)" }}>

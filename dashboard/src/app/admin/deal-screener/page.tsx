@@ -520,6 +520,8 @@ function DealBuyBoxScreener() {
         const dealsP = supabase
           .from("tax_delinquent_properties")
           .select("id,state,county,apn,owner_name,property_address,source,sale_date,raw_url,acres,minimum_bid,judgment_amount,final_score,deal_score,discount_pct,savings,liquidity_score,county_pop_growth,road_access,flood_score")
+          // Sadece gerçek tax-lead'ler: ZILLOW (perakende ev/arsa) satırlarını hariç tut
+          .not("source", "like", "ZILLOW%")
           .order("final_score", { ascending: false, nullsFirst: false })
           .limit(500);
 

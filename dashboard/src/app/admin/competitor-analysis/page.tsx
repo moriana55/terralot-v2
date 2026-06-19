@@ -120,7 +120,12 @@ export default function CompetitorAnalysisPage() {
     : 0;
 
   const netArbitrageProfit = activeListing ? totalRetailFinanced - activeListing.ourSourceCost : 0;
-  const markupPercent = activeListing ? Math.round((netArbitrageProfit / activeListing.ourSourceCost) * 100) : 0;
+  // Sıfıra bölme guard: ourSourceCost yoksa NaN/Infinity yerine null → "—" göster
+  const markupPercent = activeListing && activeListing.ourSourceCost > 0
+    ? Math.round((netArbitrageProfit / activeListing.ourSourceCost) * 100)
+    : null;
+  // Arbitraj verisi (peşinat/aylık/vade/maliyet) tamamen boşsa hesap anlamsız
+  const hasArbitrageData = !!activeListing && (activeListing.ourSourceCost > 0 || totalRetailFinanced > 0);
 
   return (
     <div className="p-8 space-y-6">
@@ -243,7 +248,7 @@ export default function CompetitorAnalysisPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b" style={{ borderColor: "var(--outline)", background: "var(--surface-low)" }}>
-                  {["Competitor", "Location", "Acres", "Down/Monthly", "Our Sourcing", "Action"].map(h => (
+                  {["Rakip", "Konum", "Dönüm", "Liste Fiyatı", "Bizim Maliyet", "İşlem"].map(h => (
                     <th key={h} className="text-left py-3 px-4 text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--muted)" }}>{h}</th>
                   ))}
                 </tr>
@@ -285,8 +290,12 @@ export default function CompetitorAnalysisPage() {
                     <td className="py-3 px-4 text-xs font-semibold">{l.acres} ac</td>
                     <td className="py-3 px-4 text-xs">
                       <div>
-                        <p className="font-semibold">${l.downPayment} down</p>
-                        <p className="text-[10px]" style={{ color: "var(--muted)" }}>${l.monthlyPayment}/mo x {l.termMonths}</p>
+                        <p className="font-semibold">{l.price ? `$${l.price.toLocaleString()}` : "—"}</p>
+                        <p className="text-[10px]" style={{ color: "var(--muted)" }}>
+                          {l.acres >= 1 && l.price ? `$${Math.round(l.price / l.acres).toLocaleString()}/acre` : ""}
+                          {l.downPayment ? ` · $${l.downPayment.toLocaleString()} peşinat` : ""}
+                          {l.monthlyPayment ? ` · $${l.monthlyPayment}/ay` : ""}
+                        </p>
                       </div>
                     </td>
                     <td className="py-3 px-4 text-xs font-semibold text-emerald-400">${l.ourSourceCost}</td>
@@ -348,11 +357,17 @@ export default function CompetitorAnalysisPage() {
                 {/* Final ROI Metric */}
                 <div className="p-4 rounded-xl text-center space-y-1" style={{ background: "rgba(16,185,129,0.08)", border: "1px solid rgba(16,185,129,0.2)" }}>
                   <p className="text-[9px] uppercase tracking-wider font-semibold text-emerald-500">Gross Arbitrage Spread</p>
-                  <p className="text-2xl font-extrabold font-mono text-emerald-400">+${netArbitrageProfit.toLocaleString()}</p>
-                  <p className="text-xs font-bold text-emerald-500 flex items-center justify-center gap-1">
-                    <ArrowUpRight className="w-4 h-4" />
-                    <span>{markupPercent}% Markup ROI</span>
-                  </p>
+                  <p className="text-2xl font-extrabold font-mono text-emerald-400">{hasArbitrageData ? `+$${netArbitrageProfit.toLocaleString()}` : "—"}</p>
+                  {markupPercent == null ? (
+                    <p className="text-xs font-bold flex items-center justify-center gap-1" style={{ color: "var(--muted)" }}>
+                      <span>Finansman verisi yok</span>
+                    </p>
+                  ) : (
+                    <p className="text-xs font-bold text-emerald-500 flex items-center justify-center gap-1">
+                      <ArrowUpRight className="w-4 h-4" />
+                      <span>{markupPercent}% Markup ROI</span>
+                    </p>
+                  )}
                 </div>
               </div>
 

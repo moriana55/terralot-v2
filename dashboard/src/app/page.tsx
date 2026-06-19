@@ -13,10 +13,18 @@ export default function Home() {
   const [submitted, setSubmitted] = useState(false);
   const [plan, setPlan] = useState<"starter" | "pro" | "agency">("pro");
 
-  const handleWaitlist = (e: React.FormEvent) => {
+  const handleWaitlist = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
     setSubmitted(true);
+    // Lead'i gerçekten kaydet (önceden hiçbir yere POST etmiyordu → e-posta kayboluyordu)
+    try {
+      await fetch("/api/inquiries", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ propertyId: "waitlist", propertyTitle: "Ana Sayfa Waitlist", name: email.split("@")[0] || "Waitlist", email, message: "Waitlist kaydı (ana sayfa)" }),
+      });
+    } catch { /* UX'i bloklama */ }
   };
 
   return (

@@ -169,11 +169,19 @@ export default function LandForeverPage() {
     setActiveTabs(prev => ({ ...prev, [id]: tab }));
   };
 
-  const handleInquire = (e: React.FormEvent, id: string) => {
+  const handleInquire = async (e: React.FormEvent, id: string) => {
     e.preventDefault();
     const email = emails[id];
     if (!email) return;
     setInquiredIds(prev => ({ ...prev, [id]: true }));
+    // Lead'i gerçekten kaydet (önceden POST etmiyordu → kayboluyordu)
+    try {
+      await fetch("/api/inquiries", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ propertyId: id, propertyTitle: "LandForever", name: email.split("@")[0] || "İlgili", email, message: `LandForever ilgi — mülk: ${id}` }),
+      });
+    } catch { /* UX'i bloklama */ }
     setTimeout(() => {
       setInquiredIds(prev => ({ ...prev, [id]: false }));
       setEmails(prev => ({ ...prev, [id]: "" }));

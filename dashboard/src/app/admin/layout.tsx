@@ -26,6 +26,7 @@ const SECTIONS: { label: string | null; items: { href: string; icon: typeof MapP
       { href: "/admin/saved-searches", icon: BellRing, label: "Saved Searches" },
       { href: "/admin/off-market", icon: EyeOff, label: "Off Market" },
       { href: "/admin/competitor-analysis", icon: BarChart3, label: "Competitor Intel" },
+      { href: "/admin/market-listings", icon: CircleDollarSign, label: "Piyasa İlanları" },
       { href: "/admin/parcels", icon: Globe, label: "Parcel Explorer" },
       { href: "/admin/dd-checker", icon: ShieldCheck, label: "DD Checker" },
     ],

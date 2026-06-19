@@ -16,6 +16,7 @@ interface RegridResponse {
   type?: "FeatureCollection";
   features?: ParcelFeature[];
   error?: string;
+  _mock?: boolean;
 }
 
 type SearchMode = "address" | "owner" | "coordinates";
@@ -29,6 +30,7 @@ export default function ParcelsPage() {
   const [results, setResults] = useState<ParcelFeature[]>([]);
   const [selected, setSelected] = useState<ParcelFeature | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [mock, setMock] = useState(false);
   const [mapCenter, setMapCenter] = useState<[number, number]>([32.7767, -96.797]);
   const [mapClickCoords, setMapClickCoords] = useState<[number, number] | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -54,6 +56,7 @@ export default function ParcelsPage() {
     try {
       const res = await fetch(url);
       const data: RegridResponse = await res.json();
+      setMock(!!data._mock);
       if (data.error) {
         setError(data.error);
         setResults([]);
@@ -154,6 +157,13 @@ export default function ParcelsPage() {
           style={{ background: "rgba(186,26,26,0.08)", color: "var(--error)" }}>
           <AlertCircle className="w-4 h-4 shrink-0" />
           {error}
+        </div>
+      )}
+      {mock && results.length > 0 && (
+        <div className="flex items-center gap-2 px-4 py-2.5 rounded-lg mb-4 text-xs font-semibold"
+          style={{ background: "rgba(234,179,8,0.12)", border: "1px solid rgba(234,179,8,0.4)", color: "#a16207" }}>
+          <AlertCircle className="w-4 h-4 shrink-0" />
+          ⚠️ Örnek (mock) parsel — REGRID_API_TOKEN tanımlı değil. Gerçek parsel verisi için token ekle.
         </div>
       )}
 

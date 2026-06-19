@@ -339,9 +339,9 @@ export default function CerberusIntelPage() {
                           <span className="text-[11px] font-mono tabular-nums" style={{ color: "var(--muted)" }}>{src.total}</span>
                         </div>
                         <div className="flex h-1.5 rounded-full overflow-hidden" style={{ background: "var(--surface-high)" }}>
-                          <div style={{ width: `${(src.BUY / src.total) * 100}%`, background: "var(--grade-a)" }} />
-                          <div style={{ width: `${(src.WATCH / src.total) * 100}%`, background: "var(--warn)" }} />
-                          <div style={{ width: `${(src.PASS / src.total) * 100}%`, background: "var(--danger)" }} />
+                          <div style={{ width: `${src.total ? (src.BUY / src.total) * 100 : 0}%`, background: "var(--grade-a)" }} />
+                          <div style={{ width: `${src.total ? (src.WATCH / src.total) * 100 : 0}%`, background: "var(--warn)" }} />
+                          <div style={{ width: `${src.total ? (src.PASS / src.total) * 100 : 0}%`, background: "var(--danger)" }} />
                         </div>
                       </div>
                     ))}

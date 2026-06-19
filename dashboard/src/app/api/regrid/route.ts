@@ -49,6 +49,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({
       type: "FeatureCollection",
+      _mock: true, // REGRID_API_TOKEN yok → sahte örnek parsel (UI uyarı göstermeli)
       features: [
         {
           type: "Feature",

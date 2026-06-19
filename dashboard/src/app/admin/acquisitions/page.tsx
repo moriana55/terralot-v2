@@ -231,6 +231,7 @@ export default function AcquisitionsPage() {
     const { data } = await supabase
       .from("tax_delinquent_properties")
       .select("final_score,deal_score,discount_pct,savings,state,county,apn,owner_name,property_address,acres,minimum_bid,judgment_amount,road_access,source,sale_date,raw_url")
+      .not("source", "like", "ZILLOW%")
       .order("final_score", { ascending: false, nullsFirst: false })
       .limit(500);
     const rows = (data as TaxLeadRow[]) || [];
@@ -258,6 +259,7 @@ export default function AcquisitionsPage() {
     const { data } = await supabase
       .from("tax_delinquent_properties")
       .select("owner_name,owner_address,county,state,apn,minimum_bid,judgment_amount,final_score,sale_date,source")
+      .not("source", "like", "ZILLOW%")
       .not("owner_name", "is", null).not("owner_address", "is", null)
       .order("final_score", { ascending: false, nullsFirst: false })
       .limit(2000);
