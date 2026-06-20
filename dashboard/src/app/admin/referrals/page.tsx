@@ -187,9 +187,11 @@ export default function ReferralsPage() {
                       <span style={{ color: "var(--muted)" }}>Rate: <strong>{p.commissionRate}%</strong></span>
                       <div className="ml-auto flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-mono" style={{ background: "rgba(255,255,255,0.05)" }}>
                         <span style={{ color: "var(--primary)" }}>{p.referralCode}</span>
-                        <button onClick={(e) => { e.stopPropagation(); copyCode(p.referralCode); }}>
+                        <span role="button" tabIndex={0} style={{ cursor: "pointer", display: "inline-flex" }}
+                          onClick={(e) => { e.stopPropagation(); copyCode(p.referralCode); }}
+                          onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.stopPropagation(); copyCode(p.referralCode); } }}>
                           {copied === p.referralCode ? <CheckCircle2 className="w-3 h-3" style={{ color: "#50dc8c" }} /> : <Copy className="w-3 h-3" style={{ color: "var(--muted)" }} />}
-                        </button>
+                        </span>
                       </div>
                     </div>
                   </button>
