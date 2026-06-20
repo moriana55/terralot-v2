@@ -112,6 +112,11 @@ export interface LeadAnalysis {
   county: string | null;
   address: string | null;
   acres: number | null;
+  /** ham parsel koordinatı (lead satırından) — "Parseli Gör" uydu linki için. null = yok. */
+  lat: number | null;
+  lng: number | null;
+  /** kaynak ilan/auction URL'i (lead satırından) — "Kaynak İlan" linki için. */
+  rawUrl: string | null;
 
   // valuation
   compValue: number | null;
@@ -389,6 +394,9 @@ export function analyzeLead(
     county: cty ?? r.county ?? null,
     address: r.property_address ?? null,
     acres: r.acres ?? null,
+    lat: r.lat ?? null,
+    lng: r.lng ?? null,
+    rawUrl: r.raw_url ?? null,
     compValue,
     perAcre,
     valueBasis,

@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { ScoreBadge } from "@/components/ScoreBadge";
 import { DataSources, type DataSourceItem } from "@/components/DataSources";
+import { ParcelLinks } from "@/components/ParcelLinks";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // PER-LEAD ANALYSIS DRILL-DOWN ("tek tek analiz eden")
@@ -34,6 +35,9 @@ interface Analysis {
   county: string | null;
   address: string | null;
   acres: number | null;
+  lat?: number | null;
+  lng?: number | null;
+  raw_url?: string | null; rawUrl?: string | null;
   comp_value?: number | null; compValue?: number | null;
   per_acre?: number | null; perAcre?: number | null;
   value_basis?: string; valueBasis?: string;
@@ -241,6 +245,21 @@ export default function CerberusLeadPage({ params }: { params: Promise<{ key: st
                 )}
               </div>
             </div>
+          </div>
+
+          {/* Parseli Gör — gerçek araziye/kayda götüren dış linkler (uydu / kaynak / Regrid) */}
+          <div className="mb-6">
+            <ParcelLinks
+              parcel={{
+                lat: a.lat ?? enr?.lat ?? null,
+                lng: a.lng ?? enr?.lng ?? null,
+                apn: a.apn,
+                state: a.state,
+                county: a.county,
+                address: a.address,
+                raw_url: a.raw_url ?? a.rawUrl ?? null,
+              }}
+            />
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

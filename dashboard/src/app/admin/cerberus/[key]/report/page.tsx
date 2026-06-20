@@ -6,6 +6,7 @@ import {
   Loader2, AlertCircle, ArrowLeft, Printer, CheckCircle2, Eye, XCircle, ShieldAlert,
   MapPin, Waves, Mountain, Route, Users, Satellite, Info, Building2,
 } from "lucide-react";
+import { ParcelLinks } from "@/components/ParcelLinks";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // PROFESSIONAL PARCEL TEAR-SHEET  (/admin/cerberus/[key]/report)
@@ -40,6 +41,8 @@ interface Analysis {
   parcel_key?: string; parcelKey?: string;
   apn: string | null; source: string | null; state: string | null; county: string | null;
   address: string | null; acres: number | null;
+  lat?: number | null; lng?: number | null;
+  raw_url?: string | null; rawUrl?: string | null;
   comp_value?: number | null; compValue?: number | null;
   per_acre?: number | null; perAcre?: number | null;
   value_basis?: string; valueBasis?: string;
@@ -110,8 +113,8 @@ export default function TearSheetPage({ params }: { params: Promise<{ key: strin
   const suggestedAction = a ? g(a.suggested_action, a.suggestedAction) : "";
   const realSignals = (a ? g(a.real_signals, a.realSignals) : {}) || {};
   const enr = a?.enrichment ?? null;
-  const lat = enr?.lat ?? null;
-  const lng = enr?.lng ?? null;
+  const lat = a?.lat ?? enr?.lat ?? null;
+  const lng = a?.lng ?? enr?.lng ?? null;
 
   const mem = a ? VERDICT_META[a.verdict] || VERDICT_META.PASS : VERDICT_META.PASS;
 
@@ -221,6 +224,20 @@ export default function TearSheetPage({ params }: { params: Promise<{ key: strin
               </div>
             </div>
           </header>
+
+          {/* ── PARSELİ GÖR — gerçek araziye/kayda götüren dış linkler (ekranda; PDF'te gizli) ── */}
+          <div data-no-print>
+            <ParcelLinks
+              parcel={{
+                lat, lng,
+                apn: a.apn,
+                state: a.state,
+                county: a.county,
+                address: a.address,
+                raw_url: a.raw_url ?? a.rawUrl ?? null,
+              }}
+            />
+          </div>
 
           {/* ── VERDICT BANNER ── */}
           <section data-report-card className="rounded-xl border p-5 report-avoid-break" style={{ background: "var(--surface)", borderColor: "var(--surface-high)", borderLeft: `4px solid ${mem.color}` }}>

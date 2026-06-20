@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ScoreBadge } from "@/components/ScoreBadge";
 import { DataSources, type DataSourceItem } from "@/components/DataSources";
+import { ParcelLinks } from "@/components/ParcelLinks";
 import { TrendingDown, Loader2, AlertCircle, Zap, ArrowRight } from "lucide-react";
 
 // Tax-Deal Arbitrage Radar — ranks tax parcels by discount vs intrinsic value.
@@ -122,7 +123,7 @@ export default function ArbitragePage() {
             <table className="min-w-[820px] w-full text-sm">
               <thead>
                 <tr className="border-b sticky top-0" style={{ borderColor: "var(--surface-high)", background: "var(--surface)" }}>
-                  {["#", "County", "Skor", "Acres", "Min Teklif", "Intrinsic Değer", "Değer Açığı", "İndirim", "Kaynak", ""].map((h) => (
+                  {["#", "County", "Skor", "Acres", "Min Teklif", "Intrinsic Değer", "Değer Açığı", "İndirim", "Kaynak", "Gör", ""].map((h) => (
                     <th key={h} className="text-left px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest whitespace-nowrap" style={{ color: "var(--muted)" }}>{h}</th>
                   ))}
                 </tr>
@@ -152,6 +153,9 @@ export default function ArbitragePage() {
                       )}
                     </td>
                     <td className="px-4 py-2.5 text-[10px]" style={{ color: "var(--muted)" }}>{BASIS_LABEL[o.basis]}</td>
+                    <td className="px-4 py-2.5 whitespace-nowrap">
+                      <ParcelLinks compact parcel={{ apn: o.apn, state: o.state, county: o.county, raw_url: o.rawUrl }} />
+                    </td>
                     <td className="px-4 py-2.5 text-right">
                       <Link href={`/admin/underwrite`} className="text-[11px] font-semibold px-2.5 py-1 rounded-md inline-flex items-center gap-1"
                         style={{ background: "var(--surface-high)", color: "var(--accent-ink)" }}>Underwrite <ArrowRight className="w-3 h-3" /></Link>

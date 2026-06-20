@@ -8,6 +8,7 @@ import Dropdown from "@/components/Dropdown";
 import { supabase } from "@/lib/supabase";
 import { buyBox, dealMargin, VERDICT_TR, type Verdict, type DealSignals } from "@/lib/buy-box";
 import { DataSources, type DataSourceItem } from "@/components/DataSources";
+import { ParcelLinks } from "@/components/ParcelLinks";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // CoStar-style demographic deal screener.
@@ -483,6 +484,8 @@ interface DealRow extends DealSignals {
   source: string | null;
   sale_date: string | null;
   raw_url: string | null;
+  lat: number | null;
+  lng: number | null;
 }
 
 const VERDICT_META: Record<Verdict, { color: string; Icon: typeof CheckCircle2 }> = {
@@ -520,7 +523,7 @@ function DealBuyBoxScreener() {
 
         const dealsP = supabase
           .from("tax_delinquent_properties")
-          .select("id,state,county,apn,owner_name,property_address,source,sale_date,raw_url,acres,minimum_bid,judgment_amount,final_score,deal_score,discount_pct,savings,liquidity_score,county_pop_growth,road_access,flood_score")
+          .select("id,state,county,apn,owner_name,property_address,source,sale_date,raw_url,lat,lng,acres,minimum_bid,judgment_amount,final_score,deal_score,discount_pct,savings,liquidity_score,county_pop_growth,road_access,flood_score")
           // Sadece gerçek tax-lead'ler: ZILLOW (perakende ev/arsa) satırlarını hariç tut
           .not("source", "like", "ZILLOW%")
           .order("final_score", { ascending: false, nullsFirst: false })
@@ -746,7 +749,7 @@ function DealBuyBoxScreener() {
                 <table className="min-w-[920px] w-full text-sm">
                   <thead>
                     <tr className="border-b sticky top-0 z-10" style={{ borderColor: "var(--surface-high)", background: "var(--surface)" }}>
-                      {["Karar", "Skor", "County", "Acres", "Min Teklif", "Comp Değer", "İndirim", "Marj", "Tasarruf", "Gerekçe", ""].map((h) => (
+                      {["Karar", "Skor", "County", "Acres", "Min Teklif", "Comp Değer", "İndirim", "Marj", "Tasarruf", "Gerekçe", "Gör", ""].map((h) => (
                         <th key={h} className="text-left px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest whitespace-nowrap" style={{ color: "var(--muted)" }}>{h}</th>
                       ))}
                     </tr>
@@ -776,6 +779,9 @@ function DealBuyBoxScreener() {
                           <td className="px-4 py-2.5 text-xs tabular-nums">{l.savings != null ? `+$${l.savings.toLocaleString()}` : "—"}</td>
                           <td className="px-4 py-2.5 text-[10px] max-w-[220px]" style={{ color: "var(--muted)" }} title={bx.reasons.join(" · ")}>
                             <span className="line-clamp-2">{bx.reasons[0] || "—"}</span>
+                          </td>
+                          <td className="px-4 py-2.5 whitespace-nowrap">
+                            <ParcelLinks compact parcel={{ lat: l.lat, lng: l.lng, apn: l.apn, state: l.state, county: l.county, property_address: l.property_address, raw_url: l.raw_url }} />
                           </td>
                           <td className="px-4 py-2.5 text-right whitespace-nowrap">
                             {l.apn ? (
