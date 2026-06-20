@@ -188,12 +188,23 @@ export default function TaxLeadsPage() {
 
       {leads.length > 0 && (
         <div className="rounded-xl border overflow-x-auto" style={{ borderColor: "var(--outline)" }}>
-          <table className="min-w-[1000px] w-full text-sm">
+          <table className="w-full text-sm table-fixed">
+            <colgroup>
+              <col className="w-[64px]" />{/* Source */}
+              <col className="w-[120px]" />{/* County */}
+              <col className="w-[96px]" />{/* APN */}
+              <col className="w-[150px]" />{/* Owner */}
+              <col />{/* Address — flexes */}
+              <col className="w-[64px]" />{/* Acres */}
+              <col className="w-[112px]" />{/* Starting Bid */}
+              <col className="w-[120px]" />{/* DD (sticky) */}
+            </colgroup>
             <thead>
               <tr className="border-b" style={{ borderColor: "var(--outline)", background: "var(--surface)" }}>
-                {["Source", "County", "APN", "Owner", "Address", "Acres", "Starting Bid (Taxes)", "Est. Winning Bid", "Sale Date", "DD"].map((h) => (
+                {["Source", "County", "APN", "Owner", "Address", "Acres", "Bid · Sale"].map((h) => (
                   <th key={h} className="text-left px-4 py-3 text-xs font-bold uppercase tracking-widest whitespace-nowrap" style={{ color: "var(--muted)" }}>{h}</th>
                 ))}
+                <th className="text-left px-4 py-3 text-xs font-bold uppercase tracking-widest whitespace-nowrap sticky right-0 z-10" style={{ color: "var(--muted)", background: "var(--surface)", boxShadow: "-8px 0 12px -8px rgba(0,0,0,0.45)" }}>DD</th>
               </tr>
             </thead>
             <tbody>
@@ -204,11 +215,11 @@ export default function TaxLeadsPage() {
 
                 return (
                   <Fragment key={lead.id}>
-                    <tr className="border-b transition-colors hover:bg-white/[0.02]"
+                    <tr className="group border-b transition-colors hover:bg-white/[0.02]"
                       style={{ borderColor: "var(--outline)" }}>
                       <td className="px-4 py-3">
                         {lead.raw_url ? (
-                          <a href={lead.raw_url} target="_blank" rel="noopener noreferrer" 
+                          <a href={lead.raw_url} target="_blank" rel="noopener noreferrer"
                             className="text-xs px-2 py-0.5 rounded font-semibold uppercase hover:opacity-80 transition-all inline-flex items-center gap-1"
                             style={{ background: "rgba(57,128,244,0.1)", color: "var(--primary)" }}>
                             {lead.source}
@@ -221,23 +232,30 @@ export default function TaxLeadsPage() {
                           </span>
                         )}
                       </td>
-                      <td className="px-4 py-3 text-xs whitespace-nowrap">{lead.county && !/n\/a|unknown/i.test(lead.county) && lead.county !== lead.state ? `${lead.state} · ${lead.county}` : lead.state}</td>
-                      <td className="px-4 py-3 text-xs font-mono">{lead.apn && !/^[a-z0-9]{4}-[a-z0-9]{4}-\d+$/i.test(lead.apn) && !/^r\d+$/.test(lead.apn) ? lead.apn : "—"}</td>
-                      <td className="px-4 py-3 text-xs max-w-[140px] truncate">{lead.owner_name ?? "—"}</td>
-                      <td className="px-4 py-3 text-xs max-w-[160px] truncate">{lead.property_address ?? "—"}</td>
-                      <td className="px-4 py-3 text-xs">{lead.acres != null ? `${lead.acres} ac` : "—"}</td>
-                      <td className="px-4 py-3 text-xs font-semibold text-amber-500">
-                        {lead.minimum_bid != null ? `$${lead.minimum_bid.toLocaleString()}` : "—"}
+                      <td className="px-4 py-3 text-xs truncate">{lead.county && !/n\/a|unknown/i.test(lead.county) && lead.county !== lead.state ? `${lead.state} · ${lead.county}` : lead.state}</td>
+                      <td className="px-4 py-3 text-xs font-mono truncate">{lead.apn && !/^[a-z0-9]{4}-[a-z0-9]{4}-\d+$/i.test(lead.apn) && !/^r\d+$/.test(lead.apn) ? lead.apn : "—"}</td>
+                      <td className="px-4 py-3 text-xs truncate">{lead.owner_name ?? "—"}</td>
+                      <td className="px-4 py-3 text-xs truncate" title={lead.property_address ?? undefined}>{lead.property_address ?? "—"}</td>
+                      <td className="px-4 py-3 text-xs whitespace-nowrap">{lead.acres != null ? `${lead.acres} ac` : "—"}</td>
+                      <td className="px-4 py-3 text-xs whitespace-nowrap">
+                        <span className="font-semibold text-amber-500">
+                          {lead.minimum_bid != null ? `$${lead.minimum_bid.toLocaleString()}` : "—"}
+                        </span>
+                        {(lead.judgment_amount != null || lead.sale_date) && (
+                          <span className="block text-[10px] leading-tight mt-0.5" style={{ color: "var(--muted)" }}>
+                            {lead.judgment_amount != null && (
+                              <span className="text-emerald-500 font-semibold">~${lead.judgment_amount.toLocaleString()}</span>
+                            )}
+                            {lead.judgment_amount != null && lead.sale_date && " · "}
+                            {lead.sale_date ?? ""}
+                          </span>
+                        )}
                       </td>
-                      <td className="px-4 py-3 text-xs font-semibold text-emerald-500">
-                        {lead.judgment_amount != null ? `$${lead.judgment_amount.toLocaleString()}` : "—"}
-                      </td>
-                      <td className="px-4 py-3 text-xs">{lead.sale_date ?? "—"}</td>
-                      <td className="px-4 py-3">
+                      <td className="px-4 py-3 sticky right-0 z-10" style={{ background: "var(--background)", boxShadow: "-8px 0 12px -8px rgba(0,0,0,0.15)" }}>
                         <button
                           onClick={() => dd ? setExpanded((p) => ({ ...p, [lead.id]: !isExpanded })) : runDD(lead)}
                           disabled={isLoading}
-                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors"
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap"
                           style={{
                             background: dd ? "rgba(34,197,94,0.08)" : "var(--surface-high)",
                             color: dd ? "#22c55e" : "var(--foreground)",
@@ -252,7 +270,7 @@ export default function TaxLeadsPage() {
 
                     {dd && isExpanded && (
                       <tr key={`${lead.id}-dd`} style={{ background: "var(--surface)" }}>
-                        <td colSpan={9} className="px-4 py-4">
+                        <td colSpan={8} className="px-4 py-4">
                           <div className="flex gap-6 flex-wrap">
                             {/* Flood */}
                             <div className="flex items-start gap-3">
