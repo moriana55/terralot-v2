@@ -21,6 +21,7 @@ const SECTIONS: { label: string | null; items: { href: string; icon: typeof MapP
       { href: "/admin/scraper", icon: Cpu, label: "Cerberus Botları" },
       { href: "/admin/tax-leads", icon: FileSearch, label: "Tax Leads" },
       { href: "/admin/off-market-leads", icon: MailPlus, label: "Off-Market Leads" },
+      { href: "/admin/real-deals", icon: CircleDollarSign, label: "★ Gerçek Dealler" },
       { href: "/admin/acquisitions", icon: Target, label: "Acquisitions" },
       { href: "/admin/outreach", icon: Send, label: "Owner Outreach" },
       { href: "/admin/deal-screener", icon: SlidersHorizontal, label: "Deal Screener" },
