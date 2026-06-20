@@ -64,6 +64,7 @@ const SECTIONS: { label: string | null; items: { href: string; icon: typeof MapP
       { href: "/admin/referrals", icon: CircleDollarSign, label: "Referrals" },
       { href: "/admin/activity", icon: Activity, label: "Activity" },
       { href: "/admin/deal-map", icon: Map, label: "Deal Map" },
+      { href: "/admin/national-map", icon: Globe, label: "Ulusal Harita" },
       { href: "/admin/mailer", icon: Mail, label: "Direct Mail" },
     ],
   },
