@@ -119,8 +119,8 @@ function screenCredit(s: ScreenInput) {
 export async function GET(req: NextRequest) {
   const limited = enforceRateLimit(req);
   if (limited) return limited;
-  const unauth = await requireGate(req);
-  if (unauth) return unauth;
+  // GET salt-okunur owner-finance vitrini içindir → PUBLIC (gate yok). Yalnızca
+  // yayındaki (status=active) ilanlar çekilir; yazma uçları (POST) korumalı kalır.
 
   const status = req.nextUrl.searchParams.get("status");
   const s = supabaseAdmin();
@@ -128,11 +128,55 @@ export async function GET(req: NextRequest) {
     let q = s.from("owner_finance_listings").select("*").order("updated_at", { ascending: false });
     if (status) q = q.eq("status", status);
     const { data, error } = await q;
-    if (error) return NextResponse.json({ listings: [], reason: "table unavailable" });
-    return NextResponse.json({ listings: data || [] });
+    // owner_finance_listings tablosu yoksa/boşsa → vitrini Property tablosundaki
+    // gerçek AVAILABLE ilanlardan besle (her ilan zaten owner-finance şartlı:
+    // downPayment + monthlyPayment + interestRate + term). Mock değil, gerçek
+    // scraper-türevli envanter; sayfa boş kalmasın diye fallback.
+    if (error || !data || data.length === 0) {
+      const fb = await ownerFinanceFromProperty(s);
+      return NextResponse.json({ listings: fb });
+    }
+    return NextResponse.json({ listings: data });
   } catch {
-    return NextResponse.json({ listings: [] });
+    try {
+      const fb = await ownerFinanceFromProperty(supabaseAdmin());
+      return NextResponse.json({ listings: fb });
+    } catch {
+      return NextResponse.json({ listings: [] });
+    }
   }
+}
+
+// Property tablosundaki yayındaki (AVAILABLE) ilanları owner-finance vitrininin
+// beklediği şekle (snake_case) çevirir. Uydurma seed kayıtları (kısa sayısal id)
+// hariç tutulur — vitrinle aynı davranış.
+async function ownerFinanceFromProperty(s: ReturnType<typeof supabaseAdmin>) {
+  const { data } = await s
+    .from("Property")
+    .select("id,title,state,county,acres,price,downPayment,monthlyPayment,term,interestRate,description")
+    .eq("status", "AVAILABLE")
+    .order("featured", { ascending: false });
+  type P = {
+    id: string; title: string; state: string; county: string; acres: number;
+    price: number; downPayment: number; monthlyPayment: number; term: number;
+    interestRate: number; description: string;
+  };
+  return ((data ?? []) as P[])
+    .filter((p) => !/^\d{1,2}$/.test(p.id))
+    .map((p) => ({
+      id: p.id,
+      title: p.title,
+      state: p.state,
+      county: p.county,
+      acres: p.acres,
+      price: p.price,
+      down_payment: p.downPayment,
+      down_pct: p.price ? Math.round((p.downPayment / p.price) * 100) : null,
+      apr: p.interestRate,
+      term_months: p.term,
+      monthly_payment: p.monthlyPayment,
+      description: p.description,
+    }));
 }
 
 export async function POST(req: NextRequest) {

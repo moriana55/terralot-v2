@@ -1,4 +1,4 @@
-import { properties } from "@/lib/data";
+import { investorDemoProperties as properties } from "@/lib/investor-demo";
 import {
   MapPin, DollarSign, TrendingUp, CreditCard,
   Package,

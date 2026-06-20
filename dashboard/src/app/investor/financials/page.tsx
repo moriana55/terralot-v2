@@ -1,4 +1,4 @@
-import { properties } from "@/lib/data";
+import { investorDemoProperties as properties } from "@/lib/investor-demo";
 import { SampleDataBanner } from "@/components/SampleDataBanner";
 import { Card, StatusPill } from "@/components/InvestorUI";
 

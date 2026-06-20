@@ -19,8 +19,9 @@ const SELECTS: Record<string, string> = {
   // src/app/admin/listings/page.tsx — listings table
   listings: "id,title,slug,state,county,acres,price,monthlyPayment,status,featured,images",
   // src/app/admin/analytics/page.tsx — financial analysis
+  // NOT: paymentsReceived kolonu canlı Property tablosunda yok → seçilmez.
   analytics:
-    "id,title,state,county,acres,price,costPrice,downPayment,monthlyPayment,term,paymentsReceived,status,featured,interestRate,monthlyExpenses,useCases,images",
+    "id,title,state,county,acres,price,costPrice,downPayment,monthlyPayment,term,status,featured,interestRate,monthlyExpenses,useCases,images",
 };
 
 export async function GET(req: NextRequest) {

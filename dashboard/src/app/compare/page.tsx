@@ -5,12 +5,18 @@ import Link from "next/link";
 import { Trash2, MapPin, Maximize, DollarSign, ArrowRight } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { properties } from "@/lib/data";
+import { getProperties } from "@/lib/data";
 import { getFavorites, toggleFavorite } from "@/lib/favorites";
 import type { Property } from "@/lib/data";
 
 export default function ComparePage() {
   const [favIds, setFavIds] = useState<string[]>([]);
+  const [properties, setProperties] = useState<Property[]>([]);
+
+  // Karşılaştırma için tüm ilanlar Supabase'den çekilir; favoriler localStorage'dan.
+  useEffect(() => {
+    getProperties().then(setProperties);
+  }, []);
 
   useEffect(() => {
     setFavIds(getFavorites());

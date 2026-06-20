@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, use } from "react";
+import { useState, useEffect, use } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import {
   MapPin, Maximize, ChevronLeft, ChevronRight, ArrowRight,
   Shield, CheckCircle2, Phone, Mail, DollarSign, Clock, Map,
-  Trees, Route, Zap, FileText, Share2, CreditCard,
+  Trees, Route, Zap, FileText, Share2, CreditCard, Loader2,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -14,17 +14,51 @@ import PropertyCard from "@/components/PropertyCard";
 import FavoriteButton from "@/components/FavoriteButton";
 import InquiryModal from "@/components/InquiryModal";
 import ReserveModal from "@/components/ReserveModal";
-import { properties } from "@/lib/data";
+import { getPropertyById, getProperties, type Property } from "@/lib/data";
 
 const MapView = dynamic(() => import("@/components/MapView"), { ssr: false });
 
 export default function PropertyDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
-  const property = properties.find(p => p.id === id);
+  const [property, setProperty] = useState<Property | null>(null);
+  const [similar, setSimilar] = useState<Property[]>([]);
+  const [loading, setLoading] = useState(true);
   const [imgIdx, setImgIdx] = useState(0);
-  const [calcTerm, setCalcTerm] = useState(property?.term || 48);
+  const [calcTerm, setCalcTerm] = useState(48);
   const [showInquiry, setShowInquiry] = useState(false);
   const [showReserve, setShowReserve] = useState(false);
+
+  // İlan + benzer ilanlar Supabase'den (/api/listings) çekilir.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      setLoading(true);
+      const [prop, all] = await Promise.all([getPropertyById(id), getProperties()]);
+      if (cancelled) return;
+      setProperty(prop);
+      if (prop) {
+        setCalcTerm(prop.term || 48);
+        const sim = all.filter(x => x.id !== prop.id && x.state === prop.state).slice(0, 3);
+        if (sim.length < 3) {
+          const more = all.filter(x => x.id !== prop.id && !sim.includes(x)).slice(0, 3 - sim.length);
+          sim.push(...more);
+        }
+        setSimilar(sim);
+      }
+      setLoading(false);
+    })();
+    return () => { cancelled = true; };
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--background)", color: "var(--foreground)" }}>
+        <div className="flex items-center gap-2 text-sm" style={{ color: "var(--muted)" }}>
+          <Loader2 className="w-5 h-5 animate-spin" /> Loading property…
+        </div>
+      </div>
+    );
+  }
 
   if (!property) {
     return (
@@ -43,11 +77,6 @@ export default function PropertyDetail({ params }: { params: Promise<{ id: strin
   const monthly = calcTerm > 0 && monthlyRate > 0
     ? Math.round(principal * monthlyRate / (1 - Math.pow(1 + monthlyRate, -calcTerm)))
     : calcTerm > 0 ? Math.round(principal / calcTerm) : 0;
-  const similar = properties.filter(x => x.id !== p.id && x.state === p.state).slice(0, 3);
-  if (similar.length < 3) {
-    const more = properties.filter(x => x.id !== p.id && !similar.includes(x)).slice(0, 3 - similar.length);
-    similar.push(...more);
-  }
 
   const details = [
     { icon: MapPin, label: "Location", value: `${p.county} County, ${p.state}` },

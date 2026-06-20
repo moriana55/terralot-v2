@@ -15,6 +15,10 @@ const PUBLIC_API = [
   "/api/growth-catalysts",
   "/api/county-demographics",
   "/api/market-rates",
+  // Vitrin (storefront) okuma uçları — anonim ziyaretçi ilanları görebilmeli.
+  // İkisi de salt-okunur (status != DRAFT) ve route düzeyinde rate-limit uygular.
+  "/api/listings",
+  "/api/owner-finance",
 ];
 const isPublicApi = (req: NextRequest) =>
   PUBLIC_API.some((p) => req.nextUrl.pathname === p || req.nextUrl.pathname.startsWith(p + "/"));

@@ -1,4 +1,4 @@
-import { properties } from "@/lib/data";
+import { investorDemoProperties as properties } from "@/lib/investor-demo";
 import { CheckCircle2, Clock, AlertTriangle } from "lucide-react";
 import { SampleDataBanner } from "@/components/SampleDataBanner";
 import { Card } from "@/components/InvestorUI";

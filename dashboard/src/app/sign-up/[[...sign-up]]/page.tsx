@@ -1,6 +1,12 @@
+import { redirect } from "next/navigation";
 import { SignUp } from "@clerk/nextjs";
 
+// Bkz. sign-in: placeholder Clerk (gate modu) durumunda ClerkProvider yok →
+// Clerk component'i çöker. O modda gate'e yönlendir.
+const CLERK_ENABLED = !process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY?.includes("cGxhY2Vob2xkZXI");
+
 export default function SignUpPage() {
+  if (!CLERK_ENABLED) redirect("/gate?next=/investor");
   return (
     <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--background)" }}>
       <div className="text-center">

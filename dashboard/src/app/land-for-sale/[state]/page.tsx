@@ -4,7 +4,11 @@ import { MapPin, ArrowRight } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PropertyCard from "@/components/PropertyCard";
-import { properties, STATES } from "@/lib/data";
+import { STATES } from "@/lib/data";
+import { getPropertiesByStateServer } from "@/lib/listings-server";
+
+// İlanlar canlı Supabase verisinden gelir — her istekte güncel olsun diye dinamik.
+export const dynamic = "force-dynamic";
 
 const STATE_INFO: Record<string, { description: string; highlights: string[] }> = {
   arizona: {
@@ -33,10 +37,6 @@ function stateFromSlug(slug: string): string | undefined {
   return STATES.find(s => s.toLowerCase().replace(/\s+/g, "-") === slug);
 }
 
-export async function generateStaticParams() {
-  return STATES.map(s => ({ state: s.toLowerCase().replace(/\s+/g, "-") }));
-}
-
 export async function generateMetadata({ params }: { params: Promise<{ state: string }> }): Promise<Metadata> {
   const { state: slug } = await params;
   const state = stateFromSlug(slug) || slug;
@@ -49,7 +49,10 @@ export async function generateMetadata({ params }: { params: Promise<{ state: st
 export default async function StateLandingPage({ params }: { params: Promise<{ state: string }> }) {
   const { state: slug } = await params;
   const state = stateFromSlug(slug);
-  const stateProperties = properties.filter(p => p.state === state);
+  // Yalnızca yayında satılık (sold dahil değil) ilanları göster.
+  const stateProperties = state
+    ? (await getPropertiesByStateServer(state)).filter(p => p.status !== "sold")
+    : [];
   const info = STATE_INFO[slug] || {
     description: `Explore affordable land for sale in ${state || slug}. We offer a curated selection of vacant lots with easy owner financing — no banks, no credit checks.`,
     highlights: ["Owner financing available", "No credit check", "Clear title guaranteed", "Low monthly payments"],

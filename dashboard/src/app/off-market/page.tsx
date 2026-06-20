@@ -17,6 +17,9 @@ export default function OffMarketAccess() {
     const found = offMarketProperties.find(p => p.accessCode.toLowerCase() === code.trim().toLowerCase() && p.status !== "withdrawn");
     if (found) {
       setProperty(found);
+    } else if (offMarketProperties.length === 0) {
+      // Şu an aktif off-market deal yok (gerçek kaynak henüz bağlı değil).
+      setError("There are no active off-market deals right now. Please check back later.");
     } else {
       setError("Invalid access code. Please check your code and try again.");
     }

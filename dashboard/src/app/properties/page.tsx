@@ -1,14 +1,14 @@
 "use client";
 
-import { useState, useMemo, Suspense } from "react";
+import { useState, useMemo, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import dynamic from "next/dynamic";
-import { Search, MapPin, SlidersHorizontal, X, Map, Grid3X3 } from "lucide-react";
+import { Search, MapPin, SlidersHorizontal, X, Map, Grid3X3, Loader2 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PropertyCard from "@/components/PropertyCard";
 import Dropdown from "@/components/Dropdown";
-import { properties, STATES } from "@/lib/data";
+import { getProperties, STATES, type Property } from "@/lib/data";
 
 const MapView = dynamic(() => import("@/components/MapView"), { ssr: false });
 
@@ -32,6 +32,18 @@ function PropertiesContent() {
   const [showFilters, setShowFilters] = useState(false);
   const [keyword, setKeyword] = useState("");
   const [viewMode, setViewMode] = useState<"grid" | "map">("grid");
+
+  // Gerçek ilanlar Supabase'den (/api/listings) gelir; çekilene kadar loading.
+  const [properties, setProperties] = useState<Property[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    getProperties().then(rows => {
+      if (!cancelled) { setProperties(rows); setLoading(false); }
+    });
+    return () => { cancelled = true; };
+  }, []);
 
   const filtered = useMemo(() => {
     let result = properties.filter(p => p.status !== "sold");
@@ -74,7 +86,7 @@ function PropertiesContent() {
     }
 
     return result;
-  }, [state, acresRange, budgetRange, sort, keyword, params]);
+  }, [properties, state, acresRange, budgetRange, sort, keyword, params]);
 
   const clearFilters = () => {
     setState("");
@@ -191,14 +203,22 @@ function PropertiesContent() {
           </div>
 
           {/* Results */}
-          {filtered.length === 0 ? (
+          {loading ? (
+            <div className="flex items-center justify-center gap-2 py-20 text-sm" style={{ color: "var(--muted)" }}>
+              <Loader2 className="w-5 h-5 animate-spin" /> Loading properties…
+            </div>
+          ) : filtered.length === 0 ? (
             <div className="text-center py-20">
               <MapPin className="w-12 h-12 mx-auto mb-4 text-[var(--muted)]" />
               <h3 className="text-lg font-bold mb-2 text-[var(--foreground)]">No properties found</h3>
-              <p className="text-sm mb-6" style={{ color: "var(--muted)" }}>Try adjusting your filters or search terms.</p>
-              <button onClick={clearFilters} className="px-6 py-2 rounded text-sm font-semibold bg-[var(--primary)] text-white shadow-md">
-                Clear All Filters
-              </button>
+              <p className="text-sm mb-6" style={{ color: "var(--muted)" }}>
+                {hasFilters ? "Try adjusting your filters or search terms." : "No published listings yet — new properties are added weekly. Check back soon."}
+              </p>
+              {hasFilters && (
+                <button onClick={clearFilters} className="px-6 py-2 rounded text-sm font-semibold bg-[var(--primary)] text-white shadow-md">
+                  Clear All Filters
+                </button>
+              )}
             </div>
           ) : viewMode === "map" ? (
             <div className="grid lg:grid-cols-2 gap-5" style={{ height: "calc(100vh - 280px)" }}>
