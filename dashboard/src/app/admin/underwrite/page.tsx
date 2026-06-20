@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { ScoreBadge } from "@/components/ScoreBadge";
+import { DataSources, type DataSourceItem } from "@/components/DataSources";
 import { Brain, Loader2, AlertCircle, Sparkles, CheckCircle2, XCircle, Eye, MapPin } from "lucide-react";
 
 // AI Parcel Underwriting — type an APN/address or pick a top lead, get a
@@ -17,6 +18,7 @@ interface Verdict {
   reasons: Reason[];
   signals: { compValue: number | null; perAcre: number | null; minBid: number | null; floodScore: number | null; roadAccess: string | null; popGrowth: number | null; income: number | null; valueConfidence: "high" | "medium" | "low" | null; valueBasis: "county_comp" | "state_comp" | "none" };
   dataGaps: string[];
+  dataSources?: DataSourceItem[];
   narrative: string;
   narrativeSource: "ai" | "rule-based";
   aiAvailable: boolean;
@@ -122,6 +124,7 @@ export default function UnderwritePage() {
       )}
 
       {result && (
+        <div className="space-y-6">
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6">
           {/* Verdict + rubric */}
           <div className="rounded-xl border overflow-hidden" style={{ background: "var(--surface)", borderColor: "var(--surface-high)" }}>
@@ -200,6 +203,15 @@ export default function UnderwritePage() {
               </div>
             )}
           </div>
+        </div>
+
+        {/* Veri Kaynakları — bu kararın dayandığı gerçek kaynaklar (şeffaflık) */}
+        {result.dataSources && result.dataSources.length > 0 && (
+          <DataSources
+            items={result.dataSources}
+            note="Skor ve değer; County tax kayıtları, piyasa comp medyanları ve ACS demografisinden hesaplandı. Comp veya acreage olmayan parsellerde sayı üretmeyiz — boş bırakırız."
+          />
+        )}
         </div>
       )}
     </div>

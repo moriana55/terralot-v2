@@ -78,11 +78,16 @@ export async function GET(req: NextRequest) {
   // Resolve a market context just for this one parcel's state/county.
   const st = abbrState(lead.state as string);
   const cty = normCounty(lead.county as string);
-  const ctx: { stateRates: Record<string, number>; countyRates: Record<string, number> } = { stateRates: {}, countyRates: {} };
+  const ctx: {
+    stateRates: Record<string, number>;
+    countyRates: Record<string, number>;
+    demographics: Record<string, { popGrowth5y?: number | null; medianIncome?: number | null; population?: number | null }>;
+  } = { stateRates: {}, countyRates: {}, demographics: {} };
   if (st) {
     try {
-      const { data } = await s.from("competitor_listings").select("county,price,acres").eq("state", st).limit(2000);
-      const all = (data as { county: string; price: unknown; acres: unknown }[]) || [];
+      // competitor_listings.state kirli ("FL"/"Florida"/...); DB'de eq yerine abbrState ile normalize ederek eşleştir.
+      const { data } = await s.from("competitor_listings").select("state,county,price,acres").limit(5000);
+      const all = ((data as { state: string; county: string; price: unknown; acres: unknown }[]) || []).filter((r) => abbrState(r.state) === st);
       const sr = medianPpa(all.map((r) => ({ price: r.price, acres: r.acres })));
       if (sr != null) ctx.stateRates[st] = sr;
       if (cty) {
@@ -91,6 +96,25 @@ export async function GET(req: NextRequest) {
         if (cr != null) ctx.countyRates[`${st}/${cty}`] = cr;
       }
     } catch { /* graceful */ }
+    // GERÇEK county demografisi (county_demographics) — bu tek parsel için.
+    if (cty) {
+      try {
+        const { data } = await s
+          .from("county_demographics")
+          .select("pop_growth_5y,median_household_income,population")
+          .eq("state", st)
+          .ilike("county", `%${cty}%`)
+          .limit(1);
+        const d = data?.[0] as { pop_growth_5y?: number; median_household_income?: number; population?: number } | undefined;
+        if (d) {
+          ctx.demographics[`${st}/${cty}`] = {
+            popGrowth5y: d.pop_growth_5y ?? null,
+            medianIncome: d.median_household_income ?? null,
+            population: d.population ?? null,
+          };
+        }
+      } catch { /* graceful */ }
+    }
   }
 
   // Opt-in live enrichment for THIS one parcel (?enrich=1) — drill-down "god mode".

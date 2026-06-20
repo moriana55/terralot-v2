@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ScoreBadge } from "@/components/ScoreBadge";
+import { DataSources, type DataSourceItem } from "@/components/DataSources";
 import { TrendingDown, Loader2, AlertCircle, Zap, ArrowRight } from "lucide-react";
 
 // Tax-Deal Arbitrage Radar — ranks tax parcels by discount vs intrinsic value.
@@ -28,6 +29,7 @@ const BASIS_LABEL: Record<string, string> = { county_comp: "county comp", state_
 export default function ArbitragePage() {
   const [opps, setOpps] = useState<Opp[]>([]);
   const [summary, setSummary] = useState<Summary | null>(null);
+  const [dataSources, setDataSources] = useState<DataSourceItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [minGap, setMinGap] = useState(30);
@@ -42,6 +44,7 @@ export default function ArbitragePage() {
         if (j.error) throw new Error(j.error);
         setOpps(j.opportunities || []);
         setSummary(j.summary || null);
+        setDataSources(j.dataSources || []);
       } catch (e: unknown) {
         setError(e instanceof Error ? e.message : "Yüklenemedi");
       } finally {
@@ -158,6 +161,16 @@ export default function ArbitragePage() {
               </tbody>
             </table>
           </div>
+        </div>
+      )}
+
+      {/* Veri Kaynakları — bu taramanın dayandığı gerçek kaynaklar (şeffaflık) */}
+      {!loading && dataSources.length > 0 && (
+        <div className="mt-6">
+          <DataSources
+            items={dataSources}
+            note="Her intrinsic değer = gerçek parsel acreage'ı × gerçek piyasa $/acre medyanı. Back-taxes/judgment land değeri sayılmaz; comp veya acreage olmayan parseller atlanır."
+          />
         </div>
       )}
     </div>

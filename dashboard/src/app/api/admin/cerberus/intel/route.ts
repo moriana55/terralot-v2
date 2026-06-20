@@ -125,7 +125,15 @@ export async function GET(req: NextRequest) {
     from += DB_PAGE;
   }
 
-  top.sort((a, b) => b.score - a.score || (b.margin ?? -1) - (a.margin ?? -1));
+  // "En İyi Fırsatlar" sıralaması — GERÇEK değer açığı taşıyan (comp_value + margin
+  // dolu) parseller önce gelsin ki demo'da Ahmet'e gösterilen ilk satırlar comp'lu,
+  // somut $ rakamı olan parseller olsun (comp'suz skor-proxy parseller değil).
+  // 1) comp_value dolu olanlar önce, 2) sonra marj, 3) sonra skor.
+  top.sort((a, b) =>
+    Number(b.comp_value != null) - Number(a.comp_value != null) ||
+    (b.margin ?? -1) - (a.margin ?? -1) ||
+    b.score - a.score
+  );
 
   const recentFlags = [...flagCounts.values()]
     .sort((a, b) => {

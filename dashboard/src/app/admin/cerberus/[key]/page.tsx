@@ -7,6 +7,7 @@ import {
   MapPin, Brain, Sparkles, Info, ExternalLink, Layers, Waves, Mountain, Route, Users, Satellite, Lock, FileText,
 } from "lucide-react";
 import { ScoreBadge } from "@/components/ScoreBadge";
+import { DataSources, type DataSourceItem } from "@/components/DataSources";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // PER-LEAD ANALYSIS DRILL-DOWN ("tek tek analiz eden")
@@ -127,6 +128,67 @@ export default function CerberusLeadPage({ params }: { params: Promise<{ key: st
   const enr = a ? a.enrichment ?? null : null;
 
   const mem = a ? VERDICT_META[a.verdict] || VERDICT_META.PASS : VERDICT_META.PASS;
+
+  // ── VERİ KAYNAKLARI (şeffaflık) — bu parselin kararının dayandığı gerçek kaynaklar.
+  // Analizin TAŞIDIĞI alanlardan türetilir; uydurma kaynak gösterilmez.
+  const dataSources: DataSourceItem[] = a
+    ? [
+        {
+          kind: "parcel",
+          label: "Parsel · County tax-delinquent roll",
+          detail: `${a.apn ? `APN ${a.apn} · ` : ""}${a.county || "?"}, ${a.state || "?"}${a.acres != null ? ` · ${a.acres} acre` : ""}${a.source ? ` · ${a.source}` : ""} (tax_delinquent_properties)`,
+          status: "used",
+        },
+        {
+          kind: "comps",
+          label: valueBasis === "county_comp" ? "Comps · county medyanı" : valueBasis === "state_comp" ? "Comps · state medyanı" : "Comps · piyasa $/acre",
+          detail:
+            perAcre != null
+              ? `${fmtMoney(perAcre)}/acre medyan (competitor_listings, outlier temizlenmiş)`
+              : "Bu pazar için kıyaslanabilir ilan yok",
+          status: perAcre != null ? "used" : "missing",
+        },
+        {
+          kind: "valuation",
+          label: "Intrinsic değer · land-valuation motoru",
+          detail:
+            compValue != null
+              ? `${fmtMoney(compValue)} = acres × bulk-adjusted $/acre${valueConf ? ` · ${valueConf} güven` : ""}`
+              : "Değer üretilemedi (acreage/comp eksik) — uydurma yok",
+          status: compValue != null ? "used" : "missing",
+        },
+        {
+          kind: "demographics",
+          label: "Demografi · County ACS (county_demographics)",
+          detail: enr?.population != null
+            ? `Nüfus ${enr.population.toLocaleString()}${enr.medianIncome != null ? ` · medyan gelir ${fmtMoney(enr.medianIncome)}` : ""}`
+            : realSignals.demographics
+              ? `Nüfus büyümesi karara katıldı (kaynak: ${realSignals.demographics})`
+              : "Bu county için ACS kaydı kullanılmadı",
+          status: enr?.population != null || realSignals.demographics ? "used" : "missing",
+        },
+        {
+          kind: "flood",
+          label: "Sel riski · FEMA",
+          detail: enr?.floodZone
+            ? `Bölge ${enr.floodZone}${enr.floodLabel ? ` — ${enr.floodLabel.replace(/^FEMA:\s*/, "")}` : ""} (FEMA NFHL)`
+            : realSignals.flood_score
+              ? "FEMA sel skoru ölçüldü"
+              : "Henüz canlı zenginleştirilmedi (FEMA için 'Canlı zenginleştir')",
+          status: enr?.floodZone || realSignals.flood_score ? "used" : "missing",
+        },
+        {
+          kind: "road",
+          label: "Yol erişimi · OpenStreetMap",
+          detail: enr?.roadAccess
+            ? `${enr.roadAccess}${enr.nearestRoadM != null ? ` · ${enr.nearestRoadM} m` : ""} (OSM)`
+            : realSignals.road_access
+              ? "OSM yol erişimi ölçüldü"
+              : "Henüz canlı zenginleştirilmedi (OSM için 'Canlı zenginleştir')",
+          status: enr?.roadAccess || realSignals.road_access ? "used" : "missing",
+        },
+      ]
+    : [];
 
   return (
     <div className="p-8 max-w-4xl">
@@ -355,6 +417,14 @@ export default function CerberusLeadPage({ params }: { params: Promise<{ key: st
                 </div>
               )}
             </div>
+          </div>
+
+          {/* Veri Kaynakları — bu parselin kararının dayandığı gerçek kaynaklar (şeffaflık) */}
+          <div className="mt-6">
+            <DataSources
+              items={dataSources}
+              note="Skor ve değer; County tax kayıtları + piyasa comp medyanları + ACS demografisinden hesaplandı. Sel/yol sinyalleri 'Canlı zenginleştir' ile FEMA/OSM'den ölçülür. Comp olmayan pazarda sayı üretmeyiz."
+            />
           </div>
 
           <div className="mt-6 flex items-center gap-3 flex-wrap">

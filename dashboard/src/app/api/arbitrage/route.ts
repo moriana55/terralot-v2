@@ -64,11 +64,13 @@ export async function GET(req: NextRequest) {
   const stateRates: Record<string, number> = {};
   const countyRates: Record<string, number> = {};
   let benchmarkAvailable = false;
+  let compRowCount = 0; // şeffaflık paneli: kaç gerçek piyasa ilanı tarandı
   try {
     const { data } = await s.from("competitor_listings").select("state,county,price,acres");
     const byState: Record<string, { price: unknown; acres: unknown }[]> = {};
     const byCounty: Record<string, { price: unknown; acres: unknown }[]> = {};
     for (const r of (data as { state: string; county: string; price: number; acres: number }[]) || []) {
+      compRowCount++;
       const st = normState(r.state);
       if (!st) continue;
       (byState[st] ||= []).push({ price: r.price, acres: r.acres });
@@ -79,6 +81,8 @@ export async function GET(req: NextRequest) {
     for (const [k, arr] of Object.entries(byCounty)) { const m = medianPpa(arr); if (m) countyRates[k] = m; }
     benchmarkAvailable = Object.keys(stateRates).length > 0;
   } catch { /* graceful */ }
+  // Hangi state'lerde piyasa $/acre benchmark'ı GERÇEKTEN var (medyan üretildi).
+  const benchmarkStates = Object.keys(stateRates).sort();
 
   // 2) Sweep tax leads -------------------------------------------------------
   interface Opp {
@@ -168,5 +172,35 @@ export async function GET(req: NextRequest) {
     countyComps: opps.filter((o) => o.basis === "county_comp").length,
   };
 
-  return NextResponse.json({ summary, opportunities: top });
+  // ── VERİ KAYNAKLARI (şeffaflık) — bu taramanın dayandığı gerçek kaynaklar ──
+  const dataSources = [
+    {
+      kind: "parcel",
+      label: "Parsel evreni · County tax-delinquent roll",
+      detail: `${scanned.toLocaleString()} gerçek parsel tarandı (tax_delinquent_properties)${stateFilter && stateFilter !== "all" ? ` · ${stateFilter} filtresi` : ""}`,
+      status: "used" as const,
+    },
+    {
+      kind: "comps",
+      label: "Comps · Piyasa $/acre medyanı",
+      detail: benchmarkAvailable
+        ? `${compRowCount.toLocaleString()} gerçek ilan → ${benchmarkStates.length} state medyanı (${benchmarkStates.join(", ")}) · ${Object.keys(countyRates).length} county comp (competitor_listings, outlier temizlenmiş)`
+        : "Piyasa benchmark'ı yok — competitor_listings boş",
+      status: benchmarkAvailable ? ("used" as const) : ("missing" as const),
+    },
+    {
+      kind: "valuation",
+      label: "Intrinsic değer · land-valuation motoru",
+      detail: `${valued.toLocaleString()} parsel dürüstçe değerlendi · ${opps.length.toLocaleString()} arbitraj fırsatı (acres × bulk-adjusted $/acre, comp yoksa atlandı)`,
+      status: "used" as const,
+    },
+    {
+      kind: "demographics",
+      label: "Acreage / fiyat doğrulaması",
+      detail: `${skippedNoAcreage.toLocaleString()} parselde acreage yok · ${skippedNoComps.toLocaleString()} parselde comp yok — bunlara değer biçilmedi (uydurma yok)`,
+      status: "estimated" as const,
+    },
+  ];
+
+  return NextResponse.json({ summary, opportunities: top, dataSources });
 }

@@ -147,7 +147,34 @@ async function buildMarketContext(s: ReturnType<typeof supabaseAdmin>): Promise<
   } catch {
     /* graceful — empty context just means score-proxy verdicts */
   }
-  return { stateRates, countyRates };
+
+  // GERÇEK county demografisi (county_demographics) — talep fasetini besler, böylece
+  // lead satırında nüfus büyümesi olmasa bile karar ACS verisine dayanır (underwrite ile tutarlı).
+  const demographics: Record<string, { popGrowth5y?: number | null; medianIncome?: number | null; population?: number | null }> = {};
+  try {
+    let from = 0;
+    for (let page = 0; page < 10; page++) {
+      const { data, error } = await s
+        .from("county_demographics")
+        .select("state,county,pop_growth_5y,median_household_income,population")
+        .range(from, from + DB_PAGE - 1);
+      if (error || !data || data.length === 0) break;
+      for (const r of data as { state: string; county: string; pop_growth_5y: number | null; median_household_income: number | null; population: number | null }[]) {
+        const st = abbrState(r.state);
+        const cty = normCounty(r.county);
+        if (!st || !cty) continue;
+        demographics[`${st}/${cty}`] = {
+          popGrowth5y: r.pop_growth_5y,
+          medianIncome: r.median_household_income,
+          population: r.population,
+        };
+      }
+      if (data.length < DB_PAGE) break;
+      from += DB_PAGE;
+    }
+  } catch { /* graceful */ }
+
+  return { stateRates, countyRates, demographics };
 }
 
 export async function POST(req: NextRequest) {
@@ -201,18 +228,41 @@ export async function POST(req: NextRequest) {
     } catch { /* graceful */ }
   }
 
-  // 2) Pull candidate leads (richest signals first) -----------------------------
+  // 2) Pull candidate leads -----------------------------------------------------
+  // İKİ HAVUZ birleştirilir ki batch hem yüksek-skorlu leadleri hem de COMP
+  // ÜRETEBİLEN (acreage + fiyat dolu) parselleri kapsasın. Aksi halde sadece
+  // final_score DESC çekilince, gerçek değer açığı/marj taşıyan comp'lu parseller
+  // (genelde düşük final_score'lu) batch'e hiç girmez ve "En İyi Fırsatlar"
+  // tablosu boş comp_value ile kalır.
+  const SELECT_COLS =
+    "id,dedup_key,apn,source,state,county,property_address,owner_name,acres,minimum_bid,judgment_amount,final_score,deal_score,discount_pct,savings,liquidity_score,county_pop_growth,road_access,flood_score,dd_checked,lat,lng,sale_date,raw_url";
+  const overPull = Math.min(limit * 4, 2000);
   let leads: Record<string, unknown>[] = [];
   try {
-    const { data, error } = await s
+    // Havuz A: en yüksek final_score (Cerberus'un öne çıkardığı leadler).
+    const scoredP = s
       .from(TDP)
-      .select("id,dedup_key,apn,source,state,county,property_address,owner_name,acres,minimum_bid,judgment_amount,final_score,deal_score,discount_pct,savings,liquidity_score,county_pop_growth,road_access,flood_score,dd_checked,lat,lng,sale_date,raw_url")
+      .select(SELECT_COLS)
       .order("final_score", { ascending: false, nullsFirst: false })
-      .limit(Math.min(limit * 4, 2000)); // over-pull so post-dedup we still fill the batch
-    if (error) {
-      return NextResponse.json({ error: "source_query_failed", message: error.message }, { status: 500 });
+      .limit(overPull);
+    // Havuz B: acreage + fiyatı dolu (dürüst intrinsic/comp/marj üretebilecek) parseller.
+    // minimum_bid ASC → ucuz girişli, yüksek-marj olasılığı yüksek parseller önce.
+    const compableP = s
+      .from(TDP)
+      .select(SELECT_COLS)
+      .gt("acres", 0)
+      .gt("minimum_bid", 0)
+      .order("minimum_bid", { ascending: true })
+      .limit(overPull);
+    const [scoredRes, compableRes] = await Promise.all([scoredP, compableP]);
+    if (scoredRes.error) {
+      return NextResponse.json({ error: "source_query_failed", message: scoredRes.error.message }, { status: 500 });
     }
-    leads = (data as Record<string, unknown>[]) || [];
+    // ID bazında birleştir (dedup); önce comp'lu parseller (demo değeri), sonra skorlular.
+    const merged = new Map<string, Record<string, unknown>>();
+    for (const r of (compableRes.data as Record<string, unknown>[]) || []) merged.set(String(r.id), r);
+    for (const r of (scoredRes.data as Record<string, unknown>[]) || []) if (!merged.has(String(r.id))) merged.set(String(r.id), r);
+    leads = [...merged.values()];
   } catch (e) {
     return NextResponse.json({ error: "source_query_failed", message: e instanceof Error ? e.message : "failed" }, { status: 500 });
   }

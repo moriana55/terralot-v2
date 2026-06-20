@@ -68,19 +68,21 @@ export async function GET(req: NextRequest) {
   let raw: RawComp[] = [];
   let hasSoldCols = true;
   try {
-    // try the richer select first (optional sold columns)
+    // ÖNEMLİ: competitor_listings.state kirli ("FL" / "Florida" / "FL " hepsi var).
+    // DB'de eq("state","FL") yapmak comp'ların büyük kısmını kaçırır; tüm satırları
+    // çekip normState() ile normalize ederek eşleştiririz (underwrite/arbitrage ile tutarlı).
     const rich = await s.from("competitor_listings")
       .select("competitor,title,state,county,acres,price,status,sold_price,sold_date,scraped_at,created_at,raw_url")
-      .eq("state", state).gt("acres", 0).gt("price", 0).limit(3000);
+      .gt("acres", 0).gt("price", 0).limit(5000);
     if (rich.error) {
       // columns may not exist yet → fall back to the base schema
       hasSoldCols = false;
       const fb = await s.from("competitor_listings")
         .select("competitor,title,state,county,acres,price,scraped_at,created_at,raw_url")
-        .eq("state", state).gt("acres", 0).gt("price", 0).limit(3000);
-      raw = (fb.data as RawComp[]) || [];
+        .gt("acres", 0).gt("price", 0).limit(5000);
+      raw = ((fb.data as RawComp[]) || []).filter((r) => normState(r.state ?? null) === state);
     } else {
-      raw = (rich.data as RawComp[]) || [];
+      raw = ((rich.data as RawComp[]) || []).filter((r) => normState(r.state ?? null) === state);
     }
   } catch {
     return NextResponse.json({ comps: [], summary: { count: 0, reason: "table unavailable" } });

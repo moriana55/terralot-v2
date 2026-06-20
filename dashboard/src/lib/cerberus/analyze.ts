@@ -75,6 +75,13 @@ export interface MarketContext {
   stateRates?: Record<string, number>;
   /** "ST/COUNTY" (county UPPERCASE, no " COUNTY" suffix) → median $/acre. */
   countyRates?: Record<string, number>;
+  /**
+   * GERÇEK county demografisi (county_demographics tablosundan). Anahtar
+   * "ST/COUNTY" (UPPERCASE, " COUNTY" eki yok). Talep/likidite faseti bu
+   * gerçek nüfus büyümesi + medyan geliri kullanır; lead satırı taşımasa bile.
+   * Underwrite endpoint'iyle tutarlı — uydurma değil, ACS verisi.
+   */
+  demographics?: Record<string, { popGrowth5y?: number | null; medianIncome?: number | null; population?: number | null }>;
 }
 
 // ── Output: a rich, structured LeadAnalysis ──────────────────────────────────
@@ -266,16 +273,31 @@ export function analyzeLead(
   if (!parcelKey) return null;
 
   // Fold REAL measured signals over the heuristic lead row (only when present).
-  const realSignals = enriched?.realSignals ?? {};
+  // Kopyalayarak ilerle ki çağıranın enriched.realSignals nesnesi mutasyona uğramasın.
+  const realSignals: Partial<
+    Record<"road_access" | "flood_score" | "county_pop_growth" | "elevation" | "demographics", string>
+  > = { ...(enriched?.realSignals ?? {}) };
   const roadAccessEff =
     enriched?.road_access != null ? enriched.road_access : (r.road_access ?? null);
   const floodScoreEff =
     enriched?.flood_score != null ? num(enriched.flood_score) : num(r.flood_score);
-  const popGrowthEff =
-    enriched?.county_pop_growth != null ? num(enriched.county_pop_growth) : num(r.county_pop_growth);
-
   const st = abbrState(r.state);
   const cty = normCounty(r.county);
+
+  // GERÇEK county demografisi (county_demographics) — talep fasetini besler.
+  const demoRow = st && cty && ctx.demographics ? ctx.demographics[`${st}/${cty}`] : undefined;
+  const demoPopGrowth = demoRow ? num(demoRow.popGrowth5y) : null;
+  const demoIncome = demoRow ? num(demoRow.medianIncome) : null;
+
+  // popGrowth önceliği: canlı enrichment (Census) > county_demographics (ACS) > lead satırı.
+  const popGrowthEff =
+    enriched?.county_pop_growth != null
+      ? num(enriched.county_pop_growth)
+      : num(r.county_pop_growth) ?? demoPopGrowth;
+  // GERÇEK demografi kullanıldıysa şeffaflık rozeti için kaynağı işaretle.
+  if (demoPopGrowth != null && enriched?.county_pop_growth == null && r.county_pop_growth == null) {
+    realSignals.demographics = "County ACS";
+  }
   const sAcres = saneAcres(r.acres);
   const minBid = saneBid(r.minimum_bid);
   const dataGaps: string[] = [];

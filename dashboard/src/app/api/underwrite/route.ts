@@ -193,13 +193,22 @@ export async function POST(req: NextRequest) {
   // medianPpa rejects acreage parsing errors and $/acre outliers before the median.
   let countyRate: number | null = null;
   let stateRate: number | null = null;
+  let stateCompCount = 0; // kaç gerçek ilan state medyanına girdi (şeffaflık paneli için)
+  let countyCompCount = 0; // kaç gerçek ilan county medyanına girdi
   if (st) {
     try {
-      const { data } = await s.from("competitor_listings").select("county,price,acres").eq("state", st).limit(2000);
-      const all = (data as { county: string; price: unknown; acres: unknown }[]) || [];
-      stateRate = medianPpa(all.map((r) => ({ price: r.price, acres: r.acres })));
+      // ÖNEMLİ: competitor_listings.state kirli ("FL", "Florida", "FL " hepsi var).
+      // DB'de eq("state","FL") yapmak comp'ların çoğunu kaçırır; bu yüzden state
+      // kolonunu DB'de filtrelemeyiz — tüm satırları çekip abbr() ile normalize
+      // edip eşleştiririz (cerberus/arbitrage ile aynı dürüst yöntem).
+      const { data } = await s.from("competitor_listings").select("state,county,price,acres").limit(5000);
+      const rows = (data as { state: string; county: string; price: unknown; acres: unknown }[]) || [];
+      const inState = rows.filter((r) => abbr(r.state) === st);
+      stateCompCount = inState.length;
+      stateRate = medianPpa(inState.map((r) => ({ price: r.price, acres: r.acres })));
       if (cty) {
-        const inCounty = all.filter((r) => normCounty(r.county) === cty);
+        const inCounty = inState.filter((r) => normCounty(r.county) === cty);
+        countyCompCount = inCounty.length;
         countyRate = medianPpa(inCounty.map((r) => ({ price: r.price, acres: r.acres })));
       }
     } catch { /* graceful */ }
@@ -324,6 +333,67 @@ export async function POST(req: NextRequest) {
 
   const verdict: "BUY" | "WATCH" | "PASS" = score >= 65 ? "BUY" : score >= 45 ? "WATCH" : "PASS";
 
+  // ── VERİ KAYNAKLARI (şeffaflık) ──────────────────────────────────────────
+  // Bu kararın DAYANDIĞI gerçek kaynakları, mümkünse sayıyla. Ahmet "bu sayı
+  // nereden?" derse cevap ekranda olsun. Uydurma kaynak yazılmaz; her satır o
+  // analizde gerçekten kullanılan (veya eksik) veriyi dürüstçe işaretler.
+  const fmt$ = (v: number | null) => (v == null ? null : `$${Math.round(v).toLocaleString()}`);
+  const dataSources: { kind: string; label: string; detail: string; status: "used" | "missing" | "estimated" }[] = [
+    {
+      kind: "parcel",
+      label: "Parsel · County tax-delinquent roll",
+      detail: lead.id
+        ? `APN ${lead.apn || "—"} · ${cty || "?"}, ${st || "?"}${lead.acres != null ? ` · ${lead.acres} acre` : ""} (tax_delinquent_properties)`
+        : "Manuel giriş — DB'de eşleşen kayıt yok",
+      status: lead.id ? "used" : "estimated",
+    },
+    {
+      kind: "comps",
+      label: countyRate ? "Comps · county medyanı" : "Comps · state medyanı",
+      detail:
+        perAcre != null
+          ? `${fmt$(perAcre)}/acre medyan · ${countyRate ? `${countyCompCount} county` : `${stateCompCount} ${st || ""} state`} ilanı (competitor_listings, outlier temizlenmiş)`
+          : `Yeterli kıyaslanabilir ilan yok (${stateCompCount} ${st || ""} ilanı tarandı)`,
+      status: perAcre != null ? "used" : "missing",
+    },
+    {
+      kind: "valuation",
+      label: "Intrinsic değer · land-valuation motoru",
+      detail:
+        compValue != null
+          ? `${fmt$(compValue)} = ${sAcres} acre × bulk-adjusted $/acre · ${valueConf} güven`
+          : "Değer üretilemedi (acreage veya comp eksik) — uydurma sayı yok",
+      status: compValue != null ? "used" : "missing",
+    },
+    {
+      kind: "demographics",
+      label: "Demografi · County ACS (county_demographics)",
+      detail:
+        demo.income != null || demo.population != null
+          ? `${demo.population != null ? `Nüfus ${demo.population.toLocaleString()}` : ""}${demo.income != null ? `${demo.population != null ? " · " : ""}medyan gelir ${fmt$(demo.income)}` : ""}`
+          : "Bu county için ACS demografi kaydı yok",
+      status: demo.income != null || demo.population != null ? "used" : "missing",
+    },
+    {
+      kind: "growth",
+      label: "Büyüme · 5y nüfus trendi",
+      detail: growth != null ? `${(growth * 100).toFixed(1)}% / 5 yıl (county_demographics.pop_growth_5y)` : "5 yıllık büyüme verisi yok",
+      status: growth != null ? "used" : "missing",
+    },
+    {
+      kind: "flood",
+      label: "Sel riski · FEMA",
+      detail: floodScore != null ? `Risk skoru ${floodScore}/100 (FEMA NFHL, canlı dd-check)` : "Koordinat yok — FEMA sorgulanamadı",
+      status: floodScore != null ? "used" : "missing",
+    },
+    {
+      kind: "road",
+      label: "Yol erişimi · OSM",
+      detail: roadAccess ? `${roadAccess} (OpenStreetMap, canlı dd-check)` : "Koordinat yok — yol erişimi ölçülemedi",
+      status: roadAccess ? "used" : "missing",
+    },
+  ];
+
   // 6) Narrative -------------------------------------------------------------
   const det = deterministicNarrative(verdict, score, reasons, { st, cty, acres: lead.acres ?? null, compValue, minBid, landlocked, hardFailValue });
   let narrative = det;
@@ -356,6 +426,7 @@ export async function POST(req: NextRequest) {
       valueBasis: compValue != null ? (countyRate ? "county_comp" : "state_comp") : "none",
     },
     dataGaps,
+    dataSources,
     narrative,
     narrativeSource,
     aiAvailable: aiEnabled(),

@@ -7,6 +7,7 @@ import { ScoreBadge, gradeOf } from "@/components/ScoreBadge";
 import Dropdown from "@/components/Dropdown";
 import { supabase } from "@/lib/supabase";
 import { buyBox, dealMargin, VERDICT_TR, type Verdict, type DealSignals } from "@/lib/buy-box";
+import { DataSources, type DataSourceItem } from "@/components/DataSources";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // CoStar-style demographic deal screener.
@@ -580,6 +581,40 @@ function DealBuyBoxScreener() {
     return c;
   }, [scored]);
 
+  // ── VERİ KAYNAKLARI (şeffaflık) — bu ekranın dayandığı gerçek kaynaklar ──
+  const dataSources: DataSourceItem[] = useMemo(() => {
+    const rateStates = Object.keys(rates).sort();
+    const withComp = scored.filter((s) => s.compValue != null).length;
+    return [
+      {
+        kind: "parcel",
+        label: "Parsel evreni · County tax-delinquent roll",
+        detail: `${rows.length.toLocaleString()} gerçek tax-lead (tax_delinquent_properties, perakende ZILLOW satırları hariç)`,
+        status: "used",
+      },
+      {
+        kind: "comps",
+        label: "Comps · Piyasa $/acre medyanı (/api/market-rates)",
+        detail: rateStates.length
+          ? `${rateStates.length} state retail $/acre medyanı (${rateStates.join(", ")}) · ${withComp.toLocaleString()} parselde comp değeri hesaplandı (competitor_listings)`
+          : "Piyasa benchmark'ı yok — competitor_listings boş",
+        status: rateStates.length ? "used" : "missing",
+      },
+      {
+        kind: "valuation",
+        label: "Karar · buy-box motoru (kural-tabanlı)",
+        detail: `${scored.length.toLocaleString()} parsel skorlandı → AL ${counts.BUY} · BEKLE ${counts.WATCH} · GEÇ ${counts.PASS} (marj + talep + erişim + sel + indirim)`,
+        status: "used",
+      },
+      {
+        kind: "demographics",
+        label: "Talep sinyali · County demografisi",
+        detail: "Nüfus büyümesi + likidite skoru karara katılır (county_demographics / lead sinyalleri)",
+        status: "estimated",
+      },
+    ];
+  }, [rates, scored, rows.length, counts]);
+
   const exportCSV = () => {
     const cols = ["verdict_tr", "verdict", "buybox_score", "cerberus_score", "grade", "discount_pct", "margin_pct", "savings", "state", "county", "apn", "acres", "minimum_bid", "comp_value", "road_access", "owner_name", "property_address", "source", "sale_date", "raw_url"];
     const esc = (v: unknown) => { const s = v == null ? "" : String(v); return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
@@ -765,6 +800,16 @@ function DealBuyBoxScreener() {
                   </tbody>
                 </table>
               </div>
+            </div>
+          )}
+
+          {/* Veri Kaynakları — bu ekranın dayandığı gerçek kaynaklar (şeffaflık) */}
+          {!loading && (
+            <div className="mt-6">
+              <DataSources
+                items={dataSources}
+                note="Kâr marjı = (comp değer − min teklif) / comp değer. Comp değer = gerçek acreage × gerçek state $/acre medyanı. Comp yoksa marj boş ve karar skor proxy'sine düşer (düşük güven) — uydurma yok."
+              />
             </div>
           )}
         </>
