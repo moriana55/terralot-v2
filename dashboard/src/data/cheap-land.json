@@ -4,6 +4,326 @@
   "count": 40,
   "deals": [
     {
+      "id": "c3a7f56a-b91d-1c77-dd73-e136a59ad3ee",
+      "owner": "HART GORDON MRS",
+      "mailAddr": "908 MEADOWBROOK DR, BAYTOWN, TX, 77521-3218",
+      "property": "0 MINNESOTA ST, BAYTOWN, TX, 77520",
+      "county": "HARRIS COUNTY",
+      "state": "TX",
+      "taxDebt": 8438,
+      "mapUrl": "https://www.google.com/maps/search/?api=1&query=0%20MINNESOTA%20ST%2C%20BAYTOWN%2C%20TX%2C%2077520%2C%20HARRIS%20COUNTY%2C%20TX",
+      "acres": 0.078,
+      "sqft": 3376,
+      "landValue": 16875,
+      "marketValue": 16875,
+      "vacant": true,
+      "landUse": "8002",
+      "spread": 8437,
+      "spreadPct": 50,
+      "noDeal": false,
+      "grade": "A",
+      "acquireLow": 8860,
+      "acquireHigh": 10125,
+      "apn": "0590930000011",
+      "absentee": true,
+      "estate": false,
+      "score": 75,
+      "factors": {
+        "spread": {
+          "label": "Spread %50",
+          "pts": 25,
+          "max": 40,
+          "ok": true
+        },
+        "vacant": {
+          "label": "Boş arsa (yapı $0)",
+          "pts": 15,
+          "max": 15,
+          "ok": true
+        },
+        "mailable": {
+          "label": "Mailable sahip (adres var)",
+          "pts": 15,
+          "max": 15,
+          "ok": true
+        },
+        "absentee": {
+          "label": "Absentee (uzakta sahip)",
+          "pts": 10,
+          "max": 10,
+          "ok": true
+        },
+        "estate": {
+          "label": "Miras / estate (motive)",
+          "pts": 0,
+          "max": 10,
+          "ok": false
+        },
+        "lowDebt": {
+          "label": "Düşük borç (≤$10k)",
+          "pts": 10,
+          "max": 10,
+          "ok": true
+        }
+      }
+    },
+    {
+      "id": "aea87b85-c170-820f-daf1-0fb43249044f",
+      "owner": "STETTNER I T",
+      "mailAddr": "9423 FAIRDALE LN, HOUSTON, TX, 77063-3911",
+      "property": "0 W HARDY RD, HOUSTON, TX, 77022",
+      "county": "HARRIS COUNTY",
+      "state": "TX",
+      "taxDebt": 3143,
+      "mapUrl": "https://www.google.com/maps/search/?api=1&query=0%20W%20HARDY%20RD%2C%20HOUSTON%2C%20TX%2C%2077022%2C%20HARRIS%20COUNTY%2C%20TX",
+      "acres": 0.01,
+      "sqft": 449,
+      "landValue": 7495,
+      "marketValue": 7495,
+      "vacant": true,
+      "landUse": "1000",
+      "spread": 4352,
+      "spreadPct": 58,
+      "noDeal": false,
+      "grade": "A",
+      "acquireLow": 3300,
+      "acquireHigh": 4400,
+      "apn": "0701180080061",
+      "absentee": true,
+      "estate": false,
+      "score": 75,
+      "factors": {
+        "spread": {
+          "label": "Spread %58",
+          "pts": 25,
+          "max": 40,
+          "ok": true
+        },
+        "vacant": {
+          "label": "Boş arsa (yapı $0)",
+          "pts": 15,
+          "max": 15,
+          "ok": true
+        },
+        "mailable": {
+          "label": "Mailable sahip (adres var)",
+          "pts": 15,
+          "max": 15,
+          "ok": true
+        },
+        "absentee": {
+          "label": "Absentee (uzakta sahip)",
+          "pts": 10,
+          "max": 10,
+          "ok": true
+        },
+        "estate": {
+          "label": "Miras / estate (motive)",
+          "pts": 0,
+          "max": 10,
+          "ok": false
+        },
+        "lowDebt": {
+          "label": "Düşük borç (≤$10k)",
+          "pts": 10,
+          "max": 10,
+          "ok": true
+        }
+      }
+    },
+    {
+      "id": "463ccf1b-4352-f7f7-3511-0af1dc17366c",
+      "owner": "EAST RIVER DEV CO",
+      "mailAddr": "1300 WOODCREST DR, HOUSTON, TX, 77018-5254",
+      "property": "0 RIVERSIDE DR, HUFFMAN, TX, 77357",
+      "county": "HARRIS COUNTY",
+      "state": "TX",
+      "taxDebt": 3600,
+      "mapUrl": "https://www.google.com/maps/search/?api=1&query=0%20RIVERSIDE%20DR%2C%20HUFFMAN%2C%20TX%2C%2077357%2C%20HARRIS%20COUNTY%2C%20TX",
+      "acres": 0.103,
+      "sqft": 4500,
+      "landValue": 6750,
+      "marketValue": 6750,
+      "vacant": true,
+      "landUse": "1000",
+      "spread": 3150,
+      "spreadPct": 47,
+      "noDeal": false,
+      "grade": "A",
+      "acquireLow": 3780,
+      "acquireHigh": 4050,
+      "apn": "0975910000034",
+      "absentee": true,
+      "estate": false,
+      "score": 75,
+      "factors": {
+        "spread": {
+          "label": "Spread %47",
+          "pts": 25,
+          "max": 40,
+          "ok": true
+        },
+        "vacant": {
+          "label": "Boş arsa (yapı $0)",
+          "pts": 15,
+          "max": 15,
+          "ok": true
+        },
+        "mailable": {
+          "label": "Mailable sahip (adres var)",
+          "pts": 15,
+          "max": 15,
+          "ok": true
+        },
+        "absentee": {
+          "label": "Absentee (uzakta sahip)",
+          "pts": 10,
+          "max": 10,
+          "ok": true
+        },
+        "estate": {
+          "label": "Miras / estate (motive)",
+          "pts": 0,
+          "max": 10,
+          "ok": false
+        },
+        "lowDebt": {
+          "label": "Düşük borç (≤$10k)",
+          "pts": 10,
+          "max": 10,
+          "ok": true
+        }
+      }
+    },
+    {
+      "id": "fc307591-359c-bb74-45c9-d9c61580801f",
+      "owner": "EAST RIVER DEV CO",
+      "mailAddr": "1300 WOODCREST DR, HOUSTON, TX, 77018-5254",
+      "property": "0 RIVERSIDE ST, HUFFMAN, TX, 77357",
+      "county": "HARRIS COUNTY",
+      "state": "TX",
+      "taxDebt": 3200,
+      "mapUrl": "https://www.google.com/maps/search/?api=1&query=0%20RIVERSIDE%20ST%2C%20HUFFMAN%2C%20TX%2C%2077357%2C%20HARRIS%20COUNTY%2C%20TX",
+      "acres": 0.092,
+      "sqft": 3999,
+      "landValue": 6000,
+      "marketValue": 6000,
+      "vacant": true,
+      "landUse": "1000",
+      "spread": 2800,
+      "spreadPct": 47,
+      "noDeal": false,
+      "grade": "A",
+      "acquireLow": 3360,
+      "acquireHigh": 3600,
+      "apn": "0975920000003",
+      "absentee": true,
+      "estate": false,
+      "score": 75,
+      "factors": {
+        "spread": {
+          "label": "Spread %47",
+          "pts": 25,
+          "max": 40,
+          "ok": true
+        },
+        "vacant": {
+          "label": "Boş arsa (yapı $0)",
+          "pts": 15,
+          "max": 15,
+          "ok": true
+        },
+        "mailable": {
+          "label": "Mailable sahip (adres var)",
+          "pts": 15,
+          "max": 15,
+          "ok": true
+        },
+        "absentee": {
+          "label": "Absentee (uzakta sahip)",
+          "pts": 10,
+          "max": 10,
+          "ok": true
+        },
+        "estate": {
+          "label": "Miras / estate (motive)",
+          "pts": 0,
+          "max": 10,
+          "ok": false
+        },
+        "lowDebt": {
+          "label": "Düşük borç (≤$10k)",
+          "pts": 10,
+          "max": 10,
+          "ok": true
+        }
+      }
+    },
+    {
+      "id": "b7f595f8-9fe3-32bf-e155-f0bc6393c5ca",
+      "owner": "EAST RIVER DEV CO",
+      "mailAddr": "1300 WOODCREST DR, HOUSTON, TX, 77018-5254",
+      "property": "0 RIVERSIDE DR, HUFFMAN, TX, 77357",
+      "county": "HARRIS COUNTY",
+      "state": "TX",
+      "taxDebt": 2680,
+      "mapUrl": "https://www.google.com/maps/search/?api=1&query=0%20RIVERSIDE%20DR%2C%20HUFFMAN%2C%20TX%2C%2077357%2C%20HARRIS%20COUNTY%2C%20TX",
+      "acres": 0.077,
+      "sqft": 3350,
+      "landValue": 5025,
+      "marketValue": 5025,
+      "vacant": true,
+      "landUse": "1000",
+      "spread": 2345,
+      "spreadPct": 47,
+      "noDeal": false,
+      "grade": "A",
+      "acquireLow": 2814,
+      "acquireHigh": 3015,
+      "apn": "0975910000035",
+      "absentee": true,
+      "estate": false,
+      "score": 75,
+      "factors": {
+        "spread": {
+          "label": "Spread %47",
+          "pts": 25,
+          "max": 40,
+          "ok": true
+        },
+        "vacant": {
+          "label": "Boş arsa (yapı $0)",
+          "pts": 15,
+          "max": 15,
+          "ok": true
+        },
+        "mailable": {
+          "label": "Mailable sahip (adres var)",
+          "pts": 15,
+          "max": 15,
+          "ok": true
+        },
+        "absentee": {
+          "label": "Absentee (uzakta sahip)",
+          "pts": 10,
+          "max": 10,
+          "ok": true
+        },
+        "estate": {
+          "label": "Miras / estate (motive)",
+          "pts": 0,
+          "max": 10,
+          "ok": false
+        },
+        "lowDebt": {
+          "label": "Düşük borç (≤$10k)",
+          "pts": 10,
+          "max": 10,
+          "ok": true
+        }
+      }
+    },
+    {
       "id": "dbe50d50-83a4-09f7-7eac-630517004b42",
       "owner": "WILLIAMS ERIC",
       "mailAddr": "8510 E TIDWELL RD, HOUSTON, TX, 77028-1240",
@@ -21,10 +341,51 @@
       "spread": 165550,
       "spreadPct": 86,
       "noDeal": false,
-      "grade": "A",
+      "grade": "B",
       "acquireLow": 28298,
       "acquireHigh": 37730,
-      "apn": "0761670090122"
+      "apn": "0761670090122",
+      "absentee": false,
+      "estate": false,
+      "score": 70,
+      "factors": {
+        "spread": {
+          "label": "Spread %86",
+          "pts": 40,
+          "max": 40,
+          "ok": true
+        },
+        "vacant": {
+          "label": "Boş arsa (yapı $0)",
+          "pts": 15,
+          "max": 15,
+          "ok": true
+        },
+        "mailable": {
+          "label": "Mailable sahip (adres var)",
+          "pts": 15,
+          "max": 15,
+          "ok": true
+        },
+        "absentee": {
+          "label": "Absentee (uzakta sahip)",
+          "pts": 0,
+          "max": 10,
+          "ok": false
+        },
+        "estate": {
+          "label": "Miras / estate (motive)",
+          "pts": 0,
+          "max": 10,
+          "ok": false
+        },
+        "lowDebt": {
+          "label": "Düşük borç (≤$10k)",
+          "pts": 0,
+          "max": 10,
+          "ok": false
+        }
+      }
     },
     {
       "id": "2c6552a0-833f-ce04-2d83-ac743eae5dfa",
@@ -47,7 +408,624 @@
       "grade": "B",
       "acquireLow": 39905,
       "acquireHigh": 38405,
-      "apn": "0300170070023"
+      "apn": "0300170070023",
+      "absentee": true,
+      "estate": false,
+      "score": 65,
+      "factors": {
+        "spread": {
+          "label": "Spread %41",
+          "pts": 25,
+          "max": 40,
+          "ok": true
+        },
+        "vacant": {
+          "label": "Boş arsa (yapı $0)",
+          "pts": 15,
+          "max": 15,
+          "ok": true
+        },
+        "mailable": {
+          "label": "Mailable sahip (adres var)",
+          "pts": 15,
+          "max": 15,
+          "ok": true
+        },
+        "absentee": {
+          "label": "Absentee (uzakta sahip)",
+          "pts": 10,
+          "max": 10,
+          "ok": true
+        },
+        "estate": {
+          "label": "Miras / estate (motive)",
+          "pts": 0,
+          "max": 10,
+          "ok": false
+        },
+        "lowDebt": {
+          "label": "Düşük borç (≤$10k)",
+          "pts": 0,
+          "max": 10,
+          "ok": false
+        }
+      }
+    },
+    {
+      "id": "27e1e914-7940-35e0-a2bf-4e5abdd40d56",
+      "owner": "EAST RIVER DEV CO",
+      "mailAddr": "1300 WOODCREST DR, HOUSTON, TX, 77018-5254",
+      "property": "0 RIVERSIDE DR, HUFFMAN, TX, 77357",
+      "county": "HARRIS COUNTY",
+      "state": "TX",
+      "taxDebt": 9800,
+      "mapUrl": "https://www.google.com/maps/search/?api=1&query=0%20RIVERSIDE%20DR%2C%20HUFFMAN%2C%20TX%2C%2077357%2C%20HARRIS%20COUNTY%2C%20TX",
+      "acres": 0.225,
+      "sqft": 9801,
+      "landValue": 14700,
+      "marketValue": 14700,
+      "vacant": true,
+      "landUse": "1000",
+      "spread": 4900,
+      "spreadPct": 33,
+      "noDeal": false,
+      "grade": "B",
+      "acquireLow": 10290,
+      "acquireHigh": 8820,
+      "apn": "0975910000032",
+      "absentee": true,
+      "estate": false,
+      "score": 62,
+      "factors": {
+        "spread": {
+          "label": "Spread %33",
+          "pts": 12,
+          "max": 40,
+          "ok": true
+        },
+        "vacant": {
+          "label": "Boş arsa (yapı $0)",
+          "pts": 15,
+          "max": 15,
+          "ok": true
+        },
+        "mailable": {
+          "label": "Mailable sahip (adres var)",
+          "pts": 15,
+          "max": 15,
+          "ok": true
+        },
+        "absentee": {
+          "label": "Absentee (uzakta sahip)",
+          "pts": 10,
+          "max": 10,
+          "ok": true
+        },
+        "estate": {
+          "label": "Miras / estate (motive)",
+          "pts": 0,
+          "max": 10,
+          "ok": false
+        },
+        "lowDebt": {
+          "label": "Düşük borç (≤$10k)",
+          "pts": 10,
+          "max": 10,
+          "ok": true
+        }
+      }
+    },
+    {
+      "id": "919bddc5-0a82-5eac-469b-4f0410bf5ffc",
+      "owner": "MCLEAN W 0 BECKMAN",
+      "mailAddr": "PO BOX 146, NEW CANEY, TX, 77357-0146",
+      "property": "0 BROOKSIDE LN, NEW CANEY, TX, 77357",
+      "county": "HARRIS COUNTY",
+      "state": "TX",
+      "taxDebt": 9600,
+      "mapUrl": "https://www.google.com/maps/search/?api=1&query=0%20BROOKSIDE%20LN%2C%20NEW%20CANEY%2C%20TX%2C%2077357%2C%20HARRIS%20COUNTY%2C%20TX",
+      "acres": 0.22,
+      "sqft": 9601,
+      "landValue": 14400,
+      "marketValue": 14400,
+      "vacant": true,
+      "landUse": "1000",
+      "spread": 4800,
+      "spreadPct": 33,
+      "noDeal": false,
+      "grade": "B",
+      "acquireLow": 10080,
+      "acquireHigh": 8640,
+      "apn": "0975950000015",
+      "absentee": true,
+      "estate": false,
+      "score": 62,
+      "factors": {
+        "spread": {
+          "label": "Spread %33",
+          "pts": 12,
+          "max": 40,
+          "ok": true
+        },
+        "vacant": {
+          "label": "Boş arsa (yapı $0)",
+          "pts": 15,
+          "max": 15,
+          "ok": true
+        },
+        "mailable": {
+          "label": "Mailable sahip (adres var)",
+          "pts": 15,
+          "max": 15,
+          "ok": true
+        },
+        "absentee": {
+          "label": "Absentee (uzakta sahip)",
+          "pts": 10,
+          "max": 10,
+          "ok": true
+        },
+        "estate": {
+          "label": "Miras / estate (motive)",
+          "pts": 0,
+          "max": 10,
+          "ok": false
+        },
+        "lowDebt": {
+          "label": "Düşük borç (≤$10k)",
+          "pts": 10,
+          "max": 10,
+          "ok": true
+        }
+      }
+    },
+    {
+      "id": "1c0b8e8b-1386-2014-2633-99f8dc52c465",
+      "owner": "EAST RIVER DEV CO",
+      "mailAddr": "1300 WOODCREST DR, HOUSTON, TX, 77018-5254",
+      "property": "0 RIVERSIDE DR, HUFFMAN, TX, 77357",
+      "county": "HARRIS COUNTY",
+      "state": "TX",
+      "taxDebt": 9120,
+      "mapUrl": "https://www.google.com/maps/search/?api=1&query=0%20RIVERSIDE%20DR%2C%20HUFFMAN%2C%20TX%2C%2077357%2C%20HARRIS%20COUNTY%2C%20TX",
+      "acres": 0.209,
+      "sqft": 9121,
+      "landValue": 13680,
+      "marketValue": 13680,
+      "vacant": true,
+      "landUse": "1000",
+      "spread": 4560,
+      "spreadPct": 33,
+      "noDeal": false,
+      "grade": "B",
+      "acquireLow": 9576,
+      "acquireHigh": 8208,
+      "apn": "0975920000001",
+      "absentee": true,
+      "estate": false,
+      "score": 62,
+      "factors": {
+        "spread": {
+          "label": "Spread %33",
+          "pts": 12,
+          "max": 40,
+          "ok": true
+        },
+        "vacant": {
+          "label": "Boş arsa (yapı $0)",
+          "pts": 15,
+          "max": 15,
+          "ok": true
+        },
+        "mailable": {
+          "label": "Mailable sahip (adres var)",
+          "pts": 15,
+          "max": 15,
+          "ok": true
+        },
+        "absentee": {
+          "label": "Absentee (uzakta sahip)",
+          "pts": 10,
+          "max": 10,
+          "ok": true
+        },
+        "estate": {
+          "label": "Miras / estate (motive)",
+          "pts": 0,
+          "max": 10,
+          "ok": false
+        },
+        "lowDebt": {
+          "label": "Düşük borç (≤$10k)",
+          "pts": 10,
+          "max": 10,
+          "ok": true
+        }
+      }
+    },
+    {
+      "id": "2ce679cd-3171-18d2-97cd-c23c164e9311",
+      "owner": "MCLEAN W 0 BECKMAN",
+      "mailAddr": "PO BOX 146, NEW CANEY, TX, 77357-0146",
+      "property": "0 RIVERSIDE ST, HUFFMAN, TX, 77357",
+      "county": "HARRIS COUNTY",
+      "state": "TX",
+      "taxDebt": 9000,
+      "mapUrl": "https://www.google.com/maps/search/?api=1&query=0%20RIVERSIDE%20ST%2C%20HUFFMAN%2C%20TX%2C%2077357%2C%20HARRIS%20COUNTY%2C%20TX",
+      "acres": 0.207,
+      "sqft": 8999,
+      "landValue": 13500,
+      "marketValue": 13500,
+      "vacant": true,
+      "landUse": "1000",
+      "spread": 4500,
+      "spreadPct": 33,
+      "noDeal": false,
+      "grade": "B",
+      "acquireLow": 9450,
+      "acquireHigh": 8100,
+      "apn": "0975950000005",
+      "absentee": true,
+      "estate": false,
+      "score": 62,
+      "factors": {
+        "spread": {
+          "label": "Spread %33",
+          "pts": 12,
+          "max": 40,
+          "ok": true
+        },
+        "vacant": {
+          "label": "Boş arsa (yapı $0)",
+          "pts": 15,
+          "max": 15,
+          "ok": true
+        },
+        "mailable": {
+          "label": "Mailable sahip (adres var)",
+          "pts": 15,
+          "max": 15,
+          "ok": true
+        },
+        "absentee": {
+          "label": "Absentee (uzakta sahip)",
+          "pts": 10,
+          "max": 10,
+          "ok": true
+        },
+        "estate": {
+          "label": "Miras / estate (motive)",
+          "pts": 0,
+          "max": 10,
+          "ok": false
+        },
+        "lowDebt": {
+          "label": "Düşük borç (≤$10k)",
+          "pts": 10,
+          "max": 10,
+          "ok": true
+        }
+      }
+    },
+    {
+      "id": "e735b3d2-b363-ce2b-1090-16eba7166776",
+      "owner": "EAST RIVER DEV CO",
+      "mailAddr": "1300 WOODCREST DR, HOUSTON, TX, 77018-5254",
+      "property": "0 RIVERSIDE ST, HUFFMAN, TX, 77357",
+      "county": "HARRIS COUNTY",
+      "state": "TX",
+      "taxDebt": 7425,
+      "mapUrl": "https://www.google.com/maps/search/?api=1&query=0%20RIVERSIDE%20ST%2C%20HUFFMAN%2C%20TX%2C%2077357%2C%20HARRIS%20COUNTY%2C%20TX",
+      "acres": 0.171,
+      "sqft": 7427,
+      "landValue": 11138,
+      "marketValue": 11138,
+      "vacant": true,
+      "landUse": "1000",
+      "spread": 3713,
+      "spreadPct": 33,
+      "noDeal": false,
+      "grade": "B",
+      "acquireLow": 7796,
+      "acquireHigh": 6683,
+      "apn": "0975920000002",
+      "absentee": true,
+      "estate": false,
+      "score": 62,
+      "factors": {
+        "spread": {
+          "label": "Spread %33",
+          "pts": 12,
+          "max": 40,
+          "ok": true
+        },
+        "vacant": {
+          "label": "Boş arsa (yapı $0)",
+          "pts": 15,
+          "max": 15,
+          "ok": true
+        },
+        "mailable": {
+          "label": "Mailable sahip (adres var)",
+          "pts": 15,
+          "max": 15,
+          "ok": true
+        },
+        "absentee": {
+          "label": "Absentee (uzakta sahip)",
+          "pts": 10,
+          "max": 10,
+          "ok": true
+        },
+        "estate": {
+          "label": "Miras / estate (motive)",
+          "pts": 0,
+          "max": 10,
+          "ok": false
+        },
+        "lowDebt": {
+          "label": "Düşük borç (≤$10k)",
+          "pts": 10,
+          "max": 10,
+          "ok": true
+        }
+      }
+    },
+    {
+      "id": "c89420f0-4fca-726d-3550-185d0133bdad",
+      "owner": "EAST RIVER DEV CO",
+      "mailAddr": "1300 WOODCREST DR, HOUSTON, TX, 77018-5254",
+      "property": "0 RIVERSIDE ST, HUFFMAN, TX, 77357",
+      "county": "HARRIS COUNTY",
+      "state": "TX",
+      "taxDebt": 6501,
+      "mapUrl": "https://www.google.com/maps/search/?api=1&query=0%20RIVERSIDE%20ST%2C%20HUFFMAN%2C%20TX%2C%2077357%2C%20HARRIS%20COUNTY%2C%20TX",
+      "acres": 0.149,
+      "sqft": 6499,
+      "landValue": 9752,
+      "marketValue": 9752,
+      "vacant": true,
+      "landUse": "1000",
+      "spread": 3251,
+      "spreadPct": 33,
+      "noDeal": false,
+      "grade": "B",
+      "acquireLow": 6826,
+      "acquireHigh": 5851,
+      "apn": "0975920000004",
+      "absentee": true,
+      "estate": false,
+      "score": 62,
+      "factors": {
+        "spread": {
+          "label": "Spread %33",
+          "pts": 12,
+          "max": 40,
+          "ok": true
+        },
+        "vacant": {
+          "label": "Boş arsa (yapı $0)",
+          "pts": 15,
+          "max": 15,
+          "ok": true
+        },
+        "mailable": {
+          "label": "Mailable sahip (adres var)",
+          "pts": 15,
+          "max": 15,
+          "ok": true
+        },
+        "absentee": {
+          "label": "Absentee (uzakta sahip)",
+          "pts": 10,
+          "max": 10,
+          "ok": true
+        },
+        "estate": {
+          "label": "Miras / estate (motive)",
+          "pts": 0,
+          "max": 10,
+          "ok": false
+        },
+        "lowDebt": {
+          "label": "Düşük borç (≤$10k)",
+          "pts": 10,
+          "max": 10,
+          "ok": true
+        }
+      }
+    },
+    {
+      "id": "bf317ee1-324c-d4cb-c5b3-5786996cbfa2",
+      "owner": "EAST RIVER DEV CO",
+      "mailAddr": "1300 WOODCREST DR, HOUSTON, TX, 77018-5254",
+      "property": "0 RIVERSIDE ST, HUFFMAN, TX, 77357",
+      "county": "HARRIS COUNTY",
+      "state": "TX",
+      "taxDebt": 6342,
+      "mapUrl": "https://www.google.com/maps/search/?api=1&query=0%20RIVERSIDE%20ST%2C%20HUFFMAN%2C%20TX%2C%2077357%2C%20HARRIS%20COUNTY%2C%20TX",
+      "acres": 0.146,
+      "sqft": 6342,
+      "landValue": 9513,
+      "marketValue": 9513,
+      "vacant": true,
+      "landUse": "1000",
+      "spread": 3171,
+      "spreadPct": 33,
+      "noDeal": false,
+      "grade": "B",
+      "acquireLow": 6659,
+      "acquireHigh": 5708,
+      "apn": "0975920000005",
+      "absentee": true,
+      "estate": false,
+      "score": 62,
+      "factors": {
+        "spread": {
+          "label": "Spread %33",
+          "pts": 12,
+          "max": 40,
+          "ok": true
+        },
+        "vacant": {
+          "label": "Boş arsa (yapı $0)",
+          "pts": 15,
+          "max": 15,
+          "ok": true
+        },
+        "mailable": {
+          "label": "Mailable sahip (adres var)",
+          "pts": 15,
+          "max": 15,
+          "ok": true
+        },
+        "absentee": {
+          "label": "Absentee (uzakta sahip)",
+          "pts": 10,
+          "max": 10,
+          "ok": true
+        },
+        "estate": {
+          "label": "Miras / estate (motive)",
+          "pts": 0,
+          "max": 10,
+          "ok": false
+        },
+        "lowDebt": {
+          "label": "Düşük borç (≤$10k)",
+          "pts": 10,
+          "max": 10,
+          "ok": true
+        }
+      }
+    },
+    {
+      "id": "d306e343-c33a-b8e7-04cf-bc6960336c4f",
+      "owner": "EAST RIVER DEV CO",
+      "mailAddr": "1300 WOODCREST DR, HOUSTON, TX, 77018-5254",
+      "property": "0 RIVERSIDE DR, HUFFMAN, TX, 77357",
+      "county": "HARRIS COUNTY",
+      "state": "TX",
+      "taxDebt": 5950,
+      "mapUrl": "https://www.google.com/maps/search/?api=1&query=0%20RIVERSIDE%20DR%2C%20HUFFMAN%2C%20TX%2C%2077357%2C%20HARRIS%20COUNTY%2C%20TX",
+      "acres": 0.137,
+      "sqft": 5950,
+      "landValue": 8925,
+      "marketValue": 8925,
+      "vacant": true,
+      "landUse": "1000",
+      "spread": 2975,
+      "spreadPct": 33,
+      "noDeal": false,
+      "grade": "B",
+      "acquireLow": 6248,
+      "acquireHigh": 5355,
+      "apn": "0975910000036",
+      "absentee": true,
+      "estate": false,
+      "score": 62,
+      "factors": {
+        "spread": {
+          "label": "Spread %33",
+          "pts": 12,
+          "max": 40,
+          "ok": true
+        },
+        "vacant": {
+          "label": "Boş arsa (yapı $0)",
+          "pts": 15,
+          "max": 15,
+          "ok": true
+        },
+        "mailable": {
+          "label": "Mailable sahip (adres var)",
+          "pts": 15,
+          "max": 15,
+          "ok": true
+        },
+        "absentee": {
+          "label": "Absentee (uzakta sahip)",
+          "pts": 10,
+          "max": 10,
+          "ok": true
+        },
+        "estate": {
+          "label": "Miras / estate (motive)",
+          "pts": 0,
+          "max": 10,
+          "ok": false
+        },
+        "lowDebt": {
+          "label": "Düşük borç (≤$10k)",
+          "pts": 10,
+          "max": 10,
+          "ok": true
+        }
+      }
+    },
+    {
+      "id": "f835c6c7-7749-8a68-5508-d2fe49d8f64e",
+      "owner": "EAST RIVER DEV CO",
+      "mailAddr": "1300 WOODCREST DR, HOUSTON, TX, 77018-5254",
+      "property": "0 RIVERSIDE DR, HUFFMAN, TX, 77357",
+      "county": "HARRIS COUNTY",
+      "state": "TX",
+      "taxDebt": 5591,
+      "mapUrl": "https://www.google.com/maps/search/?api=1&query=0%20RIVERSIDE%20DR%2C%20HUFFMAN%2C%20TX%2C%2077357%2C%20HARRIS%20COUNTY%2C%20TX",
+      "acres": 0.128,
+      "sqft": 5593,
+      "landValue": 8387,
+      "marketValue": 8387,
+      "vacant": true,
+      "landUse": "1000",
+      "spread": 2796,
+      "spreadPct": 33,
+      "noDeal": false,
+      "grade": "B",
+      "acquireLow": 5871,
+      "acquireHigh": 5032,
+      "apn": "0975910000033",
+      "absentee": true,
+      "estate": false,
+      "score": 62,
+      "factors": {
+        "spread": {
+          "label": "Spread %33",
+          "pts": 12,
+          "max": 40,
+          "ok": true
+        },
+        "vacant": {
+          "label": "Boş arsa (yapı $0)",
+          "pts": 15,
+          "max": 15,
+          "ok": true
+        },
+        "mailable": {
+          "label": "Mailable sahip (adres var)",
+          "pts": 15,
+          "max": 15,
+          "ok": true
+        },
+        "absentee": {
+          "label": "Absentee (uzakta sahip)",
+          "pts": 10,
+          "max": 10,
+          "ok": true
+        },
+        "estate": {
+          "label": "Miras / estate (motive)",
+          "pts": 0,
+          "max": 10,
+          "ok": false
+        },
+        "lowDebt": {
+          "label": "Düşük borç (≤$10k)",
+          "pts": 10,
+          "max": 10,
+          "ok": true
+        }
+      }
     },
     {
       "id": "4d6c6d6a-25a8-ff12-51b1-0d642a492d49",
@@ -70,7 +1048,48 @@
       "grade": "C",
       "acquireLow": 43832,
       "acquireHigh": 40293,
-      "apn": "0761180180311"
+      "apn": "0761180180311",
+      "absentee": true,
+      "estate": false,
+      "score": 52,
+      "factors": {
+        "spread": {
+          "label": "Spread %38",
+          "pts": 12,
+          "max": 40,
+          "ok": true
+        },
+        "vacant": {
+          "label": "Boş arsa (yapı $0)",
+          "pts": 15,
+          "max": 15,
+          "ok": true
+        },
+        "mailable": {
+          "label": "Mailable sahip (adres var)",
+          "pts": 15,
+          "max": 15,
+          "ok": true
+        },
+        "absentee": {
+          "label": "Absentee (uzakta sahip)",
+          "pts": 10,
+          "max": 10,
+          "ok": true
+        },
+        "estate": {
+          "label": "Miras / estate (motive)",
+          "pts": 0,
+          "max": 10,
+          "ok": false
+        },
+        "lowDebt": {
+          "label": "Düşük borç (≤$10k)",
+          "pts": 0,
+          "max": 10,
+          "ok": false
+        }
+      }
     },
     {
       "id": "ae37f262-eb26-8b79-6204-d51362d59ce8",
@@ -93,30 +1112,48 @@
       "grade": "C",
       "acquireLow": 43832,
       "acquireHigh": 40293,
-      "apn": "0761180180310"
-    },
-    {
-      "id": "783c1aa7-4909-7037-e5f2-994c33386343",
-      "owner": "WILLIAMS ESTHER B",
-      "mailAddr": "5130 CHENNAULT RD, HOUSTON, TX, 77033-2629",
-      "property": "0 SUMMER ST, HOUSTON, TX, 77007",
-      "county": "HARRIS COUNTY",
-      "state": "TX",
-      "taxDebt": 300000,
-      "mapUrl": "https://www.google.com/maps/search/?api=1&query=0%20SUMMER%20ST%2C%20HOUSTON%2C%20TX%2C%2077007%2C%20HARRIS%20COUNTY%2C%20TX",
-      "acres": 0.115,
-      "sqft": 5001,
-      "landValue": 325000,
-      "marketValue": 325000,
-      "vacant": true,
-      "landUse": "1000",
-      "spread": 25000,
-      "spreadPct": 8,
-      "noDeal": false,
-      "grade": "C",
-      "acquireLow": 315000,
-      "acquireHigh": 195000,
-      "apn": "0050830000012"
+      "apn": "0761180180310",
+      "absentee": true,
+      "estate": false,
+      "score": 52,
+      "factors": {
+        "spread": {
+          "label": "Spread %38",
+          "pts": 12,
+          "max": 40,
+          "ok": true
+        },
+        "vacant": {
+          "label": "Boş arsa (yapı $0)",
+          "pts": 15,
+          "max": 15,
+          "ok": true
+        },
+        "mailable": {
+          "label": "Mailable sahip (adres var)",
+          "pts": 15,
+          "max": 15,
+          "ok": true
+        },
+        "absentee": {
+          "label": "Absentee (uzakta sahip)",
+          "pts": 10,
+          "max": 10,
+          "ok": true
+        },
+        "estate": {
+          "label": "Miras / estate (motive)",
+          "pts": 0,
+          "max": 10,
+          "ok": false
+        },
+        "lowDebt": {
+          "label": "Düşük borç (≤$10k)",
+          "pts": 0,
+          "max": 10,
+          "ok": false
+        }
+      }
     },
     {
       "id": "eba47935-eee9-f7b7-1a9f-b021b8efe805",
@@ -139,7 +1176,48 @@
       "grade": "C",
       "acquireLow": 63485,
       "acquireHigh": 47318,
-      "apn": "0791730180015"
+      "apn": "0791730180015",
+      "absentee": true,
+      "estate": false,
+      "score": 52,
+      "factors": {
+        "spread": {
+          "label": "Spread %23",
+          "pts": 12,
+          "max": 40,
+          "ok": true
+        },
+        "vacant": {
+          "label": "Boş arsa (yapı $0)",
+          "pts": 15,
+          "max": 15,
+          "ok": true
+        },
+        "mailable": {
+          "label": "Mailable sahip (adres var)",
+          "pts": 15,
+          "max": 15,
+          "ok": true
+        },
+        "absentee": {
+          "label": "Absentee (uzakta sahip)",
+          "pts": 10,
+          "max": 10,
+          "ok": true
+        },
+        "estate": {
+          "label": "Miras / estate (motive)",
+          "pts": 0,
+          "max": 10,
+          "ok": false
+        },
+        "lowDebt": {
+          "label": "Düşük borç (≤$10k)",
+          "pts": 0,
+          "max": 10,
+          "ok": false
+        }
+      }
     },
     {
       "id": "26d75f9d-399a-5d5a-8ec6-c4c4856632c8",
@@ -162,30 +1240,48 @@
       "grade": "C",
       "acquireLow": 63485,
       "acquireHigh": 47318,
-      "apn": "0791730180014"
-    },
-    {
-      "id": "c3a7f56a-b91d-1c77-dd73-e136a59ad3ee",
-      "owner": "HART GORDON MRS",
-      "mailAddr": "908 MEADOWBROOK DR, BAYTOWN, TX, 77521-3218",
-      "property": "0 MINNESOTA ST, BAYTOWN, TX, 77520",
-      "county": "HARRIS COUNTY",
-      "state": "TX",
-      "taxDebt": 8438,
-      "mapUrl": "https://www.google.com/maps/search/?api=1&query=0%20MINNESOTA%20ST%2C%20BAYTOWN%2C%20TX%2C%2077520%2C%20HARRIS%20COUNTY%2C%20TX",
-      "acres": 0.078,
-      "sqft": 3376,
-      "landValue": 16875,
-      "marketValue": 16875,
-      "vacant": true,
-      "landUse": "8002",
-      "spread": 8437,
-      "spreadPct": 50,
-      "noDeal": false,
-      "grade": "B",
-      "acquireLow": 8860,
-      "acquireHigh": 10125,
-      "apn": "0590930000011"
+      "apn": "0791730180014",
+      "absentee": true,
+      "estate": false,
+      "score": 52,
+      "factors": {
+        "spread": {
+          "label": "Spread %23",
+          "pts": 12,
+          "max": 40,
+          "ok": true
+        },
+        "vacant": {
+          "label": "Boş arsa (yapı $0)",
+          "pts": 15,
+          "max": 15,
+          "ok": true
+        },
+        "mailable": {
+          "label": "Mailable sahip (adres var)",
+          "pts": 15,
+          "max": 15,
+          "ok": true
+        },
+        "absentee": {
+          "label": "Absentee (uzakta sahip)",
+          "pts": 10,
+          "max": 10,
+          "ok": true
+        },
+        "estate": {
+          "label": "Miras / estate (motive)",
+          "pts": 0,
+          "max": 10,
+          "ok": false
+        },
+        "lowDebt": {
+          "label": "Düşük borç (≤$10k)",
+          "pts": 0,
+          "max": 10,
+          "ok": false
+        }
+      }
     },
     {
       "id": "214aea64-985f-faeb-1c39-e5a5d9bf802e",
@@ -208,375 +1304,112 @@
       "grade": "C",
       "acquireLow": 13766,
       "acquireHigh": 11799,
-      "apn": "0975910000031"
+      "apn": "0975910000031",
+      "absentee": true,
+      "estate": false,
+      "score": 52,
+      "factors": {
+        "spread": {
+          "label": "Spread %33",
+          "pts": 12,
+          "max": 40,
+          "ok": true
+        },
+        "vacant": {
+          "label": "Boş arsa (yapı $0)",
+          "pts": 15,
+          "max": 15,
+          "ok": true
+        },
+        "mailable": {
+          "label": "Mailable sahip (adres var)",
+          "pts": 15,
+          "max": 15,
+          "ok": true
+        },
+        "absentee": {
+          "label": "Absentee (uzakta sahip)",
+          "pts": 10,
+          "max": 10,
+          "ok": true
+        },
+        "estate": {
+          "label": "Miras / estate (motive)",
+          "pts": 0,
+          "max": 10,
+          "ok": false
+        },
+        "lowDebt": {
+          "label": "Düşük borç (≤$10k)",
+          "pts": 0,
+          "max": 10,
+          "ok": false
+        }
+      }
     },
     {
-      "id": "27e1e914-7940-35e0-a2bf-4e5abdd40d56",
-      "owner": "EAST RIVER DEV CO",
-      "mailAddr": "1300 WOODCREST DR, HOUSTON, TX, 77018-5254",
-      "property": "0 RIVERSIDE DR, HUFFMAN, TX, 77357",
+      "id": "783c1aa7-4909-7037-e5f2-994c33386343",
+      "owner": "WILLIAMS ESTHER B",
+      "mailAddr": "5130 CHENNAULT RD, HOUSTON, TX, 77033-2629",
+      "property": "0 SUMMER ST, HOUSTON, TX, 77007",
       "county": "HARRIS COUNTY",
       "state": "TX",
-      "taxDebt": 9800,
-      "mapUrl": "https://www.google.com/maps/search/?api=1&query=0%20RIVERSIDE%20DR%2C%20HUFFMAN%2C%20TX%2C%2077357%2C%20HARRIS%20COUNTY%2C%20TX",
-      "acres": 0.225,
-      "sqft": 9801,
-      "landValue": 14700,
-      "marketValue": 14700,
+      "taxDebt": 300000,
+      "mapUrl": "https://www.google.com/maps/search/?api=1&query=0%20SUMMER%20ST%2C%20HOUSTON%2C%20TX%2C%2077007%2C%20HARRIS%20COUNTY%2C%20TX",
+      "acres": 0.115,
+      "sqft": 5001,
+      "landValue": 325000,
+      "marketValue": 325000,
       "vacant": true,
       "landUse": "1000",
-      "spread": 4900,
-      "spreadPct": 33,
+      "spread": 25000,
+      "spreadPct": 8,
       "noDeal": false,
       "grade": "C",
-      "acquireLow": 10290,
-      "acquireHigh": 8820,
-      "apn": "0975910000032"
-    },
-    {
-      "id": "919bddc5-0a82-5eac-469b-4f0410bf5ffc",
-      "owner": "MCLEAN W 0 BECKMAN",
-      "mailAddr": "PO BOX 146, NEW CANEY, TX, 77357-0146",
-      "property": "0 BROOKSIDE LN, NEW CANEY, TX, 77357",
-      "county": "HARRIS COUNTY",
-      "state": "TX",
-      "taxDebt": 9600,
-      "mapUrl": "https://www.google.com/maps/search/?api=1&query=0%20BROOKSIDE%20LN%2C%20NEW%20CANEY%2C%20TX%2C%2077357%2C%20HARRIS%20COUNTY%2C%20TX",
-      "acres": 0.22,
-      "sqft": 9601,
-      "landValue": 14400,
-      "marketValue": 14400,
-      "vacant": true,
-      "landUse": "1000",
-      "spread": 4800,
-      "spreadPct": 33,
-      "noDeal": false,
-      "grade": "C",
-      "acquireLow": 10080,
-      "acquireHigh": 8640,
-      "apn": "0975950000015"
-    },
-    {
-      "id": "1c0b8e8b-1386-2014-2633-99f8dc52c465",
-      "owner": "EAST RIVER DEV CO",
-      "mailAddr": "1300 WOODCREST DR, HOUSTON, TX, 77018-5254",
-      "property": "0 RIVERSIDE DR, HUFFMAN, TX, 77357",
-      "county": "HARRIS COUNTY",
-      "state": "TX",
-      "taxDebt": 9120,
-      "mapUrl": "https://www.google.com/maps/search/?api=1&query=0%20RIVERSIDE%20DR%2C%20HUFFMAN%2C%20TX%2C%2077357%2C%20HARRIS%20COUNTY%2C%20TX",
-      "acres": 0.209,
-      "sqft": 9121,
-      "landValue": 13680,
-      "marketValue": 13680,
-      "vacant": true,
-      "landUse": "1000",
-      "spread": 4560,
-      "spreadPct": 33,
-      "noDeal": false,
-      "grade": "C",
-      "acquireLow": 9576,
-      "acquireHigh": 8208,
-      "apn": "0975920000001"
-    },
-    {
-      "id": "2ce679cd-3171-18d2-97cd-c23c164e9311",
-      "owner": "MCLEAN W 0 BECKMAN",
-      "mailAddr": "PO BOX 146, NEW CANEY, TX, 77357-0146",
-      "property": "0 RIVERSIDE ST, HUFFMAN, TX, 77357",
-      "county": "HARRIS COUNTY",
-      "state": "TX",
-      "taxDebt": 9000,
-      "mapUrl": "https://www.google.com/maps/search/?api=1&query=0%20RIVERSIDE%20ST%2C%20HUFFMAN%2C%20TX%2C%2077357%2C%20HARRIS%20COUNTY%2C%20TX",
-      "acres": 0.207,
-      "sqft": 8999,
-      "landValue": 13500,
-      "marketValue": 13500,
-      "vacant": true,
-      "landUse": "1000",
-      "spread": 4500,
-      "spreadPct": 33,
-      "noDeal": false,
-      "grade": "C",
-      "acquireLow": 9450,
-      "acquireHigh": 8100,
-      "apn": "0975950000005"
-    },
-    {
-      "id": "aea87b85-c170-820f-daf1-0fb43249044f",
-      "owner": "STETTNER I T",
-      "mailAddr": "9423 FAIRDALE LN, HOUSTON, TX, 77063-3911",
-      "property": "0 W HARDY RD, HOUSTON, TX, 77022",
-      "county": "HARRIS COUNTY",
-      "state": "TX",
-      "taxDebt": 3143,
-      "mapUrl": "https://www.google.com/maps/search/?api=1&query=0%20W%20HARDY%20RD%2C%20HOUSTON%2C%20TX%2C%2077022%2C%20HARRIS%20COUNTY%2C%20TX",
-      "acres": 0.01,
-      "sqft": 449,
-      "landValue": 7495,
-      "marketValue": 7495,
-      "vacant": true,
-      "landUse": "1000",
-      "spread": 4352,
-      "spreadPct": 58,
-      "noDeal": false,
-      "grade": "B",
-      "acquireLow": 3300,
-      "acquireHigh": 4400,
-      "apn": "0701180080061"
-    },
-    {
-      "id": "e735b3d2-b363-ce2b-1090-16eba7166776",
-      "owner": "EAST RIVER DEV CO",
-      "mailAddr": "1300 WOODCREST DR, HOUSTON, TX, 77018-5254",
-      "property": "0 RIVERSIDE ST, HUFFMAN, TX, 77357",
-      "county": "HARRIS COUNTY",
-      "state": "TX",
-      "taxDebt": 7425,
-      "mapUrl": "https://www.google.com/maps/search/?api=1&query=0%20RIVERSIDE%20ST%2C%20HUFFMAN%2C%20TX%2C%2077357%2C%20HARRIS%20COUNTY%2C%20TX",
-      "acres": 0.171,
-      "sqft": 7427,
-      "landValue": 11138,
-      "marketValue": 11138,
-      "vacant": true,
-      "landUse": "1000",
-      "spread": 3713,
-      "spreadPct": 33,
-      "noDeal": false,
-      "grade": "C",
-      "acquireLow": 7796,
-      "acquireHigh": 6683,
-      "apn": "0975920000002"
-    },
-    {
-      "id": "c89420f0-4fca-726d-3550-185d0133bdad",
-      "owner": "EAST RIVER DEV CO",
-      "mailAddr": "1300 WOODCREST DR, HOUSTON, TX, 77018-5254",
-      "property": "0 RIVERSIDE ST, HUFFMAN, TX, 77357",
-      "county": "HARRIS COUNTY",
-      "state": "TX",
-      "taxDebt": 6501,
-      "mapUrl": "https://www.google.com/maps/search/?api=1&query=0%20RIVERSIDE%20ST%2C%20HUFFMAN%2C%20TX%2C%2077357%2C%20HARRIS%20COUNTY%2C%20TX",
-      "acres": 0.149,
-      "sqft": 6499,
-      "landValue": 9752,
-      "marketValue": 9752,
-      "vacant": true,
-      "landUse": "1000",
-      "spread": 3251,
-      "spreadPct": 33,
-      "noDeal": false,
-      "grade": "C",
-      "acquireLow": 6826,
-      "acquireHigh": 5851,
-      "apn": "0975920000004"
-    },
-    {
-      "id": "bf317ee1-324c-d4cb-c5b3-5786996cbfa2",
-      "owner": "EAST RIVER DEV CO",
-      "mailAddr": "1300 WOODCREST DR, HOUSTON, TX, 77018-5254",
-      "property": "0 RIVERSIDE ST, HUFFMAN, TX, 77357",
-      "county": "HARRIS COUNTY",
-      "state": "TX",
-      "taxDebt": 6342,
-      "mapUrl": "https://www.google.com/maps/search/?api=1&query=0%20RIVERSIDE%20ST%2C%20HUFFMAN%2C%20TX%2C%2077357%2C%20HARRIS%20COUNTY%2C%20TX",
-      "acres": 0.146,
-      "sqft": 6342,
-      "landValue": 9513,
-      "marketValue": 9513,
-      "vacant": true,
-      "landUse": "1000",
-      "spread": 3171,
-      "spreadPct": 33,
-      "noDeal": false,
-      "grade": "C",
-      "acquireLow": 6659,
-      "acquireHigh": 5708,
-      "apn": "0975920000005"
-    },
-    {
-      "id": "463ccf1b-4352-f7f7-3511-0af1dc17366c",
-      "owner": "EAST RIVER DEV CO",
-      "mailAddr": "1300 WOODCREST DR, HOUSTON, TX, 77018-5254",
-      "property": "0 RIVERSIDE DR, HUFFMAN, TX, 77357",
-      "county": "HARRIS COUNTY",
-      "state": "TX",
-      "taxDebt": 3600,
-      "mapUrl": "https://www.google.com/maps/search/?api=1&query=0%20RIVERSIDE%20DR%2C%20HUFFMAN%2C%20TX%2C%2077357%2C%20HARRIS%20COUNTY%2C%20TX",
-      "acres": 0.103,
-      "sqft": 4500,
-      "landValue": 6750,
-      "marketValue": 6750,
-      "vacant": true,
-      "landUse": "1000",
-      "spread": 3150,
-      "spreadPct": 47,
-      "noDeal": false,
-      "grade": "B",
-      "acquireLow": 3780,
-      "acquireHigh": 4050,
-      "apn": "0975910000034"
-    },
-    {
-      "id": "d306e343-c33a-b8e7-04cf-bc6960336c4f",
-      "owner": "EAST RIVER DEV CO",
-      "mailAddr": "1300 WOODCREST DR, HOUSTON, TX, 77018-5254",
-      "property": "0 RIVERSIDE DR, HUFFMAN, TX, 77357",
-      "county": "HARRIS COUNTY",
-      "state": "TX",
-      "taxDebt": 5950,
-      "mapUrl": "https://www.google.com/maps/search/?api=1&query=0%20RIVERSIDE%20DR%2C%20HUFFMAN%2C%20TX%2C%2077357%2C%20HARRIS%20COUNTY%2C%20TX",
-      "acres": 0.137,
-      "sqft": 5950,
-      "landValue": 8925,
-      "marketValue": 8925,
-      "vacant": true,
-      "landUse": "1000",
-      "spread": 2975,
-      "spreadPct": 33,
-      "noDeal": false,
-      "grade": "C",
-      "acquireLow": 6248,
-      "acquireHigh": 5355,
-      "apn": "0975910000036"
-    },
-    {
-      "id": "fc307591-359c-bb74-45c9-d9c61580801f",
-      "owner": "EAST RIVER DEV CO",
-      "mailAddr": "1300 WOODCREST DR, HOUSTON, TX, 77018-5254",
-      "property": "0 RIVERSIDE ST, HUFFMAN, TX, 77357",
-      "county": "HARRIS COUNTY",
-      "state": "TX",
-      "taxDebt": 3200,
-      "mapUrl": "https://www.google.com/maps/search/?api=1&query=0%20RIVERSIDE%20ST%2C%20HUFFMAN%2C%20TX%2C%2077357%2C%20HARRIS%20COUNTY%2C%20TX",
-      "acres": 0.092,
-      "sqft": 3999,
-      "landValue": 6000,
-      "marketValue": 6000,
-      "vacant": true,
-      "landUse": "1000",
-      "spread": 2800,
-      "spreadPct": 47,
-      "noDeal": false,
-      "grade": "B",
-      "acquireLow": 3360,
-      "acquireHigh": 3600,
-      "apn": "0975920000003"
-    },
-    {
-      "id": "f835c6c7-7749-8a68-5508-d2fe49d8f64e",
-      "owner": "EAST RIVER DEV CO",
-      "mailAddr": "1300 WOODCREST DR, HOUSTON, TX, 77018-5254",
-      "property": "0 RIVERSIDE DR, HUFFMAN, TX, 77357",
-      "county": "HARRIS COUNTY",
-      "state": "TX",
-      "taxDebt": 5591,
-      "mapUrl": "https://www.google.com/maps/search/?api=1&query=0%20RIVERSIDE%20DR%2C%20HUFFMAN%2C%20TX%2C%2077357%2C%20HARRIS%20COUNTY%2C%20TX",
-      "acres": 0.128,
-      "sqft": 5593,
-      "landValue": 8387,
-      "marketValue": 8387,
-      "vacant": true,
-      "landUse": "1000",
-      "spread": 2796,
-      "spreadPct": 33,
-      "noDeal": false,
-      "grade": "C",
-      "acquireLow": 5871,
-      "acquireHigh": 5032,
-      "apn": "0975910000033"
-    },
-    {
-      "id": "b7f595f8-9fe3-32bf-e155-f0bc6393c5ca",
-      "owner": "EAST RIVER DEV CO",
-      "mailAddr": "1300 WOODCREST DR, HOUSTON, TX, 77018-5254",
-      "property": "0 RIVERSIDE DR, HUFFMAN, TX, 77357",
-      "county": "HARRIS COUNTY",
-      "state": "TX",
-      "taxDebt": 2680,
-      "mapUrl": "https://www.google.com/maps/search/?api=1&query=0%20RIVERSIDE%20DR%2C%20HUFFMAN%2C%20TX%2C%2077357%2C%20HARRIS%20COUNTY%2C%20TX",
-      "acres": 0.077,
-      "sqft": 3350,
-      "landValue": 5025,
-      "marketValue": 5025,
-      "vacant": true,
-      "landUse": "1000",
-      "spread": 2345,
-      "spreadPct": 47,
-      "noDeal": false,
-      "grade": "B",
-      "acquireLow": 2814,
-      "acquireHigh": 3015,
-      "apn": "0975910000035"
-    },
-    {
-      "id": "7828613d-9646-5339-0b08-02915a247f54",
-      "owner": "PINELAKES LIMITED PTNRSHP",
-      "mailAddr": "14300 CORNERSTONE VILLAGE DR STE 116, HOUSTON, TX, 77014-1245",
-      "property": "0 ALVIN A KLEIN, SPRING, TX, 77379",
-      "county": "HARRIS COUNTY",
-      "state": "TX",
-      "taxDebt": 100490,
-      "mapUrl": "https://www.google.com/maps/search/?api=1&query=0%20ALVIN%20A%20KLEIN%2C%20SPRING%2C%20TX%2C%2077379%2C%20HARRIS%20COUNTY%2C%20TX",
-      "acres": 0.49,
-      "sqft": 21344,
-      "landValue": 90178,
-      "marketValue": 100518,
-      "vacant": true,
-      "landUse": "8005",
-      "spread": -10312,
-      "spreadPct": -11,
-      "noDeal": false,
-      "grade": "—",
-      "acquireLow": 105515,
-      "acquireHigh": 54107,
-      "apn": "0421430000106"
-    },
-    {
-      "id": "d52eb5b2-17cd-91c9-f997-38161de3f0a1",
-      "owner": "SAUCEDO MARGARITO",
-      "mailAddr": "30903 COCO ST, CYPRESS, TX, 77433-4901",
-      "property": "0 AVENUE E, HOUSTON, TX, 77012",
-      "county": "HARRIS COUNTY",
-      "state": "TX",
-      "taxDebt": 123475,
-      "mapUrl": "https://www.google.com/maps/search/?api=1&query=0%20AVENUE%20E%2C%20HOUSTON%2C%20TX%2C%2077012%2C%20HARRIS%20COUNTY%2C%20TX",
-      "acres": 0.172,
-      "sqft": 7501,
-      "landValue": 112500,
-      "marketValue": 123152,
-      "vacant": true,
-      "landUse": "8003",
-      "spread": -10975,
-      "spreadPct": -10,
-      "noDeal": false,
-      "grade": "—",
-      "acquireLow": 129649,
-      "acquireHigh": 67500,
-      "apn": "0251150000036"
-    },
-    {
-      "id": "2ef02d2a-dfc3-d0e2-0519-795db8f57ba6",
-      "owner": "GILLESPIE LAWRENCE S ET AL",
-      "mailAddr": "1617 MISSOURI ST, HOUSTON, TX, 77006-2527",
-      "property": "0 LOCKWOOD ST, HOUSTON, TX, 77011",
-      "county": "HARRIS COUNTY",
-      "state": "TX",
-      "taxDebt": 24500,
-      "mapUrl": "https://www.google.com/maps/search/?api=1&query=0%20LOCKWOOD%20ST%2C%20HOUSTON%2C%20TX%2C%2077011%2C%20HARRIS%20COUNTY%2C%20TX",
-      "acres": 0.106,
-      "sqft": 4600,
-      "landValue": 2070,
-      "marketValue": 2070,
-      "vacant": true,
-      "landUse": "1000",
-      "spread": -22430,
-      "spreadPct": -1084,
-      "noDeal": false,
-      "grade": "—",
-      "acquireLow": 25725,
-      "acquireHigh": 1242,
-      "apn": "0280440000007"
+      "acquireLow": 315000,
+      "acquireHigh": 195000,
+      "apn": "0050830000012",
+      "absentee": true,
+      "estate": false,
+      "score": 45,
+      "factors": {
+        "spread": {
+          "label": "Spread %8",
+          "pts": 5,
+          "max": 40,
+          "ok": true
+        },
+        "vacant": {
+          "label": "Boş arsa (yapı $0)",
+          "pts": 15,
+          "max": 15,
+          "ok": true
+        },
+        "mailable": {
+          "label": "Mailable sahip (adres var)",
+          "pts": 15,
+          "max": 15,
+          "ok": true
+        },
+        "absentee": {
+          "label": "Absentee (uzakta sahip)",
+          "pts": 10,
+          "max": 10,
+          "ok": true
+        },
+        "estate": {
+          "label": "Miras / estate (motive)",
+          "pts": 0,
+          "max": 10,
+          "ok": false
+        },
+        "lowDebt": {
+          "label": "Düşük borç (≤$10k)",
+          "pts": 0,
+          "max": 10,
+          "ok": false
+        }
+      }
     },
     {
       "id": "fc444ace-802e-8f67-d467-e2c4c2f153cb",
@@ -596,10 +1429,51 @@
       "spread": 0,
       "spreadPct": 0,
       "noDeal": true,
-      "grade": "—",
+      "grade": "D",
       "acquireLow": 11081,
       "acquireHigh": 6332,
-      "apn": "0321070190019"
+      "apn": "0321070190019",
+      "absentee": true,
+      "estate": false,
+      "score": 40,
+      "factors": {
+        "spread": {
+          "label": "Spread %0",
+          "pts": 0,
+          "max": 40,
+          "ok": false
+        },
+        "vacant": {
+          "label": "Boş arsa (yapı $0)",
+          "pts": 15,
+          "max": 15,
+          "ok": true
+        },
+        "mailable": {
+          "label": "Mailable sahip (adres var)",
+          "pts": 15,
+          "max": 15,
+          "ok": true
+        },
+        "absentee": {
+          "label": "Absentee (uzakta sahip)",
+          "pts": 10,
+          "max": 10,
+          "ok": true
+        },
+        "estate": {
+          "label": "Miras / estate (motive)",
+          "pts": 0,
+          "max": 10,
+          "ok": false
+        },
+        "lowDebt": {
+          "label": "Düşük borç (≤$10k)",
+          "pts": 0,
+          "max": 10,
+          "ok": false
+        }
+      }
     },
     {
       "id": "65c00ae9-71ea-db29-5e39-27c20b08d670",
@@ -619,10 +1493,51 @@
       "spread": 0,
       "spreadPct": 0,
       "noDeal": true,
-      "grade": "—",
+      "grade": "D",
       "acquireLow": 28586,
       "acquireHigh": 16335,
-      "apn": "0441560000041"
+      "apn": "0441560000041",
+      "absentee": true,
+      "estate": false,
+      "score": 40,
+      "factors": {
+        "spread": {
+          "label": "Spread %0",
+          "pts": 0,
+          "max": 40,
+          "ok": false
+        },
+        "vacant": {
+          "label": "Boş arsa (yapı $0)",
+          "pts": 15,
+          "max": 15,
+          "ok": true
+        },
+        "mailable": {
+          "label": "Mailable sahip (adres var)",
+          "pts": 15,
+          "max": 15,
+          "ok": true
+        },
+        "absentee": {
+          "label": "Absentee (uzakta sahip)",
+          "pts": 10,
+          "max": 10,
+          "ok": true
+        },
+        "estate": {
+          "label": "Miras / estate (motive)",
+          "pts": 0,
+          "max": 10,
+          "ok": false
+        },
+        "lowDebt": {
+          "label": "Düşük borç (≤$10k)",
+          "pts": 0,
+          "max": 10,
+          "ok": false
+        }
+      }
     },
     {
       "id": "f28338f5-a67e-a72d-53b3-f04a27c95d2b",
@@ -642,10 +1557,51 @@
       "spread": 0,
       "spreadPct": 0,
       "noDeal": true,
-      "grade": "—",
+      "grade": "D",
       "acquireLow": 28881,
       "acquireHigh": 16504,
-      "apn": "0122630000004"
+      "apn": "0122630000004",
+      "absentee": true,
+      "estate": false,
+      "score": 40,
+      "factors": {
+        "spread": {
+          "label": "Spread %0",
+          "pts": 0,
+          "max": 40,
+          "ok": false
+        },
+        "vacant": {
+          "label": "Boş arsa (yapı $0)",
+          "pts": 15,
+          "max": 15,
+          "ok": true
+        },
+        "mailable": {
+          "label": "Mailable sahip (adres var)",
+          "pts": 15,
+          "max": 15,
+          "ok": true
+        },
+        "absentee": {
+          "label": "Absentee (uzakta sahip)",
+          "pts": 10,
+          "max": 10,
+          "ok": true
+        },
+        "estate": {
+          "label": "Miras / estate (motive)",
+          "pts": 0,
+          "max": 10,
+          "ok": false
+        },
+        "lowDebt": {
+          "label": "Düşük borç (≤$10k)",
+          "pts": 0,
+          "max": 10,
+          "ok": false
+        }
+      }
     },
     {
       "id": "747fb9d4-8d65-0e33-b4a2-75cb67da706a",
@@ -665,10 +1621,51 @@
       "spread": 0,
       "spreadPct": 0,
       "noDeal": true,
-      "grade": "—",
+      "grade": "D",
       "acquireLow": 32611,
       "acquireHigh": 18635,
-      "apn": "0402100000231"
+      "apn": "0402100000231",
+      "absentee": true,
+      "estate": false,
+      "score": 40,
+      "factors": {
+        "spread": {
+          "label": "Spread %0",
+          "pts": 0,
+          "max": 40,
+          "ok": false
+        },
+        "vacant": {
+          "label": "Boş arsa (yapı $0)",
+          "pts": 15,
+          "max": 15,
+          "ok": true
+        },
+        "mailable": {
+          "label": "Mailable sahip (adres var)",
+          "pts": 15,
+          "max": 15,
+          "ok": true
+        },
+        "absentee": {
+          "label": "Absentee (uzakta sahip)",
+          "pts": 10,
+          "max": 10,
+          "ok": true
+        },
+        "estate": {
+          "label": "Miras / estate (motive)",
+          "pts": 0,
+          "max": 10,
+          "ok": false
+        },
+        "lowDebt": {
+          "label": "Düşük borç (≤$10k)",
+          "pts": 0,
+          "max": 10,
+          "ok": false
+        }
+      }
     },
     {
       "id": "603f3747-d2cd-2f4a-9404-ae46989fab61",
@@ -688,10 +1685,51 @@
       "spread": 0,
       "spreadPct": 0,
       "noDeal": true,
-      "grade": "—",
+      "grade": "D",
       "acquireLow": 33075,
       "acquireHigh": 18900,
-      "apn": "1167950050008"
+      "apn": "1167950050008",
+      "absentee": true,
+      "estate": false,
+      "score": 40,
+      "factors": {
+        "spread": {
+          "label": "Spread %0",
+          "pts": 0,
+          "max": 40,
+          "ok": false
+        },
+        "vacant": {
+          "label": "Boş arsa (yapı $0)",
+          "pts": 15,
+          "max": 15,
+          "ok": true
+        },
+        "mailable": {
+          "label": "Mailable sahip (adres var)",
+          "pts": 15,
+          "max": 15,
+          "ok": true
+        },
+        "absentee": {
+          "label": "Absentee (uzakta sahip)",
+          "pts": 10,
+          "max": 10,
+          "ok": true
+        },
+        "estate": {
+          "label": "Miras / estate (motive)",
+          "pts": 0,
+          "max": 10,
+          "ok": false
+        },
+        "lowDebt": {
+          "label": "Düşük borç (≤$10k)",
+          "pts": 0,
+          "max": 10,
+          "ok": false
+        }
+      }
     },
     {
       "id": "87534f90-c287-1ba8-79da-8d3652e842a6",
@@ -711,10 +1749,51 @@
       "spread": 0,
       "spreadPct": 0,
       "noDeal": true,
-      "grade": "—",
+      "grade": "D",
       "acquireLow": 42613,
       "acquireHigh": 24350,
-      "apn": "0571120000001"
+      "apn": "0571120000001",
+      "absentee": true,
+      "estate": false,
+      "score": 40,
+      "factors": {
+        "spread": {
+          "label": "Spread %0",
+          "pts": 0,
+          "max": 40,
+          "ok": false
+        },
+        "vacant": {
+          "label": "Boş arsa (yapı $0)",
+          "pts": 15,
+          "max": 15,
+          "ok": true
+        },
+        "mailable": {
+          "label": "Mailable sahip (adres var)",
+          "pts": 15,
+          "max": 15,
+          "ok": true
+        },
+        "absentee": {
+          "label": "Absentee (uzakta sahip)",
+          "pts": 10,
+          "max": 10,
+          "ok": true
+        },
+        "estate": {
+          "label": "Miras / estate (motive)",
+          "pts": 0,
+          "max": 10,
+          "ok": false
+        },
+        "lowDebt": {
+          "label": "Düşük borç (≤$10k)",
+          "pts": 0,
+          "max": 10,
+          "ok": false
+        }
+      }
     },
     {
       "id": "f4e79a86-13cf-ab7b-8907-5ca6f0abcf39",
@@ -734,10 +1813,51 @@
       "spread": 0,
       "spreadPct": 0,
       "noDeal": true,
-      "grade": "—",
+      "grade": "D",
       "acquireLow": 63000,
       "acquireHigh": 36000,
-      "apn": "0162670050026"
+      "apn": "0162670050026",
+      "absentee": true,
+      "estate": false,
+      "score": 40,
+      "factors": {
+        "spread": {
+          "label": "Spread %0",
+          "pts": 0,
+          "max": 40,
+          "ok": false
+        },
+        "vacant": {
+          "label": "Boş arsa (yapı $0)",
+          "pts": 15,
+          "max": 15,
+          "ok": true
+        },
+        "mailable": {
+          "label": "Mailable sahip (adres var)",
+          "pts": 15,
+          "max": 15,
+          "ok": true
+        },
+        "absentee": {
+          "label": "Absentee (uzakta sahip)",
+          "pts": 10,
+          "max": 10,
+          "ok": true
+        },
+        "estate": {
+          "label": "Miras / estate (motive)",
+          "pts": 0,
+          "max": 10,
+          "ok": false
+        },
+        "lowDebt": {
+          "label": "Düşük borç (≤$10k)",
+          "pts": 0,
+          "max": 10,
+          "ok": false
+        }
+      }
     },
     {
       "id": "c9cf2ff5-f418-c64f-ae8e-1159a0ec0292",
@@ -757,10 +1877,51 @@
       "spread": 0,
       "spreadPct": 0,
       "noDeal": true,
-      "grade": "—",
+      "grade": "D",
       "acquireLow": 67721,
       "acquireHigh": 38698,
-      "apn": "0510150010012"
+      "apn": "0510150010012",
+      "absentee": true,
+      "estate": false,
+      "score": 40,
+      "factors": {
+        "spread": {
+          "label": "Spread %0",
+          "pts": 0,
+          "max": 40,
+          "ok": false
+        },
+        "vacant": {
+          "label": "Boş arsa (yapı $0)",
+          "pts": 15,
+          "max": 15,
+          "ok": true
+        },
+        "mailable": {
+          "label": "Mailable sahip (adres var)",
+          "pts": 15,
+          "max": 15,
+          "ok": true
+        },
+        "absentee": {
+          "label": "Absentee (uzakta sahip)",
+          "pts": 10,
+          "max": 10,
+          "ok": true
+        },
+        "estate": {
+          "label": "Miras / estate (motive)",
+          "pts": 0,
+          "max": 10,
+          "ok": false
+        },
+        "lowDebt": {
+          "label": "Düşük borç (≤$10k)",
+          "pts": 0,
+          "max": 10,
+          "ok": false
+        }
+      }
     },
     {
       "id": "4df33401-fe29-58c8-64cb-43e9ee9222c4",
@@ -780,10 +1941,51 @@
       "spread": 0,
       "spreadPct": 0,
       "noDeal": true,
-      "grade": "—",
+      "grade": "D",
       "acquireLow": 82118,
       "acquireHigh": 46925,
-      "apn": "0893230000164"
+      "apn": "0893230000164",
+      "absentee": true,
+      "estate": false,
+      "score": 40,
+      "factors": {
+        "spread": {
+          "label": "Spread %0",
+          "pts": 0,
+          "max": 40,
+          "ok": false
+        },
+        "vacant": {
+          "label": "Boş arsa (yapı $0)",
+          "pts": 15,
+          "max": 15,
+          "ok": true
+        },
+        "mailable": {
+          "label": "Mailable sahip (adres var)",
+          "pts": 15,
+          "max": 15,
+          "ok": true
+        },
+        "absentee": {
+          "label": "Absentee (uzakta sahip)",
+          "pts": 10,
+          "max": 10,
+          "ok": true
+        },
+        "estate": {
+          "label": "Miras / estate (motive)",
+          "pts": 0,
+          "max": 10,
+          "ok": false
+        },
+        "lowDebt": {
+          "label": "Düşük borç (≤$10k)",
+          "pts": 0,
+          "max": 10,
+          "ok": false
+        }
+      }
     },
     {
       "id": "c6126e9f-7db5-a90e-2676-5b470a0c7d8e",
@@ -803,10 +2005,51 @@
       "spread": 0,
       "spreadPct": 0,
       "noDeal": true,
-      "grade": "—",
+      "grade": "D",
       "acquireLow": 111584,
       "acquireHigh": 63762,
-      "apn": "0880060000009"
+      "apn": "0880060000009",
+      "absentee": true,
+      "estate": false,
+      "score": 40,
+      "factors": {
+        "spread": {
+          "label": "Spread %0",
+          "pts": 0,
+          "max": 40,
+          "ok": false
+        },
+        "vacant": {
+          "label": "Boş arsa (yapı $0)",
+          "pts": 15,
+          "max": 15,
+          "ok": true
+        },
+        "mailable": {
+          "label": "Mailable sahip (adres var)",
+          "pts": 15,
+          "max": 15,
+          "ok": true
+        },
+        "absentee": {
+          "label": "Absentee (uzakta sahip)",
+          "pts": 10,
+          "max": 10,
+          "ok": true
+        },
+        "estate": {
+          "label": "Miras / estate (motive)",
+          "pts": 0,
+          "max": 10,
+          "ok": false
+        },
+        "lowDebt": {
+          "label": "Düşük borç (≤$10k)",
+          "pts": 0,
+          "max": 10,
+          "ok": false
+        }
+      }
     },
     {
       "id": "6800fa8e-b48a-1b03-48a4-01047deb4d83",
@@ -826,10 +2069,51 @@
       "spread": 0,
       "spreadPct": 0,
       "noDeal": true,
-      "grade": "—",
+      "grade": "D",
       "acquireLow": 113437,
       "acquireHigh": 64821,
-      "apn": "0880060000008"
+      "apn": "0880060000008",
+      "absentee": true,
+      "estate": false,
+      "score": 40,
+      "factors": {
+        "spread": {
+          "label": "Spread %0",
+          "pts": 0,
+          "max": 40,
+          "ok": false
+        },
+        "vacant": {
+          "label": "Boş arsa (yapı $0)",
+          "pts": 15,
+          "max": 15,
+          "ok": true
+        },
+        "mailable": {
+          "label": "Mailable sahip (adres var)",
+          "pts": 15,
+          "max": 15,
+          "ok": true
+        },
+        "absentee": {
+          "label": "Absentee (uzakta sahip)",
+          "pts": 10,
+          "max": 10,
+          "ok": true
+        },
+        "estate": {
+          "label": "Miras / estate (motive)",
+          "pts": 0,
+          "max": 10,
+          "ok": false
+        },
+        "lowDebt": {
+          "label": "Düşük borç (≤$10k)",
+          "pts": 0,
+          "max": 10,
+          "ok": false
+        }
+      }
     },
     {
       "id": "6f1105a5-b8e4-8a16-0fb0-2c579d7b8272",
@@ -849,10 +2133,51 @@
       "spread": 0,
       "spreadPct": 0,
       "noDeal": true,
-      "grade": "—",
+      "grade": "D",
       "acquireLow": 114462,
       "acquireHigh": 65407,
-      "apn": "0571120000003"
+      "apn": "0571120000003",
+      "absentee": true,
+      "estate": false,
+      "score": 40,
+      "factors": {
+        "spread": {
+          "label": "Spread %0",
+          "pts": 0,
+          "max": 40,
+          "ok": false
+        },
+        "vacant": {
+          "label": "Boş arsa (yapı $0)",
+          "pts": 15,
+          "max": 15,
+          "ok": true
+        },
+        "mailable": {
+          "label": "Mailable sahip (adres var)",
+          "pts": 15,
+          "max": 15,
+          "ok": true
+        },
+        "absentee": {
+          "label": "Absentee (uzakta sahip)",
+          "pts": 10,
+          "max": 10,
+          "ok": true
+        },
+        "estate": {
+          "label": "Miras / estate (motive)",
+          "pts": 0,
+          "max": 10,
+          "ok": false
+        },
+        "lowDebt": {
+          "label": "Düşük borç (≤$10k)",
+          "pts": 0,
+          "max": 10,
+          "ok": false
+        }
+      }
     },
     {
       "id": "343197aa-df5a-8059-8cec-bf130222c9b0",
@@ -872,10 +2197,51 @@
       "spread": 0,
       "spreadPct": 0,
       "noDeal": true,
-      "grade": "—",
+      "grade": "D",
       "acquireLow": 115752,
       "acquireHigh": 66144,
-      "apn": "0410210010715"
+      "apn": "0410210010715",
+      "absentee": true,
+      "estate": false,
+      "score": 40,
+      "factors": {
+        "spread": {
+          "label": "Spread %0",
+          "pts": 0,
+          "max": 40,
+          "ok": false
+        },
+        "vacant": {
+          "label": "Boş arsa (yapı $0)",
+          "pts": 15,
+          "max": 15,
+          "ok": true
+        },
+        "mailable": {
+          "label": "Mailable sahip (adres var)",
+          "pts": 15,
+          "max": 15,
+          "ok": true
+        },
+        "absentee": {
+          "label": "Absentee (uzakta sahip)",
+          "pts": 10,
+          "max": 10,
+          "ok": true
+        },
+        "estate": {
+          "label": "Miras / estate (motive)",
+          "pts": 0,
+          "max": 10,
+          "ok": false
+        },
+        "lowDebt": {
+          "label": "Düşük borç (≤$10k)",
+          "pts": 0,
+          "max": 10,
+          "ok": false
+        }
+      }
     },
     {
       "id": "ae292548-ec1d-3136-ba71-ad6c9ee09946",
@@ -895,10 +2261,51 @@
       "spread": 0,
       "spreadPct": 0,
       "noDeal": true,
-      "grade": "—",
+      "grade": "D",
       "acquireLow": 138695,
       "acquireHigh": 79254,
-      "apn": "0771970030100"
+      "apn": "0771970030100",
+      "absentee": true,
+      "estate": false,
+      "score": 40,
+      "factors": {
+        "spread": {
+          "label": "Spread %0",
+          "pts": 0,
+          "max": 40,
+          "ok": false
+        },
+        "vacant": {
+          "label": "Boş arsa (yapı $0)",
+          "pts": 15,
+          "max": 15,
+          "ok": true
+        },
+        "mailable": {
+          "label": "Mailable sahip (adres var)",
+          "pts": 15,
+          "max": 15,
+          "ok": true
+        },
+        "absentee": {
+          "label": "Absentee (uzakta sahip)",
+          "pts": 10,
+          "max": 10,
+          "ok": true
+        },
+        "estate": {
+          "label": "Miras / estate (motive)",
+          "pts": 0,
+          "max": 10,
+          "ok": false
+        },
+        "lowDebt": {
+          "label": "Düşük borç (≤$10k)",
+          "pts": 0,
+          "max": 10,
+          "ok": false
+        }
+      }
     },
     {
       "id": "8677e5c5-b9b2-1b45-b6c9-d2cb4843f459",
@@ -918,13 +2325,274 @@
       "spread": 0,
       "spreadPct": 0,
       "noDeal": true,
-      "grade": "—",
+      "grade": "D",
       "acquireLow": 299154,
       "acquireHigh": 170945,
-      "apn": "0410400020011"
+      "apn": "0410400020011",
+      "absentee": true,
+      "estate": false,
+      "score": 40,
+      "factors": {
+        "spread": {
+          "label": "Spread %0",
+          "pts": 0,
+          "max": 40,
+          "ok": false
+        },
+        "vacant": {
+          "label": "Boş arsa (yapı $0)",
+          "pts": 15,
+          "max": 15,
+          "ok": true
+        },
+        "mailable": {
+          "label": "Mailable sahip (adres var)",
+          "pts": 15,
+          "max": 15,
+          "ok": true
+        },
+        "absentee": {
+          "label": "Absentee (uzakta sahip)",
+          "pts": 10,
+          "max": 10,
+          "ok": true
+        },
+        "estate": {
+          "label": "Miras / estate (motive)",
+          "pts": 0,
+          "max": 10,
+          "ok": false
+        },
+        "lowDebt": {
+          "label": "Düşük borç (≤$10k)",
+          "pts": 0,
+          "max": 10,
+          "ok": false
+        }
+      }
+    },
+    {
+      "id": "7828613d-9646-5339-0b08-02915a247f54",
+      "owner": "PINELAKES LIMITED PTNRSHP",
+      "mailAddr": "14300 CORNERSTONE VILLAGE DR STE 116, HOUSTON, TX, 77014-1245",
+      "property": "0 ALVIN A KLEIN, SPRING, TX, 77379",
+      "county": "HARRIS COUNTY",
+      "state": "TX",
+      "taxDebt": 100490,
+      "mapUrl": "https://www.google.com/maps/search/?api=1&query=0%20ALVIN%20A%20KLEIN%2C%20SPRING%2C%20TX%2C%2077379%2C%20HARRIS%20COUNTY%2C%20TX",
+      "acres": 0.49,
+      "sqft": 21344,
+      "landValue": 90178,
+      "marketValue": 100518,
+      "vacant": true,
+      "landUse": "8005",
+      "spread": -10312,
+      "spreadPct": -11,
+      "noDeal": true,
+      "grade": "D",
+      "acquireLow": 105515,
+      "acquireHigh": 54107,
+      "apn": "0421430000106",
+      "absentee": true,
+      "estate": false,
+      "score": 40,
+      "factors": {
+        "spread": {
+          "label": "Spread %-11",
+          "pts": 0,
+          "max": 40,
+          "ok": false
+        },
+        "vacant": {
+          "label": "Boş arsa (yapı $0)",
+          "pts": 15,
+          "max": 15,
+          "ok": true
+        },
+        "mailable": {
+          "label": "Mailable sahip (adres var)",
+          "pts": 15,
+          "max": 15,
+          "ok": true
+        },
+        "absentee": {
+          "label": "Absentee (uzakta sahip)",
+          "pts": 10,
+          "max": 10,
+          "ok": true
+        },
+        "estate": {
+          "label": "Miras / estate (motive)",
+          "pts": 0,
+          "max": 10,
+          "ok": false
+        },
+        "lowDebt": {
+          "label": "Düşük borç (≤$10k)",
+          "pts": 0,
+          "max": 10,
+          "ok": false
+        }
+      }
+    },
+    {
+      "id": "d52eb5b2-17cd-91c9-f997-38161de3f0a1",
+      "owner": "SAUCEDO MARGARITO",
+      "mailAddr": "30903 COCO ST, CYPRESS, TX, 77433-4901",
+      "property": "0 AVENUE E, HOUSTON, TX, 77012",
+      "county": "HARRIS COUNTY",
+      "state": "TX",
+      "taxDebt": 123475,
+      "mapUrl": "https://www.google.com/maps/search/?api=1&query=0%20AVENUE%20E%2C%20HOUSTON%2C%20TX%2C%2077012%2C%20HARRIS%20COUNTY%2C%20TX",
+      "acres": 0.172,
+      "sqft": 7501,
+      "landValue": 112500,
+      "marketValue": 123152,
+      "vacant": true,
+      "landUse": "8003",
+      "spread": -10975,
+      "spreadPct": -10,
+      "noDeal": true,
+      "grade": "D",
+      "acquireLow": 129649,
+      "acquireHigh": 67500,
+      "apn": "0251150000036",
+      "absentee": true,
+      "estate": false,
+      "score": 40,
+      "factors": {
+        "spread": {
+          "label": "Spread %-10",
+          "pts": 0,
+          "max": 40,
+          "ok": false
+        },
+        "vacant": {
+          "label": "Boş arsa (yapı $0)",
+          "pts": 15,
+          "max": 15,
+          "ok": true
+        },
+        "mailable": {
+          "label": "Mailable sahip (adres var)",
+          "pts": 15,
+          "max": 15,
+          "ok": true
+        },
+        "absentee": {
+          "label": "Absentee (uzakta sahip)",
+          "pts": 10,
+          "max": 10,
+          "ok": true
+        },
+        "estate": {
+          "label": "Miras / estate (motive)",
+          "pts": 0,
+          "max": 10,
+          "ok": false
+        },
+        "lowDebt": {
+          "label": "Düşük borç (≤$10k)",
+          "pts": 0,
+          "max": 10,
+          "ok": false
+        }
+      }
+    },
+    {
+      "id": "2ef02d2a-dfc3-d0e2-0519-795db8f57ba6",
+      "owner": "GILLESPIE LAWRENCE S ET AL",
+      "mailAddr": "1617 MISSOURI ST, HOUSTON, TX, 77006-2527",
+      "property": "0 LOCKWOOD ST, HOUSTON, TX, 77011",
+      "county": "HARRIS COUNTY",
+      "state": "TX",
+      "taxDebt": 24500,
+      "mapUrl": "https://www.google.com/maps/search/?api=1&query=0%20LOCKWOOD%20ST%2C%20HOUSTON%2C%20TX%2C%2077011%2C%20HARRIS%20COUNTY%2C%20TX",
+      "acres": 0.106,
+      "sqft": 4600,
+      "landValue": 2070,
+      "marketValue": 2070,
+      "vacant": true,
+      "landUse": "1000",
+      "spread": -22430,
+      "spreadPct": -1084,
+      "noDeal": true,
+      "grade": "D",
+      "acquireLow": 25725,
+      "acquireHigh": 1242,
+      "apn": "0280440000007",
+      "absentee": true,
+      "estate": false,
+      "score": 40,
+      "factors": {
+        "spread": {
+          "label": "Spread %-1084",
+          "pts": 0,
+          "max": 40,
+          "ok": false
+        },
+        "vacant": {
+          "label": "Boş arsa (yapı $0)",
+          "pts": 15,
+          "max": 15,
+          "ok": true
+        },
+        "mailable": {
+          "label": "Mailable sahip (adres var)",
+          "pts": 15,
+          "max": 15,
+          "ok": true
+        },
+        "absentee": {
+          "label": "Absentee (uzakta sahip)",
+          "pts": 10,
+          "max": 10,
+          "ok": true
+        },
+        "estate": {
+          "label": "Miras / estate (motive)",
+          "pts": 0,
+          "max": 10,
+          "ok": false
+        },
+        "lowDebt": {
+          "label": "Düşük borç (≤$10k)",
+          "pts": 0,
+          "max": 10,
+          "ok": false
+        }
+      }
     }
   ],
   "enrichedAt": "2026-06-21",
   "valueSource": "HCAD (Harris County Appraisal District) — APN ile, kamu/ücretsiz",
-  "gradeNote": "Kalite skoru spread% (değer-borç farkının değere oranı) ile hesaplanır — uydurma değil, gösterilen rakamdan türetilir. A: spread ≥%70, B: ≥%40, C: >0."
+  "gradeNote": "Kalite skoru spread% (değer-borç farkının değere oranı) ile hesaplanır — uydurma değil, gösterilen rakamdan türetilir. A: spread ≥%70, B: ≥%40, C: >0.",
+  "rubric": [
+    {
+      "k": "Spread % (değer−borç/değer)",
+      "max": 40,
+      "note": "≥70→40 · 40-69→25 · 20-39→12 · >0→5"
+    },
+    {
+      "k": "Boş arsa (HCAD yapı $0)",
+      "max": 15
+    },
+    {
+      "k": "Mailable sahip (posta adresi var)",
+      "max": 15
+    },
+    {
+      "k": "Absentee (posta≠parsel)",
+      "max": 10
+    },
+    {
+      "k": "Miras/estate",
+      "max": 10
+    },
+    {
+      "k": "Düşük borç ≤$10k",
+      "max": 10
+    }
+  ],
+  "gradeThresholds": "A ≥75 · B 55-74 · C 35-54 · D <35 (spread ≤0 → D)"
 }

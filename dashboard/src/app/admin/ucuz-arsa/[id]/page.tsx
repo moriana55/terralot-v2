@@ -18,6 +18,7 @@ interface Deal {
   taxDebt: number; mapUrl: string; apn?: string | null; acres?: number | null;
   landValue?: number | null; marketValue?: number | null; vacant?: boolean; landUse?: string | null;
   spread?: number; spreadPct?: number; grade?: string; noDeal?: boolean;
+  score?: number; factors?: Record<string, { label: string; pts: number; max: number; ok: boolean }>;
 }
 
 export function generateStaticParams() {
@@ -67,6 +68,26 @@ export default async function ArsaDegerlemePage({ params }: { params: Promise<{ 
           <div className="text-[11px] mt-1" style={{ color: "var(--muted)" }}>{(data as { gradeNote?: string }).gradeNote}</div>
         </div>
       </div>
+
+      {/* DERECELENDİRME KIRILIMI — neye dayanarak */}
+      {d.factors && (
+        <section className="rounded-xl border p-5 mb-4" style={{ borderColor: "var(--outline)", background: "var(--surface)" }}>
+          <div className="flex items-center gap-2 mb-3"><Calculator className="w-4 h-4" style={{ color: "#3b82f6" }} /><h2 className="font-bold text-sm">Derecelendirme Kırılımı — neden {d.grade}? ({d.score}/100)</h2></div>
+          <div className="space-y-2">
+            {Object.values(d.factors).map((f) => (
+              <div key={f.label} className="flex items-center gap-3 text-sm">
+                <span className="w-4 text-center">{f.ok ? "✅" : "⬜"}</span>
+                <span className="flex-1">{f.label}</span>
+                <span className="font-bold tabular-nums" style={{ color: f.pts > 0 ? "var(--primary,#16a34a)" : "var(--muted)" }}>{f.pts}/{f.max}p</span>
+              </div>
+            ))}
+          </div>
+          <div className="mt-3 pt-3 border-t flex items-center justify-between text-sm font-bold" style={{ borderColor: "var(--outline)" }}>
+            <span>TOPLAM</span><span style={{ color: gradeColor }}>{d.score}/100 → {d.grade}</span>
+          </div>
+          <p className="text-[11px] mt-2" style={{ color: "var(--muted)" }}>Her puan doğrulanabilir gerçek veriden. Utilities/imar veri olmadığı için puana KATILMIYOR (DD'de).</p>
+        </section>
+      )}
 
       {/* 1. DOĞRULANMIŞ */}
       <section className="rounded-xl border p-5 mb-4" style={{ borderColor: "var(--outline)", background: "var(--surface)" }}>

@@ -14,8 +14,10 @@ interface Deal {
   id: string; owner: string; mailAddr: string; property: string;
   county: string; state: string; taxDebt: number; mapUrl: string;
   acres?: number | null; landValue?: number | null; vacant?: boolean;
+  grade?: string; score?: number; spread?: number;
 }
 const acreStr = (a: number | null | undefined) => (a && a > 0 ? `${a.toFixed(2)} ac` : "—");
+const gradeC = (g?: string) => (g === "A" ? "#16a34a" : g === "B" ? "#eab308" : g === "C" ? "#f97316" : "#9ca3af");
 
 export default function UcuzArsaPage() {
   const deals = (data.deals as Deal[]) || [];
@@ -70,12 +72,31 @@ export default function UcuzArsaPage() {
         </div>
       )}
 
+      {/* DERECELENDİRME KRİTERLERİ — şeffaf rubrik */}
+      <div className="rounded-xl border p-5 mb-7" style={{ borderColor: "var(--outline)", background: "var(--surface)" }}>
+        <div className="text-[12px] font-bold uppercase tracking-wider mb-3" style={{ color: "var(--muted)" }}>Derecelendirme neye dayanıyor? (100 puan)</div>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-3">
+          {((data as { rubric?: { k: string; max: number; note?: string }[] }).rubric || []).map((r) => (
+            <div key={r.k} className="flex items-start justify-between gap-2 rounded-lg border px-3 py-2 text-xs" style={{ borderColor: "var(--outline)" }}>
+              <div><div className="font-medium">{r.k}</div>{r.note && <div className="text-[10px] mt-0.5" style={{ color: "var(--muted)" }}>{r.note}</div>}</div>
+              <span className="font-bold whitespace-nowrap" style={{ color: "var(--primary,#16a34a)" }}>{r.max}p</span>
+            </div>
+          ))}
+        </div>
+        <div className="flex flex-wrap gap-2 text-[11px]">
+          {[["A", "≥75"], ["B", "55-74"], ["C", "35-54"], ["D", "<35 / spread yok"]].map(([g, t]) => (
+            <span key={g} className="px-2.5 py-1 rounded-full font-bold" style={{ background: `${gradeC(g)}22`, color: gradeC(g) }}>{g}: {t}</span>
+          ))}
+        </div>
+        <p className="text-[11px] mt-3" style={{ color: "var(--muted)" }}>Tüm puanlar doğrulanabilir gerçek veriden (HCAD değeri, vergi borcu, boş arsa, sahip adresi). Utilities/imar henüz puana KATILMIYOR — veri yok, dürüstçe DD'de.</p>
+      </div>
+
       {/* tablo */}
       <div className="rounded-xl border overflow-x-auto" style={{ borderColor: "var(--outline)" }}>
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b" style={{ borderColor: "var(--outline)", background: "var(--surface)" }}>
-              {["#", "Sahip", "Posta Adresi (mektup buraya)", "Boş Arsa", "Dönüm", "Arsa Değeri", "Vergi Borcu", "Aksiyon"].map((h) => (
+              {["#", "Derece", "Sahip", "Posta Adresi (mektup buraya)", "Boş Arsa", "Dönüm", "Arsa Değeri", "Vergi Borcu", "Aksiyon"].map((h) => (
                 <th key={h} className="text-left px-4 py-3 text-xs font-bold uppercase tracking-widest whitespace-nowrap" style={{ color: "var(--muted)" }}>{h}</th>
               ))}
             </tr>
@@ -86,6 +107,10 @@ export default function UcuzArsaPage() {
               return (
                 <tr key={d.id} className="border-b align-top transition-colors hover:bg-white/[0.02]" style={{ borderColor: "var(--outline)" }}>
                   <td className="px-4 py-3 text-xs font-bold" style={{ color: "var(--muted)" }}>{i + 1}</td>
+                  <td className="px-4 py-3">
+                    <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg font-black text-sm" style={{ background: `${gradeC(d.grade)}22`, color: gradeC(d.grade) }}>{d.grade ?? "—"}</span>
+                    <span className="block text-[10px] mt-0.5 text-center" style={{ color: "var(--muted)" }}>{d.score ?? 0}p</span>
+                  </td>
                   <td className="px-4 py-3">
                     <div className="font-semibold whitespace-nowrap flex items-center gap-1.5">
                       {isTop && <Star className="w-3 h-3" style={{ color: "var(--primary, #16a34a)" }} />}{d.owner}
