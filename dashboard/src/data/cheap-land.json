@@ -65,7 +65,9 @@
           "max": 10,
           "ok": true
         }
-      }
+      },
+      "strateji": "AL-SAT",
+      "stratejiNot": "orta — flip ya da taksitle"
     },
     {
       "id": "aea87b85-c170-820f-daf1-0fb43249044f",
@@ -129,7 +131,9 @@
           "max": 10,
           "ok": true
         }
-      }
+      },
+      "strateji": "AL-SAT",
+      "stratejiNot": "ucuz — kapat, hızlı flip"
     },
     {
       "id": "463ccf1b-4352-f7f7-3511-0af1dc17366c",
@@ -193,7 +197,9 @@
           "max": 10,
           "ok": true
         }
-      }
+      },
+      "strateji": "AL-SAT",
+      "stratejiNot": "ucuz — kapat, hızlı flip"
     },
     {
       "id": "fc307591-359c-bb74-45c9-d9c61580801f",
@@ -257,7 +263,9 @@
           "max": 10,
           "ok": true
         }
-      }
+      },
+      "strateji": "AL-SAT",
+      "stratejiNot": "ucuz — kapat, hızlı flip"
     },
     {
       "id": "b7f595f8-9fe3-32bf-e155-f0bc6393c5ca",
@@ -321,7 +329,9 @@
           "max": 10,
           "ok": true
         }
-      }
+      },
+      "strateji": "AL-SAT",
+      "stratejiNot": "ucuz — kapat, hızlı flip"
     },
     {
       "id": "dbe50d50-83a4-09f7-7eac-630517004b42",
@@ -385,7 +395,9 @@
           "max": 10,
           "ok": false
         }
-      }
+      },
+      "strateji": "EMLAKÇI",
+      "stratejiNot": "pahalı — emlakçıya listele"
     },
     {
       "id": "2c6552a0-833f-ce04-2d83-ac743eae5dfa",
@@ -449,7 +461,9 @@
           "max": 10,
           "ok": false
         }
-      }
+      },
+      "strateji": "AL-SAT",
+      "stratejiNot": "orta — flip ya da taksitle"
     },
     {
       "id": "27e1e914-7940-35e0-a2bf-4e5abdd40d56",
@@ -513,7 +527,9 @@
           "max": 10,
           "ok": true
         }
-      }
+      },
+      "strateji": "AL-SAT",
+      "stratejiNot": "ucuz — kapat, hızlı flip"
     },
     {
       "id": "919bddc5-0a82-5eac-469b-4f0410bf5ffc",
@@ -577,7 +593,9 @@
           "max": 10,
           "ok": true
         }
-      }
+      },
+      "strateji": "AL-SAT",
+      "stratejiNot": "ucuz — kapat, hızlı flip"
     },
     {
       "id": "1c0b8e8b-1386-2014-2633-99f8dc52c465",
@@ -641,7 +659,9 @@
           "max": 10,
           "ok": true
         }
-      }
+      },
+      "strateji": "AL-SAT",
+      "stratejiNot": "ucuz — kapat, hızlı flip"
     },
     {
       "id": "2ce679cd-3171-18d2-97cd-c23c164e9311",
@@ -705,7 +725,9 @@
           "max": 10,
           "ok": true
         }
-      }
+      },
+      "strateji": "AL-SAT",
+      "stratejiNot": "ucuz — kapat, hızlı flip"
     },
     {
       "id": "e735b3d2-b363-ce2b-1090-16eba7166776",
@@ -769,7 +791,9 @@
           "max": 10,
           "ok": true
         }
-      }
+      },
+      "strateji": "AL-SAT",
+      "stratejiNot": "ucuz — kapat, hızlı flip"
     },
     {
       "id": "c89420f0-4fca-726d-3550-185d0133bdad",
@@ -833,7 +857,9 @@
           "max": 10,
           "ok": true
         }
-      }
+      },
+      "strateji": "AL-SAT",
+      "stratejiNot": "ucuz — kapat, hızlı flip"
     },
     {
       "id": "bf317ee1-324c-d4cb-c5b3-5786996cbfa2",
@@ -897,7 +923,9 @@
           "max": 10,
           "ok": true
         }
-      }
+      },
+      "strateji": "AL-SAT",
+      "stratejiNot": "ucuz — kapat, hızlı flip"
     },
     {
       "id": "d306e343-c33a-b8e7-04cf-bc6960336c4f",
@@ -961,7 +989,9 @@
           "max": 10,
           "ok": true
         }
-      }
+      },
+      "strateji": "AL-SAT",
+      "stratejiNot": "ucuz — kapat, hızlı flip"
     },
     {
       "id": "f835c6c7-7749-8a68-5508-d2fe49d8f64e",
@@ -1025,7 +1055,9 @@
           "max": 10,
           "ok": true
         }
-      }
+      },
+      "strateji": "AL-SAT",
+      "stratejiNot": "ucuz — kapat, hızlı flip"
     },
     {
       "id": "4d6c6d6a-25a8-ff12-51b1-0d642a492d49",
@@ -1089,7 +1121,9 @@
           "max": 10,
           "ok": false
         }
-      }
+      },
+      "strateji": "AL-SAT",
+      "stratejiNot": "orta — flip ya da taksitle"
     },
     {
       "id": "ae37f262-eb26-8b79-6204-d51362d59ce8",
@@ -1153,7 +1187,9 @@
           "max": 10,
           "ok": false
         }
-      }
+      },
+      "strateji": "AL-SAT",
+      "stratejiNot": "orta — flip ya da taksitle"
     },
     {
       "id": "eba47935-eee9-f7b7-1a9f-b021b8efe805",
@@ -1217,7 +1253,9 @@
           "max": 10,
           "ok": false
         }
-      }
+      },
+      "strateji": "AL-SAT",
+      "stratejiNot": "orta — flip ya da taksitle"
     },
     {
       "id": "26d75f9d-399a-5d5a-8ec6-c4c4856632c8",
@@ -1281,7 +1319,9 @@
           "max": 10,
           "ok": false
         }
-      }
+      },
+      "strateji": "AL-SAT",
+      "stratejiNot": "orta — flip ya da taksitle"
     },
     {
       "id": "214aea64-985f-faeb-1c39-e5a5d9bf802e",
@@ -1345,7 +1385,9 @@
           "max": 10,
           "ok": false
         }
-      }
+      },
+      "strateji": "AL-SAT",
+      "stratejiNot": "orta — flip ya da taksitle"
     },
     {
       "id": "783c1aa7-4909-7037-e5f2-994c33386343",
@@ -1409,7 +1451,9 @@
           "max": 10,
           "ok": false
         }
-      }
+      },
+      "strateji": "EMLAKÇI",
+      "stratejiNot": "pahalı — emlakçıya listele"
     },
     {
       "id": "fc444ace-802e-8f67-d467-e2c4c2f153cb",
@@ -1473,7 +1517,9 @@
           "max": 10,
           "ok": false
         }
-      }
+      },
+      "strateji": "ATLA",
+      "stratejiNot": "borç=değer, kâr yok"
     },
     {
       "id": "65c00ae9-71ea-db29-5e39-27c20b08d670",
@@ -1537,7 +1583,9 @@
           "max": 10,
           "ok": false
         }
-      }
+      },
+      "strateji": "ATLA",
+      "stratejiNot": "borç=değer, kâr yok"
     },
     {
       "id": "f28338f5-a67e-a72d-53b3-f04a27c95d2b",
@@ -1601,7 +1649,9 @@
           "max": 10,
           "ok": false
         }
-      }
+      },
+      "strateji": "ATLA",
+      "stratejiNot": "borç=değer, kâr yok"
     },
     {
       "id": "747fb9d4-8d65-0e33-b4a2-75cb67da706a",
@@ -1665,7 +1715,9 @@
           "max": 10,
           "ok": false
         }
-      }
+      },
+      "strateji": "ATLA",
+      "stratejiNot": "borç=değer, kâr yok"
     },
     {
       "id": "603f3747-d2cd-2f4a-9404-ae46989fab61",
@@ -1729,7 +1781,9 @@
           "max": 10,
           "ok": false
         }
-      }
+      },
+      "strateji": "ATLA",
+      "stratejiNot": "borç=değer, kâr yok"
     },
     {
       "id": "87534f90-c287-1ba8-79da-8d3652e842a6",
@@ -1793,7 +1847,9 @@
           "max": 10,
           "ok": false
         }
-      }
+      },
+      "strateji": "ATLA",
+      "stratejiNot": "borç=değer, kâr yok"
     },
     {
       "id": "f4e79a86-13cf-ab7b-8907-5ca6f0abcf39",
@@ -1857,7 +1913,9 @@
           "max": 10,
           "ok": false
         }
-      }
+      },
+      "strateji": "ATLA",
+      "stratejiNot": "borç=değer, kâr yok"
     },
     {
       "id": "c9cf2ff5-f418-c64f-ae8e-1159a0ec0292",
@@ -1921,7 +1979,9 @@
           "max": 10,
           "ok": false
         }
-      }
+      },
+      "strateji": "ATLA",
+      "stratejiNot": "borç=değer, kâr yok"
     },
     {
       "id": "4df33401-fe29-58c8-64cb-43e9ee9222c4",
@@ -1985,7 +2045,9 @@
           "max": 10,
           "ok": false
         }
-      }
+      },
+      "strateji": "ATLA",
+      "stratejiNot": "borç=değer, kâr yok"
     },
     {
       "id": "c6126e9f-7db5-a90e-2676-5b470a0c7d8e",
@@ -2049,7 +2111,9 @@
           "max": 10,
           "ok": false
         }
-      }
+      },
+      "strateji": "ATLA",
+      "stratejiNot": "borç=değer, kâr yok"
     },
     {
       "id": "6800fa8e-b48a-1b03-48a4-01047deb4d83",
@@ -2113,7 +2177,9 @@
           "max": 10,
           "ok": false
         }
-      }
+      },
+      "strateji": "ATLA",
+      "stratejiNot": "borç=değer, kâr yok"
     },
     {
       "id": "6f1105a5-b8e4-8a16-0fb0-2c579d7b8272",
@@ -2177,7 +2243,9 @@
           "max": 10,
           "ok": false
         }
-      }
+      },
+      "strateji": "ATLA",
+      "stratejiNot": "borç=değer, kâr yok"
     },
     {
       "id": "343197aa-df5a-8059-8cec-bf130222c9b0",
@@ -2241,7 +2309,9 @@
           "max": 10,
           "ok": false
         }
-      }
+      },
+      "strateji": "ATLA",
+      "stratejiNot": "borç=değer, kâr yok"
     },
     {
       "id": "ae292548-ec1d-3136-ba71-ad6c9ee09946",
@@ -2305,7 +2375,9 @@
           "max": 10,
           "ok": false
         }
-      }
+      },
+      "strateji": "ATLA",
+      "stratejiNot": "borç=değer, kâr yok"
     },
     {
       "id": "8677e5c5-b9b2-1b45-b6c9-d2cb4843f459",
@@ -2369,7 +2441,9 @@
           "max": 10,
           "ok": false
         }
-      }
+      },
+      "strateji": "ATLA",
+      "stratejiNot": "borç=değer, kâr yok"
     },
     {
       "id": "7828613d-9646-5339-0b08-02915a247f54",
@@ -2433,7 +2507,9 @@
           "max": 10,
           "ok": false
         }
-      }
+      },
+      "strateji": "ATLA",
+      "stratejiNot": "borç=değer, kâr yok"
     },
     {
       "id": "d52eb5b2-17cd-91c9-f997-38161de3f0a1",
@@ -2497,7 +2573,9 @@
           "max": 10,
           "ok": false
         }
-      }
+      },
+      "strateji": "ATLA",
+      "stratejiNot": "borç=değer, kâr yok"
     },
     {
       "id": "2ef02d2a-dfc3-d0e2-0519-795db8f57ba6",
@@ -2561,7 +2639,9 @@
           "max": 10,
           "ok": false
         }
-      }
+      },
+      "strateji": "ATLA",
+      "stratejiNot": "borç=değer, kâr yok"
     }
   ],
   "enrichedAt": "2026-06-21",

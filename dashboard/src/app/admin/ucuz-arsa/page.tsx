@@ -14,10 +14,11 @@ interface Deal {
   id: string; owner: string; mailAddr: string; property: string;
   county: string; state: string; taxDebt: number; mapUrl: string;
   acres?: number | null; landValue?: number | null; vacant?: boolean;
-  grade?: string; score?: number; spread?: number;
+  grade?: string; score?: number; spread?: number; strateji?: string; stratejiNot?: string;
 }
 const acreStr = (a: number | null | undefined) => (a && a > 0 ? `${a.toFixed(2)} ac` : "—");
 const gradeC = (g?: string) => (g === "A" ? "#16a34a" : g === "B" ? "#eab308" : g === "C" ? "#f97316" : "#9ca3af");
+const stratColor = (s?: string) => (s === "AL-SAT" ? "#16a34a" : s === "EMLAKÇI" ? "#3b82f6" : s === "PARSEL" ? "#eab308" : "#9ca3af");
 
 export default function UcuzArsaPage() {
   const deals = (data.deals as Deal[]) || [];
@@ -96,7 +97,7 @@ export default function UcuzArsaPage() {
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b" style={{ borderColor: "var(--outline)", background: "var(--surface)" }}>
-              {["#", "Derece", "Sahip", "Posta Adresi (mektup buraya)", "Boş Arsa", "Dönüm", "Arsa Değeri", "Vergi Borcu", "Aksiyon"].map((h) => (
+              {["#", "Derece", "Strateji", "Sahip", "Posta Adresi (mektup buraya)", "Boş Arsa", "Dönüm", "Arsa Değeri", "Vergi Borcu", "Aksiyon"].map((h) => (
                 <th key={h} className="text-left px-4 py-3 text-xs font-bold uppercase tracking-widest whitespace-nowrap" style={{ color: "var(--muted)" }}>{h}</th>
               ))}
             </tr>
@@ -110,6 +111,10 @@ export default function UcuzArsaPage() {
                   <td className="px-4 py-3">
                     <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg font-black text-sm" style={{ background: `${gradeC(d.grade)}22`, color: gradeC(d.grade) }}>{d.grade ?? "—"}</span>
                     <span className="block text-[10px] mt-0.5 text-center" style={{ color: "var(--muted)" }}>{d.score ?? 0}p</span>
+                  </td>
+                  <td className="px-4 py-3">
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap" style={{ background: `${stratColor(d.strateji)}22`, color: stratColor(d.strateji) }}>{d.strateji ?? "—"}</span>
+                    {d.stratejiNot && <span className="block text-[9px] mt-0.5" style={{ color: "var(--muted)" }}>{d.stratejiNot}</span>}
                   </td>
                   <td className="px-4 py-3">
                     <div className="font-semibold whitespace-nowrap flex items-center gap-1.5">
