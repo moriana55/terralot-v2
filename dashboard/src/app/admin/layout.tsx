@@ -17,6 +17,7 @@ const SECTIONS: { label: string | null; items: { href: string; icon: typeof MapP
   {
     label: "✅ Canlı · Gerçek Veri",
     items: [
+      { href: "/admin/ucuz-arsa", icon: MapPin, label: "★ Ucuz Boş Arsa" },
       { href: "/admin/tax-leads", icon: FileSearch, label: "Tax Leads" },
       { href: "/admin/off-market-leads", icon: MailPlus, label: "Off-Market Leads" },
       { href: "/admin/real-deals", icon: CircleDollarSign, label: "★ Gerçek Dealler" },

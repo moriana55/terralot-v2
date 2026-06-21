@@ -1,0 +1,407 @@
+{
+  "generatedAt": "2026-06-21",
+  "model": "Ucuz boş arsa → sahibe mektup → al → taksitle sat (RinaLand modeli)",
+  "count": 40,
+  "deals": [
+    {
+      "id": "b7f595f8-9fe3-32bf-e155-f0bc6393c5ca",
+      "owner": "EAST RIVER DEV CO",
+      "mailAddr": "1300 WOODCREST DR, HOUSTON, TX, 77018-5254",
+      "property": "0 RIVERSIDE DR, HUFFMAN, TX, 77357",
+      "county": "HARRIS COUNTY",
+      "state": "TX",
+      "taxDebt": 2680,
+      "mapUrl": "https://www.google.com/maps/search/?api=1&query=0%20RIVERSIDE%20DR%2C%20HUFFMAN%2C%20TX%2C%2077357%2C%20HARRIS%20COUNTY%2C%20TX"
+    },
+    {
+      "id": "aea87b85-c170-820f-daf1-0fb43249044f",
+      "owner": "STETTNER I T",
+      "mailAddr": "9423 FAIRDALE LN, HOUSTON, TX, 77063-3911",
+      "property": "0 W HARDY RD, HOUSTON, TX, 77022",
+      "county": "HARRIS COUNTY",
+      "state": "TX",
+      "taxDebt": 3143,
+      "mapUrl": "https://www.google.com/maps/search/?api=1&query=0%20W%20HARDY%20RD%2C%20HOUSTON%2C%20TX%2C%2077022%2C%20HARRIS%20COUNTY%2C%20TX"
+    },
+    {
+      "id": "fc307591-359c-bb74-45c9-d9c61580801f",
+      "owner": "EAST RIVER DEV CO",
+      "mailAddr": "1300 WOODCREST DR, HOUSTON, TX, 77018-5254",
+      "property": "0 RIVERSIDE ST, HUFFMAN, TX, 77357",
+      "county": "HARRIS COUNTY",
+      "state": "TX",
+      "taxDebt": 3200,
+      "mapUrl": "https://www.google.com/maps/search/?api=1&query=0%20RIVERSIDE%20ST%2C%20HUFFMAN%2C%20TX%2C%2077357%2C%20HARRIS%20COUNTY%2C%20TX"
+    },
+    {
+      "id": "463ccf1b-4352-f7f7-3511-0af1dc17366c",
+      "owner": "EAST RIVER DEV CO",
+      "mailAddr": "1300 WOODCREST DR, HOUSTON, TX, 77018-5254",
+      "property": "0 RIVERSIDE DR, HUFFMAN, TX, 77357",
+      "county": "HARRIS COUNTY",
+      "state": "TX",
+      "taxDebt": 3600,
+      "mapUrl": "https://www.google.com/maps/search/?api=1&query=0%20RIVERSIDE%20DR%2C%20HUFFMAN%2C%20TX%2C%2077357%2C%20HARRIS%20COUNTY%2C%20TX"
+    },
+    {
+      "id": "f835c6c7-7749-8a68-5508-d2fe49d8f64e",
+      "owner": "EAST RIVER DEV CO",
+      "mailAddr": "1300 WOODCREST DR, HOUSTON, TX, 77018-5254",
+      "property": "0 RIVERSIDE DR, HUFFMAN, TX, 77357",
+      "county": "HARRIS COUNTY",
+      "state": "TX",
+      "taxDebt": 5591,
+      "mapUrl": "https://www.google.com/maps/search/?api=1&query=0%20RIVERSIDE%20DR%2C%20HUFFMAN%2C%20TX%2C%2077357%2C%20HARRIS%20COUNTY%2C%20TX"
+    },
+    {
+      "id": "d306e343-c33a-b8e7-04cf-bc6960336c4f",
+      "owner": "EAST RIVER DEV CO",
+      "mailAddr": "1300 WOODCREST DR, HOUSTON, TX, 77018-5254",
+      "property": "0 RIVERSIDE DR, HUFFMAN, TX, 77357",
+      "county": "HARRIS COUNTY",
+      "state": "TX",
+      "taxDebt": 5950,
+      "mapUrl": "https://www.google.com/maps/search/?api=1&query=0%20RIVERSIDE%20DR%2C%20HUFFMAN%2C%20TX%2C%2077357%2C%20HARRIS%20COUNTY%2C%20TX"
+    },
+    {
+      "id": "bf317ee1-324c-d4cb-c5b3-5786996cbfa2",
+      "owner": "EAST RIVER DEV CO",
+      "mailAddr": "1300 WOODCREST DR, HOUSTON, TX, 77018-5254",
+      "property": "0 RIVERSIDE ST, HUFFMAN, TX, 77357",
+      "county": "HARRIS COUNTY",
+      "state": "TX",
+      "taxDebt": 6342,
+      "mapUrl": "https://www.google.com/maps/search/?api=1&query=0%20RIVERSIDE%20ST%2C%20HUFFMAN%2C%20TX%2C%2077357%2C%20HARRIS%20COUNTY%2C%20TX"
+    },
+    {
+      "id": "c89420f0-4fca-726d-3550-185d0133bdad",
+      "owner": "EAST RIVER DEV CO",
+      "mailAddr": "1300 WOODCREST DR, HOUSTON, TX, 77018-5254",
+      "property": "0 RIVERSIDE ST, HUFFMAN, TX, 77357",
+      "county": "HARRIS COUNTY",
+      "state": "TX",
+      "taxDebt": 6501,
+      "mapUrl": "https://www.google.com/maps/search/?api=1&query=0%20RIVERSIDE%20ST%2C%20HUFFMAN%2C%20TX%2C%2077357%2C%20HARRIS%20COUNTY%2C%20TX"
+    },
+    {
+      "id": "e735b3d2-b363-ce2b-1090-16eba7166776",
+      "owner": "EAST RIVER DEV CO",
+      "mailAddr": "1300 WOODCREST DR, HOUSTON, TX, 77018-5254",
+      "property": "0 RIVERSIDE ST, HUFFMAN, TX, 77357",
+      "county": "HARRIS COUNTY",
+      "state": "TX",
+      "taxDebt": 7425,
+      "mapUrl": "https://www.google.com/maps/search/?api=1&query=0%20RIVERSIDE%20ST%2C%20HUFFMAN%2C%20TX%2C%2077357%2C%20HARRIS%20COUNTY%2C%20TX"
+    },
+    {
+      "id": "c3a7f56a-b91d-1c77-dd73-e136a59ad3ee",
+      "owner": "HART GORDON MRS",
+      "mailAddr": "908 MEADOWBROOK DR, BAYTOWN, TX, 77521-3218",
+      "property": "0 MINNESOTA ST, BAYTOWN, TX, 77520",
+      "county": "HARRIS COUNTY",
+      "state": "TX",
+      "taxDebt": 8438,
+      "mapUrl": "https://www.google.com/maps/search/?api=1&query=0%20MINNESOTA%20ST%2C%20BAYTOWN%2C%20TX%2C%2077520%2C%20HARRIS%20COUNTY%2C%20TX"
+    },
+    {
+      "id": "2ce679cd-3171-18d2-97cd-c23c164e9311",
+      "owner": "MCLEAN W 0 BECKMAN",
+      "mailAddr": "PO BOX 146, NEW CANEY, TX, 77357-0146",
+      "property": "0 RIVERSIDE ST, HUFFMAN, TX, 77357",
+      "county": "HARRIS COUNTY",
+      "state": "TX",
+      "taxDebt": 9000,
+      "mapUrl": "https://www.google.com/maps/search/?api=1&query=0%20RIVERSIDE%20ST%2C%20HUFFMAN%2C%20TX%2C%2077357%2C%20HARRIS%20COUNTY%2C%20TX"
+    },
+    {
+      "id": "1c0b8e8b-1386-2014-2633-99f8dc52c465",
+      "owner": "EAST RIVER DEV CO",
+      "mailAddr": "1300 WOODCREST DR, HOUSTON, TX, 77018-5254",
+      "property": "0 RIVERSIDE DR, HUFFMAN, TX, 77357",
+      "county": "HARRIS COUNTY",
+      "state": "TX",
+      "taxDebt": 9120,
+      "mapUrl": "https://www.google.com/maps/search/?api=1&query=0%20RIVERSIDE%20DR%2C%20HUFFMAN%2C%20TX%2C%2077357%2C%20HARRIS%20COUNTY%2C%20TX"
+    },
+    {
+      "id": "919bddc5-0a82-5eac-469b-4f0410bf5ffc",
+      "owner": "MCLEAN W 0 BECKMAN",
+      "mailAddr": "PO BOX 146, NEW CANEY, TX, 77357-0146",
+      "property": "0 BROOKSIDE LN, NEW CANEY, TX, 77357",
+      "county": "HARRIS COUNTY",
+      "state": "TX",
+      "taxDebt": 9600,
+      "mapUrl": "https://www.google.com/maps/search/?api=1&query=0%20BROOKSIDE%20LN%2C%20NEW%20CANEY%2C%20TX%2C%2077357%2C%20HARRIS%20COUNTY%2C%20TX"
+    },
+    {
+      "id": "27e1e914-7940-35e0-a2bf-4e5abdd40d56",
+      "owner": "EAST RIVER DEV CO",
+      "mailAddr": "1300 WOODCREST DR, HOUSTON, TX, 77018-5254",
+      "property": "0 RIVERSIDE DR, HUFFMAN, TX, 77357",
+      "county": "HARRIS COUNTY",
+      "state": "TX",
+      "taxDebt": 9800,
+      "mapUrl": "https://www.google.com/maps/search/?api=1&query=0%20RIVERSIDE%20DR%2C%20HUFFMAN%2C%20TX%2C%2077357%2C%20HARRIS%20COUNTY%2C%20TX"
+    },
+    {
+      "id": "fc444ace-802e-8f67-d467-e2c4c2f153cb",
+      "owner": "J KARAM 10 INC",
+      "mailAddr": "J KARAM 7 INC 353 E PARKWOOD AVE, FRIENDSWOOD, TX, 77546-5147",
+      "property": "0 SOUTHMORE AVE, PASADENA, TX, 77502",
+      "county": "HARRIS COUNTY",
+      "state": "TX",
+      "taxDebt": 10553,
+      "mapUrl": "https://www.google.com/maps/search/?api=1&query=0%20SOUTHMORE%20AVE%2C%20PASADENA%2C%20TX%2C%2077502%2C%20HARRIS%20COUNTY%2C%20TX"
+    },
+    {
+      "id": "214aea64-985f-faeb-1c39-e5a5d9bf802e",
+      "owner": "EAST RIVER DEV CO",
+      "mailAddr": "1300 WOODCREST DR, HOUSTON, TX, 77018-5254",
+      "property": "0 RIVERSIDE DR, HUFFMAN, TX, 77357",
+      "county": "HARRIS COUNTY",
+      "state": "TX",
+      "taxDebt": 13110,
+      "mapUrl": "https://www.google.com/maps/search/?api=1&query=0%20RIVERSIDE%20DR%2C%20HUFFMAN%2C%20TX%2C%2077357%2C%20HARRIS%20COUNTY%2C%20TX"
+    },
+    {
+      "id": "2ef02d2a-dfc3-d0e2-0519-795db8f57ba6",
+      "owner": "GILLESPIE LAWRENCE S ET AL",
+      "mailAddr": "1617 MISSOURI ST, HOUSTON, TX, 77006-2527",
+      "property": "0 LOCKWOOD ST, HOUSTON, TX, 77011",
+      "county": "HARRIS COUNTY",
+      "state": "TX",
+      "taxDebt": 24500,
+      "mapUrl": "https://www.google.com/maps/search/?api=1&query=0%20LOCKWOOD%20ST%2C%20HOUSTON%2C%20TX%2C%2077011%2C%20HARRIS%20COUNTY%2C%20TX"
+    },
+    {
+      "id": "dbe50d50-83a4-09f7-7eac-630517004b42",
+      "owner": "WILLIAMS ERIC",
+      "mailAddr": "8510 E TIDWELL RD, HOUSTON, TX, 77028-1240",
+      "property": "0 E TIDWELL RD, HOUSTON, TX, 77028",
+      "county": "HARRIS COUNTY",
+      "state": "TX",
+      "taxDebt": 26950,
+      "mapUrl": "https://www.google.com/maps/search/?api=1&query=0%20E%20TIDWELL%20RD%2C%20HOUSTON%2C%20TX%2C%2077028%2C%20HARRIS%20COUNTY%2C%20TX"
+    },
+    {
+      "id": "65c00ae9-71ea-db29-5e39-27c20b08d670",
+      "owner": "TARKENTON VALARIE D",
+      "mailAddr": "11947 SOLON SPRINGS DR, TOMBALL, TX, 77375-1744",
+      "property": "0 MARTIN LUTHER KING DR, HUMBLE, TX, 77338",
+      "county": "HARRIS COUNTY",
+      "state": "TX",
+      "taxDebt": 27225,
+      "mapUrl": "https://www.google.com/maps/search/?api=1&query=0%20MARTIN%20LUTHER%20KING%20DR%2C%20HUMBLE%2C%20TX%2C%2077338%2C%20HARRIS%20COUNTY%2C%20TX"
+    },
+    {
+      "id": "f28338f5-a67e-a72d-53b3-f04a27c95d2b",
+      "owner": "WYNN THELMA C",
+      "mailAddr": "1716 PARK ST, HOUSTON, TX, 77019-5706",
+      "property": "0 QUEENSLAND, HOUSTON, TX, 77028",
+      "county": "HARRIS COUNTY",
+      "state": "TX",
+      "taxDebt": 27506,
+      "mapUrl": "https://www.google.com/maps/search/?api=1&query=0%20QUEENSLAND%2C%20HOUSTON%2C%20TX%2C%2077028%2C%20HARRIS%20COUNTY%2C%20TX"
+    },
+    {
+      "id": "747fb9d4-8d65-0e33-b4a2-75cb67da706a",
+      "owner": "REVOCABLE LIVING OF VIVA WEEKS",
+      "mailAddr": "4855 MANOLETE, PENSACOLA, FL, 32504-9039",
+      "property": "0 EL DORADO BLVD, FRIENDSWOOD, TX, 77546",
+      "county": "HARRIS COUNTY",
+      "state": "TX",
+      "taxDebt": 31058,
+      "mapUrl": "https://www.google.com/maps/search/?api=1&query=0%20EL%20DORADO%20BLVD%2C%20FRIENDSWOOD%2C%20TX%2C%2077546%2C%20HARRIS%20COUNTY%2C%20TX"
+    },
+    {
+      "id": "603f3747-d2cd-2f4a-9404-ae46989fab61",
+      "owner": "ROBERTS BEVERLY",
+      "mailAddr": "13004 DATE PALM TRL, ELGIN, TX, 78621-6038",
+      "property": "0 EGRET CANAL N, BAYTOWN, TX, 77523",
+      "county": "HARRIS COUNTY",
+      "state": "TX",
+      "taxDebt": 31500,
+      "mapUrl": "https://www.google.com/maps/search/?api=1&query=0%20EGRET%20CANAL%20N%2C%20BAYTOWN%2C%20TX%2C%2077523%2C%20HARRIS%20COUNTY%2C%20TX"
+    },
+    {
+      "id": "2c6552a0-833f-ce04-2d83-ac743eae5dfa",
+      "owner": "MORENO LIBORIO",
+      "mailAddr": "104 LINWOOD ST, HOUSTON, TX, 77011-3345",
+      "property": "0 KENTON ST, HOUSTON, TX, 77028-4602",
+      "county": "HARRIS COUNTY",
+      "state": "TX",
+      "taxDebt": 38005,
+      "mapUrl": "https://www.google.com/maps/search/?api=1&query=0%20KENTON%20ST%2C%20HOUSTON%2C%20TX%2C%2077028-4602%2C%20HARRIS%20COUNTY%2C%20TX"
+    },
+    {
+      "id": "87534f90-c287-1ba8-79da-8d3652e842a6",
+      "owner": "BAYPORT BUSINESS PARK LLC",
+      "mailAddr": "115 E FOREST AVE, LA PORTE, TX, 77571-7383",
+      "property": "0 CEDAR RD, SEABROOK, TX, 77586",
+      "county": "HARRIS COUNTY",
+      "state": "TX",
+      "taxDebt": 40584,
+      "mapUrl": "https://www.google.com/maps/search/?api=1&query=0%20CEDAR%20RD%2C%20SEABROOK%2C%20TX%2C%2077586%2C%20HARRIS%20COUNTY%2C%20TX"
+    },
+    {
+      "id": "4d6c6d6a-25a8-ff12-51b1-0d642a492d49",
+      "owner": "ORTEGA RAMIRO M",
+      "mailAddr": "8017 SNOWDEN ST, HOUSTON, TX, 77028-1423",
+      "property": "0 TALTON ST, HOUSTON, TX, 77028",
+      "county": "HARRIS COUNTY",
+      "state": "TX",
+      "taxDebt": 41745,
+      "mapUrl": "https://www.google.com/maps/search/?api=1&query=0%20TALTON%20ST%2C%20HOUSTON%2C%20TX%2C%2077028%2C%20HARRIS%20COUNTY%2C%20TX"
+    },
+    {
+      "id": "ae37f262-eb26-8b79-6204-d51362d59ce8",
+      "owner": "ORTEGA RAMIRO M",
+      "mailAddr": "8017 SNOWDEN ST, HOUSTON, TX, 77028-1423",
+      "property": "0 TALTON ST, HOUSTON, TX, 77028",
+      "county": "HARRIS COUNTY",
+      "state": "TX",
+      "taxDebt": 41745,
+      "mapUrl": "https://www.google.com/maps/search/?api=1&query=0%20TALTON%20ST%2C%20HOUSTON%2C%20TX%2C%2077028%2C%20HARRIS%20COUNTY%2C%20TX"
+    },
+    {
+      "id": "f4e79a86-13cf-ab7b-8907-5ca6f0abcf39",
+      "owner": "WRIGHT LIZ",
+      "mailAddr": "215 W LITTLE YORK RD # 33, HOUSTON, TX, 77076-1415",
+      "property": "0 DOLLYWRIGHT, HOUSTON, TX, 77088",
+      "county": "HARRIS COUNTY",
+      "state": "TX",
+      "taxDebt": 60000,
+      "mapUrl": "https://www.google.com/maps/search/?api=1&query=0%20DOLLYWRIGHT%2C%20HOUSTON%2C%20TX%2C%2077088%2C%20HARRIS%20COUNTY%2C%20TX"
+    },
+    {
+      "id": "eba47935-eee9-f7b7-1a9f-b021b8efe805",
+      "owner": "AMEZGUITA DORA Z",
+      "mailAddr": "12132 ZAVALLA ST, HOUSTON, TX, 77085-1118",
+      "property": "0 LOMALINDA AVE, HOUSTON, TX, 77085",
+      "county": "HARRIS COUNTY",
+      "state": "TX",
+      "taxDebt": 60462,
+      "mapUrl": "https://www.google.com/maps/search/?api=1&query=0%20LOMALINDA%20AVE%2C%20HOUSTON%2C%20TX%2C%2077085%2C%20HARRIS%20COUNTY%2C%20TX"
+    },
+    {
+      "id": "26d75f9d-399a-5d5a-8ec6-c4c4856632c8",
+      "owner": "AMEZGUITA DORA Z",
+      "mailAddr": "12132 ZAVALLA ST, HOUSTON, TX, 77085-1118",
+      "property": "0 LOMALINDA AVE, HOUSTON, TX, 77085",
+      "county": "HARRIS COUNTY",
+      "state": "TX",
+      "taxDebt": 60462,
+      "mapUrl": "https://www.google.com/maps/search/?api=1&query=0%20LOMALINDA%20AVE%2C%20HOUSTON%2C%20TX%2C%2077085%2C%20HARRIS%20COUNTY%2C%20TX"
+    },
+    {
+      "id": "c9cf2ff5-f418-c64f-ae8e-1159a0ec0292",
+      "owner": "BROCK GEORGE W",
+      "mailAddr": "279 BROWN CEMETARY RD, RICHTON, MS, 39476-9394",
+      "property": "0 MARLEEN ST, HOUSTON, TX, 77034",
+      "county": "HARRIS COUNTY",
+      "state": "TX",
+      "taxDebt": 64496,
+      "mapUrl": "https://www.google.com/maps/search/?api=1&query=0%20MARLEEN%20ST%2C%20HOUSTON%2C%20TX%2C%2077034%2C%20HARRIS%20COUNTY%2C%20TX"
+    },
+    {
+      "id": "4df33401-fe29-58c8-64cb-43e9ee9222c4",
+      "owner": "GREEN BERNICE DAVIS",
+      "mailAddr": "3311 E 60TH ST, KANSAS CITY, MO, 64130-4450",
+      "property": "0 FAIRCHILD ST, HOUSTON, TX, 77028",
+      "county": "HARRIS COUNTY",
+      "state": "TX",
+      "taxDebt": 78208,
+      "mapUrl": "https://www.google.com/maps/search/?api=1&query=0%20FAIRCHILD%20ST%2C%20HOUSTON%2C%20TX%2C%2077028%2C%20HARRIS%20COUNTY%2C%20TX"
+    },
+    {
+      "id": "7828613d-9646-5339-0b08-02915a247f54",
+      "owner": "PINELAKES LIMITED PTNRSHP",
+      "mailAddr": "14300 CORNERSTONE VILLAGE DR STE 116, HOUSTON, TX, 77014-1245",
+      "property": "0 ALVIN A KLEIN, SPRING, TX, 77379",
+      "county": "HARRIS COUNTY",
+      "state": "TX",
+      "taxDebt": 100490,
+      "mapUrl": "https://www.google.com/maps/search/?api=1&query=0%20ALVIN%20A%20KLEIN%2C%20SPRING%2C%20TX%2C%2077379%2C%20HARRIS%20COUNTY%2C%20TX"
+    },
+    {
+      "id": "c6126e9f-7db5-a90e-2676-5b470a0c7d8e",
+      "owner": "ORIAS TRUCKING LLC",
+      "mailAddr": "7026 CONEFLOWER CREEK CT, KATY, TX, 77493-4301",
+      "property": "0 VANCOUVER LN, HOUSTON, TX, 77064",
+      "county": "HARRIS COUNTY",
+      "state": "TX",
+      "taxDebt": 106270,
+      "mapUrl": "https://www.google.com/maps/search/?api=1&query=0%20VANCOUVER%20LN%2C%20HOUSTON%2C%20TX%2C%2077064%2C%20HARRIS%20COUNTY%2C%20TX"
+    },
+    {
+      "id": "6800fa8e-b48a-1b03-48a4-01047deb4d83",
+      "owner": "ORIAS TRUCKING LLC",
+      "mailAddr": "7026 CONEFLOWER CREEK CT, KATY, TX, 77493-4301",
+      "property": "0 VANCOUVER LN, HOUSTON, TX, 77064",
+      "county": "HARRIS COUNTY",
+      "state": "TX",
+      "taxDebt": 108035,
+      "mapUrl": "https://www.google.com/maps/search/?api=1&query=0%20VANCOUVER%20LN%2C%20HOUSTON%2C%20TX%2C%2077064%2C%20HARRIS%20COUNTY%2C%20TX"
+    },
+    {
+      "id": "6f1105a5-b8e4-8a16-0fb0-2c579d7b8272",
+      "owner": "BAYPORT BUSINESS PARK LLC",
+      "mailAddr": "115 E FOREST AVE, LA PORTE, TX, 77571-7383",
+      "property": "0 CEDAR RD, SEABROOK, TX, 77586",
+      "county": "HARRIS COUNTY",
+      "state": "TX",
+      "taxDebt": 109011,
+      "mapUrl": "https://www.google.com/maps/search/?api=1&query=0%20CEDAR%20RD%2C%20SEABROOK%2C%20TX%2C%2077586%2C%20HARRIS%20COUNTY%2C%20TX"
+    },
+    {
+      "id": "343197aa-df5a-8059-8cec-bf130222c9b0",
+      "owner": "MCCOY WILTON & RUBY",
+      "mailAddr": "10536 OCEAN DR, BEACH CITY, TX, 77523-9238",
+      "property": "0 KILGORE RD, BAYTOWN, TX, 77520",
+      "county": "HARRIS COUNTY",
+      "state": "TX",
+      "taxDebt": 110240,
+      "mapUrl": "https://www.google.com/maps/search/?api=1&query=0%20KILGORE%20RD%2C%20BAYTOWN%2C%20TX%2C%2077520%2C%20HARRIS%20COUNTY%2C%20TX"
+    },
+    {
+      "id": "d52eb5b2-17cd-91c9-f997-38161de3f0a1",
+      "owner": "SAUCEDO MARGARITO",
+      "mailAddr": "30903 COCO ST, CYPRESS, TX, 77433-4901",
+      "property": "0 AVENUE E, HOUSTON, TX, 77012",
+      "county": "HARRIS COUNTY",
+      "state": "TX",
+      "taxDebt": 123475,
+      "mapUrl": "https://www.google.com/maps/search/?api=1&query=0%20AVENUE%20E%2C%20HOUSTON%2C%20TX%2C%2077012%2C%20HARRIS%20COUNTY%2C%20TX"
+    },
+    {
+      "id": "ae292548-ec1d-3136-ba71-ad6c9ee09946",
+      "owner": "JOHNSON JOHNNIE L",
+      "mailAddr": "10150 HARDISON LN, HOUSTON, TX, 77041-6137",
+      "property": "0 GESSNER RD, HOUSTON, TX, 77041",
+      "county": "HARRIS COUNTY",
+      "state": "TX",
+      "taxDebt": 132090,
+      "mapUrl": "https://www.google.com/maps/search/?api=1&query=0%20GESSNER%20RD%2C%20HOUSTON%2C%20TX%2C%2077041%2C%20HARRIS%20COUNTY%2C%20TX"
+    },
+    {
+      "id": "8677e5c5-b9b2-1b45-b6c9-d2cb4843f459",
+      "owner": "MILLS REAL EST INVST CO",
+      "mailAddr": "5600 ALVIN A KLEIN DR UNIT 21, SPRING, TX, 77379-6943",
+      "property": "0 FM 1942 RD, CROSBY, TX, 77532",
+      "county": "HARRIS COUNTY",
+      "state": "TX",
+      "taxDebt": 284909,
+      "mapUrl": "https://www.google.com/maps/search/?api=1&query=0%20FM%201942%20RD%2C%20CROSBY%2C%20TX%2C%2077532%2C%20HARRIS%20COUNTY%2C%20TX"
+    },
+    {
+      "id": "783c1aa7-4909-7037-e5f2-994c33386343",
+      "owner": "WILLIAMS ESTHER B",
+      "mailAddr": "5130 CHENNAULT RD, HOUSTON, TX, 77033-2629",
+      "property": "0 SUMMER ST, HOUSTON, TX, 77007",
+      "county": "HARRIS COUNTY",
+      "state": "TX",
+      "taxDebt": 300000,
+      "mapUrl": "https://www.google.com/maps/search/?api=1&query=0%20SUMMER%20ST%2C%20HOUSTON%2C%20TX%2C%2077007%2C%20HARRIS%20COUNTY%2C%20TX"
+    }
+  ]
+}
