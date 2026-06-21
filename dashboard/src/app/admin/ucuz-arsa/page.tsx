@@ -4,7 +4,8 @@
 // İHALE YOK. Sadece sahibe direkt mektup. Snapshot: src/data/cheap-land.json
 // ─────────────────────────────────────────────────────────────────────────────
 import data from "@/data/cheap-land.json";
-import { MailPlus, Satellite, Star } from "lucide-react";
+import Link from "next/link";
+import { MailPlus, Satellite, Star, ClipboardList } from "lucide-react";
 
 export const metadata = { title: "Ucuz Boş Arsa — Terralot" };
 const fmt = (n: number | null | undefined) => (n == null ? "—" : `$${Math.round(n).toLocaleString("en-US")}`);
@@ -12,7 +13,9 @@ const fmt = (n: number | null | undefined) => (n == null ? "—" : `$${Math.roun
 interface Deal {
   id: string; owner: string; mailAddr: string; property: string;
   county: string; state: string; taxDebt: number; mapUrl: string;
+  acres?: number | null; landValue?: number | null; vacant?: boolean;
 }
+const acreStr = (a: number | null | undefined) => (a && a > 0 ? `${a.toFixed(2)} ac` : "—");
 
 export default function UcuzArsaPage() {
   const deals = (data.deals as Deal[]) || [];
@@ -72,7 +75,7 @@ export default function UcuzArsaPage() {
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b" style={{ borderColor: "var(--outline)", background: "var(--surface)" }}>
-              {["#", "Sahip", "Posta Adresi (mektup buraya)", "Boş Arsa", "Vergi Borcu", "Aksiyon"].map((h) => (
+              {["#", "Sahip", "Posta Adresi (mektup buraya)", "Boş Arsa", "Dönüm", "Arsa Değeri", "Vergi Borcu", "Aksiyon"].map((h) => (
                 <th key={h} className="text-left px-4 py-3 text-xs font-bold uppercase tracking-widest whitespace-nowrap" style={{ color: "var(--muted)" }}>{h}</th>
               ))}
             </tr>
@@ -91,7 +94,12 @@ export default function UcuzArsaPage() {
                   <td className="px-4 py-3 text-xs" style={{ color: "var(--muted)" }}>{d.mailAddr}</td>
                   <td className="px-4 py-3">
                     <div className="text-xs whitespace-nowrap">{d.property}</div>
-                    <div className="text-[10px] mt-0.5" style={{ color: "var(--muted)" }}>{d.county}, {d.state}</div>
+                    <div className="text-[10px] mt-0.5" style={{ color: "var(--muted)" }}>{d.county}, {d.state}{d.vacant ? " · boş ✓" : ""}</div>
+                  </td>
+                  <td className="px-4 py-3 text-xs whitespace-nowrap">{acreStr(d.acres)}</td>
+                  <td className="px-4 py-3 whitespace-nowrap">
+                    <span className="font-bold">{fmt(d.landValue)}</span>
+                    <span className="block text-[10px]" style={{ color: "var(--muted)" }}>HCAD değeri</span>
                   </td>
                   <td className="px-4 py-3 whitespace-nowrap">
                     <span className="font-bold text-amber-500">{fmt(d.taxDebt)}</span>
@@ -99,13 +107,14 @@ export default function UcuzArsaPage() {
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-1.5">
+                      <Link href={`/admin/ucuz-arsa/${d.id}`} title="Değerleme paneli"
+                        className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-semibold" style={{ background: "var(--primary, #16a34a)", color: "#fff" }}>
+                        <ClipboardList className="w-3 h-3" /> Değerle
+                      </Link>
                       <a href={d.mapUrl} target="_blank" rel="noopener noreferrer" title="Haritada gör"
                         className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-[11px] border" style={{ borderColor: "var(--outline)" }}>
                         <Satellite className="w-3 h-3" /> Harita
                       </a>
-                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-[11px]" style={{ background: "rgba(22,163,74,0.12)", color: "var(--primary, #16a34a)" }}>
-                        <MailPlus className="w-3 h-3" /> Mektup at
-                      </span>
                     </div>
                   </td>
                 </tr>
