@@ -33,6 +33,12 @@ export default async function ArsaDegerlemePage({ params }: { params: Promise<{ 
   const street = d.property.split(",")[0].replace(/^0\s+/, "").trim();
   const gradeColor = d.grade === "A" ? "#16a34a" : d.grade === "B" ? "#eab308" : d.grade === "C" ? "#f97316" : "var(--muted)";
 
+  // "Mektup at" → mailer Quick Send, prefilled with this owner + mailing
+  // address. Template tpl3 (Formal Offer Letter) matches the deal hook:
+  // "arsanı satın alırım, vergi borcunu hallederim". The mailer reads these
+  // params, splits the address, and opens the populated Lob preview.
+  const mailerHref = `/admin/mailer?prefill=1&owner=${encodeURIComponent(d.owner)}&addr=${encodeURIComponent(d.mailAddr)}&deal=${encodeURIComponent(street)}&tpl=tpl3`;
+
   const Badge = ({ kind }: { kind: "ok" | "calc" | "dd" }) => {
     const map = {
       ok: { t: "✅ DOĞRULANMIŞ", c: "#16a34a", b: "rgba(22,163,74,0.12)" },
@@ -140,7 +146,7 @@ export default async function ArsaDegerlemePage({ params }: { params: Promise<{ 
 
       <div className="flex gap-2">
         <a href={d.mapUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm border" style={{ borderColor: "var(--outline)" }}><Satellite className="w-4 h-4" /> Uydu / Harita</a>
-        <span className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm" style={{ background: "rgba(22,163,74,0.12)", color: "var(--primary,#16a34a)" }}><MailPlus className="w-4 h-4" /> Mektup at</span>
+        <Link href={mailerHref} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold transition-opacity hover:opacity-90" style={{ background: "rgba(22,163,74,0.12)", color: "var(--primary,#16a34a)" }}><MailPlus className="w-4 h-4" /> Mektup at</Link>
       </div>
     </div>
   );

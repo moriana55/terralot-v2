@@ -3,10 +3,24 @@
 import { Mail, Send, Eye, Plus, FileText, Loader2 } from "lucide-react";
 import { campaigns, mailPieces, getMailerStats, MAIL_TYPE_LABELS, MAIL_STATUS_LABELS, CAMPAIGN_STATUS_LABELS, getCampaignStatusColor, getMailStatusColor, getCampaignPieces, LETTER_TEMPLATES } from "@/lib/mailer-data";
 import type { CampaignStatus } from "@/lib/mailer-data";
-import { useState } from "react";
+import { useState, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { SampleDataBanner } from "@/components/SampleDataBanner";
 
+// useSearchParams must sit under a Suspense boundary or the production build
+// bails out (see node_modules/next/dist/docs/.../use-search-params.md). The
+// dead "Mektup at" button on the ucuz-arsa deal page now links here with the
+// owner + parsed mailing address prefilled so the demo flows end-to-end.
 export default function MailerPage() {
+  return (
+    <Suspense fallback={null}>
+      <MailerInner />
+    </Suspense>
+  );
+}
+
+function MailerInner() {
+  const searchParams = useSearchParams();
   const stats = getMailerStats();
   const [selectedCampaign, setSelectedCampaign] = useState<string | null>(null);
   const [showTemplates, setShowTemplates] = useState(false);
@@ -22,6 +36,41 @@ export default function MailerPage() {
   const [sending, setSending] = useState(false);
   const [sentResult, setSentResult] = useState<any>(null);
   const [sendError, setSendError] = useState<string | null>(null);
+
+  // Prefill source: a deal that linked here from /admin/ucuz-arsa/[id].
+  const [prefilledFrom, setPrefilledFrom] = useState<string | null>(null);
+
+  // Read the deal querystring once and populate the Quick Send form. Mailing
+  // address arrives as "owner" + "addr" ("STREET, CITY, STATE, ZIP"); we split
+  // it into the form's street/city/state/zip fields. We default to the legal
+  // offer template (tpl3) since the deal hook is "buy your land, clear the
+  // tax debt". Auto-opens the populated preview so the demo is one click.
+  useEffect(() => {
+    if (!searchParams.get("prefill")) return;
+    const owner = searchParams.get("owner") ?? "";
+    const addr = searchParams.get("addr") ?? "";
+    const dealLabel = searchParams.get("deal");
+    const tpl = searchParams.get("tpl") ?? "tpl3";
+
+    if (owner) setRecipientName(owner);
+    if (addr) {
+      // "908 MEADOWBROOK DR, BAYTOWN, TX, 77521-3218"
+      const parts = addr.split(",").map((p) => p.trim()).filter(Boolean);
+      if (parts[0]) setStreetAddress(parts[0]);
+      if (parts[1]) setCity(parts[1]);
+      if (parts[2]) setStateCode(parts[2]);
+      if (parts[3]) setZip(parts[3]);
+    }
+    if (LETTER_TEMPLATES.some((t) => t.id === tpl)) {
+      setSelectedTemplate(tpl);
+      setPreviewTemplate(tpl);
+      setShowTemplates(true);
+    }
+    setSelectedCampaign(null); // ensure the Quick Send card is visible
+    setPrefilledFrom(dealLabel || owner || "deal");
+    // searchParams identity is stable per navigation; run once on mount/prefill.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
 
   async function handleQuickSend() {
     if (!recipientName || !streetAddress || !city || !stateCode || !zip || !selectedTemplate) {
@@ -342,6 +391,12 @@ export default function MailerPage() {
                   <p className="text-xs" style={{ color: "var(--muted)" }}>Send a single mail piece</p>
                 </div>
               </div>
+              {prefilledFrom && (
+                <div className="mb-4 p-3 rounded-lg border text-xs animate-fadeIn" style={{ background: "rgba(142,209,223,0.06)", borderColor: "rgba(142,209,223,0.25)" }}>
+                  <p className="font-bold" style={{ color: "var(--primary)" }}>Arsa fırsatından dolduruldu</p>
+                  <p style={{ color: "var(--muted)" }}>Sahip + posta adresi <b>{prefilledFrom}</b> kaydından otomatik geldi. Önizle veya gönder.</p>
+                </div>
+              )}
               <div className="space-y-3">
                 <input type="text" placeholder="Recipient Name"
                   value={recipientName} onChange={e => setRecipientName(e.target.value)} disabled={sending}
