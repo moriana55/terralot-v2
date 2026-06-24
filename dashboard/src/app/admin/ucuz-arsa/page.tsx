@@ -6,6 +6,7 @@
 import data from "@/data/cheap-land.json";
 import Link from "next/link";
 import { MailPlus, Satellite, Star, ClipboardList } from "lucide-react";
+import CsvButton from "./CsvButton";
 
 export const metadata = { title: "Ucuz Boş Arsa — Terralot" };
 const fmt = (n: number | null | undefined) => (n == null ? "—" : `$${Math.round(n).toLocaleString("en-US")}`);
@@ -15,6 +16,7 @@ interface Deal {
   county: string; state: string; taxDebt: number; mapUrl: string;
   acres?: number | null; landValue?: number | null; vacant?: boolean;
   grade?: string; score?: number; spread?: number; strateji?: string; stratejiNot?: string;
+  absentee?: boolean; estate?: boolean;
 }
 const acreStr = (a: number | null | undefined) => (a && a > 0 ? `${a.toFixed(2)} ac` : "—");
 const gradeC = (g?: string) => (g === "A" ? "#16a34a" : g === "B" ? "#eab308" : g === "C" ? "#f97316" : "#9ca3af");
@@ -38,7 +40,10 @@ export default function UcuzArsaPage() {
       <div className="mb-2 text-[11px] font-bold uppercase tracking-[0.2em]" style={{ color: "var(--primary, #16a34a)" }}>
         OFF-MARKET · UCUZ BOŞ ARSA
       </div>
-      <h1 className="text-[26px] font-bold mb-2">Ucuz Boş Arsa — Mektup Modeli</h1>
+      <div className="flex items-start justify-between gap-4 mb-2">
+        <h1 className="text-[26px] font-bold">Ucuz Boş Arsa — Mektup Modeli</h1>
+        <CsvButton rows={deals} />
+      </div>
       <p className="text-sm mb-6" style={{ color: "var(--muted)" }}>
         Model: <b style={{ color: "var(--foreground)" }}>ucuz boş arsa → sahibine mektup → ucuza al → taksitle sat</b> (RinaLand modeli). İhale yok, sahibe direkt. Veri gerçek: kamu vergi-borç kaydı (sahip + posta adresi + borç).
       </p>
@@ -120,6 +125,22 @@ export default function UcuzArsaPage() {
                     <div className="font-semibold whitespace-nowrap flex items-center gap-1.5">
                       {isTop && <Star className="w-3 h-3" style={{ color: "var(--primary, #16a34a)" }} />}{d.owner}
                     </div>
+                    {(d.absentee || d.estate) && (
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        {d.absentee && (
+                          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full whitespace-nowrap"
+                            style={{ background: "rgba(59,130,246,0.14)", color: "#3b82f6" }} title="Sahip arsadan uzakta/şehir dışında — motive satıcı">
+                            ✈ ABSENTEE
+                          </span>
+                        )}
+                        {d.estate && (
+                          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full whitespace-nowrap"
+                            style={{ background: "rgba(168,85,247,0.14)", color: "#a855f7" }} title="Miras yoluyla düşen / istenmeyen arsa — motive satıcı">
+                            ⚱ MİRAS
+                          </span>
+                        )}
+                      </div>
+                    )}
                   </td>
                   <td className="px-4 py-3 text-xs" style={{ color: "var(--muted)" }}>{d.mailAddr}</td>
                   <td className="px-4 py-3">

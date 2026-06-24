@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Split, Plus, ChevronRight, MapPin, DollarSign, TrendingUp, Layers } from "lucide-react";
+import { SampleDataBanner } from "@/components/SampleDataBanner";
 
 interface SubParcel {
   id: string;
@@ -112,6 +113,7 @@ export default function SubdivisionsPage() {
           <Plus className="w-4 h-4" /> New Split
         </button>
       </div>
+      <SampleDataBanner note="Subdivision takibi yol haritasında; aşağıdaki bölünmeler ve rakamlar örnektir." />
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">

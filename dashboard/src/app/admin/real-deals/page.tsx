@@ -11,6 +11,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 import data from "@/data/real-deals.json";
 import { Satellite, ExternalLink, MapPin, TrendingUp } from "lucide-react";
+import CsvButton from "./CsvButton";
 
 export const metadata = { title: "Gerçek Dealler — Terralot" };
 
@@ -49,7 +50,10 @@ export default function RealDealsPage() {
       <div className="mb-2 text-[11px] font-bold uppercase tracking-[0.2em]" style={{ color: "var(--primary, #16a34a)" }}>
         OFF-MARKET · GERÇEK VERİ
       </div>
-      <h1 className="text-[26px] font-bold mb-2">Gerçek Arsa Dealleri — Dallas County</h1>
+      <div className="flex items-start justify-between gap-4 mb-2">
+        <h1 className="text-[26px] font-bold">Gerçek Arsa Dealleri — Dallas County</h1>
+        <CsvButton rows={deals} />
+      </div>
       <p className="text-sm mb-1" style={{ color: "var(--muted)" }}>
         Her satır gerçek: parsel + sahip + vergi borcu (terralot kayıtları), arsa değeri + dönüm (Dallas DCAD, Regrid ile çekildi).
       </p>

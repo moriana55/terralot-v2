@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Plus, Search, Eye, Edit, Trash2, Copy, Check } from "lucide-react";
 import { offMarketProperties, OffMarketProperty } from "@/lib/data";
+import { SampleDataBanner } from "@/components/SampleDataBanner";
 
 function CopyCode({ code }: { code: string }) {
   const [copied, setCopied] = useState(false);
@@ -64,6 +65,7 @@ export default function AdminOffMarket() {
           <Plus className="w-4 h-4" /> Add Off-Market
         </button>
       </div>
+      <SampleDataBanner note="Off-market havuzu yol haritasında; aşağıdaki kayıtlar örnektir. Gerçek deal'ler için Gerçek Dealler ve Ucuz Boş Arsa sayfalarına bakın." />
 
       <div className="grid grid-cols-4 gap-4 mb-6">
         {stats.map(s => (
