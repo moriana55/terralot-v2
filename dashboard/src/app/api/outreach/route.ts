@@ -45,6 +45,8 @@ interface Lead {
   owner_name: string | null;
   owner_address: string | null;
   property_address: string | null;
+  market_value: number | null;
+  land_value: number | null;
 }
 
 // Parse a free-text owner_address into Lob address components (best-effort).
@@ -62,10 +64,30 @@ function parseAddress(raw: string | null): { line1: string; city: string; state:
   };
 }
 
-function buildDealSheet(lead: Lead, offerPct: number) {
+// Build the blind-offer deal-sheet.
+//
+//   ROADMAP RULE (BUILD-PLANI-DEMO.md #3 / yol haritası):
+//     offer = market_value × offerPct   where offerPct ∈ [15, 25]%.
+//
+//   We anchor the offer to the parcel's MARKET VALUE (Regrid/county assessed
+//   land value — real data, never fabricated), not the tax-sale minimum bid.
+//   That matches how land wholesalers actually pencil a blind offer: a small
+//   fraction of resale value so there's room to flip / owner-finance.
+//
+//   `marketValueOverride` lets a caller (e.g. the cheap-land/[id] "Mektup at" or
+//   "Owner-Finance ile Sat" flow) pass the deal's real marketValue/landValue
+//   straight from cheap-land.json. When it's absent we fall back to the lead's
+//   own market_value/land_value columns. If no market value is known at all we
+//   return offerPrice=null and an honest "fair cash price" — we do NOT invent a
+//   number off the min bid.
+function buildDealSheet(lead: Lead, offerPct: number, marketValueOverride?: number | null) {
   const minBid = lead.minimum_bid ?? lead.judgment_amount ?? 0;
-  // offer = a % of the minimum bid (cash, fast close framing)
-  const offer = minBid > 0 ? Math.round(minBid * (offerPct / 100)) : null;
+  const marketValue =
+    (marketValueOverride && marketValueOverride > 0 ? marketValueOverride : null) ??
+    (lead.market_value && lead.market_value > 0 ? lead.market_value : null) ??
+    (lead.land_value && lead.land_value > 0 ? lead.land_value : null);
+  // offer = market_value × offerPct% (blind offer, leaves flip/owner-finance spread)
+  const offer = marketValue != null ? Math.round(marketValue * (offerPct / 100)) : null;
   const st = abbr(lead.state);
   const cty = normCounty(lead.county);
   const title = `${lead.acres ? lead.acres + "-Acre" : "Parcel"}${cty ? " — " + cty + ", " + (st || "") : ""}`;
@@ -76,6 +98,7 @@ function buildDealSheet(lead: Lead, offerPct: number) {
     county: cty || lead.county,
     acres: lead.acres,
     minimumBid: minBid || null,
+    marketValue: marketValue,
     offerPrice: offer,
     offerPct,
     score: lead.final_score,
@@ -86,6 +109,7 @@ function buildDealSheet(lead: Lead, offerPct: number) {
       state: st || lead.state || "",
       acres: lead.acres ? String(lead.acres) : "",
       offer: offer != null ? `$${offer.toLocaleString()}` : "a fair cash price",
+      offer_amount: offer != null ? offer.toLocaleString() : "",
       apn: lead.apn || "",
     },
   };
@@ -121,7 +145,12 @@ export async function POST(req: NextRequest) {
 
   const channel = body.channel === "postcard" ? "postcard" : "letter";
   const type = (body.type as string) || "offer";
-  const offerPct = typeof body.offerPct === "number" ? body.offerPct : 110; // offer 110% of min bid by default
+  // ROADMAP: blind offer = market_value × 15-25%. Default 20% (mid-band).
+  const offerPct = typeof body.offerPct === "number" ? body.offerPct : 20;
+  // Optional: caller passes the deal's real market value (Regrid/landValue) so
+  // the offer is anchored to resale value even when the lead row lacks it.
+  const marketValueOverride =
+    typeof body.marketValue === "number" && body.marketValue > 0 ? body.marketValue : null;
   const doSend = body.send !== false; // default: send
 
   const s = supabaseAdmin();
@@ -134,8 +163,8 @@ export async function POST(req: NextRequest) {
   } catch { /* graceful */ }
   if (!lead) return NextResponse.json({ error: "lead not found" }, { status: 404 });
 
-  // 2) deal-sheet
-  const sheet = buildDealSheet(lead, offerPct);
+  // 2) deal-sheet (offer anchored to market value × offerPct)
+  const sheet = buildDealSheet(lead, offerPct, marketValueOverride);
   const addr = parseAddress(lead.owner_address);
 
   // 3) send via existing /api/lob (it mocks when LOB_API_KEY is absent)

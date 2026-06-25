@@ -6,6 +6,7 @@ import type { CampaignStatus } from "@/lib/mailer-data";
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { SampleDataBanner } from "@/components/SampleDataBanner";
+import SellOwnerFinanceButton from "@/components/SellOwnerFinanceButton";
 
 // useSearchParams must sit under a Suspense boundary or the production build
 // bails out (see node_modules/next/dist/docs/.../use-search-params.md). The
@@ -39,6 +40,11 @@ function MailerInner() {
 
   // Prefill source: a deal that linked here from /admin/ucuz-arsa/[id].
   const [prefilledFrom, setPrefilledFrom] = useState<string | null>(null);
+  // Real deal metadata carried in the querystring so (a) the offer amount in the
+  // letter is computed from the parcel's REAL market value (× 20%, roadmap rule),
+  // not a hardcoded number, and (b) after sending we can create a real
+  // owner-finance listing from this exact parcel ("Bu parseli satışa koy").
+  const [deal, setDeal] = useState<null | { id: string; mv: number; county: string; state: string; acres: number | null }>(null);
 
   // Read the deal querystring once and populate the Quick Send form. Mailing
   // address arrives as "owner" + "addr" ("STREET, CITY, STATE, ZIP"); we split
@@ -66,6 +72,19 @@ function MailerInner() {
       setPreviewTemplate(tpl);
       setShowTemplates(true);
     }
+    // Real deal metadata (market value drives the offer amount; id/county/state
+    // /acres let us create the owner-finance listing after sending).
+    const dealId = searchParams.get("dealId");
+    const mv = Number(searchParams.get("mv") || "0");
+    if (dealId) {
+      setDeal({
+        id: dealId,
+        mv: mv > 0 ? mv : 0,
+        county: searchParams.get("county") || "",
+        state: searchParams.get("st") || "",
+        acres: searchParams.get("acres") ? Number(searchParams.get("acres")) : null,
+      });
+    }
     setSelectedCampaign(null); // ensure the Quick Send card is visible
     setPrefilledFrom(dealLabel || owner || "deal");
     // searchParams identity is stable per navigation; run once on mount/prefill.
@@ -83,6 +102,13 @@ function MailerInner() {
 
     const templateData = LETTER_TEMPLATES.find(t => t.id === selectedTemplate);
     const action = templateData?.type === "postcard" ? "send_postcard" : "send_letter";
+
+    // ROADMAP: blind offer = market_value × 20% (mid of 15-25%). When the deal
+    // carried a real market value we use it; otherwise we leave it blank rather
+    // than inventing a number. county comes from the real deal too (no "Mohave"
+    // placeholder when we actually know the county).
+    const offerAmount = deal && deal.mv > 0 ? Math.round(deal.mv * 0.2).toLocaleString() : "";
+    const countyVar = deal?.county || "";
 
     try {
       const res = await fetch("/api/lob", {
@@ -107,11 +133,11 @@ function MailerInner() {
           template: templateData?.preview || "",
           merge_variables: {
             owner_name: recipientName,
-            county: "Mohave",
+            county: countyVar,
             state: stateCode,
             address: streetAddress,
-            apn: "301-42-0180",
-            offer_amount: "15000",
+            apn: "",
+            offer_amount: offerAmount,
           }
         }),
       });
@@ -222,13 +248,14 @@ function MailerInner() {
               style={{ background: "var(--surface-low)" }}>
               {previewTemplate ? (() => {
                 const tpl = LETTER_TEMPLATES.find(t => t.id === previewTemplate)!;
+                const previewOffer = deal && deal.mv > 0 ? Math.round(deal.mv * 0.2).toLocaleString() : "____";
                 const mockContent = tpl.preview
                   .replace(/\{\{owner_name\}\}/g, recipientName || "John Doe")
-                  .replace(/\{\{county\}\}/g, "Mohave")
+                  .replace(/\{\{county\}\}/g, deal?.county || "____")
                   .replace(/\{\{state\}\}/g, stateCode || "TX")
                   .replace(/\{\{address\}\}/g, streetAddress || "123 Main St")
-                  .replace(/\{\{apn\}\}/g, "301-42-0180")
-                  .replace(/\{\{offer_amount\}\}/g, "15,000");
+                  .replace(/\{\{apn\}\}/g, "____")
+                  .replace(/\{\{offer_amount\}\}/g, previewOffer);
 
                 return (
                   <div className="w-full space-y-4">
@@ -443,6 +470,26 @@ function MailerInner() {
                         className="inline-block mt-2 font-bold text-emerald-500 hover:underline">
                         View Generated PDF ↗
                       </a>
+                    )}
+
+                    {/* Al→Sat döngüsünü kapat: mektup gitti → şimdi bu parseli
+                        owner-finance ile satışa koy. Sadece gerçek bir deal'den
+                        geldiyse (market value var) gösterilir. */}
+                    {deal && deal.mv > 0 && (
+                      <div className="mt-3 pt-3 border-t" style={{ borderColor: "rgba(34,197,94,0.2)" }}>
+                        <p className="mb-2" style={{ color: "var(--muted)" }}>
+                          Mektup gitti. Döngüyü kapat → <b style={{ color: "var(--foreground)" }}>ucuz al, taksitle sat:</b>
+                        </p>
+                        <SellOwnerFinanceButton
+                          dealId={deal.id}
+                          title={prefilledFrom || `${deal.county}, ${deal.state}`}
+                          state={deal.state || null}
+                          county={deal.county || null}
+                          acres={deal.acres}
+                          marketValue={deal.mv}
+                          label="Bu parseli satışa koy"
+                        />
+                      </div>
                     )}
                   </div>
                 )}

@@ -230,6 +230,50 @@ async function scrapeRealAuction(county = 'polk') {
   }
 }
 
+// ── HILLSBOROUGH / ORANGE çok-county loop (RealAuction) ─────────────────────
+// Build planı #1: Marion tek-county; Hillsborough/Orange loop'u yoktu. İkisi de
+// RealAuction platformunda (hillsborough.realtaxdeed.com, orange.realtaxdeed.com).
+// scrapeRealAuction zaten county parametrik — burada sadece üzerinden geçiyoruz.
+// Bu ortamda 403 (geo/IP block) beklenir; ABD IP'de gerçek FL parselleri döner.
+// SAHTE VERİ YOK: erişilemezse boş döner, uydurma satır eklenmez.
+const FL_REALAUCTION_COUNTIES = ['hillsborough', 'orange'];
+
+async function scrapeFloridaCounties(counties = FL_REALAUCTION_COUNTIES) {
+  const all = [];
+  for (const c of counties) {
+    try {
+      const rows = await scrapeRealAuction(c);
+      console.log(`  ${c}: ${rows.length} parsel`);
+      all.push(...rows);
+    } catch (e) {
+      console.error(`  ${c} hatası: ${e.message} (muhtemelen geo/IP block — ABD IP gerekir)`);
+    }
+  }
+  return all;
+}
+
+// ── Regrid-türevli bayraklar: is_vacant / is_absentee ───────────────────────
+// Build planı: kolonlar Regrid'den türetilebilir ("usedesc"→vacant, "owner"→
+// absentee) ama pipeline'a bağlı değildi. Burada saf, deterministik türetme:
+//   is_vacant   = land-use açıklaması "vacant/unimproved" içeriyorsa true
+//   is_absentee = sahip posta adresi parselin county'sinden farklıysa true
+// Veri yoksa null bırakılır (uydurma yok). Regrid enrich bu alanları doldurur.
+function deriveFlags(row) {
+  const useDesc = (row.use_desc || row.usedesc || row.address || '').toLowerCase();
+  const isVacant = /vacant|unimproved|empty|raw land/.test(useDesc)
+    ? true
+    : /improved|residence|dwelling|bldg|building/.test(useDesc)
+      ? false
+      : null;
+  // absentee: sahip posta county'si ≠ parsel county'si (ikisi de biliniyorsa)
+  let isAbsentee = null;
+  if (row.owner_mail_county && row.county) {
+    isAbsentee = row.owner_mail_county.toUpperCase().replace(/ COUNTY$/, '').trim()
+      !== row.county.toUpperCase().replace(/ COUNTY$/, '').trim();
+  }
+  return { ...row, is_vacant: isVacant, is_absentee: isAbsentee };
+}
+
 // ── opsiyonel: ayrı test DB'sine yaz (PAYLAŞILAN data.db DEĞİL) ──────────────
 function writeToTestDb(rows) {
   let Database;
@@ -238,16 +282,23 @@ function writeToTestDb(rows) {
   db.exec(`CREATE TABLE IF NOT EXISTS fl_tax_sales (
     uid TEXT PRIMARY KEY, state TEXT, county TEXT, apn TEXT, owner_name TEXT,
     minimum_bid REAL, value REAL, acres REAL, address TEXT, sale_date TEXT,
+    is_vacant INTEGER, is_absentee INTEGER,
     source TEXT, raw_url TEXT, created_at TEXT DEFAULT (datetime('now')))`);
   const ins = db.prepare(`INSERT OR REPLACE INTO fl_tax_sales
-    (uid,state,county,apn,owner_name,minimum_bid,value,acres,address,sale_date,source,raw_url)
-    VALUES (@uid,@state,@county,@apn,@owner_name,@minimum_bid,@value,@acres,@address,@sale_date,@source,@raw_url)`);
-  const tx = db.transaction((list) => list.forEach((r) => ins.run({
-    uid: `FL_${r.county.replace(/\s+/g, '')}_${r.apn}`,
-    state: r.state, county: r.county, apn: r.apn, owner_name: r.owner_name,
-    minimum_bid: r.minimum_bid, value: r.value, acres: r.acres, address: r.address,
-    sale_date: r.sale_date, source: r.source, raw_url: r.raw_url,
-  })));
+    (uid,state,county,apn,owner_name,minimum_bid,value,acres,address,sale_date,is_vacant,is_absentee,source,raw_url)
+    VALUES (@uid,@state,@county,@apn,@owner_name,@minimum_bid,@value,@acres,@address,@sale_date,@is_vacant,@is_absentee,@source,@raw_url)`);
+  const tx = db.transaction((list) => list.forEach((raw) => {
+    const r = deriveFlags(raw); // is_vacant / is_absentee türet (null kalabilir)
+    ins.run({
+      uid: `FL_${(r.county || '').replace(/\s+/g, '')}_${r.apn}`,
+      state: r.state, county: r.county, apn: r.apn, owner_name: r.owner_name,
+      minimum_bid: r.minimum_bid, value: r.value, acres: r.acres, address: r.address,
+      sale_date: r.sale_date,
+      is_vacant: r.is_vacant == null ? null : (r.is_vacant ? 1 : 0),
+      is_absentee: r.is_absentee == null ? null : (r.is_absentee ? 1 : 0),
+      source: r.source, raw_url: r.raw_url,
+    });
+  }));
   tx(rows);
   console.log(`💾 florida_test.db'ye ${rows.length} satır yazıldı (paylaşılan DB'ye DOKUNULMADI).`);
   db.close();
@@ -258,7 +309,11 @@ function writeToTestDb(rows) {
   const args = process.argv.slice(2);
   let rows = [];
 
-  if (args.includes('--realauction')) {
+  if (args.includes('--counties')) {
+    // Hillsborough + Orange loop (build planı #1). ABD IP gerekir; bu ortamda boş döner.
+    console.log(`→ Florida çok-county loop: ${FL_REALAUCTION_COUNTIES.join(', ')}`);
+    rows = await scrapeFloridaCounties();
+  } else if (args.includes('--realauction')) {
     rows = await scrapeRealAuction(args[args.indexOf('--realauction') + 1] && !args[args.indexOf('--realauction') + 1].startsWith('--') ? args[args.indexOf('--realauction') + 1] : 'polk');
   } else {
     try {

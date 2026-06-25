@@ -37,6 +37,18 @@ const blankForm = {
   title: "", state: "", county: "", acres: "", price: "", down_pct: "10", apr: "9.9", term_months: "60", status: "active", description: "", parcel_ref: "",
 };
 
+// ── Owner-finance term PRESETS (gerçek rakipler) ──────────────────────────────
+// Yol haritasından: APR default %9-11 bandında. Compass Land / LANDiO gibi
+// gerçek US land-flip sağlayıcılarının kamuya açık şartları temel alındı.
+// Sadece form alanlarını (down_pct / apr / term_months) doldurur; aylık ödeme
+// flip-calc.ts amortismanıyla server-side hesaplanır (uydurma rakam yok).
+const PRESETS: { id: string; label: string; sub: string; down_pct: string; apr: string; term_months: string }[] = [
+  { id: "default", label: "TerraLot Std", sub: "%9.9 · %10 peşinat · 60ay", down_pct: "10", apr: "9.9", term_months: "60" },
+  { id: "compass", label: "Compass-tarzı", sub: "%7.9 · %10 peşinat · 60ay", down_pct: "10", apr: "7.9", term_months: "60" },
+  { id: "landio", label: "LANDiO-tarzı", sub: "%6.9 · %15 peşinat · 84ay", down_pct: "15", apr: "6.9", term_months: "84" },
+  { id: "aggressive", label: "Hızlı kapanış", sub: "%10.9 · %5 peşinat · 48ay", down_pct: "5", apr: "10.9", term_months: "48" },
+];
+
 export default function OwnerFinancePage() {
   const [listings, setListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
@@ -163,6 +175,24 @@ export default function OwnerFinancePage() {
             <div className="flex items-center justify-between px-5 py-3.5 border-b" style={{ borderColor: "var(--surface-high)" }}>
               <span className="font-bold">{editId ? "Listeyi düzenle" : "Yeni liste"}</span>
               <button onClick={() => setShowForm(false)}><X className="w-4 h-4" /></button>
+            </div>
+            {/* Owner-finance term presetleri — down/apr/term'i tek tıkla doldurur */}
+            <div className="px-5 pt-4">
+              <span className="text-[11px] font-semibold block mb-1.5" style={{ color: "var(--muted)" }}>Taksit şablonu (preset)</span>
+              <div className="flex flex-wrap gap-2">
+                {PRESETS.map((p) => {
+                  const active = form.apr === p.apr && form.down_pct === p.down_pct && form.term_months === p.term_months;
+                  return (
+                    <button key={p.id} type="button"
+                      onClick={() => setForm((f) => ({ ...f, down_pct: p.down_pct, apr: p.apr, term_months: p.term_months }))}
+                      className="text-left px-3 py-2 rounded-lg border text-xs transition-colors"
+                      style={{ borderColor: active ? "var(--accent-ink)" : "var(--outline)", background: active ? "rgba(142,209,223,0.08)" : "transparent" }}>
+                      <div className="font-bold" style={{ color: active ? "var(--accent-ink)" : "var(--foreground)" }}>{p.label}</div>
+                      <div className="text-[10px]" style={{ color: "var(--muted)" }}>{p.sub}</div>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
             <div className="p-5 grid grid-cols-2 gap-3">
               {([

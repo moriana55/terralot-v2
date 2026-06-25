@@ -24,6 +24,9 @@ const stratColor = (s?: string) => (s === "AL-SAT" ? "#16a34a" : s === "EMLAKÇI
 
 export default function UcuzArsaPage() {
   const deals = (data.deals as Deal[]) || [];
+  // Hangi eyaletlerde GERÇEK veri var? (snapshot'tan türet — uydurma yok)
+  const states = [...new Set(deals.map((d) => d.state).filter(Boolean))];
+  const hasFL = states.includes("FL");
   // sahibe göre grupla
   const byOwner = new Map<string, Deal[]>();
   for (const d of deals) {
@@ -47,6 +50,22 @@ export default function UcuzArsaPage() {
       <p className="text-sm mb-6" style={{ color: "var(--muted)" }}>
         Model: <b style={{ color: "var(--foreground)" }}>ucuz boş arsa → sahibine mektup → ucuza al → taksitle sat</b> (RinaLand modeli). İhale yok, sahibe direkt. Veri gerçek: kamu vergi-borç kaydı (sahip + posta adresi + borç).
       </p>
+
+      {/* EYALET KAPSAMI — Texas kanıtlandı, Florida pipeline hazır ama veri henüz çekilmedi (dürüst boş durum, uydurma FL deal YOK) */}
+      <div className="flex flex-wrap items-center gap-2 mb-6">
+        <span className="text-[11px] font-semibold" style={{ color: "var(--muted)" }}>Eyalet kapsamı:</span>
+        {states.map((s) => (
+          <span key={s} className="text-[11px] font-bold px-2.5 py-1 rounded-full" style={{ background: "rgba(22,163,74,0.14)", color: "var(--primary,#16a34a)" }}>
+            {s} · {deals.filter((d) => d.state === s).length} arsa ✓
+          </span>
+        ))}
+        {!hasFL && (
+          <span className="text-[11px] font-bold px-2.5 py-1 rounded-full" style={{ background: "rgba(148,163,184,0.14)", color: "#94a3b8" }}
+            title="scraper/scrape_florida.js + Hillsborough/Orange loop hazır; çalıştırılınca gerçek FL parselleri buraya düşer. Sahte FL verisi seed edilmedi.">
+            FL · veri henüz çekilmedi (scraper hazır)
+          </span>
+        )}
+      </div>
 
       {/* özet */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-7">

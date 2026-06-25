@@ -10,6 +10,7 @@ import data from "@/data/cheap-land.json";
 import Link from "next/link";
 import { ArrowLeft, Satellite, MailPlus, CheckCircle2, Calculator, Clock, ExternalLink } from "lucide-react";
 import { notFound } from "next/navigation";
+import SellOwnerFinanceButton from "@/components/SellOwnerFinanceButton";
 
 const fmt = (n: number | null | undefined) => (n == null ? "—" : `$${Math.round(n).toLocaleString("en-US")}`);
 
@@ -37,7 +38,15 @@ export default async function ArsaDegerlemePage({ params }: { params: Promise<{ 
   // address. Template tpl3 (Formal Offer Letter) matches the deal hook:
   // "arsanı satın alırım, vergi borcunu hallederim". The mailer reads these
   // params, splits the address, and opens the populated Lob preview.
-  const mailerHref = `/admin/mailer?prefill=1&owner=${encodeURIComponent(d.owner)}&addr=${encodeURIComponent(d.mailAddr)}&deal=${encodeURIComponent(street)}&tpl=tpl3`;
+  // Deal'in GERÇEK piyasa değeri + metadata'sı querystring'e eklenir; böylece
+  // mailer'da gönderim sonrası "Bu parseli satışa koy" butonu owner-finance
+  // ilanını uydurma değil, bu parselin gerçek verisinden oluşturabilir.
+  const mv = (d.marketValue ?? d.landValue) ?? 0;
+  const mailerHref =
+    `/admin/mailer?prefill=1&owner=${encodeURIComponent(d.owner)}&addr=${encodeURIComponent(d.mailAddr)}` +
+    `&deal=${encodeURIComponent(street)}&tpl=tpl3` +
+    `&dealId=${encodeURIComponent(d.id)}&mv=${mv}` +
+    `&county=${encodeURIComponent(d.county ?? "")}&st=${encodeURIComponent(d.state ?? "")}&acres=${d.acres ?? ""}`;
 
   const Badge = ({ kind }: { kind: "ok" | "calc" | "dd" }) => {
     const map = {
@@ -144,9 +153,19 @@ export default async function ArsaDegerlemePage({ params }: { params: Promise<{ 
         </p>
       </section>
 
-      <div className="flex gap-2">
+      <div className="flex gap-2 flex-wrap">
         <a href={d.mapUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm border" style={{ borderColor: "var(--outline)" }}><Satellite className="w-4 h-4" /> Uydu / Harita</a>
         <Link href={mailerHref} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold transition-opacity hover:opacity-90" style={{ background: "rgba(22,163,74,0.12)", color: "var(--primary,#16a34a)" }}><MailPlus className="w-4 h-4" /> Mektup at</Link>
+        {!d.noDeal && (
+          <SellOwnerFinanceButton
+            dealId={d.id}
+            title={d.property.split(",")[0].trim() || (d.county ?? "Parcel")}
+            state={d.state ?? null}
+            county={d.county ?? null}
+            acres={d.acres ?? null}
+            marketValue={(d.marketValue ?? d.landValue) ?? null}
+          />
+        )}
       </div>
     </div>
   );

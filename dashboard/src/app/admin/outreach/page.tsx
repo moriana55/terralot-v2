@@ -21,7 +21,7 @@ interface Event {
 }
 interface DealSheet {
   title: string; offerPrice: number | null; offerPct: number; minimumBid: number | null;
-  score: number | null; merge_variables: Record<string, string>;
+  marketValue: number | null; score: number | null; merge_variables: Record<string, string>;
 }
 
 const fmt = (n: number | null | undefined) => (n == null ? "—" : `$${Math.round(n).toLocaleString()}`);
@@ -39,7 +39,8 @@ export default function OutreachPage() {
   const [searching, setSearching] = useState(false);
   const [lead, setLead] = useState<Lead | null>(null);
   const [channel, setChannel] = useState<"letter" | "postcard">("letter");
-  const [offerPct, setOfferPct] = useState(110);
+  // ROADMAP: blind offer = market_value × 15-25%. Default 20% (mid-band).
+  const [offerPct, setOfferPct] = useState(20);
   const [sending, setSending] = useState(false);
   const [result, setResult] = useState<null | { status: string; dealSheet: DealSheet; note: string; error: string | null; lob: Record<string, unknown> | null }>(null);
   const [events, setEvents] = useState<Event[]>([]);
@@ -149,9 +150,10 @@ export default function OutreachPage() {
                     </div>
                   </div>
                   <label className="block">
-                    <span className="text-[11px] font-semibold block mb-1.5" style={{ color: "var(--muted)" }}>Teklif (% min bid)</span>
-                    <input type="number" value={offerPct} onChange={(e) => setOfferPct(Number(e.target.value))}
-                      className="w-full px-3 py-2 rounded-lg text-sm border bg-transparent outline-none tabular-nums" style={{ borderColor: "var(--outline)" }} />
+                    <span className="text-[11px] font-semibold block mb-1.5" style={{ color: "var(--muted)" }}>Teklif (% piyasa değeri) · {offerPct}%</span>
+                    <input type="range" min={15} max={25} step={1} value={offerPct} onChange={(e) => setOfferPct(Number(e.target.value))}
+                      className="w-full accent-[var(--accent-ink)]" />
+                    <div className="flex justify-between text-[10px] mt-0.5" style={{ color: "var(--muted)" }}><span>15%</span><span>20%</span><span>25%</span></div>
                   </label>
                   <div className="flex items-end gap-2">
                     <button onClick={() => send(true)} disabled={sending} className="flex-1 px-3 py-2 rounded-lg text-sm font-semibold flex items-center justify-center gap-2" style={{ background: "var(--surface-high)" }}>
@@ -173,10 +175,15 @@ export default function OutreachPage() {
                   </div>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm mb-3">
                     <div><div className="text-[10px] uppercase tracking-wider" style={{ color: "var(--muted)" }}>Teklif fiyatı</div><div className="font-bold tabular-nums">{fmt(result.dealSheet.offerPrice)}</div></div>
-                    <div><div className="text-[10px] uppercase tracking-wider" style={{ color: "var(--muted)" }}>Min teklif</div><div className="font-bold tabular-nums">{fmt(result.dealSheet.minimumBid)}</div></div>
-                    <div><div className="text-[10px] uppercase tracking-wider" style={{ color: "var(--muted)" }}>Teklif oranı</div><div className="font-bold tabular-nums">{result.dealSheet.offerPct}%</div></div>
+                    <div><div className="text-[10px] uppercase tracking-wider" style={{ color: "var(--muted)" }}>Piyasa değeri</div><div className="font-bold tabular-nums">{fmt(result.dealSheet.marketValue)}</div></div>
+                    <div><div className="text-[10px] uppercase tracking-wider" style={{ color: "var(--muted)" }}>Teklif oranı</div><div className="font-bold tabular-nums">{result.dealSheet.offerPct}% × piyasa</div></div>
                     <div><div className="text-[10px] uppercase tracking-wider" style={{ color: "var(--muted)" }}>Skor</div><div className="font-bold tabular-nums">{result.dealSheet.score ?? "—"}</div></div>
                   </div>
+                  {result.dealSheet.marketValue == null && (
+                    <p className="text-[10px] mb-2 rounded-md border border-dashed px-2 py-1" style={{ borderColor: "var(--outline)", color: "var(--warn)" }}>
+                      Bu lead&apos;de piyasa değeri (market/land value) yok — teklif &quot;adil nakit fiyat&quot; olarak gönderilir. Uydurma rakam üretilmez.
+                    </p>
+                  )}
                   <div className="rounded-lg p-3 text-xs font-mono" style={{ background: "var(--surface-low)", color: "var(--muted)" }}>
                     {Object.entries(result.dealSheet.merge_variables).map(([k, v]) => (
                       <div key={k}><span style={{ color: "var(--accent-ink)" }}>{k}</span>: {v}</div>
