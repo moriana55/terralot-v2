@@ -4,6 +4,7 @@ import { supabaseAdmin } from "@/lib/supabase";
 import { enforceRateLimit, requireGate } from "@/lib/api-guard";
 import { aiEnabled, aiNarrative } from "@/lib/ai-narrative";
 import { saneAcres, saneBid, medianPpa, intrinsicValue } from "@/lib/land-valuation";
+import { priceParcel } from "@/lib/pricing";
 
 // Input contract — every field optional, but the request must identify a parcel
 // by at least one of leadId/apn/address (enforced after parse). Strings are
@@ -245,6 +246,12 @@ export async function POST(req: NextRequest) {
   if (sAcres == null && lead.acres != null) dataGaps.push("acreage missing/implausible (no honest value)");
   else if (compValue == null && sAcres != null) dataGaps.push("intrinsic value (no comparable $/acre for this market)");
 
+  // Tek-kaynak fiyatlama: MAIL teklifi + SATIŞ fiyatları AYNI comp değerinden türetilir.
+  // Comp yoksa/zayıfsa fiyat null + mailSafe=false → otomatik blind-offer gitmez.
+  const pricing = priceParcel({
+    acres: sAcres, countyRate, stateRate, countyComps: countyCompCount, stateComps: stateCompCount,
+  });
+
   // ── Rubric facets (each 0..1) ────────────────────────────────────────────
   const reasons: { label: string; pts: number; note: string }[] = [];
 
@@ -424,6 +431,14 @@ export async function POST(req: NextRequest) {
       compValue, perAcre, minBid, floodScore, roadAccess, popGrowth: growth, income: demo.income,
       valueConfidence: compValue != null ? valueConf : null,
       valueBasis: compValue != null ? (countyRate ? "county_comp" : "state_comp") : "none",
+    },
+    pricing: {
+      marketValue: pricing.marketValue,
+      offer: pricing.offer,           // MAIL: blind-offer teklifi
+      cashPrice: pricing.cashPrice,   // SATIŞ: nakit
+      financePrice: pricing.financePrice, // SATIŞ: owner-finance
+      mailSafe: pricing.mailSafe,     // false → DOĞRULA, otomatik mail atma
+      comps: pricing.comps,
     },
     dataGaps,
     dataSources,

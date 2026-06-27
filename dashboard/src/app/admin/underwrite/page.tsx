@@ -17,6 +17,7 @@ interface Verdict {
   score: number;
   reasons: Reason[];
   signals: { compValue: number | null; perAcre: number | null; minBid: number | null; floodScore: number | null; roadAccess: string | null; popGrowth: number | null; income: number | null; valueConfidence: "high" | "medium" | "low" | null; valueBasis: "county_comp" | "state_comp" | "none" };
+  pricing: { marketValue: number | null; offer: number | null; cashPrice: number | null; financePrice: number | null; mailSafe: boolean; comps: number };
   dataGaps: string[];
   dataSources?: DataSourceItem[];
   narrative: string;
@@ -28,6 +29,13 @@ interface LeadLite { id: string; apn: string | null; county: string | null; stat
 const fmtMoney = (v: number | null) => (v == null ? "—" : `$${Math.round(v).toLocaleString()}`);
 const VERDICT_COLOR: Record<string, string> = { BUY: "var(--grade-a)", WATCH: "var(--warn)", PASS: "var(--danger)" };
 const VerdictIcon = ({ v }: { v: string }) => v === "BUY" ? <CheckCircle2 className="w-5 h-5" /> : v === "WATCH" ? <Eye className="w-5 h-5" /> : <XCircle className="w-5 h-5" />;
+const PriceCell = ({ label, value, sub, highlight }: { label: string; value: string; sub?: string; highlight?: boolean }) => (
+  <div className="rounded-lg p-3 border" style={{ borderColor: highlight ? "var(--accent-ink)" : "var(--surface-high)", background: highlight ? "var(--surface-high)" : "transparent" }}>
+    <p className="text-[9px] font-bold uppercase tracking-widest mb-1" style={{ color: "var(--muted)" }}>{label}</p>
+    <p className="text-2xl font-extrabold tabular-nums" style={{ color: highlight ? "var(--accent-ink)" : undefined }}>{value}</p>
+    {sub && <p className="text-[10px]" style={{ color: "var(--muted)" }}>{sub}</p>}
+  </div>
+);
 
 export default function UnderwritePage() {
   const [apn, setApn] = useState("");
@@ -125,6 +133,27 @@ export default function UnderwritePage() {
 
       {result && (
         <div className="space-y-6">
+        {/* FİYATLAMA — tek comp değerinden teklif + satış (demo merkezi) */}
+        <div className="rounded-xl border p-5" style={{ background: "var(--surface)", borderColor: "var(--surface-high)" }}>
+          <div className="flex items-center gap-2 mb-4">
+            <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--muted)" }}>Fiyatlama — tek comp değerinden türetildi</p>
+            <span className="ml-auto text-[10px] font-bold px-2 py-1 rounded-full" style={{ background: result.pricing.mailSafe ? "rgba(40,160,80,0.12)" : "rgba(255,180,60,0.12)", color: result.pricing.mailSafe ? "var(--grade-a)" : "var(--warn)" }}>
+              {result.pricing.mailSafe ? "✓ Mail güvenli" : "⚠ DOĞRULA — otomatik mail atma"}
+            </span>
+          </div>
+          {result.pricing.marketValue == null ? (
+            <p className="text-sm" style={{ color: "var(--warn)" }}>
+              Güvenilir comp yok — fiyat üretilmedi (uydurma teklif yok). Bu market için comp besle, sonra fiyatla.
+            </p>
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <PriceCell label="Piyasa değeri" value={fmtMoney(result.pricing.marketValue)} sub={`${result.pricing.comps} gerçek comp`} />
+              <PriceCell label="Teklif (mail)" value={fmtMoney(result.pricing.offer)} sub="blind-offer · alış" highlight />
+              <PriceCell label="Satış · nakit" value={fmtMoney(result.pricing.cashPrice)} sub="hızlı çıkış" />
+              <PriceCell label="Satış · owner-finance" value={fmtMoney(result.pricing.financePrice)} sub="taksitli · yüksek" />
+            </div>
+          )}
+        </div>
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6">
           {/* Verdict + rubric */}
           <div className="rounded-xl border overflow-hidden" style={{ background: "var(--surface)", borderColor: "var(--surface-high)" }}>
