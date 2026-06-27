@@ -4,7 +4,9 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { ScoreBadge } from "@/components/ScoreBadge";
 import { DataSources, type DataSourceItem } from "@/components/DataSources";
-import { Brain, Loader2, AlertCircle, Sparkles, CheckCircle2, XCircle, Eye, MapPin } from "lucide-react";
+import { buildFinancingOptions } from "@/lib/owner-finance";
+import { dealEconomics } from "@/lib/deal-economics";
+import { Brain, Loader2, AlertCircle, Sparkles, CheckCircle2, XCircle, Eye, MapPin, Landmark, TrendingUp } from "lucide-react";
 
 // AI Parcel Underwriting — type an APN/address or pick a top lead, get a
 // BUY/WATCH/PASS verdict with an explainable rubric. Calls POST /api/underwrite.
@@ -154,6 +156,76 @@ export default function UnderwritePage() {
             </div>
           )}
         </div>
+
+        {/* DEAL EKONOMİSİ + OWNER-FINANCE PLANLARI — pure libs (deal-economics + owner-finance) */}
+        {result.pricing.financePrice != null && (() => {
+          const econ = dealEconomics({
+            offer: result.pricing.offer,
+            cashPrice: result.pricing.cashPrice,
+            financePrice: result.pricing.financePrice,
+          });
+          const plans = buildFinancingOptions(result.pricing.financePrice, { cashPrice: result.pricing.cashPrice });
+          const fmtPct = (v: number | null) => (v == null ? "—" : `${v >= 0 ? "" : ""}${Math.round(v)}%`);
+          return (
+            <div className="space-y-6">
+              {/* Deal ekonomisi */}
+              <div className="rounded-xl border p-5" style={{ background: "var(--surface)", borderColor: "var(--surface-high)" }}>
+                <div className="flex items-center gap-2 mb-4">
+                  <TrendingUp className="w-4 h-4" style={{ color: "var(--accent-ink)" }} />
+                  <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--muted)" }}>Deal ekonomisi — alış→satış marjı</p>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  <PriceCell label="Alış maliyeti" value={fmtMoney(econ.totalCost)} sub="teklif (+ kapanış)" />
+                  <PriceCell label="Nakit spread" value={fmtMoney(econ.cashSpread)} sub={`ROI ${fmtPct(econ.cashRoiPct)}`} highlight />
+                  <PriceCell label="Brüt marj" value={fmtPct(econ.grossMarginPct)} sub="satış fiyatına oran" />
+                  <PriceCell label="Owner-finance ROI" value={fmtPct(econ.ownerFinanceTotalRoiPct)} sub={`toplam tahsilat ${fmtMoney(econ.ownerFinanceTotalCollected)}`} />
+                </div>
+                <p className="text-[11px] mt-3 pt-3 border-t" style={{ borderColor: "var(--surface-high)", color: "var(--muted)" }}>{econ.breakevenNote}</p>
+              </div>
+
+              {/* Owner-finance plan tablosu */}
+              {plans.length > 0 && (
+                <div className="rounded-xl border p-5" style={{ background: "var(--surface)", borderColor: "var(--surface-high)" }}>
+                  <div className="flex items-center gap-2 mb-4">
+                    <Landmark className="w-4 h-4" style={{ color: "var(--accent-ink)" }} />
+                    <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--muted)" }}>Owner-finance planları — müşteriye sunum</p>
+                    <span className="ml-auto text-[10px]" style={{ color: "var(--muted)" }}>satış fiyatı {fmtMoney(result.pricing.financePrice)}</span>
+                  </div>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="text-[10px] uppercase tracking-widest" style={{ color: "var(--muted)" }}>
+                          <th className="text-left font-bold py-2">Plan</th>
+                          <th className="text-right font-bold py-2">Peşinat</th>
+                          <th className="text-right font-bold py-2">Aylık</th>
+                          <th className="text-right font-bold py-2">Toplam</th>
+                          <th className="text-right font-bold py-2">Faiz</th>
+                          <th className="text-right font-bold py-2">Nakite prim</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {plans.map((pl) => (
+                          <tr key={pl.id} className="border-t" style={{ borderColor: "var(--surface-high)" }}>
+                            <td className="py-2.5 font-semibold">{pl.label}</td>
+                            <td className="py-2.5 text-right tabular-nums">{fmtMoney(pl.downPayment)} <span style={{ color: "var(--muted)" }}>({Math.round(pl.downPaymentPct)}%)</span></td>
+                            <td className="py-2.5 text-right tabular-nums font-bold" style={{ color: "var(--accent-ink)" }}>{fmtMoney(pl.monthlyPayment)}</td>
+                            <td className="py-2.5 text-right tabular-nums">{fmtMoney(pl.totalPaid)}</td>
+                            <td className="py-2.5 text-right tabular-nums" style={{ color: "var(--muted)" }}>{fmtMoney(pl.totalInterest)}</td>
+                            <td className="py-2.5 text-right tabular-nums" style={{ color: "var(--muted)" }}>{pl.effectivePremiumPct == null ? "—" : `+${Math.round(pl.effectivePremiumPct)}%`}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  <p className="text-[10px] mt-3 pt-3 border-t" style={{ borderColor: "var(--surface-high)", color: "var(--muted)" }}>
+                    Kademeli faiz LANDiO (%5.9/6.9/7.9) + Compass varsayılan (%7.9 · %10 peşinat · 60ay) şablonundan. Standart amortisman — kredi kontrolü/balon yok.
+                  </p>
+                </div>
+              )}
+            </div>
+          );
+        })()}
+
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6">
           {/* Verdict + rubric */}
           <div className="rounded-xl border overflow-hidden" style={{ background: "var(--surface)", borderColor: "var(--surface-high)" }}>
