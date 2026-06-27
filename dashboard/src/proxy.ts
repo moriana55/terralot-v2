@@ -94,7 +94,7 @@ function denyUnconfigured(req: NextRequest): NextResponse {
   return NextResponse.redirect(url);
 }
 
-export default function middleware(req: NextRequest, ev: NextFetchEvent) {
+export default function proxy(req: NextRequest, ev: NextFetchEvent) {
   if (clerkIsReal()) return clerk(req, ev);
   if (gateEnabled()) return gateMiddleware(req);
   // No real auth configured: a valid cron bearer may still reach its endpoint

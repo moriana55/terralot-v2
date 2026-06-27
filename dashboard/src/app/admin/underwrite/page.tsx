@@ -165,7 +165,7 @@ export default function UnderwritePage() {
             financePrice: result.pricing.financePrice,
           });
           const plans = buildFinancingOptions(result.pricing.financePrice, { cashPrice: result.pricing.cashPrice });
-          const fmtPct = (v: number | null) => (v == null ? "—" : `${v >= 0 ? "" : ""}${Math.round(v)}%`);
+          const fmtPct = (v: number | null) => (v == null ? "—" : `${Math.round(v)}%`);
           return (
             <div className="space-y-6">
               {/* Deal ekonomisi */}

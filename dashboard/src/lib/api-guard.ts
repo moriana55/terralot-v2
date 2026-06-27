@@ -3,7 +3,7 @@ import { GATE_COOKIE, gateEnabled, gateToken } from "@/lib/gate";
 import { API_RATE_LIMIT, API_RATE_WINDOW_MS } from "@/lib/constants";
 
 // ── Auth ─────────────────────────────────────────────────────────────────────
-// Validates the same gate session cookie used by middleware.ts / gate.ts.
+// Validates the same gate session cookie used by proxy.ts / gate.ts.
 // Returns a 401 NextResponse when invalid, or null when the request is allowed.
 // Note: when the gate isn't active (Clerk live, or no password set) this is a
 // no-op — the middleware/Clerk already governs access in that mode.
