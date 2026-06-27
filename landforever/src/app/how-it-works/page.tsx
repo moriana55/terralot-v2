@@ -4,7 +4,7 @@ import CTASection from "@/components/CTASection";
 import Reveal from "@/components/Reveal";
 
 export const metadata = {
-  title: "How It Works — LandForever",
+  title: "How It Works",
   description:
     "Browse, reserve, sign, and receive your deed. Owning US land in four simple steps. No credit check.",
 };

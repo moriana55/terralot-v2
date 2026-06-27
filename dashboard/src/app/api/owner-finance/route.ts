@@ -244,9 +244,29 @@ export async function POST(req: NextRequest) {
       .insert(record)
       .select()
       .maybeSingle();
-    if (error) return NextResponse.json({ error: error.message }, { status: 400 });
-    return NextResponse.json({ listing: data, monthly });
+    if (error) {
+      // owner_finance_listings tablosu henüz yaratılmadıysa (migration çalışmadıysa)
+      // demo akışı kırılmasın: hesaplanmış ilanı optimistik döndür. Kalıcı kayıt için
+      // sql/owner_finance_listings.sql Supabase'de çalıştırılmalı (persisted:false ile uyarır).
+      if (isMissingTable(error)) {
+        return NextResponse.json({
+          listing: { id: `local-${Date.now()}`, created_at: record.updated_at, ...record },
+          monthly,
+          persisted: false,
+        });
+      }
+      return NextResponse.json({ error: error.message }, { status: 400 });
+    }
+    return NextResponse.json({ listing: data, monthly, persisted: true });
   } catch (e) {
     return NextResponse.json({ error: String(e) }, { status: 500 });
   }
+}
+
+// Postgres "tablo yok" hatasını tanı (42P01 veya PostgREST şema-cache mesajı).
+function isMissingTable(error: { code?: string; message?: string }): boolean {
+  return (
+    error.code === "42P01" ||
+    /schema cache|does not exist|could not find the table/i.test(error.message ?? "")
+  );
 }

@@ -219,14 +219,15 @@ export default function TaxLeadsPage() {
                       style={{ borderColor: "var(--outline)" }}>
                       <td className="px-4 py-3">
                         {lead.raw_url ? (
-                          <a href={lead.raw_url} target="_blank" rel="noopener noreferrer"
-                            className="text-xs px-2 py-0.5 rounded font-semibold uppercase hover:opacity-80 transition-all inline-flex items-center gap-1"
+                          <a href={lead.raw_url} target="_blank" rel="noopener noreferrer" title={lead.source}
+                            className="text-[11px] px-2 py-0.5 rounded font-semibold uppercase hover:opacity-80 transition-all inline-flex items-center gap-1 max-w-[120px] whitespace-nowrap"
                             style={{ background: "rgba(57,128,244,0.1)", color: "var(--primary)" }}>
-                            {lead.source}
-                            <span className="text-[10px]">🔗</span>
+                            <span className="truncate">{lead.source}</span>
+                            <span className="text-[10px] shrink-0">🔗</span>
                           </a>
                         ) : (
-                          <span className="text-xs px-2 py-0.5 rounded font-semibold uppercase"
+                          <span title={lead.source}
+                            className="text-[11px] px-2 py-0.5 rounded font-semibold uppercase inline-block max-w-[120px] truncate whitespace-nowrap align-middle"
                             style={{ background: "rgba(57,128,244,0.1)", color: "var(--primary)" }}>
                             {lead.source}
                           </span>

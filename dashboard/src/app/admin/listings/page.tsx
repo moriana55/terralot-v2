@@ -99,8 +99,8 @@ export default function AdminListings() {
           <h1 className="text-2xl font-bold mb-1">Listings</h1>
           <p className="text-sm" style={{ color: "var(--muted)" }}>{properties.length} properties</p>
         </div>
-        <button className="h-10 px-4 rounded-xl flex items-center gap-2 text-sm font-semibold" style={{ background: "var(--primary)", color: "var(--background)" }}>
-          <Plus className="w-4 h-4" /> Add Listing
+        <button disabled title="Yakında" className="h-10 px-4 rounded-xl flex items-center gap-2 text-sm font-semibold cursor-not-allowed opacity-50" style={{ background: "var(--primary)", color: "var(--background)" }}>
+          <Plus className="w-4 h-4" /> Add Listing · Yakında
         </button>
       </div>
 
@@ -172,7 +172,7 @@ export default function AdminListings() {
                         <Link href={`/properties/${p.slug}`} className="w-7 h-7 rounded flex items-center justify-center hover:bg-white/5">
                           <Eye className="w-3.5 h-3.5" style={{ color: "var(--muted)" }} />
                         </Link>
-                        <button className="w-7 h-7 rounded flex items-center justify-center hover:bg-white/5">
+                        <button disabled title="Düzenleme yakında" className="w-7 h-7 rounded flex items-center justify-center cursor-not-allowed opacity-40">
                           <Edit className="w-3.5 h-3.5" style={{ color: "var(--muted)" }} />
                         </button>
                         <button onClick={() => setConfirmId(p.id)} className="w-7 h-7 rounded flex items-center justify-center hover:bg-white/5">

@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { Wallet, AlertTriangle, CheckCircle2, Clock, DollarSign, RotateCcw, TrendingUp, Users, Send, CreditCard, ShieldAlert, Loader2 } from "lucide-react";
+import { ComingSoon } from "@/components/ComingSoon";
 
 // --- Real rows from Supabase ---
 interface PaymentRow {
@@ -110,7 +111,13 @@ function buildContracts(rows: PaymentRow[]): Contract[] {
 
 const money = (n: number | null | undefined) => (n == null ? "—" : `$${n.toLocaleString()}`);
 
+// 🔒 Kilitli — owner-finance modülü sonra aktif edilecek. Mevcut kod _FinancingPageImpl içinde korunuyor.
 export default function FinancingPage() {
+  return <ComingSoon title="Owner Finance" />;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function _FinancingPageImpl() {
   const [rows, setRows] = useState<PaymentRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

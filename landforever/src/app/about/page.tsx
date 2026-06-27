@@ -3,7 +3,7 @@ import Reveal from "@/components/Reveal";
 import CTASection from "@/components/CTASection";
 
 export const metadata = {
-  title: "About — LandForever",
+  title: "About",
   description:
     "LandForever makes US land ownership accessible to the world. Wyoming LLC, county-recorded deeds, international buyers welcome.",
 };

@@ -5,16 +5,33 @@ import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
+const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://landforever.com";
+
 export const metadata: Metadata = {
-  title: "LandForever — Own US Land for $99 Down",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: "LandForever — Own US Land for $99 Down",
+    template: "%s — LandForever",
+  },
   description:
     "Own undervalued US land with low monthly payments. No credit check, legal deed recorded at county. International buyers welcome. The American dream, made accessible to the world.",
+  alternates: { canonical: "/" },
   openGraph: {
     title: "LandForever — Own US Land for $99 Down",
     description:
       "Own undervalued US land with low monthly payments. No credit check, legal deed recorded.",
     type: "website",
+    url: SITE_URL,
+    siteName: "LandForever",
   },
+  twitter: {
+    card: "summary_large_image",
+    title: "LandForever — Own US Land for $99 Down",
+    description:
+      "Own undervalued US land with low monthly payments. No credit check, legal deed recorded.",
+  },
+  robots: { index: true, follow: true },
 };
 
 export default function RootLayout({

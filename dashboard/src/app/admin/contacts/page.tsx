@@ -65,9 +65,9 @@ export default function ContactsPage() {
           <h1 className="text-2xl font-bold mb-1">Contacts</h1>
           <p className="text-sm" style={{ color: "var(--muted)" }}>Your network of wholesalers, scouts, realtors & investors</p>
         </div>
-        <button className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold transition-colors"
+        <button disabled title="Yakında" className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold cursor-not-allowed opacity-50"
           style={{ background: "var(--primary)", color: "var(--background)" }}>
-          <Plus className="w-4 h-4" /> Add Contact
+          <Plus className="w-4 h-4" /> Add Contact · Yakında
         </button>
       </div>
 

@@ -548,8 +548,8 @@ export default function LandForeverPage() {
                   
                   {isInquired ? (
                     <div className="bg-stone-900 text-white p-3 rounded-xl text-xs flex items-center justify-between animate-fadeIn">
-                      <span className="font-medium">Kadastro belgeleri e-postanıza gönderildi.</span>
-                      <span className="text-[10px] font-mono opacity-50 uppercase">Gönderildi</span>
+                      <span className="font-medium">Talebiniz alındı — en kısa sürede sizinle iletişime geçeceğiz.</span>
+                      <span className="text-[10px] font-mono opacity-50 uppercase">Alındı</span>
                     </div>
                   ) : (
                     <form onSubmit={(e) => handleInquire(e, item.id)} className="flex gap-2">

@@ -377,8 +377,8 @@ export default function AcquisitionsPage() {
           <button onClick={exportCSV} disabled={exporting} className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all hover:opacity-90 active:scale-95 disabled:opacity-60 border" style={{ borderColor: "var(--outline)", color: "var(--foreground)" }}>
             {exporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <ExternalLink className="w-4 h-4" />} Export CSV (top 500)
           </button>
-          <button className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all hover:opacity-90 active:scale-95" style={{ background: "var(--primary)", color: "#fff" }}>
-            <Plus className="w-4 h-4" /> New Lead
+          <button disabled title="Yakında" className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold cursor-not-allowed opacity-50" style={{ background: "var(--primary)", color: "#fff" }}>
+            <Plus className="w-4 h-4" /> New Lead · Yakında
           </button>
         </div>
       </div>

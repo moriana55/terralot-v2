@@ -56,6 +56,7 @@ export default function RealDealsPage() {
       </div>
       <p className="text-sm mb-1" style={{ color: "var(--muted)" }}>
         Her satır gerçek: parsel + sahip + vergi borcu (terralot kayıtları), arsa değeri + dönüm (Dallas DCAD, Regrid ile çekildi).
+        <span className="block mt-0.5 opacity-80">Not: &quot;Tahmini marj&quot; sahip/adres/vergi borcu gibi gerçek verilerden <strong>türetilmiş bir tahmindir</strong> — kesin kâr değildir.</span>
       </p>
       <p className="text-xs mb-6" style={{ color: "var(--muted)" }}>
         {data.note}

@@ -37,6 +37,25 @@ export function generateStaticParams() {
   return listings.map((l) => ({ id: l.id }));
 }
 
+export function generateMetadata({ params }: { params: { id: string } }) {
+  const listing = listings.find((l) => l.id === params.id);
+  if (!listing) return { title: "Parcel not found" };
+  const title = `${listing.title} — ${listing.acreage} acres in ${listing.county}, ${listing.state}`;
+  const description = `${listing.acreage} acres in ${listing.county}, ${listing.state}. From $${listing.downPayment} down, $${listing.monthly36}/mo. ${listing.description.slice(0, 120)}`;
+  return {
+    title,
+    description,
+    alternates: { canonical: `/listings/${listing.id}` },
+    openGraph: {
+      title,
+      description,
+      type: "website",
+      url: `/listings/${listing.id}`,
+      images: listing.images?.[0] ? [{ url: listing.images[0] }] : undefined,
+    },
+  };
+}
+
 export default function ListingDetail({
   params,
 }: {

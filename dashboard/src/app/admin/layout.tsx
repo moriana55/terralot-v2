@@ -3,10 +3,12 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { LayoutDashboard, MapPin, MessageSquare, CreditCard, ArrowLeft, BarChart3, Users, Handshake, CircleDollarSign, Activity, Map, Gauge, Mail, Split, Wallet, Target, Globe, EyeOff, Tv, FileSearch, ShieldCheck, ChevronLeft, ChevronRight, ChevronDown, Cpu, SlidersHorizontal, Brain, TrendingDown, Rocket, Hammer, Calculator, Copy, BellRing, Send, MailPlus } from "lucide-react";
+import { LayoutDashboard, MapPin, MessageSquare, CreditCard, ArrowLeft, BarChart3, Users, CircleDollarSign, Map, Mail, Wallet, Target, Globe, Tv, FileSearch, ChevronLeft, ChevronRight, ChevronDown, Cpu, Brain, TrendingDown, Rocket, Hammer, Calculator, Copy, BellRing, Send, MailPlus } from "lucide-react";
 import { CerberusLogo } from "@/components/DealHoundLogo";
 
-const SECTIONS: { label: string | null; items: { href: string; icon: typeof MapPin; label: string }[] }[] = [
+// `wip: true` = mock/uydurma veri içeren gruplar. Müşteri (Ahmet) görünümünde
+// gizli; sadece NEXT_PUBLIC_SHOW_WIP="1" iken (geliştirici) görünür.
+const SECTIONS: { label: string | null; wip?: boolean; items: { href: string; icon: typeof MapPin; label: string }[] }[] = [
   {
     label: null,
     items: [
@@ -21,25 +23,21 @@ const SECTIONS: { label: string | null; items: { href: string; icon: typeof MapP
       { href: "/admin/tax-leads", icon: FileSearch, label: "Tax Leads" },
       { href: "/admin/off-market-leads", icon: MailPlus, label: "Off-Market Leads" },
       { href: "/admin/real-deals", icon: CircleDollarSign, label: "★ Gerçek Dealler" },
-      { href: "/admin/national-map", icon: Globe, label: "Ulusal Harita" },
+      { href: "/admin/mohave", icon: MapPin, label: "★ Mohave Off-Market" },
       { href: "/admin/deal-map", icon: Map, label: "Deal Map" },
       { href: "/admin/scraper", icon: Cpu, label: "Cerberus Botları" },
       { href: "/admin/market-listings", icon: CircleDollarSign, label: "Piyasa İlanları" },
-      { href: "/admin/financing", icon: Wallet, label: "Owner Finance" },
     ],
   },
   {
     label: "🚧 Geliştiriliyor",
+    wip: true,
     items: [
       { href: "/admin/cerberus", icon: Brain, label: "Cerberus Intel" },
       { href: "/admin/acquisitions", icon: Target, label: "Acquisitions" },
       { href: "/admin/outreach", icon: Send, label: "Owner Outreach" },
-      { href: "/admin/deal-screener", icon: SlidersHorizontal, label: "Deal Screener" },
       { href: "/admin/saved-searches", icon: BellRing, label: "Saved Searches" },
-      { href: "/admin/off-market", icon: EyeOff, label: "Off Market" },
-      { href: "/admin/competitor-analysis", icon: BarChart3, label: "Competitor Intel" },
       { href: "/admin/parcels", icon: Globe, label: "Parcel Explorer" },
-      { href: "/admin/dd-checker", icon: ShieldCheck, label: "DD Checker" },
       { href: "/admin/market", icon: BarChart3, label: "Market Analitik" },
       { href: "/admin/underwrite", icon: Brain, label: "AI Underwriting" },
       { href: "/admin/arbitrage", icon: TrendingDown, label: "Arbitrage Radar" },
@@ -51,19 +49,27 @@ const SECTIONS: { label: string | null; items: { href: string; icon: typeof MapP
       { href: "/admin/leads", icon: MessageSquare, label: "Leads" },
       { href: "/admin/owner-finance", icon: CircleDollarSign, label: "OF Pazaryeri" },
       { href: "/admin/payments", icon: CreditCard, label: "Payments" },
-      { href: "/admin/subdivisions", icon: Split, label: "Subdivisions" },
       { href: "/admin/analytics", icon: BarChart3, label: "Financials" },
-      { href: "/admin/network", icon: Gauge, label: "Network Hub" },
       { href: "/admin/contacts", icon: Users, label: "Contacts" },
-      { href: "/admin/deals", icon: Handshake, label: "Deals" },
-      { href: "/admin/referrals", icon: CircleDollarSign, label: "Referrals" },
-      { href: "/admin/activity", icon: Activity, label: "Activity" },
       { href: "/admin/mailer", icon: Mail, label: "Direct Mail" },
+    ],
+  },
+  {
+    label: "🔒 Yakında (kilitli)",
+    wip: true,
+    items: [
+      { href: "/admin/financing", icon: Wallet, label: "🔒 Owner Finance" },
+      { href: "/admin/referrals", icon: CircleDollarSign, label: "🔒 Referrals" },
     ],
   },
 ];
 
 const ACCENT = "#8ed1df";
+
+// Geliştirici görünümü: NEXT_PUBLIC_SHOW_WIP="1" iken WIP (mock veri) gruplar görünür.
+// Set değilse (prod / müşteri görünümü) sadece canlı gruplar gösterilir.
+const SHOW_WIP = process.env.NEXT_PUBLIC_SHOW_WIP === "1";
+const VISIBLE_SECTIONS = SHOW_WIP ? SECTIONS : SECTIONS.filter((s) => !s.wip);
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -128,7 +134,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
         {/* Nav — grouped */}
         <nav className="flex-1 px-2 py-3 overflow-y-auto overflow-x-hidden">
-          {SECTIONS.map((sec, si) => {
+          {VISIBLE_SECTIONS.map((sec, si) => {
             // active group stays open even if user collapsed it
             const hasActive = sec.items.some((n) => pathname === n.href);
             const open = collapsed || !sec.label || hasActive || !closedGroups[si];

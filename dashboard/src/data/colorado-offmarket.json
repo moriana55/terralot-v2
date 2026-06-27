@@ -1,0 +1,8 @@
+{
+  "generatedAt": "2026-06-26T01:16:43.253Z",
+  "count": 0,
+  "state": "CO",
+  "source": "Colorado Public Parcels (statewide ArcGIS)",
+  "filter": "landUseDsc LIKE '%VACANT%' AND ownAddStt<>'CO' AND ownAddStt<>'' AND landAcres>=1 AND landAcres<=40 AND apprValTot>0 AND apprValTot<=15000",
+  "rows": []
+}
