@@ -60,3 +60,8 @@ Her tur: gerçek iyileştirme → typecheck → commit → buraya zaman damgalı
 - Comp yoksa/uyumsuzsa not yok (dürüst, uydurma yok)
 - Tablo Eyalet hücresinde renkli A/B/C rozeti (CoStar tarzı hızlı tarama)
 - typecheck 0 hata
+## 06:11 · Tur 9 — Hızlı fırsat filtreleri
+- API'ye `onlyComp` (sadece comp-değerli) + `minGrade` (A / A+B) filtreleri
+- UI'a hızlı filtre çip satırı: 💎 Sadece comp-değerli · Fırsat A · Fırsat A+B · Absentee
+- Ahmet gerçek değerli/yüksek-fırsat parsellere tek tıkla odaklanır
+- typecheck 0 hata

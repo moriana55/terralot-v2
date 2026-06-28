@@ -64,6 +64,8 @@ export default function AllDealsPage() {
   const [minValue, setMinValue] = useState("");
   const [maxValue, setMaxValue] = useState("");
   const [absentee, setAbsentee] = useState(false);
+  const [onlyComp, setOnlyComp] = useState(false);
+  const [gradeFilter, setGradeFilter] = useState("");
   const [minSpread, setMinSpread] = useState("");
   const [sort, setSort] = useState("spread");
   const [dir, setDir] = useState<"asc" | "desc">("desc");
@@ -107,11 +109,13 @@ export default function AllDealsPage() {
     if (maxValue) p.set("maxValue", maxValue);
     if (minSpread) p.set("minSpread", minSpread);
     if (absentee) p.set("absentee", "1");
+    if (onlyComp) p.set("onlyComp", "1");
+    if (gradeFilter) p.set("minGrade", gradeFilter);
     p.set("sort", sort);
     p.set("dir", dir);
     p.set("page", String(page));
     return p.toString();
-  }, [state, source, county, q, minAcres, maxAcres, minValue, maxValue, minSpread, absentee, sort, dir, page]);
+  }, [state, source, county, q, minAcres, maxAcres, minValue, maxValue, minSpread, absentee, onlyComp, gradeFilter, sort, dir, page]);
 
   useEffect(() => {
     setLoading(true);
@@ -126,12 +130,12 @@ export default function AllDealsPage() {
 
   // reset to page 1 when any filter (not page) changes
   useEffect(() => { setPage(1); },
-    [state, source, county, q, minAcres, maxAcres, minValue, maxValue, minSpread, absentee, sort, dir]);
+    [state, source, county, q, minAcres, maxAcres, minValue, maxValue, minSpread, absentee, onlyComp, gradeFilter, sort, dir]);
 
   const reset = () => {
     setState(""); setSource(""); setCounty(""); setQ("");
     setMinAcres(""); setMaxAcres(""); setMinValue(""); setMaxValue("");
-    setMinSpread(""); setAbsentee(false); setSort("spread"); setDir("desc"); setPage(1);
+    setMinSpread(""); setAbsentee(false); setOnlyComp(false); setGradeFilter(""); setSort("spread"); setDir("desc"); setPage(1);
   };
 
   const toggleSort = (key: string) => {
@@ -328,6 +332,27 @@ export default function AllDealsPage() {
             <option value="estOffer:asc">Teklif ↑ (en ucuz)</option>
           </select>
         </div>
+      </div>
+
+      {/* Hızlı filtre çipleri */}
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="text-xs font-medium text-slate-400">Hızlı:</span>
+        <button onClick={() => setOnlyComp((v) => !v)}
+          className={`rounded-full px-3 py-1 text-xs font-semibold ${onlyComp ? "bg-emerald-600 text-white" : "bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-50"}`}>
+          💎 Sadece comp-değerli
+        </button>
+        <button onClick={() => setGradeFilter(gradeFilter === "A" ? "" : "A")}
+          className={`rounded-full px-3 py-1 text-xs font-semibold ${gradeFilter === "A" ? "bg-emerald-600 text-white" : "bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-50"}`}>
+          Fırsat A
+        </button>
+        <button onClick={() => setGradeFilter(gradeFilter === "B" ? "" : "B")}
+          className={`rounded-full px-3 py-1 text-xs font-semibold ${gradeFilter === "B" ? "bg-sky-500 text-white" : "bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-50"}`}>
+          Fırsat A+B
+        </button>
+        <button onClick={() => setAbsentee((v) => !v)}
+          className={`rounded-full px-3 py-1 text-xs font-semibold ${absentee ? "bg-rose-500 text-white" : "bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-50"}`}>
+          Absentee
+        </button>
       </div>
 
       {/* Honesty note */}

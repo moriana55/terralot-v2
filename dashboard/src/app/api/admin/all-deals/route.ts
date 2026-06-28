@@ -313,6 +313,8 @@ export async function GET(req: NextRequest) {
   const maxValue = sp.get("maxValue") ? num(sp.get("maxValue")) : null;
   const minSpread = sp.get("minSpread") ? num(sp.get("minSpread")) : null;
   const absentee = sp.get("absentee") === "1";
+  const onlyComp = sp.get("onlyComp") === "1";
+  const minGrade = sp.get("minGrade") || ""; // "A" → sadece A · "B" → A+B
   const sort = sp.get("sort") || "spread";
   const dir = sp.get("dir") === "asc" ? 1 : -1;
   const page = Math.max(1, num(sp.get("page")) || 1);
@@ -328,7 +330,9 @@ export async function GET(req: NextRequest) {
     (minValue == null || d.landValue >= minValue) &&
     (maxValue == null || d.landValue <= maxValue) &&
     (minSpread == null || d.spread >= minSpread) &&
-    (!absentee || d.absentee);
+    (!absentee || d.absentee) &&
+    (!onlyComp || (d.marketValue != null && d.valBasis !== "mismatch")) &&
+    (!minGrade || (d.dealGrade != null && (minGrade === "B" ? d.dealGrade !== "C" : d.dealGrade === "A")));
 
   // Facets: state counts ignore the state filter so the picker stays useful.
   const byState: Record<string, number> = {};
