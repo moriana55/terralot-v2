@@ -39,9 +39,10 @@ export type UnifiedDeal = {
   comps: number;
   mailSafe: boolean;
   valBasis: string;
+  dealGrade: string | null; // A/B/C — yalnızca comp-değerli deal'lerde (yoksa null)
 };
 
-type BaseDeal = Omit<UnifiedDeal, "marketValue" | "comps" | "mailSafe" | "valBasis">;
+type BaseDeal = Omit<UnifiedDeal, "marketValue" | "comps" | "mailSafe" | "valBasis" | "dealGrade">;
 
 const num = (v: unknown): number => {
   const n = typeof v === "string" ? parseFloat(v.replace(/[^0-9.\-]/g, "")) : Number(v);
@@ -268,12 +269,23 @@ async function getDeals(): Promise<UnifiedDeal[]> {
     const mismatch =
       mv != null && mv > 0 && d.landValue > 0 &&
       (d.landValue > 4 * mv || mv > 4 * d.landValue);
+    // At-a-glance fırsat notu — yalnızca gerçek comp varsa (uydurma yok)
+    let dealGrade: string | null = null;
+    if (mv != null && !mismatch) {
+      let sc = 0;
+      if (d.absentee) sc += 2;
+      if (d.acres >= 0.2 && d.acres <= 5) sc += 2;
+      if (p.mailSafe) sc += 1;
+      if (d.landValue > 0 && mv > d.landValue) sc += 1;
+      dealGrade = sc >= 5 ? "A" : sc >= 3 ? "B" : "C";
+    }
     return {
       ...d,
       marketValue: mv,
       comps: p.comps,
       mailSafe: p.mailSafe && !mismatch,
       valBasis: mismatch ? "mismatch" : p.basis,
+      dealGrade,
       estOffer: mismatch ? 0 : (p.offer ?? 0),
       estResale: mismatch ? 0 : (p.cashPrice ?? 0),
       spread: mismatch ? 0 : (p.cashPrice != null && p.offer != null ? p.cashPrice - p.offer : 0),

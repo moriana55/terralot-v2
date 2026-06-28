@@ -11,7 +11,11 @@ type Deal = {
   region: string; owner: string; ownerState: string; absentee: boolean; address: string;
   acres: number; landValue: number; estOffer: number; estResale: number; spread: number;
   score: number | null; apn: string; lat: number | null; lng: number | null; mapUrl: string;
-  marketValue: number | null; comps: number; mailSafe: boolean; valBasis: string;
+  marketValue: number | null; comps: number; mailSafe: boolean; valBasis: string; dealGrade: string | null;
+};
+
+const GRADE_UI: Record<string, string> = {
+  A: "bg-emerald-600 text-white", B: "bg-sky-500 text-white", C: "bg-slate-300 text-slate-700",
 };
 type StateDetail = { state: string; count: number; acres: number; ppa: number | null; comps: number; withCompPct: number; absenteePct: number };
 type Stats = {
@@ -364,7 +368,12 @@ export default function AllDealsPage() {
               )}
               {!loading && rows.map((d) => (
                 <tr key={d.id} onClick={() => setDetailFor(d)} className="cursor-pointer hover:bg-slate-50/70">
-                  <td className="px-3 py-2.5 font-bold text-slate-700">{d.state}</td>
+                  <td className="px-3 py-2.5">
+                    <div className="flex items-center gap-1.5">
+                      {d.dealGrade && <span className={`flex h-5 w-5 items-center justify-center rounded text-[11px] font-black ${GRADE_UI[d.dealGrade]}`} title="Fırsat notu (comp-değerli)">{d.dealGrade}</span>}
+                      <span className="font-bold text-slate-700">{d.state}</span>
+                    </div>
+                  </td>
                   <td className="px-3 py-2.5 text-slate-600">
                     {d.county}{d.region && d.region !== d.county ? <span className="block text-xs text-slate-400">{d.region}</span> : null}
                   </td>

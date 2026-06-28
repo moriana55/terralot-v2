@@ -55,3 +55,8 @@ Her tur: gerçek iyileştirme → typecheck → commit → buraya zaman damgalı
 - ≤$10K parselde teklif %15'i geçemez (roadmap kuralı, buildDealSheet'te effectivePct)
 - Tüm Dealler sayfasının dev runtime derleme kontrolü yapıldı (✓ Compiled, hata yok)
 - typecheck 0 hata
+## 05:55 · Tur 8 — At-a-glance "Fırsat" notu (A/B/C)
+- API'ye `dealGrade`: yalnızca comp-değerli + uyumlu deal'lerde gerçek sinyallerden (absentee +2, ideal boyut 0.2-5ac +2, comp güveni +1, comp>assessed +1) → A/B/C
+- Comp yoksa/uyumsuzsa not yok (dürüst, uydurma yok)
+- Tablo Eyalet hücresinde renkli A/B/C rozeti (CoStar tarzı hızlı tarama)
+- typecheck 0 hata
