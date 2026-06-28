@@ -33,6 +33,9 @@ type ScrubStatus = "pass" | "warn" | "fail" | "unknown";
 type ScrubFactor = { key: string; label: string; status: ScrubStatus; value: string; note: string; source: string; critical?: boolean };
 type ScrubResult = { score: number; grade: string; verdict: string; verdictTone: string; rationale: string; factors: ScrubFactor[] };
 
+type AttomComp = { address: string; saleAmt: number; saleDate: string; propType: string; apn: string };
+type AttomResp = { ok: boolean; reason?: string; count: number; rawCount: number; bulkRemoved: number; median: number | null; comps: AttomComp[] };
+
 const usd = (n: number) =>
   n >= 1000 ? "$" + Math.round(n).toLocaleString("en-US") : "$" + Math.round(n);
 
@@ -80,6 +83,17 @@ export default function AllDealsPage() {
   const [scrubFor, setScrubFor] = useState<Deal | null>(null);
   const [scrub, setScrub] = useState<ScrubResult | null>(null);
   const [scrubLoading, setScrubLoading] = useState(false);
+  const [attom, setAttom] = useState<AttomResp | null>(null);
+  const [attomLoading, setAttomLoading] = useState(false);
+
+  const loadAttom = async (d: Deal) => {
+    if (d.lat == null || d.lng == null) return;
+    setAttom(null); setAttomLoading(true);
+    const r: AttomResp | null = await fetch(`/api/admin/attom-comps?lat=${d.lat}&lng=${d.lng}`)
+      .then((x) => x.json()).catch(() => null);
+    setAttom(r); setAttomLoading(false);
+  };
+  const openDetail = (d: Deal) => { setDetailFor(d); setAttom(null); };
 
   const openScrub = async (d: Deal) => {
     setScrubFor(d); setScrub(null); setScrubLoading(true);
@@ -392,7 +406,7 @@ export default function AllDealsPage() {
                 </td></tr>
               )}
               {!loading && rows.map((d) => (
-                <tr key={d.id} onClick={() => setDetailFor(d)} className="cursor-pointer hover:bg-slate-50/70">
+                <tr key={d.id} onClick={() => openDetail(d)} className="cursor-pointer hover:bg-slate-50/70">
                   <td className="px-3 py-2.5">
                     <div className="flex items-center gap-1.5">
                       {d.dealGrade && <span className={`flex h-5 w-5 items-center justify-center rounded text-[11px] font-black ${GRADE_UI[d.dealGrade]}`} title="Fırsat notu (comp-değerli)">{d.dealGrade}</span>}
@@ -556,6 +570,37 @@ export default function AllDealsPage() {
                   <Row k="Mailing eyaleti" v={d.ownerState || "—"} />
                   <Row k="Durum" v={d.absentee ? <span className="text-rose-600">Absentee (şehir-dışı)</span> : "Eyalet içi"} />
                 </div>
+                {/* ATTOM gerçek satışlar */}
+                <div className="rounded-xl border border-slate-200 p-4">
+                  <div className="mb-2 flex items-center justify-between">
+                    <span className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">Yakındaki Gerçek Satışlar · ATTOM</span>
+                    <button onClick={() => loadAttom(d)} disabled={d.lat == null || attomLoading}
+                      className="rounded-lg bg-indigo-600 px-2.5 py-1 text-[11px] font-semibold text-white hover:bg-indigo-700 disabled:opacity-40">
+                      {attomLoading ? "Çekiliyor…" : "Satışları çek"}
+                    </button>
+                  </div>
+                  {d.lat == null && <p className="text-[11px] text-amber-600">Koordinat yok — ATTOM bu satırda çekemiyor.</p>}
+                  {attom && attom.ok && (
+                    <>
+                      <div className="mb-2 flex items-baseline gap-2 text-sm">
+                        <span className="font-bold text-slate-900">{attom.median != null ? usd(attom.median) : "—"}</span>
+                        <span className="text-[11px] text-slate-500">median · {attom.count} temiz satış{attom.bulkRemoved ? ` (${attom.bulkRemoved} bulk elendi)` : ""}</span>
+                      </div>
+                      <ul className="space-y-1">
+                        {attom.comps.slice(0, 8).map((c, i) => (
+                          <li key={i} className="flex items-baseline justify-between gap-2 border-b border-slate-50 py-1 text-[12px]">
+                            <span className="truncate text-slate-600">{c.saleDate} · {c.address || c.apn}</span>
+                            <span className="shrink-0 font-medium tabular-nums text-emerald-700">{usd(c.saleAmt)}</span>
+                          </li>
+                        ))}
+                      </ul>
+                      <p className="mt-1.5 text-[10px] text-slate-400">Gerçek tapu satışları (ATTOM). Karışık boyut olabilir — $/acre normalizasyonu sonraki adım.</p>
+                    </>
+                  )}
+                  {attom && !attom.ok && <p className="text-[11px] text-amber-600">{attom.reason || "ATTOM verisi alınamadı."}</p>}
+                  {attom && attom.ok && attom.count === 0 && <p className="text-[11px] text-slate-400">Bu çevrede ATTOM satış kaydı yok.</p>}
+                </div>
+
                 <div className="flex gap-2">
                   <button onClick={() => { setDetailFor(null); openScrub(d); }}
                     className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-slate-900 px-3 py-2 text-sm font-semibold text-white hover:bg-slate-700">

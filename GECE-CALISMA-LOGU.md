@@ -127,3 +127,7 @@ Her tur: gerçek iyileştirme → typecheck → commit → buraya zaman damgalı
 - ATTOM key canlı doğrulandı (.env.local, commit edilmez)
 - Comp SCRUB: aynı tutar+tarih tekrarı = bulk/portföy satışı → tek temsilciye indir (median şişmesin)
 - Bulgu: Mohave ham çöl lotunda ATTOM sales karışık boyut ($8k–$244k); acre normalizasyonu olmadan tam $/acre comp değil ama "yakındaki gerçek satışlar" kanıtı GÜÇLÜ
+## 07:31 · ATTOM "Gerçek Satışlar" paneli deal detayına bağlandı (A)
+- Deal detayda "Satışları çek" → ATTOM yakındaki gerçek satılmış arsalar (tarih+tutar+median, bulk elendi notu)
+- Koordinat yoksa dürüst "çekemiyor" uyarısı · gerçek tapu satışları, $/acre normalizasyonu sonraki adım
+- route admin-gated + rate-limited · typecheck 0
