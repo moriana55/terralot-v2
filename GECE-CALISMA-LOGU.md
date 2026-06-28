@@ -89,3 +89,27 @@ Her tur: gerçek iyileştirme → typecheck → commit → buraya zaman damgalı
 - Deal detayda Piyasa(comp) / Nakit satış / Teklif oranlı bar görseli — deal ekonomisi tek bakışta (CoStar tarzı)
 - Sadece comp-değerli + uyumlu deal'lerde (yoksa gösterilmez, uydurma yok)
 - typecheck 0 hata
+
+---
+## 06:37 · LOOP DURDURULDU (Yiğit isteğiyle)
+**14 tur tamamlandı** (05:03–06:37). Hepsi nightly-terralot-2026-06-28 dalında, typecheck 0, production build EXIT 0.
+
+### Özet — ne yapıldı
+**Dürüstlük (sahte veri sıfır):**
+- dd-check FEMA/OSM patlayınca uydurma KESİLDİ → "veri yok"
+- $2.999 sabit "retail" söküldü · "comp uyumsuz" kilidi (Dallas $431K → $964 saçmalığı engellendi)
+- scrub kullanım tespiti + outreach teklif clamp [15,25]+≤$10K kuralı
+
+**Gerçek comp motoru:**
+- pricing.ts + competitor_listings county/state $/acre → gerçek piyasa değeri/teklif/spread (AZ/TX/NM kapsanıyor)
+- sold_price kolon bug fix · değerleme-kalite saf helper + 9 unit test (74 test yeşil)
+
+**CoStar görsel/veri (Tüm Dealler):**
+- KPI şeridi · eyalet $/acre çipleri · Market Özeti (per-state) · deal detay paneli (parsel+değerleme+sahip) · Fırsat A/B/C notu + gerekçe kırılımı · fiyat merdiveni · hızlı filtreler (💎/A/A+B/absentee) · zengin CSV
+- Sistem & Yöntem: gerçek comp-kapsama paneli
+
+**Doğrulama:** typecheck 0 · 74 test yeşil · production build 142 sayfa EXIT 0
+
+### Açık kalan (sonraki adım)
+- Comp kalitesi KABA (state-level asking comp) → county-level + sold comp için: daha çok comp scrape veya ATTOM API
+- main'e merge: `git checkout main && git merge nightly-terralot-2026-06-28` (hazır olunca)
