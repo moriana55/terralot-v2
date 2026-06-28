@@ -35,7 +35,7 @@ type ScrubResult = { score: number; grade: string; verdict: string; verdictTone:
 
 type AttomComp = { address: string; saleAmt: number; saleDate: string; propType: string; apn: string };
 type AttomResp = { ok: boolean; reason?: string; count: number; rawCount: number; bulkRemoved: number; median: number | null; comps: AttomComp[] };
-type AttomTitle = { ok: boolean; reason?: string; owner: string; absentee: boolean | null; hasMortgage: boolean | null; deedType: string; mailing: string };
+type AttomTitle = { ok: boolean; reason?: string; owner: string; absentee: boolean | null; hasMortgage: boolean | null; deedType: string; mailing: string; lastSalePrice: number | null; lastSaleDate: string; annualTax: number | null };
 
 const usd = (n: number) =>
   n >= 1000 ? "$" + Math.round(n).toLocaleString("en-US") : "$" + Math.round(n);
@@ -630,6 +630,11 @@ export default function AllDealsPage() {
                       <li className="flex justify-between"><span className="text-slate-500">Sahip durumu</span><span className="font-medium">{title.absentee ? <span className="text-rose-600">Absentee</span> : title.absentee === false ? "Yerel" : "—"}</span></li>
                       <li className="flex justify-between"><span className="text-slate-500">İpotek (ATTOM)</span><span className="font-semibold">{title.hasMortgage ? <span className="text-amber-600">VAR — title company incele</span> : <span className="text-emerald-600">görünmüyor ✓</span>}</span></li>
                       <li className="flex justify-between"><span className="text-slate-500">Deed tipi</span><span className="font-medium text-slate-700">{title.deedType || "—"}</span></li>
+                      <li className="flex justify-between"><span className="text-slate-500">Sahip ne zaman/kaça almış</span><span className="font-medium text-slate-800">{title.lastSalePrice ? `${usd(title.lastSalePrice)} · ${title.lastSaleDate?.slice(0, 4)}` : "kayıt yok"}</span></li>
+                      <li className="flex justify-between"><span className="text-slate-500">Yıllık vergi</span><span className="font-medium text-slate-700">{title.annualTax != null ? usd(title.annualTax) : "—"}</span></li>
+                      {title.lastSalePrice != null && title.lastSalePrice > 0 && (
+                        <li className="text-[10px] text-slate-500">{title.lastSalePrice <= 1500 ? "✅ Düşük alış/miras — teklifimize açık olabilir." : `⚠ ${usd(title.lastSalePrice)}'a almış — teklif buna göre ayarla (düşük teklife hayır diyebilir).`}</li>
+                      )}
                       <li className="mt-1 text-[10px] text-slate-400">⚠ Ön-kontrol — vergi/yargı lien&apos;lerini KAPSAMAZ. Kesin temizlik kapanmadan <b>title company</b> ile.</li>
                     </ul>
                   )}

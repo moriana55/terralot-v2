@@ -38,6 +38,9 @@ export type AttomTitle = {
   hasMortgage: boolean | null; // ATTOM ipotek kaydı (lien'in TAMAMI değil)
   deedType: string;
   mailing: string;
+  lastSalePrice: number | null; // sahip ne kadara almış
+  lastSaleDate: string; // ne zaman almış (kaç yıldır tutuyor)
+  annualTax: number | null; // yıllık emlak vergisi
 };
 
 /** ATTOM tapu ÖN-KONTROL — sahip + absentee + ipotek sinyali + deed tipi.
@@ -48,31 +51,43 @@ export async function fetchTitlePrecheck(
   cityStateZip: string,
 ): Promise<AttomTitle> {
   const empty = (reason: string): AttomTitle =>
-    ({ ok: false, reason, owner: "", absentee: null, hasMortgage: null, deedType: "", mailing: "" });
+    ({ ok: false, reason, owner: "", absentee: null, hasMortgage: null, deedType: "", mailing: "", lastSalePrice: null, lastSaleDate: "", annualTax: null });
   const key = process.env.ATTOM_API_KEY;
   if (!key) return empty("ATTOM_API_KEY yok");
   if (!address1) return empty("adres yok");
+  const a2 = encodeURIComponent(cityStateZip);
+  const a1 = encodeURIComponent(address1);
+  const H = { apikey: key, Accept: "application/json" };
   try {
-    const url = `${ATTOM_BASE}/property/detailmortgageowner?address1=${encodeURIComponent(address1)}&address2=${encodeURIComponent(cityStateZip)}`;
-    const res = await fetch(url, { headers: { apikey: key, Accept: "application/json" }, signal: AbortSignal.timeout(8000) });
+    // 1) sahip + ipotek
+    const res = await fetch(`${ATTOM_BASE}/property/detailmortgageowner?address1=${a1}&address2=${a2}`, { headers: H, signal: AbortSignal.timeout(8000) });
     if (!res.ok) return empty(`ATTOM HTTP ${res.status}`);
-    const j = await res.json();
-    const p = j?.property?.[0];
+    const p = (await res.json())?.property?.[0];
     if (!p) return empty("ATTOM kaydı bulunamadı");
-    const owner = p.owner?.owner1?.fullname ?? "";
-    const absStatus = p.owner?.absenteeownerstatus;
     const mort = p.mortgage ?? {};
     const lender = mort.lender?.companycode;
-    const amt = Number(mort.amount ?? 0);
-    // ipotek var mı: geçerli lender kodu veya tutar > 0
-    const hasMortgage = (lender && lender !== "-1") || amt > 0 ? true : false;
+    const hasMortgage = (lender && lender !== "-1") || Number(mort.amount ?? 0) > 0 ? true : false;
+    const absStatus = p.owner?.absenteeownerstatus;
+    // 2) son satış + yıllık vergi (allevents)
+    let lastSalePrice: number | null = null, lastSaleDate = "", annualTax: number | null = null;
+    try {
+      const ev = await fetch(`${ATTOM_BASE}/allevents/detail?address1=${a1}&address2=${a2}`, { headers: H, signal: AbortSignal.timeout(8000) });
+      const ep = (await ev.json())?.property?.[0];
+      const sa = Number(ep?.sale?.amount?.saleamt ?? 0);
+      if (sa > 0) { lastSalePrice = sa; lastSaleDate = String(ep?.sale?.salesearchdate ?? ""); }
+      const tx = Number(ep?.assessment?.tax?.taxamt ?? 0);
+      if (tx > 0) annualTax = tx;
+    } catch { /* sale/tax opsiyonel */ }
     return {
       ok: true,
-      owner,
+      owner: p.owner?.owner1?.fullname ?? "",
       absentee: absStatus === "A" ? true : absStatus ? false : null,
       hasMortgage,
       deedType: String(mort.deedtype ?? ""),
       mailing: String(p.owner?.mailingaddressoneline ?? ""),
+      lastSalePrice,
+      lastSaleDate,
+      annualTax,
     };
   } catch (e) {
     return empty(`ATTOM hata: ${(e as Error).message}`);
