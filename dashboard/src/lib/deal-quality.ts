@@ -2,12 +2,15 @@
 // Extracted + unit-tested so the "Fırsat" logic and the absurd-offer guard
 // (e.g. rural $/acre comp applied to an urban lot) can't silently drift.
 
-/** True when comp market value and county-assessed value diverge >4× either way
- *  → comp almost certainly doesn't fit this parcel type; don't trust it. */
+/** True when the comp market value is suspiciously LOW vs the county-assessed
+ *  value (assessed > 4× comp) — e.g. a rural $/acre comp applied to an urban
+ *  lot (Dallas $431k assessed vs $6k comp). We do NOT flag the reverse
+ *  (comp >> low assessed): that's normal for cheap raw desert land where the
+ *  assessor undervalues, and is often a GOOD buy, not a mismatch. */
 export function valuationMismatch(marketValue: number | null, assessed: number): boolean {
   return (
     marketValue != null && marketValue > 0 && assessed > 0 &&
-    (assessed > 4 * marketValue || marketValue > 4 * assessed)
+    assessed > 4 * marketValue
   );
 }
 

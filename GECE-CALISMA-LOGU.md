@@ -113,3 +113,8 @@ Her tur: gerçek iyileştirme → typecheck → commit → buraya zaman damgalı
 ### Açık kalan (sonraki adım)
 - Comp kalitesi KABA (state-level asking comp) → county-level + sold comp için: daha çok comp scrape veya ATTOM API
 - main'e merge: `git checkout main && git merge nightly-terralot-2026-06-28` (hazır olunca)
+## 06:49 · Comp motoru #1 — "comp uyumsuz" kilidi asimetrik yapıldı
+- valuationMismatch artık sadece assessed > 4×comp (şehir lotuna kırsal $/acre) durumunda kesiyor
+- comp > düşük-assessed (ucuz ham çöl arazi, assessor düşük tutmuş) ARTIK uyumsuz sayılmıyor — o normal/iyi alım
+- Mohave örneği (assessed $500, comp $7.791) artık doğru: uyumsuz DEĞİL
+- +1 test (toplam testler yeşil)

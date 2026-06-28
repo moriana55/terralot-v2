@@ -16,6 +16,11 @@ test("valuationMismatch: no comp → false (handled elsewhere)", () => {
   assert.equal(valuationMismatch(null, 50000), false);
 });
 
+test("valuationMismatch: comp >> low assessed (cheap raw desert land) → NOT mismatch", () => {
+  // Mohave 2.49ac: assessed $500 (assessor undervalues), comp $7,791 → legit cheap buy
+  assert.equal(valuationMismatch(7791, 500), false);
+});
+
 test("dealGrade: null when no comp or mismatch (no fabrication)", () => {
   assert.equal(dealGrade({ marketValue: null, mismatch: false, absentee: true, acres: 2, mailSafe: true, assessed: 1000 }), null);
   assert.equal(dealGrade({ marketValue: 9000, mismatch: true, absentee: true, acres: 2, mailSafe: true, assessed: 1000 }), null);
