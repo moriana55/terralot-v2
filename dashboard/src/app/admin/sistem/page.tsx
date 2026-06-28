@@ -6,7 +6,12 @@ import {
   Map as MapIcon, Building2, CheckCircle2, Clock, ArrowRight,
 } from "lucide-react";
 
-type Facets = { totalAll: number; byState: Record<string, number>; bySource: Record<string, number>; sourceLabels: Record<string, string> };
+type StateDetail = { state: string; count: number; acres: number; ppa: number | null; comps: number; withCompPct: number; absenteePct: number };
+type Facets = {
+  totalAll: number; byState: Record<string, number>; bySource: Record<string, number>;
+  sourceLabels: Record<string, string>;
+  stats?: { byStateDetail: StateDetail[] };
+};
 
 export default function SistemPage() {
   const [f, setF] = useState<Facets | null>(null);
@@ -73,6 +78,32 @@ export default function SistemPage() {
         </div>
         <p className="mt-2 text-xs text-slate-400">Enrichment: <b>Regrid</b> (parsel/sahip/kullanım) · değerleme eyaletten bağımsız.</p>
       </Section>
+
+      {/* ── 2b. Comp kapsama (gerçek şeffaflık) ── */}
+      {f?.stats?.byStateDetail && f.stats.byStateDetail.length > 0 && (
+        <Section icon={<Database className="h-5 w-5" />} title="2b · Comp Kapsama — “bu değer ne kadar güvenilir?”"
+          sub="Hangi eyalette kaç gerçek comp var, $/acre medyanı ne. Kapsama düşükse o eyalette değer 'comp gerekli' der (uydurmaz).">
+          <div className="overflow-hidden rounded-xl border border-slate-200">
+            <table className="w-full text-left text-sm">
+              <thead className="bg-slate-50 text-xs uppercase text-slate-500">
+                <tr><th className="px-4 py-2">Eyalet</th><th className="px-4 py-2 text-right">Deal</th><th className="px-4 py-2 text-right">Comp \$/acre</th><th className="px-4 py-2 text-right">Comp adedi</th><th className="px-4 py-2 text-right">Kapsama</th></tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {f.stats.byStateDetail.slice(0, 12).map((s) => (
+                  <tr key={s.state}>
+                    <td className="px-4 py-2 font-bold text-slate-800">{s.state}</td>
+                    <td className="px-4 py-2 text-right tabular-nums text-slate-600">{s.count.toLocaleString()}</td>
+                    <td className="px-4 py-2 text-right tabular-nums">{s.ppa ? `$${s.ppa.toLocaleString()}` : <span className="text-amber-600 text-xs">comp gerekli</span>}</td>
+                    <td className="px-4 py-2 text-right tabular-nums text-slate-500">{s.comps || "—"}</td>
+                    <td className="px-4 py-2 text-right tabular-nums"><span className={s.withCompPct >= 50 ? "text-emerald-600" : "text-amber-600"}>%{s.withCompPct}</span></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p className="mt-2 text-xs text-slate-400">Kaynak: rakip ilan medyanı (asking comp). Sold comp / county-level için: daha çok comp scrape veya ATTOM API. Düşük kapsama = o eyalette finalisti elle doğrula.</p>
+        </Section>
+      )}
 
       {/* ── 3. Scrub ── */}
       <Section icon={<ShieldCheck className="h-5 w-5" />} title="3 · Scrub Kriterleri — “bu arsa neden iyi/kötü?”"

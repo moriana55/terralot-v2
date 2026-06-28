@@ -45,3 +45,8 @@ Her tur: gerçek iyileştirme → typecheck → commit → buraya zaman damgalı
 - Açılır/kapanır "Market Özeti" tablosu; satıra tıkla → o eyalete filtrele
 - comp yoksa "comp gerekli", kapsama %50 altı amber — dürüst
 - typecheck 0 hata
+## 05:45 · Tur 6 — Sistem ekranına gerçek Comp Kapsama paneli
+- Sistem & Yöntem'e "2b · Comp Kapsama" bölümü: eyalet bazında deal, comp $/acre, comp adedi, kapsama % — canlı API'den GERÇEK
+- Ahmet "bu değer ne kadar güvenilir?" derse → tabloda görür; düşük kapsama amber, comp yoksa "comp gerekli"
+- Kaynak/sınır notu (asking comp; sold/county için scrape veya ATTOM)
+- typecheck 0 hata
