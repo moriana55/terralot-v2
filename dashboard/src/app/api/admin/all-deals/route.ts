@@ -344,6 +344,39 @@ export async function GET(req: NextRequest) {
   const total = filtered.length;
   const rows = filtered.slice((page - 1) * pageSize, (page - 1) * pageSize + pageSize);
 
+  // ── Real-data stats over the filtered set (CoStar-style summary) ──
+  const idx = await getCompIndex();
+  let totalAcres = 0;
+  let withComp = 0;
+  let compMarketSum = 0;
+  let totalSpread = 0;
+  let absenteeN = 0;
+  for (const d of filtered) {
+    totalAcres += d.acres || 0;
+    if (d.absentee) absenteeN++;
+    if (d.marketValue != null && d.valBasis !== "mismatch") {
+      withComp++;
+      compMarketSum += d.marketValue;
+      totalSpread += d.spread || 0;
+    }
+  }
+  // state $/acre medians (real comp index) limited to states present in facets
+  const statePpa: Record<string, { ppa: number; n: number }> = {};
+  for (const st of Object.keys(byState)) {
+    const v = idx.state.get(st);
+    if (v) statePpa[st] = { ppa: Math.round(v.ppa), n: v.n };
+  }
+
+  const stats = {
+    totalAcres: Math.round(totalAcres),
+    withComp,
+    withCompPct: total ? Math.round((withComp / total) * 100) : 0,
+    absenteePct: total ? Math.round((absenteeN / total) * 100) : 0,
+    compMarketSum: Math.round(compMarketSum),
+    totalSpread: Math.round(totalSpread),
+    statePpa,
+  };
+
   return NextResponse.json({
     total,
     totalAll,
@@ -353,6 +386,7 @@ export async function GET(req: NextRequest) {
     byState,
     bySource,
     sourceLabels: SOURCE_LABELS,
+    stats,
     rows,
   });
 }

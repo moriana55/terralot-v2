@@ -27,3 +27,7 @@ Her tur: gerçek iyileştirme → typecheck → commit → buraya zaman damgalı
 - **🎯 YENİ DİREKTİF (Yiğit):** Terralot CoStar-grade premium görünsün — her türlü gerçek veri/taban, Ahmet'e rezil olmayacak. Loop odağı artık: önce GÖRSEL/UX premium + gerçek-veri zenginliği, sonra correctness. Sahte veri ASLA yok (kırmızı çizgi).
 - **Plan (sonraki turlar):** Tüm Dealler CoStar yoğunluğunda redesign · zengin deal-detay paneli · gerçek-veriden bölge/market istatistik panelleri · Sistem ekranı premium · özet KPI/grafikler
 
+## 05:26 · Tur 2 — CoStar KPI şeridi (gerçek veri)
+- API'ye `stats` bloğu: toplam acre, comp-değerli %, absentee %, comp piyasa toplamı, spread toplamı, eyalet $/acre medyanları — hepsi filtrelenmiş set üzerinden GERÇEK
+- Tüm Dealler üstüne 6'lı CoStar tarzı KPI bandı eklendi
+- typecheck 0 hata

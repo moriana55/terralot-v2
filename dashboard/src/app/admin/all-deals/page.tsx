@@ -13,10 +13,14 @@ type Deal = {
   score: number | null; apn: string; lat: number | null; lng: number | null; mapUrl: string;
   marketValue: number | null; comps: number; mailSafe: boolean; valBasis: string;
 };
+type Stats = {
+  totalAcres: number; withComp: number; withCompPct: number; absenteePct: number;
+  compMarketSum: number; totalSpread: number; statePpa: Record<string, { ppa: number; n: number }>;
+};
 type ApiResp = {
   total: number; totalAll: number; page: number; pageSize: number; pages: number;
   byState: Record<string, number>; bySource: Record<string, number>;
-  sourceLabels: Record<string, string>; rows: Deal[];
+  sourceLabels: Record<string, string>; stats?: Stats; rows: Deal[];
 };
 
 type ScrubStatus = "pass" | "warn" | "fail" | "unknown";
@@ -176,6 +180,26 @@ export default function AllDealsPage() {
           </button>
         </div>
       </div>
+
+      {/* CoStar-style KPI band (real data) */}
+      {data?.stats && (
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
+          {[
+            { l: "Sonuç", v: data.total.toLocaleString(), s: "deal" },
+            { l: "Toplam alan", v: data.stats.totalAcres.toLocaleString(), s: "acre" },
+            { l: "Comp-değerli", v: `%${data.stats.withCompPct}`, s: `${data.stats.withComp.toLocaleString()} parsel` },
+            { l: "Absentee", v: `%${data.stats.absenteePct}`, s: "şehir-dışı sahip" },
+            { l: "Comp piyasa Σ", v: data.stats.compMarketSum >= 1e6 ? `$${(data.stats.compMarketSum / 1e6).toFixed(1)}M` : usd(data.stats.compMarketSum), s: "gerçek comp" },
+            { l: "Spread Σ", v: data.stats.totalSpread >= 1e6 ? `$${(data.stats.totalSpread / 1e6).toFixed(1)}M` : usd(data.stats.totalSpread), s: "potansiyel" },
+          ].map((k) => (
+            <div key={k.l} className="rounded-xl border border-slate-200 bg-white p-3">
+              <div className="text-[11px] font-medium uppercase tracking-wide text-slate-400">{k.l}</div>
+              <div className="mt-0.5 text-lg font-bold tabular-nums text-slate-900">{k.v}</div>
+              <div className="text-[10px] text-slate-400">{k.s}</div>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* State chips */}
       <div className="flex flex-wrap gap-2">
