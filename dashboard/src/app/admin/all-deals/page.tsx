@@ -413,7 +413,12 @@ export default function AllDealsPage() {
                     {d.valBasis === "mismatch" ? (
                       <span className="text-[11px] font-medium text-amber-600" title="Comp ile assessed >4× ayrışıyor — bu parsel tipine uymuyor (ör. kırsal $/acre, şehir lotu). Elle doğrula.">⚠ comp uyumsuz</span>
                     ) : d.marketValue ? (
-                      <span className="font-semibold text-slate-900">{usd(d.marketValue)}<span className="ml-1 text-[10px] font-normal text-slate-400">{d.comps}c</span></span>
+                      <span className="font-semibold text-slate-900">
+                        {usd(d.marketValue)}
+                        <span className="ml-1 text-[10px] font-normal text-slate-400">{d.comps}c</span>
+                        {d.valBasis === "state_comp" && <span className="ml-1 rounded bg-amber-100 px-1 text-[9px] font-medium text-amber-700" title="Eyalet medyanı — kaba. County comp gelince hassaslaşır.">eyalet</span>}
+                        {d.valBasis === "county_comp" && <span className="ml-1 rounded bg-emerald-100 px-1 text-[9px] font-medium text-emerald-700" title="County-level comp — hassas">county</span>}
+                      </span>
                     ) : (
                       <span className="text-[11px] text-amber-600">comp gerekli</span>
                     )}

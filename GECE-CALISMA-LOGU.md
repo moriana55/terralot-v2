@@ -118,3 +118,7 @@ Her tur: gerçek iyileştirme → typecheck → commit → buraya zaman damgalı
 - comp > düşük-assessed (ucuz ham çöl arazi, assessor düşük tutmuş) ARTIK uyumsuz sayılmıyor — o normal/iyi alım
 - Mohave örneği (assessed $500, comp $7.791) artık doğru: uyumsuz DEĞİL
 - +1 test (toplam testler yeşil)
+## 06:50 · Comp motoru #2 — değer kaynağı şeffaflığı (eyalet/county etiketi)
+- Piyasa(comp) hücresinde "eyalet" (kaba, amber) vs "county" (hassas, yeşil) etiketi
+- Ahmet hangi değerin kaba hangi hassas olduğunu görür → dürüst
+- typecheck 0 hata
