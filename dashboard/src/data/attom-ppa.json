@@ -1,0 +1,18 @@
+{
+  "generatedAt": "2026-06-28T04:49:20.395Z",
+  "source": "ATTOM sale/snapshot + expandedprofile (sqft→acre), bulk-scrubbed",
+  "ppa": {
+    "AZ|Golden Valley / Kingman": {
+      "ppa": 2926,
+      "n": 10
+    },
+    "AZ|Meadview / Lake Mead": {
+      "ppa": 1600,
+      "n": 6
+    },
+    "AZ|Yucca / Kingman G.": {
+      "ppa": 1319,
+      "n": 7
+    }
+  }
+}

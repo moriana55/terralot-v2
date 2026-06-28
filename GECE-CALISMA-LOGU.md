@@ -131,3 +131,9 @@ Her tur: gerçek iyileştirme → typecheck → commit → buraya zaman damgalı
 - Deal detayda "Satışları çek" → ATTOM yakındaki gerçek satılmış arsalar (tarih+tutar+median, bulk elendi notu)
 - Koordinat yoksa dürüst "çekemiyor" uyarısı · gerçek tapu satışları, $/acre normalizasyonu sonraki adım
 - route admin-gated + rate-limited · typecheck 0
+## 07:52 · ATTOM bölge $/acre MOTORA BAĞLANDI 🎯
+- scripts/build-attom-ppa.mjs: offline ATTOM'dan bölge $/acre üretir (bulk scrub + sqft→acre + sane filtre) → src/data/attom-ppa.json
+- Üretilen gerçek veri: Golden Valley $2.926/ac (10 comp) · Meadview $1.600 (6) · Yucca $1.319 (7) · Dolan Springs/kırsal → comp gerekli (dürüst)
+- all-deals route değerleme önceliği: 1) ATTOM bölge gerçek-satış 2) rakip-ilan county 3) eyalet 4) comp gerekli
+- UI'da kaynak etiketi: ATTOM (indigo, en güvenilir) / county / eyalet / comp gerekli
+- Her istekte ATTOM dövülmez (JSON cache), kota yanmaz · typecheck 0

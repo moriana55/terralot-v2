@@ -13,6 +13,10 @@ import { priceParcel } from "@/lib/pricing";
 import { medianPpa } from "@/lib/land-valuation";
 import { requireGate, enforceRateLimit } from "@/lib/api-guard";
 import { valuationMismatch, dealGrade } from "@/lib/deal-quality";
+import attomPpaData from "@/data/attom-ppa.json";
+
+// ATTOM gerçek satış $/acre — bölge bazında (offline script ile üretildi).
+const ATTOM_PPA = (attomPpaData as { ppa?: Record<string, { ppa: number; n: number }> }).ppa ?? {};
 
 export type UnifiedDeal = {
   id: string;
@@ -255,11 +259,14 @@ async function getDeals(): Promise<UnifiedDeal[]> {
   ENRICHED = base.map((d): UnifiedDeal => {
     const co = idx.county.get(`${d.state}|${normCounty(d.county)}`);
     const st = idx.state.get(d.state);
+    // 1. tercih: ATTOM bölge gerçek-satış $/acre · 2. rakip-ilan county · 3. eyalet
+    const attom = ATTOM_PPA[`${d.state}|${d.region}`];
+    const usedAttom = !!attom;
     const p = priceParcel({
       acres: d.acres,
-      countyRate: co?.ppa ?? null,
+      countyRate: attom?.ppa ?? co?.ppa ?? null,
       stateRate: st?.ppa ?? null,
-      countyComps: co?.n ?? 0,
+      countyComps: attom?.n ?? co?.n ?? 0,
       stateComps: st?.n ?? 0,
     });
     // Sanity guard: if the comp value and the county-assessed value diverge by
@@ -277,7 +284,7 @@ async function getDeals(): Promise<UnifiedDeal[]> {
       marketValue: mv,
       comps: p.comps,
       mailSafe: p.mailSafe && !mismatch,
-      valBasis: mismatch ? "mismatch" : p.basis,
+      valBasis: mismatch ? "mismatch" : (usedAttom && p.basis === "county_comp" ? "attom_region" : p.basis),
       dealGrade: grade,
       estOffer: mismatch ? 0 : (p.offer ?? 0),
       estResale: mismatch ? 0 : (p.cashPrice ?? 0),

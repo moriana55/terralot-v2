@@ -430,6 +430,7 @@ export default function AllDealsPage() {
                       <span className="font-semibold text-slate-900">
                         {usd(d.marketValue)}
                         <span className="ml-1 text-[10px] font-normal text-slate-400">{d.comps}c</span>
+                        {d.valBasis === "attom_region" && <span className="ml-1 rounded bg-indigo-100 px-1 text-[9px] font-bold text-indigo-700" title="ATTOM gerçek satış emsali (bölge $/acre) — en güvenilir">ATTOM</span>}
                         {d.valBasis === "state_comp" && <span className="ml-1 rounded bg-amber-100 px-1 text-[9px] font-medium text-amber-700" title="Eyalet medyanı — kaba. County comp gelince hassaslaşır.">eyalet</span>}
                         {d.valBasis === "county_comp" && <span className="ml-1 rounded bg-emerald-100 px-1 text-[9px] font-medium text-emerald-700" title="County-level comp — hassas">county</span>}
                       </span>
@@ -486,7 +487,7 @@ export default function AllDealsPage() {
         const d = detailFor;
         const valNode = d.valBasis === "mismatch"
           ? <span className="text-amber-600">⚠ comp uyumsuz</span>
-          : d.marketValue ? <span className="text-slate-900">{usd(d.marketValue)} <span className="text-xs text-slate-400">· {d.comps} comp · {d.valBasis === "county_comp" ? "county" : "state"}</span></span>
+          : d.marketValue ? <span className="text-slate-900">{usd(d.marketValue)} <span className="text-xs text-slate-400">· {d.comps} comp · {d.valBasis === "attom_region" ? "ATTOM gerçek satış" : d.valBasis === "county_comp" ? "county" : "eyalet"}</span></span>
           : <span className="text-amber-600">comp gerekli</span>;
         const Row = ({ k, v }: { k: string; v: React.ReactNode }) => (
           <div className="flex items-baseline justify-between gap-3 border-b border-slate-50 py-1.5 text-sm">
