@@ -20,3 +20,10 @@ Her tur: gerçek iyileştirme → typecheck → commit → buraya zaman damgalı
 - Durum: typecheck 0 hata, derleme temiz
 
 ---
+## 05:08 · Tur 1 — Scrub kullanım tespiti dürüstleştirildi
+- Audit #6 fix: vacant-land regex artık `land`/`vac`/`rural` gibi geniş token kullanmıyor (WOODLAND/FARMLAND yanlış pozitifi gitti)
+- Boş kullanım kodu artık iyimser "pass" değil → **"unknown" (doğrula)**; üzerinde yapı olan kodlar → "fail (boş değil)"
+- typecheck 0 hata
+- **🎯 YENİ DİREKTİF (Yiğit):** Terralot CoStar-grade premium görünsün — her türlü gerçek veri/taban, Ahmet'e rezil olmayacak. Loop odağı artık: önce GÖRSEL/UX premium + gerçek-veri zenginliği, sonra correctness. Sahte veri ASLA yok (kırmızı çizgi).
+- **Plan (sonraki turlar):** Tüm Dealler CoStar yoğunluğunda redesign · zengin deal-detay paneli · gerçek-veriden bölge/market istatistik panelleri · Sistem ekranı premium · özet KPI/grafikler
+

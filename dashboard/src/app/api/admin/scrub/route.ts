@@ -109,12 +109,27 @@ export async function GET(req: NextRequest) {
   }
 
   // ── 5: Vacant land (boş arazi mi) ─────────────────────────────────────
-  const vacant = /vacant|vl|vac|undet|rural|boş|raw|land/.test(use) || use === "";
+  // Hassas eşleşme: "land" gibi geniş token yok (WOODLAND/FARMLAND yanlış pozitif
+  // verirdi); boş kullanım kodu artık iyimser "pass" değil "unknown".
+  let useStatus: Status;
+  let useNote: string;
+  if (!use) {
+    useStatus = "unknown";
+    useNote = "Kullanım kodu yok — boş arazi mi elle doğrula.";
+  } else if (/dwelling|residential|sfr|house|improved|commercial|industrial|mobile|building|condo|apartment/.test(use)) {
+    useStatus = "fail";
+    useNote = "Üzerinde yapı/kullanım var gibi — boş arazi DEĞİL.";
+  } else if (/vacant|vac[ _-]?land|\bvl\b|\bv0\b|undev|undet|raw[ _-]?land|boş\s*ara|\b0003\b/.test(use)) {
+    useStatus = "pass";
+    useNote = "Boş arazi — hedef profil.";
+  } else {
+    useStatus = "warn";
+    useNote = "Kullanım belirsiz — boş arazi mi doğrula.";
+  }
   factors.push({
-    key: "use", label: "Kullanım", status: vacant ? "pass" : "warn",
-    value: use ? use.toUpperCase().slice(0, 24) : "Boş arazi (varsay.)",
-    note: vacant ? "Boş arazi — hedef profil." : "Boş arazi olmayabilir — kontrol et.",
-    source: "County use code",
+    key: "use", label: "Kullanım", status: useStatus,
+    value: use ? use.toUpperCase().slice(0, 24) : "—",
+    note: useNote, source: "County use code",
   });
 
   // ── 6: Değerleme (spread + teklif) ────────────────────────────────────
