@@ -35,6 +35,7 @@ type ScrubResult = { score: number; grade: string; verdict: string; verdictTone:
 
 type AttomComp = { address: string; saleAmt: number; saleDate: string; propType: string; apn: string };
 type AttomResp = { ok: boolean; reason?: string; count: number; rawCount: number; bulkRemoved: number; median: number | null; comps: AttomComp[] };
+type AttomTitle = { ok: boolean; reason?: string; owner: string; absentee: boolean | null; hasMortgage: boolean | null; deedType: string; mailing: string };
 
 const usd = (n: number) =>
   n >= 1000 ? "$" + Math.round(n).toLocaleString("en-US") : "$" + Math.round(n);
@@ -85,6 +86,8 @@ export default function AllDealsPage() {
   const [scrubLoading, setScrubLoading] = useState(false);
   const [attom, setAttom] = useState<AttomResp | null>(null);
   const [attomLoading, setAttomLoading] = useState(false);
+  const [title, setTitle] = useState<AttomTitle | null>(null);
+  const [titleLoading, setTitleLoading] = useState(false);
 
   const loadAttom = async (d: Deal) => {
     if (d.lat == null || d.lng == null) return;
@@ -93,7 +96,16 @@ export default function AllDealsPage() {
       .then((x) => x.json()).catch(() => null);
     setAttom(r); setAttomLoading(false);
   };
-  const openDetail = (d: Deal) => { setDetailFor(d); setAttom(null); };
+  const loadTitle = async (d: Deal) => {
+    if (!d.address) return;
+    setTitle(null); setTitleLoading(true);
+    const city = (d.region || d.county).split("/")[0].trim();
+    const loc = `${city}, ${d.state}`;
+    const r: AttomTitle | null = await fetch(`/api/admin/attom-title?address=${encodeURIComponent(d.address)}&loc=${encodeURIComponent(loc)}`)
+      .then((x) => x.json()).catch(() => null);
+    setTitle(r); setTitleLoading(false);
+  };
+  const openDetail = (d: Deal) => { setDetailFor(d); setAttom(null); setTitle(null); };
 
   const openScrub = async (d: Deal) => {
     setScrubFor(d); setScrub(null); setScrubLoading(true);
@@ -600,6 +612,28 @@ export default function AllDealsPage() {
                   )}
                   {attom && !attom.ok && <p className="text-[11px] text-amber-600">{attom.reason || "ATTOM verisi alınamadı."}</p>}
                   {attom && attom.ok && attom.count === 0 && <p className="text-[11px] text-slate-400">Bu çevrede ATTOM satış kaydı yok.</p>}
+                </div>
+
+                {/* ATTOM tapu ön-kontrol */}
+                <div className="rounded-xl border border-slate-200 p-4">
+                  <div className="mb-2 flex items-center justify-between">
+                    <span className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">Tapu Ön-Kontrol · ATTOM</span>
+                    <button onClick={() => loadTitle(d)} disabled={!d.address || titleLoading}
+                      className="rounded-lg bg-slate-700 px-2.5 py-1 text-[11px] font-semibold text-white hover:bg-slate-800 disabled:opacity-40">
+                      {titleLoading ? "Kontrol…" : "Tapu kontrol"}
+                    </button>
+                  </div>
+                  {!d.address && <p className="text-[11px] text-amber-600">Adres yok — ATTOM tapu çekemiyor.</p>}
+                  {title && title.ok && (
+                    <ul className="space-y-1 text-sm">
+                      <li className="flex justify-between"><span className="text-slate-500">ATTOM sahip</span><span className="font-medium text-slate-800">{title.owner || "—"}</span></li>
+                      <li className="flex justify-between"><span className="text-slate-500">Sahip durumu</span><span className="font-medium">{title.absentee ? <span className="text-rose-600">Absentee</span> : title.absentee === false ? "Yerel" : "—"}</span></li>
+                      <li className="flex justify-between"><span className="text-slate-500">İpotek (ATTOM)</span><span className="font-semibold">{title.hasMortgage ? <span className="text-amber-600">VAR — title company incele</span> : <span className="text-emerald-600">görünmüyor ✓</span>}</span></li>
+                      <li className="flex justify-between"><span className="text-slate-500">Deed tipi</span><span className="font-medium text-slate-700">{title.deedType || "—"}</span></li>
+                      <li className="mt-1 text-[10px] text-slate-400">⚠ Ön-kontrol — vergi/yargı lien&apos;lerini KAPSAMAZ. Kesin temizlik kapanmadan <b>title company</b> ile.</li>
+                    </ul>
+                  )}
+                  {title && !title.ok && <p className="text-[11px] text-amber-600">{title.reason || "ATTOM tapu kaydı bulunamadı."}</p>}
                 </div>
 
                 <div className="flex gap-2">

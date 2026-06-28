@@ -30,6 +30,55 @@ const median = (a: number[]) => {
   return b.length % 2 ? b[m] : Math.round((b[m - 1] + b[m]) / 2);
 };
 
+export type AttomTitle = {
+  ok: boolean;
+  reason?: string;
+  owner: string;
+  absentee: boolean | null;
+  hasMortgage: boolean | null; // ATTOM ipotek kaydı (lien'in TAMAMI değil)
+  deedType: string;
+  mailing: string;
+};
+
+/** ATTOM tapu ÖN-KONTROL — sahip + absentee + ipotek sinyali + deed tipi.
+ *  NOT: kesin tapu temizliği değil (vergi/yargı lien'leri kapsamaz) — title
+ *  company kapanmadan teyit eder. Bu yalnızca ilk-elden sinyal. */
+export async function fetchTitlePrecheck(
+  address1: string,
+  cityStateZip: string,
+): Promise<AttomTitle> {
+  const empty = (reason: string): AttomTitle =>
+    ({ ok: false, reason, owner: "", absentee: null, hasMortgage: null, deedType: "", mailing: "" });
+  const key = process.env.ATTOM_API_KEY;
+  if (!key) return empty("ATTOM_API_KEY yok");
+  if (!address1) return empty("adres yok");
+  try {
+    const url = `${ATTOM_BASE}/property/detailmortgageowner?address1=${encodeURIComponent(address1)}&address2=${encodeURIComponent(cityStateZip)}`;
+    const res = await fetch(url, { headers: { apikey: key, Accept: "application/json" }, signal: AbortSignal.timeout(8000) });
+    if (!res.ok) return empty(`ATTOM HTTP ${res.status}`);
+    const j = await res.json();
+    const p = j?.property?.[0];
+    if (!p) return empty("ATTOM kaydı bulunamadı");
+    const owner = p.owner?.owner1?.fullname ?? "";
+    const absStatus = p.owner?.absenteeownerstatus;
+    const mort = p.mortgage ?? {};
+    const lender = mort.lender?.companycode;
+    const amt = Number(mort.amount ?? 0);
+    // ipotek var mı: geçerli lender kodu veya tutar > 0
+    const hasMortgage = (lender && lender !== "-1") || amt > 0 ? true : false;
+    return {
+      ok: true,
+      owner,
+      absentee: absStatus === "A" ? true : absStatus ? false : null,
+      hasMortgage,
+      deedType: String(mort.deedtype ?? ""),
+      mailing: String(p.owner?.mailingaddressoneline ?? ""),
+    };
+  } catch (e) {
+    return empty(`ATTOM hata: ${(e as Error).message}`);
+  }
+}
+
 /** Real recent vacant-land sales within `radiusMi` of a point. */
 export async function fetchNearbySoldComps(
   lat: number,
