@@ -85,3 +85,7 @@ Her tur: gerçek iyileştirme → typecheck → commit → buraya zaman damgalı
 - Dışa aktarılan liste artık fırsat notu + absentee taşıyor (ekibe/mektup kampanyasına hazır)
 - Dev server build sonrası sağ (3002 çalışıyor)
 - typecheck 0 hata
+## 06:34 · Tur 14 — Detay panelinde fiyat merdiveni
+- Deal detayda Piyasa(comp) / Nakit satış / Teklif oranlı bar görseli — deal ekonomisi tek bakışta (CoStar tarzı)
+- Sadece comp-değerli + uyumlu deal'lerde (yoksa gösterilmez, uydurma yok)
+- typecheck 0 hata

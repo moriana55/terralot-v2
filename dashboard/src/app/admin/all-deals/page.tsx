@@ -502,8 +502,25 @@ export default function AllDealsPage() {
                   <Row k="Teklif (%15-20)" v={d.estOffer ? <span className="text-emerald-700">{usd(d.estOffer)}</span> : "—"} />
                   <Row k="Nakit satış (%65)" v={d.estResale ? usd(d.estResale) : "—"} />
                   <Row k="Spread" v={d.spread ? <span className="font-semibold text-emerald-600">{usd(d.spread)}</span> : "—"} />
+                  {d.marketValue != null && d.valBasis !== "mismatch" && d.marketValue > 0 && (
+                    <div className="mt-3 space-y-1.5">
+                      {[
+                        { l: "Piyasa (comp)", val: d.marketValue, tone: "bg-slate-400" },
+                        { l: "Nakit satış", val: d.estResale, tone: "bg-emerald-400" },
+                        { l: "Teklif", val: d.estOffer, tone: "bg-slate-900" },
+                      ].map((b) => (
+                        <div key={b.l} className="flex items-center gap-2">
+                          <span className="w-24 shrink-0 text-[10px] text-slate-500">{b.l}</span>
+                          <div className="h-3 flex-1 overflow-hidden rounded bg-slate-100">
+                            <div className={`h-full ${b.tone}`} style={{ width: `${Math.max(2, Math.min(100, (b.val / d.marketValue!) * 100))}%` }} />
+                          </div>
+                          <span className="w-16 shrink-0 text-right text-[10px] tabular-nums text-slate-600">{b.val ? usd(b.val) : "—"}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                   {!d.mailSafe && d.marketValue != null && d.valBasis !== "mismatch" && (
-                    <p className="mt-1 text-[11px] text-amber-600">⚠ Comp güveni düşük — otomatik mail atma, doğrula.</p>
+                    <p className="mt-2 text-[11px] text-amber-600">⚠ Comp güveni düşük — otomatik mail atma, doğrula.</p>
                   )}
                 </div>
                 {d.dealGrade && (
