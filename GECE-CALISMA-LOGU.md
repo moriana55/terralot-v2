@@ -50,3 +50,8 @@ Her tur: gerçek iyileştirme → typecheck → commit → buraya zaman damgalı
 - Ahmet "bu değer ne kadar güvenilir?" derse → tabloda görür; düşük kapsama amber, comp yoksa "comp gerekli"
 - Kaynak/sınır notu (asking comp; sold/county için scrape veya ATTOM)
 - typecheck 0 hata
+## 05:50 · Tur 7 — Outreach teklif güvenliği (audit fix)
+- `offerPct` artık [15,25]'e clamp'li (crafted/bozuk input saçma teklif üretemez)
+- ≤$10K parselde teklif %15'i geçemez (roadmap kuralı, buildDealSheet'te effectivePct)
+- Tüm Dealler sayfasının dev runtime derleme kontrolü yapıldı (✓ Compiled, hata yok)
+- typecheck 0 hata

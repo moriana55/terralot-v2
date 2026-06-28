@@ -87,7 +87,9 @@ function buildDealSheet(lead: Lead, offerPct: number, marketValueOverride?: numb
     (lead.market_value && lead.market_value > 0 ? lead.market_value : null) ??
     (lead.land_value && lead.land_value > 0 ? lead.land_value : null);
   // offer = market_value × offerPct% (blind offer, leaves flip/owner-finance spread)
-  const offer = marketValue != null ? Math.round(marketValue * (offerPct / 100)) : null;
+  // ≤$10K parselde teklif %15'i geçmesin (roadmap — aşırı teklif yok).
+  const effectivePct = marketValue != null && marketValue <= 10000 ? Math.min(offerPct, 15) : offerPct;
+  const offer = marketValue != null ? Math.round(marketValue * (effectivePct / 100)) : null;
   const st = abbr(lead.state);
   const cty = normCounty(lead.county);
   const title = `${lead.acres ? lead.acres + "-Acre" : "Parcel"}${cty ? " — " + cty + ", " + (st || "") : ""}`;
@@ -100,7 +102,7 @@ function buildDealSheet(lead: Lead, offerPct: number, marketValueOverride?: numb
     minimumBid: minBid || null,
     marketValue: marketValue,
     offerPrice: offer,
-    offerPct,
+    offerPct: effectivePct,
     score: lead.final_score,
     propertyAddress: lead.property_address,
     merge_variables: {
@@ -146,7 +148,9 @@ export async function POST(req: NextRequest) {
   const channel = body.channel === "postcard" ? "postcard" : "letter";
   const type = (body.type as string) || "offer";
   // ROADMAP: blind offer = market_value × 15-25%. Default 20% (mid-band).
-  const offerPct = typeof body.offerPct === "number" ? body.offerPct : 20;
+  // Clamp to [15,25] — crafted/bad input can't produce an absurd offer.
+  const rawPct = typeof body.offerPct === "number" ? body.offerPct : 20;
+  const offerPct = Math.min(25, Math.max(15, rawPct));
   // Optional: caller passes the deal's real market value (Regrid/landValue) so
   // the offer is anchored to resale value even when the lead row lacks it.
   const marketValueOverride =
