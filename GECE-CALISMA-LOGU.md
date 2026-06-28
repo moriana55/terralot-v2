@@ -40,3 +40,8 @@ Her tur: gerçek iyileştirme → typecheck → commit → buraya zaman damgalı
 - Comp güveni düşükse "doğrula" uyarısı, uyumsuzsa "comp uyumsuz" — sahte sayı yok
 - Scrub butonu + harita linki stopPropagation (satır tıklamasıyla çakışmaz)
 - typecheck 0 hata
+## 05:41 · Tur 5 — Market Özeti paneli (per-state, gerçek veri)
+- API'ye `byStateDetail`: eyalet bazında deal sayısı, toplam acre, comp $/acre, comp kapsama %, absentee % — filtrelenmiş set + comp index'ten GERÇEK
+- Açılır/kapanır "Market Özeti" tablosu; satıra tıkla → o eyalete filtrele
+- comp yoksa "comp gerekli", kapsama %50 altı amber — dürüst
+- typecheck 0 hata

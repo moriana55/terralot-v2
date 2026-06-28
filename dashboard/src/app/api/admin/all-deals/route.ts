@@ -351,15 +351,29 @@ export async function GET(req: NextRequest) {
   let compMarketSum = 0;
   let totalSpread = 0;
   let absenteeN = 0;
+  const stMap = new Map<string, { count: number; acres: number; withComp: number; absentee: number }>();
   for (const d of filtered) {
     totalAcres += d.acres || 0;
     if (d.absentee) absenteeN++;
+    let sd = stMap.get(d.state);
+    if (!sd) { sd = { count: 0, acres: 0, withComp: 0, absentee: 0 }; stMap.set(d.state, sd); }
+    sd.count++; sd.acres += d.acres || 0; if (d.absentee) sd.absentee++;
     if (d.marketValue != null && d.valBasis !== "mismatch") {
       withComp++;
       compMarketSum += d.marketValue;
       totalSpread += d.spread || 0;
+      sd.withComp++;
     }
   }
+  const byStateDetail = [...stMap.entries()].map(([st, v]) => ({
+    state: st,
+    count: v.count,
+    acres: Math.round(v.acres),
+    ppa: idx.state.get(st) ? Math.round(idx.state.get(st)!.ppa) : null,
+    comps: idx.state.get(st)?.n ?? 0,
+    withCompPct: v.count ? Math.round((v.withComp / v.count) * 100) : 0,
+    absenteePct: v.count ? Math.round((v.absentee / v.count) * 100) : 0,
+  })).sort((a, b) => b.count - a.count);
   // state $/acre medians (real comp index) limited to states present in facets
   const statePpa: Record<string, { ppa: number; n: number }> = {};
   for (const st of Object.keys(byState)) {
@@ -375,6 +389,7 @@ export async function GET(req: NextRequest) {
     compMarketSum: Math.round(compMarketSum),
     totalSpread: Math.round(totalSpread),
     statePpa,
+    byStateDetail,
   };
 
   return NextResponse.json({

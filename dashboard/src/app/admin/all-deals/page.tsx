@@ -13,9 +13,11 @@ type Deal = {
   score: number | null; apn: string; lat: number | null; lng: number | null; mapUrl: string;
   marketValue: number | null; comps: number; mailSafe: boolean; valBasis: string;
 };
+type StateDetail = { state: string; count: number; acres: number; ppa: number | null; comps: number; withCompPct: number; absenteePct: number };
 type Stats = {
   totalAcres: number; withComp: number; withCompPct: number; absenteePct: number;
   compMarketSum: number; totalSpread: number; statePpa: Record<string, { ppa: number; n: number }>;
+  byStateDetail: StateDetail[];
 };
 type ApiResp = {
   total: number; totalAll: number; page: number; pageSize: number; pages: number;
@@ -62,6 +64,7 @@ export default function AllDealsPage() {
   const [sort, setSort] = useState("spread");
   const [dir, setDir] = useState<"asc" | "desc">("desc");
   const [page, setPage] = useState(1);
+  const [showMarket, setShowMarket] = useState(false);
 
   const [data, setData] = useState<ApiResp | null>(null);
   const [loading, setLoading] = useState(true);
@@ -199,6 +202,42 @@ export default function AllDealsPage() {
               <div className="text-[10px] text-slate-400">{k.s}</div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Market özeti (CoStar tarzı per-state dökim) */}
+      {data?.stats?.byStateDetail && data.stats.byStateDetail.length > 0 && (
+        <div className="rounded-xl border border-slate-200 bg-white">
+          <button onClick={() => setShowMarket((v) => !v)}
+            className="flex w-full items-center justify-between px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50">
+            <span>📊 Market Özeti — {data.stats.byStateDetail.length} eyalet (gerçek veri)</span>
+            <span className="text-slate-400">{showMarket ? "▲" : "▼"}</span>
+          </button>
+          {showMarket && (
+            <div className="overflow-x-auto border-t border-slate-100">
+              <table className="w-full text-left text-sm">
+                <thead className="bg-slate-50 text-xs uppercase text-slate-500">
+                  <tr>
+                    <th className="px-4 py-2">Eyalet</th><th className="px-4 py-2 text-right">Deal</th>
+                    <th className="px-4 py-2 text-right">Toplam acre</th><th className="px-4 py-2 text-right">$/acre (comp)</th>
+                    <th className="px-4 py-2 text-right">Comp kapsama</th><th className="px-4 py-2 text-right">Absentee</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {data.stats.byStateDetail.map((s) => (
+                    <tr key={s.state} onClick={() => setState(s.state)} className="cursor-pointer hover:bg-slate-50">
+                      <td className="px-4 py-2 font-bold text-slate-800">{s.state}</td>
+                      <td className="px-4 py-2 text-right tabular-nums">{s.count.toLocaleString()}</td>
+                      <td className="px-4 py-2 text-right tabular-nums text-slate-600">{s.acres.toLocaleString()}</td>
+                      <td className="px-4 py-2 text-right tabular-nums">{s.ppa ? `$${s.ppa.toLocaleString()}` : <span className="text-amber-600 text-xs">comp gerekli</span>}<span className="ml-1 text-[10px] text-slate-400">{s.comps ? `${s.comps}c` : ""}</span></td>
+                      <td className="px-4 py-2 text-right tabular-nums"><span className={s.withCompPct >= 50 ? "text-emerald-600" : "text-amber-600"}>%{s.withCompPct}</span></td>
+                      <td className="px-4 py-2 text-right tabular-nums text-slate-600">%{s.absenteePct}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       )}
 
