@@ -16,8 +16,10 @@ export type AttomComp = {
 export type AttomCompsResult = {
   ok: boolean;
   reason?: string;
-  count: number;
-  median: number | null;
+  count: number; // temiz (scrub sonrası) comp sayısı
+  rawCount: number; // ham satış kaydı
+  bulkRemoved: number; // toplu/tekrar eden olarak elenen
+  median: number | null; // temiz median
   comps: AttomComp[];
 };
 
@@ -35,8 +37,10 @@ export async function fetchNearbySoldComps(
   radiusMi = 8,
   pageSize = 25,
 ): Promise<AttomCompsResult> {
+  const empty = (reason: string): AttomCompsResult =>
+    ({ ok: false, reason, count: 0, rawCount: 0, bulkRemoved: 0, median: null, comps: [] });
   const key = process.env.ATTOM_API_KEY;
-  if (!key) return { ok: false, reason: "ATTOM_API_KEY yok", count: 0, median: null, comps: [] };
+  if (!key) return empty("ATTOM_API_KEY yok");
 
   try {
     const url =
@@ -46,7 +50,7 @@ export async function fetchNearbySoldComps(
       headers: { apikey: key, Accept: "application/json" },
       signal: AbortSignal.timeout(8000),
     });
-    if (!res.ok) return { ok: false, reason: `ATTOM HTTP ${res.status}`, count: 0, median: null, comps: [] };
+    if (!res.ok) return empty(`ATTOM HTTP ${res.status}`);
     const j = await res.json();
     const rows: Record<string, unknown>[] = j?.property ?? [];
 
@@ -68,14 +72,25 @@ export async function fetchNearbySoldComps(
         apn: String(id.apn ?? ""),
       });
     }
-    comps.sort((a, b) => (a.saleDate < b.saleDate ? 1 : -1));
+    // Scrub: identical (saleAmt + saleDate) repeated → bulk/portfolio sale split
+    // across parcels; collapse to one representative so it doesn't inflate the median.
+    const seen = new Map<string, AttomComp>();
+    let bulkRemoved = 0;
+    for (const c of comps) {
+      const k = `${c.saleAmt}|${c.saleDate}`;
+      if (seen.has(k)) { bulkRemoved++; continue; }
+      seen.set(k, c);
+    }
+    const clean = [...seen.values()].sort((a, b) => (a.saleDate < b.saleDate ? 1 : -1));
     return {
       ok: true,
-      count: comps.length,
-      median: median(comps.map((c) => c.saleAmt)),
-      comps: comps.slice(0, 15),
+      rawCount: comps.length,
+      bulkRemoved,
+      count: clean.length,
+      median: median(clean.map((c) => c.saleAmt)),
+      comps: clean.slice(0, 15),
     };
   } catch (e) {
-    return { ok: false, reason: `ATTOM hata: ${(e as Error).message}`, count: 0, median: null, comps: [] };
+    return empty(`ATTOM hata: ${(e as Error).message}`);
   }
 }

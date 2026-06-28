@@ -122,3 +122,8 @@ Her tur: gerçek iyileştirme → typecheck → commit → buraya zaman damgalı
 - Piyasa(comp) hücresinde "eyalet" (kaba, amber) vs "county" (hassas, yeşil) etiketi
 - Ahmet hangi değerin kaba hangi hassas olduğunu görür → dürüst
 - typecheck 0 hata
+## 07:27 · ATTOM entegrasyonu (free trial key)
+- lib/attom.ts + /api/admin/attom-comps: yakındaki gerçek SATILMIŞ vacant-land emsalleri (sale/snapshot)
+- ATTOM key canlı doğrulandı (.env.local, commit edilmez)
+- Comp SCRUB: aynı tutar+tarih tekrarı = bulk/portföy satışı → tek temsilciye indir (median şişmesin)
+- Bulgu: Mohave ham çöl lotunda ATTOM sales karışık boyut ($8k–$244k); acre normalizasyonu olmadan tam $/acre comp değil ama "yakındaki gerçek satışlar" kanıtı GÜÇLÜ
