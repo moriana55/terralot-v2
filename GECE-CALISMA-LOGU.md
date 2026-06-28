@@ -71,3 +71,7 @@ Her tur: gerçek iyileştirme → typecheck → commit → buraya zaman damgalı
 - all-deals route bu test edilmiş helper'ları kullanıyor (inline mantık kaldırıldı)
 - Bu kritik mantık artık sessizce bozulamaz (CoStar-grade = testli)
 - typecheck 0 hata · tüm testler yeşil
+## 06:22 · Tur 11 — Detay panelinde "Fırsat Gerekçesi"
+- Deal detay drawer'ına A/B/C notunun gerekçesi: absentee, ideal boyut, comp güveni, comp>assessed — her faktör ✓/○ + puanı
+- Ahmet "neden bu not?" derse → şeffaf kırılım görür
+- typecheck 0 hata

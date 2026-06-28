@@ -506,6 +506,28 @@ export default function AllDealsPage() {
                     <p className="mt-1 text-[11px] text-amber-600">⚠ Comp güveni düşük — otomatik mail atma, doğrula.</p>
                   )}
                 </div>
+                {d.dealGrade && (
+                  <div className="rounded-xl border border-slate-200 p-4">
+                    <div className="mb-2 flex items-center gap-2">
+                      <span className={`flex h-6 w-6 items-center justify-center rounded text-xs font-black ${GRADE_UI[d.dealGrade]}`}>{d.dealGrade}</span>
+                      <span className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">Fırsat Gerekçesi</span>
+                    </div>
+                    <ul className="space-y-1 text-sm">
+                      {[
+                        { ok: d.absentee, t: "Absentee (şehir-dışı sahip) — motive satıcı", w: 2 },
+                        { ok: d.acres >= 0.2 && d.acres <= 5, t: "İdeal boyut (0.2–5 acre)", w: 2 },
+                        { ok: d.mailSafe, t: "Comp güveni yeterli (mailSafe)", w: 1 },
+                        { ok: d.marketValue != null && d.landValue > 0 && d.marketValue > d.landValue, t: "Comp > assessed (değerli alım)", w: 1 },
+                      ].map((r, i) => (
+                        <li key={i} className="flex items-center gap-2">
+                          <span className={r.ok ? "text-emerald-600" : "text-slate-300"}>{r.ok ? "✓" : "○"}</span>
+                          <span className={r.ok ? "text-slate-700" : "text-slate-400"}>{r.t}</span>
+                          <span className="ml-auto text-[10px] text-slate-400">+{r.w}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
                 <div className="rounded-xl border border-slate-200 p-4">
                   <div className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-slate-400">Sahip</div>
                   <Row k="Ad" v={d.owner || "—"} />
