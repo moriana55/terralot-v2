@@ -65,3 +65,9 @@ Her tur: gerçek iyileştirme → typecheck → commit → buraya zaman damgalı
 - UI'a hızlı filtre çip satırı: 💎 Sadece comp-değerli · Fırsat A · Fırsat A+B · Absentee
 - Ahmet gerçek değerli/yüksek-fırsat parsellere tek tıkla odaklanır
 - typecheck 0 hata
+## 06:18 · Tur 10 — Değerleme-kalite mantığı saf helper'a + UNIT TEST
+- `lib/deal-quality.ts`: valuationMismatch (comp-uyumsuzluk kilidi) + dealGrade (Fırsat notu) saf fonksiyonlara çıkarıldı
+- `deal-quality.test.ts`: 9 test (mismatch + grade sınır durumları) — hepsi geçiyor
+- all-deals route bu test edilmiş helper'ları kullanıyor (inline mantık kaldırıldı)
+- Bu kritik mantık artık sessizce bozulamaz (CoStar-grade = testli)
+- typecheck 0 hata · tüm testler yeşil

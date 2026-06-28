@@ -12,6 +12,7 @@ import { supabaseAdmin } from "@/lib/supabase";
 import { priceParcel } from "@/lib/pricing";
 import { medianPpa } from "@/lib/land-valuation";
 import { requireGate, enforceRateLimit } from "@/lib/api-guard";
+import { valuationMismatch, dealGrade } from "@/lib/deal-quality";
 
 export type UnifiedDeal = {
   id: string;
@@ -266,26 +267,18 @@ async function getDeals(): Promise<UnifiedDeal[]> {
     // (e.g. rural $/acre applied to an urban industrial lot). Don't surface a
     // confident lowball offer — flag it for manual verification.
     const mv = p.marketValue;
-    const mismatch =
-      mv != null && mv > 0 && d.landValue > 0 &&
-      (d.landValue > 4 * mv || mv > 4 * d.landValue);
-    // At-a-glance fırsat notu — yalnızca gerçek comp varsa (uydurma yok)
-    let dealGrade: string | null = null;
-    if (mv != null && !mismatch) {
-      let sc = 0;
-      if (d.absentee) sc += 2;
-      if (d.acres >= 0.2 && d.acres <= 5) sc += 2;
-      if (p.mailSafe) sc += 1;
-      if (d.landValue > 0 && mv > d.landValue) sc += 1;
-      dealGrade = sc >= 5 ? "A" : sc >= 3 ? "B" : "C";
-    }
+    const mismatch = valuationMismatch(mv, d.landValue);
+    const grade = dealGrade({
+      marketValue: mv, mismatch, absentee: d.absentee,
+      acres: d.acres, mailSafe: p.mailSafe, assessed: d.landValue,
+    });
     return {
       ...d,
       marketValue: mv,
       comps: p.comps,
       mailSafe: p.mailSafe && !mismatch,
       valBasis: mismatch ? "mismatch" : p.basis,
-      dealGrade,
+      dealGrade: grade,
       estOffer: mismatch ? 0 : (p.offer ?? 0),
       estResale: mismatch ? 0 : (p.cashPrice ?? 0),
       spread: mismatch ? 0 : (p.cashPrice != null && p.offer != null ? p.cashPrice - p.offer : 0),
