@@ -207,12 +207,16 @@ export default function AllDealsPage() {
           className={`rounded-full px-3 py-1 text-sm font-semibold ${!state ? "bg-slate-900 text-white" : "bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-50"}`}>
           Tümü {data && <span className="opacity-60">{data.totalAll.toLocaleString()}</span>}
         </button>
-        {states.map(([st, n]) => (
-          <button key={st} onClick={() => setState(st)}
-            className={`rounded-full px-3 py-1 text-sm font-semibold ${state === st ? "bg-slate-900 text-white" : "bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-50"}`}>
-            {st} <span className="opacity-60">{n.toLocaleString()}</span>
-          </button>
-        ))}
+        {states.map(([st, n]) => {
+          const ppa = data?.stats?.statePpa?.[st];
+          return (
+            <button key={st} onClick={() => setState(st)}
+              className={`rounded-full px-3 py-1 text-sm font-semibold ${state === st ? "bg-slate-900 text-white" : "bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-50"}`}>
+              {st} <span className="opacity-60">{n.toLocaleString()}</span>
+              {ppa && <span className={`ml-1 text-[10px] font-normal ${state === st ? "text-emerald-300" : "text-emerald-600"}`}>${ppa.ppa >= 1000 ? (ppa.ppa / 1000).toFixed(1) + "K" : ppa.ppa}/ac</span>}
+            </button>
+          );
+        })}
       </div>
 
       {/* Filters */}

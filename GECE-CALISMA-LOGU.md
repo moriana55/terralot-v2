@@ -31,3 +31,7 @@ Her tur: gerçek iyileştirme → typecheck → commit → buraya zaman damgalı
 - API'ye `stats` bloğu: toplam acre, comp-değerli %, absentee %, comp piyasa toplamı, spread toplamı, eyalet $/acre medyanları — hepsi filtrelenmiş set üzerinden GERÇEK
 - Tüm Dealler üstüne 6'lı CoStar tarzı KPI bandı eklendi
 - typecheck 0 hata
+## 05:29 · Tur 3 — Eyalet çiplerine gerçek $/acre medyanı
+- Her eyalet çipinin yanında comp $/acre medyanı (ör. AZ $3.1K/ac) — gerçek competitor_listings'ten
+- Loop cadence sıkıştırıldı: turlar arası ~15dk → ~60sn (neredeyse aralıksız, Yiğit ricası)
+- typecheck 0 hata
