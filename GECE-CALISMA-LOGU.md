@@ -35,3 +35,8 @@ Her tur: gerçek iyileştirme → typecheck → commit → buraya zaman damgalı
 - Her eyalet çipinin yanında comp $/acre medyanı (ör. AZ $3.1K/ac) — gerçek competitor_listings'ten
 - Loop cadence sıkıştırıldı: turlar arası ~15dk → ~60sn (neredeyse aralıksız, Yiğit ricası)
 - typecheck 0 hata
+## 05:34 · Tur 4 — Deal detay paneli (CoStar tarzı)
+- Satıra tıkla → sağdan detay drawer: Parsel (eyalet/county/acre/APN/koordinat) + Değerleme kırılımı (assessed, comp piyasa+comp sayısı+basis, teklif %15-20, nakit %65, spread) + Sahip (absentee) + aksiyonlar (Scrub, Harita)
+- Comp güveni düşükse "doğrula" uyarısı, uyumsuzsa "comp uyumsuz" — sahte sayı yok
+- Scrub butonu + harita linki stopPropagation (satır tıklamasıyla çakışmaz)
+- typecheck 0 hata

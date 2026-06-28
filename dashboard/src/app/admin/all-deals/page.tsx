@@ -66,7 +66,8 @@ export default function AllDealsPage() {
   const [data, setData] = useState<ApiResp | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // ── Scrub drawer ──
+  // ── Detail + Scrub drawers ──
+  const [detailFor, setDetailFor] = useState<Deal | null>(null);
   const [scrubFor, setScrubFor] = useState<Deal | null>(null);
   const [scrub, setScrub] = useState<ScrubResult | null>(null);
   const [scrubLoading, setScrubLoading] = useState(false);
@@ -323,7 +324,7 @@ export default function AllDealsPage() {
                 </td></tr>
               )}
               {!loading && rows.map((d) => (
-                <tr key={d.id} className="hover:bg-slate-50/70">
+                <tr key={d.id} onClick={() => setDetailFor(d)} className="cursor-pointer hover:bg-slate-50/70">
                   <td className="px-3 py-2.5 font-bold text-slate-700">{d.state}</td>
                   <td className="px-3 py-2.5 text-slate-600">
                     {d.county}{d.region && d.region !== d.county ? <span className="block text-xs text-slate-400">{d.region}</span> : null}
@@ -353,12 +354,12 @@ export default function AllDealsPage() {
                   </td>
                   <td className="px-3 py-2.5">
                     <div className="flex items-center justify-center gap-2">
-                      <button onClick={() => openScrub(d)} title="Scrub çalıştır"
+                      <button onClick={(e) => { e.stopPropagation(); openScrub(d); }} title="Scrub çalıştır"
                         className="flex items-center gap-1 rounded-md bg-slate-900 px-2 py-1 text-[11px] font-semibold text-white hover:bg-slate-700">
                         <ShieldCheck className="h-3.5 w-3.5" /> Scrub
                       </button>
                       {d.mapUrl && (
-                        <a href={d.mapUrl} target="_blank" rel="noreferrer" className="text-slate-400 hover:text-emerald-600">
+                        <a href={d.mapUrl} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()} className="text-slate-400 hover:text-emerald-600">
                           {d.lat ? <MapPin className="h-4 w-4" /> : <ExternalLink className="h-4 w-4" />}
                         </a>
                       )}
@@ -387,6 +388,74 @@ export default function AllDealsPage() {
           </div>
         )}
       </div>
+
+      {/* Deal detail drawer */}
+      {detailFor && (() => {
+        const d = detailFor;
+        const valNode = d.valBasis === "mismatch"
+          ? <span className="text-amber-600">⚠ comp uyumsuz</span>
+          : d.marketValue ? <span className="text-slate-900">{usd(d.marketValue)} <span className="text-xs text-slate-400">· {d.comps} comp · {d.valBasis === "county_comp" ? "county" : "state"}</span></span>
+          : <span className="text-amber-600">comp gerekli</span>;
+        const Row = ({ k, v }: { k: string; v: React.ReactNode }) => (
+          <div className="flex items-baseline justify-between gap-3 border-b border-slate-50 py-1.5 text-sm">
+            <span className="text-slate-500">{k}</span><span className="text-right font-medium text-slate-800">{v}</span>
+          </div>
+        );
+        return (
+          <div className="fixed inset-0 z-50 flex justify-end" onClick={() => setDetailFor(null)}>
+            <div className="absolute inset-0 bg-slate-900/30" />
+            <div className="relative h-full w-full max-w-md overflow-y-auto bg-white shadow-2xl" onClick={(e) => e.stopPropagation()}>
+              <div className="sticky top-0 flex items-start justify-between border-b border-slate-100 bg-white px-5 py-4">
+                <div>
+                  <span className={`rounded px-1.5 py-0.5 text-[10px] font-semibold ${SOURCE_COLOR[d.source] ?? "bg-slate-100 text-slate-600"}`}>{d.sourceLabel}</span>
+                  <div className="mt-1 font-bold text-slate-900">{d.owner || d.apn || "—"}</div>
+                  <div className="text-xs text-slate-500">{d.address || "—"} · {d.state} / {d.county}</div>
+                </div>
+                <button onClick={() => setDetailFor(null)} className="rounded-lg p-1 text-slate-400 hover:bg-slate-100"><X className="h-5 w-5" /></button>
+              </div>
+              <div className="space-y-4 p-5">
+                <div className="rounded-xl border border-slate-200 p-4">
+                  <div className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-slate-400">Parsel</div>
+                  <Row k="Eyalet / County" v={`${d.state} / ${d.county}`} />
+                  {d.region && d.region !== d.county && <Row k="Bölge" v={d.region} />}
+                  <Row k="Alan" v={d.acres ? `${d.acres.toFixed(2)} acre` : "—"} />
+                  <Row k="APN" v={d.apn || "—"} />
+                  {d.lat != null && <Row k="Koordinat" v={`${d.lat.toFixed(4)}, ${d.lng?.toFixed(4)}`} />}
+                </div>
+                <div className="rounded-xl border border-emerald-200 bg-emerald-50/40 p-4">
+                  <div className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-emerald-600">Değerleme</div>
+                  <Row k="Değer (assessed)" v={d.landValue ? usd(d.landValue) : "—"} />
+                  <Row k="Piyasa (comp)" v={valNode} />
+                  <Row k="Teklif (%15-20)" v={d.estOffer ? <span className="text-emerald-700">{usd(d.estOffer)}</span> : "—"} />
+                  <Row k="Nakit satış (%65)" v={d.estResale ? usd(d.estResale) : "—"} />
+                  <Row k="Spread" v={d.spread ? <span className="font-semibold text-emerald-600">{usd(d.spread)}</span> : "—"} />
+                  {!d.mailSafe && d.marketValue != null && d.valBasis !== "mismatch" && (
+                    <p className="mt-1 text-[11px] text-amber-600">⚠ Comp güveni düşük — otomatik mail atma, doğrula.</p>
+                  )}
+                </div>
+                <div className="rounded-xl border border-slate-200 p-4">
+                  <div className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-slate-400">Sahip</div>
+                  <Row k="Ad" v={d.owner || "—"} />
+                  <Row k="Mailing eyaleti" v={d.ownerState || "—"} />
+                  <Row k="Durum" v={d.absentee ? <span className="text-rose-600">Absentee (şehir-dışı)</span> : "Eyalet içi"} />
+                </div>
+                <div className="flex gap-2">
+                  <button onClick={() => { setDetailFor(null); openScrub(d); }}
+                    className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-slate-900 px-3 py-2 text-sm font-semibold text-white hover:bg-slate-700">
+                    <ShieldCheck className="h-4 w-4" /> Scrub çalıştır
+                  </button>
+                  {d.mapUrl && (
+                    <a href={d.mapUrl} target="_blank" rel="noreferrer"
+                      className="flex items-center justify-center gap-1.5 rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50">
+                      <MapPin className="h-4 w-4" /> Harita
+                    </a>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Scrub drawer */}
       {scrubFor && (
