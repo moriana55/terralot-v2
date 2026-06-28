@@ -78,22 +78,18 @@ async function checkFlood(lat: number, lon: number) {
     const { score, label } = scoreZone(zone, subtype);
     return { floodZone: zone, zoneSubtype: subtype, inSFHA, insuranceRequired: inSFHA, riskScore: score, riskLabel: label };
   } catch (err: any) {
-    console.warn("FEMA API failed, using fallback:", err.message);
-    // Deterministic mock based on lat/lon
-    const hash = Math.abs(Math.sin(lat) * Math.cos(lon));
-    const isHighRisk = hash > 0.82;
-    const zone = isHighRisk ? "AE" : "X";
-    const subtype = isHighRisk ? "1 PCT ANNUAL CHANCE FLOOD HAZARD" : "AREA OF MINIMAL FLOOD HAZARD";
-    const inSFHA = isHighRisk;
-    const { score, label } = scoreZone(zone, subtype);
-    return { 
-      floodZone: zone, 
-      zoneSubtype: subtype, 
-      inSFHA, 
-      insuranceRequired: inSFHA, 
-      riskScore: score, 
-      riskLabel: label,
-      fallback: true
+    console.warn("FEMA API failed:", err.message);
+    // HONEST: do NOT fabricate flood data. Report unavailable so consumers
+    // render "veri yok / unknown" instead of a fake zone.
+    return {
+      floodZone: null,
+      zoneSubtype: null,
+      inSFHA: null,
+      insuranceRequired: null,
+      riskScore: null,
+      riskLabel: "unknown",
+      error: err.message,
+      fallback: true,
     };
   }
 }
@@ -150,26 +146,18 @@ async function checkRoad(lat: number, lon: number) {
     const surfaceNote = surface === "paved" ? "Paved road access" : surface === "gravel" ? "Gravel road access" : surface === "dirt" ? "Dirt road - 2WD/4WD recommended" : "Road access available";
     return { hasRoadAccess: true, nearestRoadMeters: hit.dist, accessType, nearestRoadName: hit.name, surface, roadClass: hit.highway, accessNote: accessType === "direct" ? surfaceNote : `${surfaceNote} (nearby)` };
   } catch (err: any) {
-    console.warn("Road API failed, using fallback:", err.message);
-    const hash = Math.abs(Math.sin(lon) * Math.cos(lat));
-    const hasRoad = hash > 0.25;
-    if (!hasRoad) {
-      return { hasRoadAccess: false, nearestRoadMeters: null, accessType: "landlocked", nearestRoadName: null, surface: "unknown", roadClass: null, accessNote: "⚠️ No legal road access (landlocked)" };
-    }
-    const dist = Math.floor(15 + hash * 240);
-    const accessType = dist <= 50 ? "direct" : "near";
-    const surface = hash > 0.7 ? "paved" : hash > 0.4 ? "gravel" : "dirt";
-    const roadClass = hash > 0.7 ? "residential" : "track";
-    const surfaceNote = surface === "paved" ? "Paved road access" : surface === "gravel" ? "Gravel road access" : surface === "dirt" ? "Dirt road - 2WD/4WD recommended" : "Road access available";
-    return { 
-      hasRoadAccess: true, 
-      nearestRoadMeters: dist, 
-      accessType, 
-      nearestRoadName: hash > 0.65 ? "Pinewood Rd" : "Desert Vista Trail", 
-      surface, 
-      roadClass, 
-      accessNote: accessType === "direct" ? surfaceNote : `${surfaceNote} (nearby)`,
-      fallback: true
+    console.warn("Road API failed:", err.message);
+    // HONEST: do NOT fabricate road access (no fake distances/street names).
+    return {
+      hasRoadAccess: null,
+      nearestRoadMeters: null,
+      accessType: "unknown",
+      nearestRoadName: null,
+      surface: "unknown",
+      roadClass: null,
+      accessNote: "Yol verisi alınamadı (servis yanıt vermedi) — haritadan doğrula.",
+      error: err.message,
+      fallback: true,
     };
   }
 }

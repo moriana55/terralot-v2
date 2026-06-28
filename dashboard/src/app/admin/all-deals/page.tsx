@@ -1,0 +1,421 @@
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+import {
+  SlidersHorizontal, RotateCcw, Download, Loader2, MapPin, ExternalLink,
+  ChevronLeft, ChevronRight, Search, ShieldCheck, X,
+} from "lucide-react";
+
+type Deal = {
+  id: string; source: string; sourceLabel: string; state: string; county: string;
+  region: string; owner: string; ownerState: string; absentee: boolean; address: string;
+  acres: number; landValue: number; estOffer: number; estResale: number; spread: number;
+  score: number | null; apn: string; lat: number | null; lng: number | null; mapUrl: string;
+  marketValue: number | null; comps: number; mailSafe: boolean; valBasis: string;
+};
+type ApiResp = {
+  total: number; totalAll: number; page: number; pageSize: number; pages: number;
+  byState: Record<string, number>; bySource: Record<string, number>;
+  sourceLabels: Record<string, string>; rows: Deal[];
+};
+
+type ScrubStatus = "pass" | "warn" | "fail" | "unknown";
+type ScrubFactor = { key: string; label: string; status: ScrubStatus; value: string; note: string; source: string; critical?: boolean };
+type ScrubResult = { score: number; grade: string; verdict: string; verdictTone: string; rationale: string; factors: ScrubFactor[] };
+
+const usd = (n: number) =>
+  n >= 1000 ? "$" + Math.round(n).toLocaleString("en-US") : "$" + Math.round(n);
+
+const STATUS_UI: Record<ScrubStatus, { dot: string; text: string; label: string }> = {
+  pass: { dot: "bg-emerald-500", text: "text-emerald-700", label: "✓" },
+  warn: { dot: "bg-amber-500", text: "text-amber-700", label: "!" },
+  fail: { dot: "bg-rose-500", text: "text-rose-700", label: "✕" },
+  unknown: { dot: "bg-slate-300", text: "text-slate-400", label: "?" },
+};
+const VERDICT_UI: Record<string, string> = {
+  pass: "bg-emerald-600 text-white",
+  warn: "bg-amber-500 text-white",
+  fail: "bg-rose-600 text-white",
+};
+const SOURCE_COLOR: Record<string, string> = {
+  mohave: "bg-amber-100 text-amber-700",
+  dallas: "bg-emerald-100 text-emerald-700",
+  "cheap-land": "bg-sky-100 text-sky-700",
+  "propstream-nm": "bg-violet-100 text-violet-700",
+};
+
+export default function AllDealsPage() {
+  const [state, setState] = useState("");
+  const [source, setSource] = useState("");
+  const [county, setCounty] = useState("");
+  const [q, setQ] = useState("");
+  const [minAcres, setMinAcres] = useState("");
+  const [maxAcres, setMaxAcres] = useState("");
+  const [minValue, setMinValue] = useState("");
+  const [maxValue, setMaxValue] = useState("");
+  const [absentee, setAbsentee] = useState(false);
+  const [minSpread, setMinSpread] = useState("");
+  const [sort, setSort] = useState("spread");
+  const [dir, setDir] = useState<"asc" | "desc">("desc");
+  const [page, setPage] = useState(1);
+
+  const [data, setData] = useState<ApiResp | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  // ── Scrub drawer ──
+  const [scrubFor, setScrubFor] = useState<Deal | null>(null);
+  const [scrub, setScrub] = useState<ScrubResult | null>(null);
+  const [scrubLoading, setScrubLoading] = useState(false);
+
+  const openScrub = async (d: Deal) => {
+    setScrubFor(d); setScrub(null); setScrubLoading(true);
+    const p = new URLSearchParams();
+    if (d.lat != null) p.set("lat", String(d.lat));
+    if (d.lng != null) p.set("lon", String(d.lng));
+    p.set("acres", String(d.acres));
+    p.set("value", String(d.landValue));
+    p.set("offer", String(d.estOffer));
+    p.set("spread", String(d.spread));
+    p.set("ownerState", d.ownerState);
+    p.set("state", d.state);
+    const r: ScrubResult | null = await fetch(`/api/admin/scrub?${p}`)
+      .then((x) => x.json()).catch(() => null);
+    setScrub(r); setScrubLoading(false);
+  };
+
+  const qs = useMemo(() => {
+    const p = new URLSearchParams();
+    if (state) p.set("state", state);
+    if (source) p.set("source", source);
+    if (county) p.set("county", county);
+    if (q) p.set("q", q);
+    if (minAcres) p.set("minAcres", minAcres);
+    if (maxAcres) p.set("maxAcres", maxAcres);
+    if (minValue) p.set("minValue", minValue);
+    if (maxValue) p.set("maxValue", maxValue);
+    if (minSpread) p.set("minSpread", minSpread);
+    if (absentee) p.set("absentee", "1");
+    p.set("sort", sort);
+    p.set("dir", dir);
+    p.set("page", String(page));
+    return p.toString();
+  }, [state, source, county, q, minAcres, maxAcres, minValue, maxValue, minSpread, absentee, sort, dir, page]);
+
+  useEffect(() => {
+    setLoading(true);
+    const t = setTimeout(() => {
+      fetch(`/api/admin/all-deals?${qs}`)
+        .then((r) => r.json())
+        .then((d: ApiResp) => { setData(d); setLoading(false); })
+        .catch(() => setLoading(false));
+    }, 250);
+    return () => clearTimeout(t);
+  }, [qs]);
+
+  // reset to page 1 when any filter (not page) changes
+  useEffect(() => { setPage(1); },
+    [state, source, county, q, minAcres, maxAcres, minValue, maxValue, minSpread, absentee, sort, dir]);
+
+  const reset = () => {
+    setState(""); setSource(""); setCounty(""); setQ("");
+    setMinAcres(""); setMaxAcres(""); setMinValue(""); setMaxValue("");
+    setMinSpread(""); setAbsentee(false); setSort("spread"); setDir("desc"); setPage(1);
+  };
+
+  const toggleSort = (key: string) => {
+    if (sort === key) setDir((d) => (d === "desc" ? "asc" : "desc"));
+    else { setSort(key); setDir("desc"); }
+  };
+  const arrow = (key: string) => (sort === key ? (dir === "desc" ? " ↓" : " ↑") : "");
+
+  const exportCsv = async () => {
+    const p = new URLSearchParams(qs);
+    p.set("pageSize", "500"); p.set("page", "1");
+    const d: ApiResp = await fetch(`/api/admin/all-deals?${p}`).then((r) => r.json());
+    const head = ["State", "County", "Owner", "OwnerState", "Address", "Acres", "AssessedValue", "MarketValueComp", "Comps", "EstOffer", "Spread", "Source", "APN"];
+    const lines = d.rows.map((r) =>
+      [r.state, r.county, r.owner, r.ownerState, r.address, r.acres, r.landValue, r.marketValue ?? "", r.comps, r.estOffer, r.spread, r.sourceLabel, r.apn]
+        .map((v) => `"${String(v ?? "").replace(/"/g, '""')}"`).join(","));
+    const blob = new Blob([[head.join(","), ...lines].join("\n")], { type: "text/csv" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `terralot-deals${state ? "-" + state : ""}.csv`;
+    a.click();
+  };
+
+  const states = data ? Object.entries(data.byState).sort((a, b) => b[1] - a[1]) : [];
+  const rows = data?.rows ?? [];
+
+  return (
+    <div className="space-y-5 p-6">
+      {/* Header */}
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-emerald-600">
+            <SlidersHorizontal className="h-3.5 w-3.5" /> Birleşik Deal Tarayıcı · PropStream tarzı
+          </div>
+          <h1 className="mt-1 text-2xl font-bold text-slate-900">Tüm Dealler</h1>
+          <p className="text-sm text-slate-500">
+            Tüm kaynaklar tek yerde — eyalet eyalet filtrele, 50&apos;şer sayfa.{" "}
+            {data && (
+              <span className="font-semibold text-slate-700">
+                {data.total.toLocaleString()} sonuç
+                {state ? ` · ${state}` : ` · ${data.totalAll.toLocaleString()} toplam`}
+              </span>
+            )}
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <button onClick={reset}
+            className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50">
+            <RotateCcw className="h-4 w-4" /> Sıfırla
+          </button>
+          <button onClick={exportCsv}
+            className="flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-700">
+            <Download className="h-4 w-4" /> CSV
+          </button>
+        </div>
+      </div>
+
+      {/* State chips */}
+      <div className="flex flex-wrap gap-2">
+        <button onClick={() => setState("")}
+          className={`rounded-full px-3 py-1 text-sm font-semibold ${!state ? "bg-slate-900 text-white" : "bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-50"}`}>
+          Tümü {data && <span className="opacity-60">{data.totalAll.toLocaleString()}</span>}
+        </button>
+        {states.map(([st, n]) => (
+          <button key={st} onClick={() => setState(st)}
+            className={`rounded-full px-3 py-1 text-sm font-semibold ${state === st ? "bg-slate-900 text-white" : "bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-50"}`}>
+            {st} <span className="opacity-60">{n.toLocaleString()}</span>
+          </button>
+        ))}
+      </div>
+
+      {/* Filters */}
+      <div className="grid grid-cols-2 gap-3 rounded-xl border border-slate-200 bg-white p-4 md:grid-cols-4 lg:grid-cols-6">
+        <label className="col-span-2 flex flex-col gap-1 lg:col-span-2">
+          <span className="text-xs font-medium text-slate-500">Ara (sahip / adres / APN)</span>
+          <div className="flex items-center gap-2 rounded-lg border border-slate-200 px-2">
+            <Search className="h-4 w-4 text-slate-400" />
+            <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="ör. LLC, Las Vegas…"
+              className="w-full py-2 text-sm outline-none" />
+          </div>
+        </label>
+        <label className="flex flex-col gap-1">
+          <span className="text-xs font-medium text-slate-500">County</span>
+          <input value={county} onChange={(e) => setCounty(e.target.value)} placeholder="county / bölge"
+            className="rounded-lg border border-slate-200 px-2 py-2 text-sm outline-none" />
+        </label>
+        <label className="flex flex-col gap-1">
+          <span className="text-xs font-medium text-slate-500">Kaynak</span>
+          <select value={source} onChange={(e) => setSource(e.target.value)}
+            className="rounded-lg border border-slate-200 px-2 py-2 text-sm outline-none">
+            <option value="">Tümü</option>
+            {data && Object.entries(data.sourceLabels).map(([k, v]) => (
+              <option key={k} value={k}>{v}{data.bySource[k] ? ` (${data.bySource[k]})` : ""}</option>
+            ))}
+          </select>
+        </label>
+        <label className="flex flex-col gap-1">
+          <span className="text-xs font-medium text-slate-500">Acre (min–max)</span>
+          <div className="flex gap-1">
+            <input value={minAcres} onChange={(e) => setMinAcres(e.target.value)} placeholder="min" inputMode="decimal"
+              className="w-full rounded-lg border border-slate-200 px-2 py-2 text-sm outline-none" />
+            <input value={maxAcres} onChange={(e) => setMaxAcres(e.target.value)} placeholder="max" inputMode="decimal"
+              className="w-full rounded-lg border border-slate-200 px-2 py-2 text-sm outline-none" />
+          </div>
+        </label>
+        <label className="flex flex-col gap-1">
+          <span className="text-xs font-medium text-slate-500">Değer $ (min–max)</span>
+          <div className="flex gap-1">
+            <input value={minValue} onChange={(e) => setMinValue(e.target.value)} placeholder="min" inputMode="numeric"
+              className="w-full rounded-lg border border-slate-200 px-2 py-2 text-sm outline-none" />
+            <input value={maxValue} onChange={(e) => setMaxValue(e.target.value)} placeholder="max" inputMode="numeric"
+              className="w-full rounded-lg border border-slate-200 px-2 py-2 text-sm outline-none" />
+          </div>
+        </label>
+        <label className="flex flex-col gap-1">
+          <span className="text-xs font-medium text-slate-500">Min spread $</span>
+          <input value={minSpread} onChange={(e) => setMinSpread(e.target.value)} placeholder="ör. 5000" inputMode="numeric"
+            className="rounded-lg border border-slate-200 px-2 py-2 text-sm outline-none" />
+        </label>
+        <div className="col-span-2 flex items-end justify-between gap-2 md:col-span-1">
+          <label className="flex items-center gap-2 text-sm text-slate-600">
+            <input type="checkbox" checked={absentee} onChange={(e) => setAbsentee(e.target.checked)}
+              className="h-4 w-4 rounded border-slate-300" />
+            Absentee
+          </label>
+          <select value={`${sort}:${dir}`} onChange={(e) => { const [s, d] = e.target.value.split(":"); setSort(s); setDir(d as "asc" | "desc"); }}
+            className="rounded-lg border border-slate-200 px-2 py-2 text-sm outline-none">
+            <option value="spread:desc">Spread ↓</option>
+            <option value="marketValue:desc">Piyasa (comp) ↓</option>
+            <option value="landValue:desc">Değer ↓</option>
+            <option value="landValue:asc">Değer ↑ (en ucuz)</option>
+            <option value="acres:desc">Acre ↓</option>
+            <option value="acres:asc">Acre ↑</option>
+            <option value="estOffer:asc">Teklif ↑ (en ucuz)</option>
+          </select>
+        </div>
+      </div>
+
+      {/* Honesty note */}
+      <div className="rounded-lg border border-emerald-200 bg-emerald-50/60 px-4 py-2 text-xs text-emerald-800">
+        <b>Değerleme:</b> <b>Değer (assd.)</b> = vergi dairesi assessed (piyasa değeri değil). <b>Piyasa (comp)</b> = rakip ilan medyanı $/acre × acre (gerçek comp; yetersizse “comp gerekli”).
+        <b> Teklif</b> = piyasa × %15-20 · <b>Spread</b> = nakit satış (%65) − teklif. Comp yoksa hiçbir sayı uydurulmaz.
+      </div>
+
+      {/* Table */}
+      <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-sm">
+            <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+              <tr>
+                <th className="px-3 py-3"><button onClick={() => toggleSort("state")} className="hover:text-slate-900">Eyalet{arrow("state")}</button></th>
+                <th className="px-3 py-3"><button onClick={() => toggleSort("county")} className="hover:text-slate-900">County / Bölge{arrow("county")}</button></th>
+                <th className="px-3 py-3"><button onClick={() => toggleSort("owner")} className="hover:text-slate-900">Sahip{arrow("owner")}</button></th>
+                <th className="px-3 py-3">Adres</th>
+                <th className="px-3 py-3 text-right"><button onClick={() => toggleSort("acres")} className="hover:text-slate-900">Acre{arrow("acres")}</button></th>
+                <th className="px-3 py-3 text-right" title="Vergi dairesi (assessed) değeri — comp ile teyit edilmeli"><button onClick={() => toggleSort("landValue")} className="hover:text-slate-900">Değer (assd.){arrow("landValue")}</button></th>
+                <th className="px-3 py-3 text-right" title="Comp-tabanlı piyasa değeri: rakip ilan medyanı $/acre × acre"><button onClick={() => toggleSort("marketValue")} className="hover:text-slate-900">Piyasa (comp){arrow("marketValue")}</button></th>
+                <th className="px-3 py-3 text-right"><button onClick={() => toggleSort("estOffer")} className="hover:text-slate-900">Teklif{arrow("estOffer")}</button></th>
+                <th className="px-3 py-3 text-right"><button onClick={() => toggleSort("spread")} className="hover:text-slate-900">Spread{arrow("spread")}</button></th>
+                <th className="px-3 py-3">Kaynak</th>
+                <th className="px-3 py-3 text-center">Scrub</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {loading && (
+                <tr><td colSpan={11} className="py-16 text-center text-slate-400">
+                  <Loader2 className="mx-auto h-6 w-6 animate-spin" />
+                </td></tr>
+              )}
+              {!loading && rows.length === 0 && (
+                <tr><td colSpan={11} className="py-16 text-center text-slate-400">
+                  Bu filtreye uyan deal yok.
+                </td></tr>
+              )}
+              {!loading && rows.map((d) => (
+                <tr key={d.id} className="hover:bg-slate-50/70">
+                  <td className="px-3 py-2.5 font-bold text-slate-700">{d.state}</td>
+                  <td className="px-3 py-2.5 text-slate-600">
+                    {d.county}{d.region && d.region !== d.county ? <span className="block text-xs text-slate-400">{d.region}</span> : null}
+                  </td>
+                  <td className="px-3 py-2.5">
+                    <span className="font-medium text-slate-800">{d.owner || "—"}</span>
+                    {d.absentee && <span className="ml-1.5 rounded bg-rose-50 px-1.5 py-0.5 text-[10px] font-semibold text-rose-600">absentee {d.ownerState}</span>}
+                  </td>
+                  <td className="px-3 py-2.5 text-slate-500">{d.address || "—"}</td>
+                  <td className="px-3 py-2.5 text-right tabular-nums text-slate-700">{d.acres ? d.acres.toFixed(2) : "—"}</td>
+                  <td className="px-3 py-2.5 text-right tabular-nums text-slate-700">{d.landValue ? usd(d.landValue) : "—"}</td>
+                  <td className="px-3 py-2.5 text-right tabular-nums">
+                    {d.valBasis === "mismatch" ? (
+                      <span className="text-[11px] font-medium text-amber-600" title="Comp ile assessed >4× ayrışıyor — bu parsel tipine uymuyor (ör. kırsal $/acre, şehir lotu). Elle doğrula.">⚠ comp uyumsuz</span>
+                    ) : d.marketValue ? (
+                      <span className="font-semibold text-slate-900">{usd(d.marketValue)}<span className="ml-1 text-[10px] font-normal text-slate-400">{d.comps}c</span></span>
+                    ) : (
+                      <span className="text-[11px] text-amber-600">comp gerekli</span>
+                    )}
+                  </td>
+                  <td className="px-3 py-2.5 text-right tabular-nums text-emerald-700">{d.estOffer ? usd(d.estOffer) : "—"}</td>
+                  <td className="px-3 py-2.5 text-right font-semibold tabular-nums text-emerald-600">{d.spread ? usd(d.spread) : "—"}</td>
+                  <td className="px-3 py-2.5">
+                    <span className={`rounded px-1.5 py-0.5 text-[11px] font-semibold ${SOURCE_COLOR[d.source] ?? "bg-slate-100 text-slate-600"}`}>
+                      {d.sourceLabel}
+                    </span>
+                  </td>
+                  <td className="px-3 py-2.5">
+                    <div className="flex items-center justify-center gap-2">
+                      <button onClick={() => openScrub(d)} title="Scrub çalıştır"
+                        className="flex items-center gap-1 rounded-md bg-slate-900 px-2 py-1 text-[11px] font-semibold text-white hover:bg-slate-700">
+                        <ShieldCheck className="h-3.5 w-3.5" /> Scrub
+                      </button>
+                      {d.mapUrl && (
+                        <a href={d.mapUrl} target="_blank" rel="noreferrer" className="text-slate-400 hover:text-emerald-600">
+                          {d.lat ? <MapPin className="h-4 w-4" /> : <ExternalLink className="h-4 w-4" />}
+                        </a>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Pagination */}
+        {data && data.pages > 1 && (
+          <div className="flex items-center justify-between border-t border-slate-100 px-4 py-3 text-sm text-slate-600">
+            <span>Sayfa <b>{data.page}</b> / {data.pages} · {data.total.toLocaleString()} deal</span>
+            <div className="flex gap-1">
+              <button disabled={page <= 1} onClick={() => setPage((p) => Math.max(1, p - 1))}
+                className="flex items-center gap-1 rounded-lg border border-slate-200 px-3 py-1.5 disabled:opacity-40 hover:bg-slate-50">
+                <ChevronLeft className="h-4 w-4" /> Önceki
+              </button>
+              <button disabled={page >= data.pages} onClick={() => setPage((p) => p + 1)}
+                className="flex items-center gap-1 rounded-lg border border-slate-200 px-3 py-1.5 disabled:opacity-40 hover:bg-slate-50">
+                Sonraki <ChevronRight className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Scrub drawer */}
+      {scrubFor && (
+        <div className="fixed inset-0 z-50 flex justify-end" onClick={() => setScrubFor(null)}>
+          <div className="absolute inset-0 bg-slate-900/30" />
+          <div className="relative h-full w-full max-w-md overflow-y-auto bg-white shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="sticky top-0 flex items-start justify-between border-b border-slate-100 bg-white px-5 py-4">
+              <div>
+                <div className="text-xs font-semibold uppercase tracking-wide text-emerald-600">Parsel Scrub</div>
+                <div className="font-bold text-slate-900">{scrubFor.owner || scrubFor.apn}</div>
+                <div className="text-xs text-slate-500">{scrubFor.state} · {scrubFor.county} · {scrubFor.acres ? scrubFor.acres.toFixed(2) : "—"} acre</div>
+              </div>
+              <button onClick={() => setScrubFor(null)} className="rounded-lg p-1 text-slate-400 hover:bg-slate-100"><X className="h-5 w-5" /></button>
+            </div>
+            <div className="p-5">
+              {scrubLoading && (
+                <div className="py-16 text-center text-slate-400">
+                  <Loader2 className="mx-auto h-6 w-6 animate-spin" />
+                  <p className="mt-2 text-sm">FEMA + OpenStreetMap sorgulanıyor…</p>
+                </div>
+              )}
+              {!scrubLoading && scrub && (
+                <>
+                  <div className="mb-4 flex items-center gap-3 rounded-xl border border-slate-200 p-4">
+                    <div className={`flex h-14 w-14 items-center justify-center rounded-xl text-2xl font-black ${VERDICT_UI[scrub.verdictTone] ?? "bg-slate-500 text-white"}`}>
+                      {scrub.grade}
+                    </div>
+                    <div>
+                      <div className={`text-lg font-bold ${scrub.verdictTone === "pass" ? "text-emerald-700" : scrub.verdictTone === "warn" ? "text-amber-700" : "text-rose-700"}`}>{scrub.verdict}</div>
+                      <div className="text-sm text-slate-600">{scrub.rationale}</div>
+                      <div className="mt-0.5 text-xs text-slate-400">Skor {scrub.score}/100</div>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    {scrub.factors.map((f) => (
+                      <div key={f.key} className="flex gap-3 rounded-lg border border-slate-100 p-3">
+                        <span className={`mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full ${STATUS_UI[f.status].dot}`} />
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="text-sm font-semibold text-slate-800">{f.label}</span>
+                            <span className={`text-sm font-medium ${STATUS_UI[f.status].text}`}>{f.value}</span>
+                          </div>
+                          <p className="text-xs text-slate-500">{f.note}</p>
+                          <p className="mt-0.5 text-[10px] uppercase tracking-wide text-slate-400">Kaynak: {f.source}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
+              {!scrubLoading && !scrub && (
+                <p className="py-16 text-center text-sm text-slate-400">Scrub alınamadı.</p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

@@ -13,12 +13,14 @@ const SECTIONS: { label: string | null; wip?: boolean; items: { href: string; ic
     label: null,
     items: [
       { href: "/admin", icon: LayoutDashboard, label: "Dashboard" },
+      { href: "/admin/sistem", icon: Brain, label: "📖 Sistem & Yöntem" },
       { href: "/admin/presentation", icon: Tv, label: "Pitch & Plan" },
     ],
   },
   {
     label: "✅ Canlı · Gerçek Veri",
     items: [
+      { href: "/admin/all-deals", icon: Target, label: "🔍 Tüm Dealler (Filtre)" },
       { href: "/admin/ucuz-arsa", icon: MapPin, label: "★ Ucuz Boş Arsa" },
       { href: "/admin/tax-leads", icon: FileSearch, label: "Tax Leads" },
       { href: "/admin/off-market-leads", icon: MailPlus, label: "Off-Market Leads" },
