@@ -80,3 +80,8 @@ Her tur: gerçek iyileştirme → typecheck → commit → buraya zaman damgalı
 - Gece eklenen tüm sayfalar/route'lar (all-deals, sistem, scrub, deal-quality) production'da temiz derleniyor
 - 2 uyarı önceden var (competitor-scraper dynamic require — gece işiyle alakasız)
 - Yani sadece typecheck değil, GERÇEKTEN deploy edilebilir durumda
+## 06:31 · Tur 13 — CSV export zenginleştirildi
+- CSV'ye Grade (A/B/C) + Absentee sütunları eklendi; başlıklar netleştirildi
+- Dışa aktarılan liste artık fırsat notu + absentee taşıyor (ekibe/mektup kampanyasına hazır)
+- Dev server build sonrası sağ (3002 çalışıyor)
+- typecheck 0 hata

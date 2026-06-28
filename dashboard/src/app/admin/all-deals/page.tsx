@@ -148,9 +148,9 @@ export default function AllDealsPage() {
     const p = new URLSearchParams(qs);
     p.set("pageSize", "500"); p.set("page", "1");
     const d: ApiResp = await fetch(`/api/admin/all-deals?${p}`).then((r) => r.json());
-    const head = ["State", "County", "Owner", "OwnerState", "Address", "Acres", "AssessedValue", "MarketValueComp", "Comps", "EstOffer", "Spread", "Source", "APN"];
+    const head = ["Grade", "State", "County", "Owner", "OwnerState", "Address", "Acres", "AssessedValue", "MarketValueComp", "Comps", "EstOffer", "Spread", "Absentee", "Source", "APN"];
     const lines = d.rows.map((r) =>
-      [r.state, r.county, r.owner, r.ownerState, r.address, r.acres, r.landValue, r.marketValue ?? "", r.comps, r.estOffer, r.spread, r.sourceLabel, r.apn]
+      [r.dealGrade ?? "", r.state, r.county, r.owner, r.ownerState, r.address, r.acres, r.landValue, r.marketValue ?? "", r.comps, r.estOffer, r.spread, r.absentee ? "Y" : "", r.sourceLabel, r.apn]
         .map((v) => `"${String(v ?? "").replace(/"/g, '""')}"`).join(","));
     const blob = new Blob([[head.join(","), ...lines].join("\n")], { type: "text/csv" });
     const a = document.createElement("a");
