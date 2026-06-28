@@ -75,3 +75,8 @@ Her tur: gerçek iyileştirme → typecheck → commit → buraya zaman damgalı
 - Deal detay drawer'ına A/B/C notunun gerekçesi: absentee, ideal boyut, comp güveni, comp>assessed — her faktör ✓/○ + puanı
 - Ahmet "neden bu not?" derse → şeffaf kırılım görür
 - typecheck 0 hata
+## 06:28 · Tur 12 — TAM PRODUCTION BUILD doğrulaması ✅
+- `npm run build` → EXIT 0, "Compiled successfully", 142 sayfa prerender
+- Gece eklenen tüm sayfalar/route'lar (all-deals, sistem, scrub, deal-quality) production'da temiz derleniyor
+- 2 uyarı önceden var (competitor-scraper dynamic require — gece işiyle alakasız)
+- Yani sadece typecheck değil, GERÇEKTEN deploy edilebilir durumda
