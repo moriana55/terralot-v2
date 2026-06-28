@@ -526,6 +526,17 @@ export default function AllDealsPage() {
                   <Row k="Alan" v={d.acres ? `${d.acres.toFixed(2)} acre` : "—"} />
                   <Row k="APN" v={d.apn || "—"} />
                   {d.lat != null && <Row k="Koordinat" v={`${d.lat.toFixed(4)}, ${d.lng?.toFixed(4)}`} />}
+                  {d.lat != null && d.lng != null && (
+                    <div className="mt-2 flex flex-wrap gap-1.5">
+                      <a href={`https://www.google.com/maps/@${d.lat},${d.lng},600m/data=!3m1!1e3`} target="_blank" rel="noreferrer"
+                        className="rounded-lg bg-sky-600 px-2.5 py-1 text-[11px] font-semibold text-white hover:bg-sky-700">🛰️ Uydu</a>
+                      <a href={`https://www.google.com/maps?q=&layer=c&cbll=${d.lat},${d.lng}`} target="_blank" rel="noreferrer"
+                        className="rounded-lg bg-slate-600 px-2.5 py-1 text-[11px] font-semibold text-white hover:bg-slate-700">👁️ Street View</a>
+                      <a href={`https://www.google.com/maps/search/?api=1&query=${d.lat},${d.lng}`} target="_blank" rel="noreferrer"
+                        className="rounded-lg border border-slate-200 px-2.5 py-1 text-[11px] font-medium text-slate-600 hover:bg-slate-50">📍 Konum</a>
+                    </div>
+                  )}
+                  {d.lat != null && <p className="mt-1 text-[10px] text-slate-400">Uydu/Street View = yol, elektrik direği, yapı var mı gözle kontrol (utility ön-bakış, bedava).</p>}
                 </div>
                 <div className="rounded-xl border border-emerald-200 bg-emerald-50/40 p-4">
                   <div className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-emerald-600">Değerleme</div>
