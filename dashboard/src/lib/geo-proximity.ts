@@ -3,7 +3,7 @@
 // Tüm koordinatlar SABİT referans (deterministik) — Overpass'ın "bilinmiyor"una takılmaz.
 // Mesafeler kabaca referans noktasına; parsel-kesin değil, "yaklaşık" etiketiyle sun.
 
-export type RefKind = "city" | "water" | "highway";
+export type RefKind = "city" | "water" | "highway" | "metro";
 export type GeoRef = { name: string; lat: number; lng: number; kind: RefKind; aka?: string[] };
 
 // Pilot bölge = Arizona/Mohave (verinin olduğu yer) + birkaç komşu + FL örneği.
@@ -31,6 +31,10 @@ export const GEO_REFS: GeoRef[] = [
   // ── Ana yollar (referans nokta — kabaca mesafe) ──
   { name: "I-40 (Kingman)", lat: 35.190, lng: -114.050, kind: "highway", aka: ["i-40", "i40", "interstate 40"] },
   { name: "US-93 (Kingman)", lat: 35.300, lng: -114.120, kind: "highway", aka: ["us-93", "us 93", "hwy 93"] },
+
+  // ── Metro / büyük cazibe (satış kozu — "Vegas'a X mil / 1-2 saat") ──
+  { name: "Las Vegas, NV", lat: 36.170, lng: -115.140, kind: "metro", aka: ["las vegas", "vegas"] },
+  { name: "Laughlin, NV", lat: 35.168, lng: -114.573, kind: "metro", aka: ["laughlin"] },
 ];
 
 const norm = (s: string | null | undefined) => (s ?? "").toLowerCase().trim();

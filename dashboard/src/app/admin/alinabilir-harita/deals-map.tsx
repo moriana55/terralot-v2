@@ -996,11 +996,13 @@ export default function DealsMap({ points }: { points: MapPoint[] }) {
                       const city = nearestRef(p.lat, p.lng, "city");
                       const hwy = nearestRef(p.lat, p.lng, "highway");
                       const water = nearestRef(p.lat, p.lng, "water");
+                      const metro = nearestRef(p.lat, p.lng, "metro");
                       const nc = nearestCompMiles(p.lat, p.lng);
                       return (
                         <div style={{ fontSize: 10, color: "#64748b", marginTop: 4, lineHeight: 1.5 }}>
                           {city ? <div>🏙️ En yakın şehir: {city.name} ~{city.miles.toFixed(0)} mi</div> : null}
                           {hwy ? <div>🛣️ En yakın anayol: {hwy.name} ~{hwy.miles.toFixed(0)} mi</div> : null}
+                          {metro ? <div style={{ color: "#7c3aed", fontWeight: 600 }}>🎰 {metro.name} ~{metro.miles.toFixed(0)} mi (satış kozu)</div> : null}
                           <div>
                             📍 {nc != null ? `En yakın rakip ~${nc.toFixed(1)} mi` : "rakip verisi yükleniyor"}
                             {water ? ` · 💧 ${water.name} ~${water.miles.toFixed(0)} mi` : ""}
