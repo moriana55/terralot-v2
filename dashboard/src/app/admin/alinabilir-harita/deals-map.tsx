@@ -18,6 +18,30 @@ export type MapPoint = {
 
 const usd = (n: number) => "$" + Math.round(n).toLocaleString("en-US");
 
+// Bölge → ZIP (opsiyonel, yalnız AZ Mohave bilinen yerleşimler). Yoksa atlanır.
+const REGION_ZIP: Record<string, string> = {
+  "golden valley": "86413", meadview: "86444", kingman: "86401",
+  yucca: "86438", "dolan springs": "86441", topock: "86436",
+};
+function zipFor(region: string | null | undefined, state: string | null | undefined): string {
+  if (state && state.toUpperCase() !== "AZ") return "";
+  const r = (region || "").toLowerCase();
+  for (const k of Object.keys(REGION_ZIP)) if (r.includes(k)) return REGION_ZIP[k];
+  return "";
+}
+// Discount Lots tarzı KONUM satırı: "{situs}, {region}, {state} {zip}".
+// situs = MapPoint.address (kaynakta offmarket_leads.situs / SITE_ADDRESS). Boşsa
+// dürüstçe "{region}, {state} (yaklaşık)".
+function locationLine(p: MapPoint): string {
+  const situs = (p.address || "").trim();
+  const region = (p.region || "").trim();
+  const state = (p.state || "").trim();
+  const zip = zipFor(region, state);
+  const tail = `${state}${zip ? " " + zip : ""}`.trim();
+  if (situs) return [situs, region, tail].filter(Boolean).join(", ");
+  return `${[region, state].filter(Boolean).join(", ") || "konum bilinmiyor"} (yaklaşık)`;
+}
+
 // Filtre eşikleri.
 const BIG_SPREAD = 5000; // "spread büyük" eşiği ($)
 const NEAR_COMP_MI = 10; // "rakibe yakın" eşiği (mil)
@@ -497,6 +521,233 @@ function FilterPanel({
   );
 }
 
+// ── PARSEL → SATILIK PAZARLAMA GÖRSELİ (Discount Lots / LANDIO tarzı) ────────────
+// Top-down Esri uydu (parsele ortalı) + parsel sınırı overlay + kenar ölçüleri (ft)
+// + TerraLot marka şeritleri → indirilebilir PNG. NO-DEP: Esri "export" REST'ten TEK
+// uydu görseli alınır (CORS'lu), canvas'a çizilir, overlay programatik eklenir.
+// DÜRÜST: ölçüler yaklaşık; gerçek tapu için Regrid/survey. Oblique/3D KAPSAM DIŞI.
+const ESRI_EXPORT = "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export";
+
+// Regrid geometry → dış halka [lng,lat][]. Polygon/MultiPolygon; geçersizse null.
+function extractRing(g: GeoJsonObject): [number, number][] | null {
+  const gg = g as unknown as { type?: string; coordinates?: unknown };
+  let ring: number[][] | null = null;
+  if (gg.type === "Polygon") ring = (gg.coordinates as number[][][])?.[0] ?? null;
+  else if (gg.type === "MultiPolygon") ring = (gg.coordinates as number[][][][])?.[0]?.[0] ?? null;
+  if (!ring || ring.length < 4) return null;
+  return ring.map((c) => [Number(c[0]), Number(c[1])] as [number, number]).filter((c) => Number.isFinite(c[0]) && Number.isFinite(c[1]));
+}
+
+function MarketingImageModal({ p, onClose }: { p: MapPoint; onClose: () => void }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
+  const [isReal, setIsReal] = useState(false);
+  const [canDownload, setCanDownload] = useState(true);
+  const [rawUrl, setRawUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    let alive = true;
+    const W = 1024, H = 1024;
+
+    (async () => {
+      // 1) parsel halkası: önce gerçek Regrid poligonu, yoksa yaklaşık kare.
+      let ring: [number, number][] | null = null;
+      let real = false;
+      try {
+        const res = await fetchRegrid(p.lat, p.lng);
+        if (res.real && res.geometry) {
+          const r = extractRing(res.geometry);
+          if (r) { ring = r; real = true; }
+        }
+      } catch { /* graceful */ }
+      if (!ring) ring = parcelBounds(p.lat, p.lng, p.acres).map(([la, ln]) => [ln, la] as [number, number]);
+      if (!alive) return;
+      setIsReal(real);
+
+      // 2) metre-kare bbox (parsel ortalı, ~%50 pay) — distorsiyonsuz.
+      const lats = ring.map((r) => r[1]);
+      const lngs = ring.map((r) => r[0]);
+      const cLat = (Math.min(...lats) + Math.max(...lats)) / 2;
+      const cLng = (Math.min(...lngs) + Math.max(...lngs)) / 2;
+      const cosL = Math.cos((cLat * Math.PI) / 180) || 1e-6;
+      const latExtM = (Math.max(...lats) - Math.min(...lats)) * 111320;
+      const lngExtM = (Math.max(...lngs) - Math.min(...lngs)) * 111320 * cosL;
+      const half = (Math.max(latExtM, lngExtM, 25) / 2) * 1.5;
+      const dLat = half / 111320;
+      const dLng = half / (111320 * cosL);
+      const minLng = cLng - dLng, maxLng = cLng + dLng, minLat = cLat - dLat, maxLat = cLat + dLat;
+      const url = `${ESRI_EXPORT}?bbox=${minLng},${minLat},${maxLng},${maxLat}&bboxSR=4326&imageSR=4326&size=${W},${H}&format=png&transparent=false&f=image`;
+      setRawUrl(url);
+
+      const X = (lng: number) => ((lng - minLng) / (maxLng - minLng)) * W;
+      const Y = (lat: number) => ((maxLat - lat) / (maxLat - minLat)) * H;
+
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.onload = () => {
+        if (!alive) return;
+        const cv = canvasRef.current;
+        if (!cv) return;
+        cv.width = W; cv.height = H;
+        const ctx = cv.getContext("2d");
+        if (!ctx) { setStatus("error"); return; }
+        ctx.drawImage(img, 0, 0, W, H);
+
+        // ── parsel sınırı (çift çizgi: koyu zemin + parlak camgöbeği) ──
+        ctx.beginPath();
+        ring!.forEach(([ln, la], i) => { const x = X(ln), y = Y(la); if (i) ctx.lineTo(x, y); else ctx.moveTo(x, y); });
+        ctx.closePath();
+        ctx.fillStyle = "rgba(56,189,248,0.12)"; ctx.fill();
+        ctx.lineJoin = "round";
+        ctx.lineWidth = 6; ctx.strokeStyle = "rgba(8,47,73,0.9)"; ctx.stroke();
+        ctx.lineWidth = 3; ctx.strokeStyle = "#22d3ee"; ctx.stroke();
+
+        // ── kenar ölçüleri (ft) — en uzun ~8 kenara etiket ──
+        const verts = ring!.slice();
+        if (verts.length > 1) {
+          const f = verts[0], l = verts[verts.length - 1];
+          if (f[0] === l[0] && f[1] === l[1]) verts.pop();
+        }
+        const edges = verts.map((v, i) => {
+          const w = verts[(i + 1) % verts.length];
+          const ax = X(v[0]), ay = Y(v[1]), bx = X(w[0]), by = Y(w[1]);
+          const ft = distanceMiles(v[1], v[0], w[1], w[0]) * 5280;
+          return { ax, ay, bx, by, pxLen: Math.hypot(bx - ax, by - ay), ft };
+        }).filter((e) => e.pxLen > 38).sort((a, b) => b.pxLen - a.pxLen).slice(0, 8);
+
+        ctx.font = "bold 16px system-ui, sans-serif";
+        ctx.textAlign = "center"; ctx.textBaseline = "middle";
+        for (const e of edges) {
+          const mx = (e.ax + e.bx) / 2, my = (e.ay + e.by) / 2;
+          const txt = `${Math.round(e.ft).toLocaleString("en-US")} ft`;
+          const tw = ctx.measureText(txt).width;
+          ctx.fillStyle = "rgba(15,23,42,0.85)";
+          ctx.fillRect(mx - tw / 2 - 7, my - 12, tw + 14, 24);
+          ctx.fillStyle = "#fde68a";
+          ctx.fillText(txt, mx, my + 1);
+        }
+
+        // ── marka şeritleri ──
+        ctx.textBaseline = "middle";
+        // üst
+        ctx.fillStyle = "rgba(2,6,23,0.6)"; ctx.fillRect(0, 0, W, 70);
+        ctx.textAlign = "left"; ctx.fillStyle = "#fff"; ctx.font = "bold 25px system-ui, sans-serif";
+        ctx.fillText("≈ APPROXIMATE PROPERTY DIMENSION", 24, 36);
+        ctx.textAlign = "right"; ctx.fillStyle = "#67e8f9"; ctx.font = "bold 24px system-ui, sans-serif";
+        ctx.fillText("TerraLot", W - 24, 28);
+        ctx.fillStyle = "#cbd5e1"; ctx.font = "11px system-ui, sans-serif";
+        ctx.fillText("CERBERUS ENGINE", W - 24, 50);
+        // KONUM alt-şeridi (Discount Lots tarzı "yeri direkt göster")
+        ctx.fillStyle = "rgba(2,6,23,0.5)"; ctx.fillRect(0, 70, W, 34);
+        ctx.textAlign = "left"; ctx.fillStyle = "#e2e8f0"; ctx.font = "bold 17px system-ui, sans-serif";
+        let locTxt = "📍 " + locationLine(p);
+        if (locTxt.length > 64) locTxt = locTxt.slice(0, 63) + "…";
+        ctx.fillText(locTxt, 24, 88);
+        // alt
+        const bh = 116;
+        ctx.fillStyle = "rgba(2,6,23,0.66)"; ctx.fillRect(0, H - bh, W, bh);
+        ctx.textAlign = "left"; ctx.fillStyle = "#fff"; ctx.font = "bold 30px system-ui, sans-serif";
+        ctx.fillText(`${(p.acres ?? 0).toFixed(2)} ACRES`, 24, H - bh + 30);
+        ctx.fillStyle = "#cbd5e1"; ctx.font = "19px system-ui, sans-serif";
+        const loc = [p.region, p.county, p.state].filter(Boolean).join(", ");
+        ctx.fillText(loc || "—", 24, H - bh + 62);
+        if (p.marketValue) {
+          ctx.textAlign = "right"; ctx.fillStyle = "#86efac"; ctx.font = "bold 26px system-ui, sans-serif";
+          ctx.fillText(usd(p.marketValue), W - 24, H - bh + 30);
+          ctx.fillStyle = "#94a3b8"; ctx.font = "13px system-ui, sans-serif";
+          ctx.fillText("≈ piyasa değeri (emsal)", W - 24, H - bh + 56);
+        }
+        ctx.textAlign = "left"; ctx.fillStyle = "#94a3b8"; ctx.font = "12px system-ui, sans-serif";
+        ctx.fillText(`${real ? "Gerçek tapu sınırı (Regrid)" : "Yaklaşık kare — gerçek tapu sınırı değil"} · Ölçüler yaklaşık · Uydu: Esri`, 24, H - 14);
+
+        setStatus("ready");
+        try { cv.toDataURL("image/png"); setCanDownload(true); } catch { setCanDownload(false); }
+      };
+      img.onerror = () => { if (alive) setStatus("error"); };
+      img.src = url;
+    })();
+
+    return () => { alive = false; };
+  }, [p]);
+
+  const onDownload = () => {
+    const cv = canvasRef.current;
+    if (!cv) return;
+    try {
+      const dataUrl = cv.toDataURL("image/png");
+      const a = document.createElement("a");
+      a.href = dataUrl;
+      a.download = `terralot-${(p.apn || p.id).replace(/[^a-z0-9]+/gi, "-")}.png`;
+      document.body.appendChild(a); a.click(); a.remove();
+    } catch {
+      setCanDownload(false);
+      window.print(); // CORS taint → yazdır-dostu fallback
+    }
+  };
+
+  return (
+    <div
+      onClick={onClose}
+      style={{
+        position: "absolute", inset: 0, zIndex: 1200, background: "rgba(2,6,23,0.72)",
+        display: "flex", alignItems: "center", justifyContent: "center", padding: 16,
+      }}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          background: "#0f172a", borderRadius: 14, padding: 14, maxWidth: "min(92vw, 700px)",
+          width: "100%", boxShadow: "0 20px 60px rgba(0,0,0,0.5)", color: "#e2e8f0",
+        }}
+      >
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+          <span style={{ fontWeight: 700, fontSize: 14 }}>📸 Satılık Pazarlama Görseli</span>
+          <button onClick={onClose} aria-label="Kapat"
+            style={{ border: "none", background: "transparent", color: "#94a3b8", fontSize: 20, cursor: "pointer", lineHeight: 1 }}>×</button>
+        </div>
+
+        <div style={{ position: "relative", borderRadius: 10, overflow: "hidden", background: "#020617", minHeight: 220 }}>
+          <canvas ref={canvasRef} style={{ width: "100%", height: "auto", display: status === "ready" ? "block" : "none" }} />
+          {status === "loading" && (
+            <div style={{ padding: "60px 16px", textAlign: "center", color: "#94a3b8", fontSize: 13 }}>
+              ⏳ Uydu görseli + parsel sınırı hazırlanıyor…
+            </div>
+          )}
+          {status === "error" && (
+            <div style={{ padding: "40px 16px", textAlign: "center", color: "#fca5a5", fontSize: 13 }}>
+              Uydu görseli alınamadı (ağ/CORS).{" "}
+              {rawUrl && <a href={rawUrl} target="_blank" rel="noreferrer" style={{ color: "#67e8f9" }}>Ham uydu görselini aç ↗</a>}
+            </div>
+          )}
+        </div>
+
+        <div style={{ display: "flex", gap: 8, marginTop: 12, flexWrap: "wrap", alignItems: "center" }}>
+          <button
+            onClick={onDownload}
+            disabled={status !== "ready"}
+            style={{
+              background: status === "ready" ? "#0ea5e9" : "#334155", color: "#fff", border: "none",
+              borderRadius: 8, padding: "8px 14px", fontSize: 13, fontWeight: 600,
+              cursor: status === "ready" ? "pointer" : "default",
+            }}
+          >
+            ⬇ Görseli indir (PNG)
+          </button>
+          {!canDownload && status === "ready" && (
+            <button onClick={() => window.print()}
+              style={{ background: "#1e293b", color: "#e2e8f0", border: "1px solid #334155", borderRadius: 8, padding: "8px 14px", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
+              🖨 Yazdır (indirme engellendiyse)
+            </button>
+          )}
+          <span style={{ fontSize: 11, color: "#94a3b8" }}>
+            Ölçüler {isReal ? "gerçek Regrid sınırından" : "yaklaşık kareden"} · {isReal ? "" : "gerçek tapu için Regrid/survey · "}top-down (oblique/3D kapsam dışı)
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 const toggleBtnStyle = (active: boolean, on: string, onBorder: string): React.CSSProperties => ({
   background: active ? on : "rgba(255,255,255,0.95)",
   color: active ? "#fff" : "#334155",
@@ -518,6 +769,8 @@ export default function DealsMap({ points }: { points: MapPoint[] }) {
   const [roadTypes, setRoadTypes] = useState<RoadTypes>({ highway: true, paved: true, dirt: true, service: true });
   const toggleRoadType = (c: RoadCat) => setRoadTypes((p) => ({ ...p, [c]: !p[c] }));
   const [roadsState, setRoadsState] = useState<RoadState>({ loading: false, count: 0, tooFar: false });
+  // Satılık pazarlama görseli modalı (popup'tan açılır).
+  const [marketImg, setMarketImg] = useState<MapPoint | null>(null);
 
   useEffect(() => {
     let alive = true;
@@ -671,6 +924,10 @@ export default function DealsMap({ points }: { points: MapPoint[] }) {
               >
                 <Popup>
                   <div style={{ fontSize: 12, lineHeight: 1.5, minWidth: 180 }}>
+                    {/* KONUM satırı (Discount Lots tarzı "yeri direkt göster") — situs + region + state. */}
+                    <div style={{ fontSize: 11, fontWeight: 600, color: "#0f172a", marginBottom: 3 }}>
+                      📍 {locationLine(p)}
+                    </div>
                     <div style={{ fontWeight: 700 }}>
                       {p.dealGrade && (
                         <span style={{ background: GRADE_COLOR[p.dealGrade], color: "#fff", borderRadius: 3, padding: "1px 5px", marginRight: 5 }}>{p.dealGrade}</span>
@@ -744,7 +1001,15 @@ export default function DealsMap({ points }: { points: MapPoint[] }) {
                         </div>
                       );
                     })()}
-                    <a href={`https://www.google.com/maps/@${p.lat},${p.lng},600m/data=!3m1!1e3`} target="_blank" rel="noreferrer" style={{ color: "#0284c7", display: "inline-block", marginTop: 6 }}>🛰️ Uydu</a>
+                    <div style={{ display: "flex", gap: 8, alignItems: "center", marginTop: 6, flexWrap: "wrap" }}>
+                      <a href={`https://www.google.com/maps/@${p.lat},${p.lng},600m/data=!3m1!1e3`} target="_blank" rel="noreferrer" style={{ color: "#0284c7" }}>🛰️ Uydu</a>
+                      <button
+                        onClick={() => setMarketImg(p)}
+                        style={{ border: "none", background: "#0ea5e9", color: "#fff", borderRadius: 5, padding: "3px 8px", fontSize: 11, fontWeight: 600, cursor: "pointer" }}
+                      >
+                        📸 Satılık görseli
+                      </button>
+                    </div>
                     <EnrichBadges lat={p.lat} lng={p.lng} />
                   </div>
                 </Popup>
@@ -768,6 +1033,9 @@ export default function DealsMap({ points }: { points: MapPoint[] }) {
           </Marker>
         ))}
       </MapContainer>
+
+      {/* Satılık pazarlama görseli modalı (DOM overlay — haritanın üstünde). */}
+      {marketImg && <MarketingImageModal p={marketImg} onClose={() => setMarketImg(null)} />}
 
       {/* ── Sol-ALT kontrol yığını (dikey): filtre paneli + toggle'lar + legend.
           Sol-ÜST'ü Leaflet zoom +/− için BOŞ bırakıyoruz; sağ-üst LayersControl. ── */}
