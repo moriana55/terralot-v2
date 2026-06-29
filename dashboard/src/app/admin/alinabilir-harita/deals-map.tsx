@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { MapContainer, TileLayer, CircleMarker, Popup, LayersControl, Polygon, useMapEvents, Marker } from "react-leaflet";
+import { useEffect, useMemo, useState } from "react";
+import { MapContainer, TileLayer, CircleMarker, Popup, LayersControl, Polygon, useMapEvents, Marker, WMSTileLayer, GeoJSON } from "react-leaflet";
 import L from "leaflet";
+import type { GeoJsonObject } from "geojson";
 import "leaflet/dist/leaflet.css";
 import { regionPlaybook } from "@/lib/region-playbook";
 import { distanceMiles, nearestRef } from "@/lib/geo-proximity";
@@ -17,6 +18,10 @@ export type MapPoint = {
 
 const usd = (n: number) => "$" + Math.round(n).toLocaleString("en-US");
 
+// Filtre eşikleri.
+const BIG_SPREAD = 5000; // "spread büyük" eşiği ($)
+const NEAR_COMP_MI = 10; // "rakibe yakın" eşiği (mil)
+
 // Değerleme temeli → insan-okur etiket (kartta "neye göre" sorusunu yanıtlar).
 const BASIS_LABEL: Record<string, string> = {
   attom_region: "ATTOM bölge emsali",
@@ -27,6 +32,10 @@ const BASIS_LABEL: Record<string, string> = {
 };
 const GRADE_COLOR: Record<string, string> = { A: "#059669", B: "#0284c7", C: "#94a3b8" };
 const COMP_COLOR = "#dc2626";
+
+// "Comp-var" testi (mailSafe değerli deal): gerçek piyasa değeri var + mismatch değil.
+const hasComp = (p: MapPoint) =>
+  p.marketValue != null && p.valBasis !== "mismatch" && p.valBasis !== "none";
 
 // Rakip ilanı (competitor_listings) — koordinatı yok, şehir merkezine yaklaşık oturtuldu.
 // Bizim yeşil dairelerden ayrışsın diye KIRMIZI ELMAS (divIcon).
@@ -40,6 +49,60 @@ const compIcon = L.divIcon({
   iconSize: [11, 11],
   iconAnchor: [6, 6],
 });
+
+// ── Regrid GERÇEK tapu sınırı: tek fetch, iki tüketici (poligon + popup notu) ──
+// Aynı parsel için poligon çizimi ve popup durumu tek isteği paylaşır (cache).
+type RegridResult = { real: boolean; geometry?: GeoJsonObject; reason?: string; parcelNumber?: string | null };
+const regridCache = new Map<string, Promise<RegridResult>>();
+function fetchRegrid(lat: number, lng: number): Promise<RegridResult> {
+  const k = `${lat.toFixed(5)},${lng.toFixed(5)}`;
+  let pr = regridCache.get(k);
+  if (!pr) {
+    pr = fetch(`/api/admin/regrid-parcel?lat=${lat}&lng=${lng}`)
+      .then((r) => r.json() as Promise<RegridResult>)
+      .catch(() => ({ real: false, reason: "fetch_failed" }) as RegridResult);
+    regridCache.set(k, pr);
+  }
+  return pr;
+}
+
+// Seçili parselin GERÇEK Regrid poligonunu çizer (varsa). Yoksa null → istemci
+// yaklaşık kareye düşer. onReal ile parent'a "gerçek sınır çizildi mi" bildirir.
+function RegridBoundary({ p, onReal }: { p: MapPoint; onReal: (real: boolean) => void }) {
+  const [geo, setGeo] = useState<RegridResult | null>(null);
+  useEffect(() => {
+    let alive = true;
+    fetchRegrid(p.lat, p.lng).then((res) => { if (alive) { setGeo(res); onReal(!!res.real); } });
+    return () => { alive = false; };
+  }, [p.lat, p.lng, onReal]);
+  if (!geo || !geo.real || !geo.geometry) return null;
+  return (
+    <GeoJSON
+      key={"rg" + p.id}
+      data={geo.geometry}
+      style={() => ({ color: "#16a34a", weight: 2.5, fillColor: "#22c55e", fillOpacity: 0.18 })}
+    />
+  );
+}
+
+// Popup içi: Regrid sınır durumu (gerçek mi yaklaşık kare mi — dürüst).
+function RegridStatus({ p }: { p: MapPoint }) {
+  const [geo, setGeo] = useState<RegridResult | null>(null);
+  useEffect(() => {
+    let alive = true;
+    fetchRegrid(p.lat, p.lng).then((res) => { if (alive) setGeo(res); });
+    return () => { alive = false; };
+  }, [p.lat, p.lng]);
+  if (!geo) return <div style={{ fontSize: 10, color: "#94a3b8", marginTop: 2 }}>📐 Regrid sınırı sorgulanıyor…</div>;
+  if (geo.real)
+    return (
+      <div style={{ fontSize: 10, color: "#047857", marginTop: 2 }}>
+        📐 Gerçek tapu sınırı (Regrid) çizildi{geo.parcelNumber ? ` · ${geo.parcelNumber}` : ""}
+      </div>
+    );
+  const why = geo.reason === "no_token" ? "Regrid token yok" : geo.reason === "no_coverage" ? "bu county kapsam dışı" : "alınamadı";
+  return <div style={{ fontSize: 10, color: "#94a3b8", marginTop: 2 }}>📐 Yaklaşık kare ({why}) — gerçek tapu sınırı değil</div>;
+}
 
 // Parselin TAHMİNİ alanı: acres → merkeze oturmuş kare polygon. Kabaca "ne kadar yer
 // kaplar" görseli — GERÇEK tapu sınırı DEĞİL (onun için Regrid parsel geometrisi gerek).
@@ -71,15 +134,19 @@ const compLegendStyle: React.CSSProperties = {
   display: "inline-block", width: 9, height: 9, background: "#dc2626",
   transform: "rotate(45deg)", marginRight: 7, marginLeft: 1, verticalAlign: "middle",
 };
+const realBoundaryStyle: React.CSSProperties = {
+  display: "inline-block", width: 11, height: 11,
+  border: "1.5px solid #16a34a", background: "rgba(34,197,94,0.2)", marginRight: 5, verticalAlign: "middle",
+};
 
+// Konum-bağımsız (flex kolon içinde durur). Aç/kapa korunur.
 function MapLegend() {
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
   if (!open) {
     return (
       <button
         onClick={() => setOpen(true)}
         style={{
-          position: "absolute", bottom: 16, left: 10, zIndex: 1000,
           background: "rgba(255,255,255,0.95)", border: "1px solid #e2e8f0", borderRadius: 8,
           padding: "6px 10px", fontSize: 11, fontWeight: 600, color: "#334155",
           cursor: "pointer", boxShadow: "0 2px 10px rgba(0,0,0,0.18)",
@@ -91,8 +158,7 @@ function MapLegend() {
   }
   return (
     <div style={{
-      position: "absolute", bottom: 16, left: 10, zIndex: 1000,
-      background: "rgba(255,255,255,0.95)", border: "1px solid #e2e8f0", borderRadius: 8,
+      background: "rgba(255,255,255,0.96)", border: "1px solid #e2e8f0", borderRadius: 8,
       padding: "9px 11px", fontSize: 11, lineHeight: 1.7, color: "#334155",
       maxWidth: 240, boxShadow: "0 2px 10px rgba(0,0,0,0.18)",
     }}>
@@ -105,16 +171,17 @@ function MapLegend() {
       <div><span style={dot(GRADE_COLOR.B)} />B deal</div>
       <div><span style={dot(GRADE_COLOR.C)} />C deal</div>
       <div><span style={ringStyle} />Halka = absentee (eyalet-dışı motive sahip)</div>
-      <div><span style={squareStyle} />Turuncu kare = parselin ~tahmini alanı (yakınlaşınca hepsi · tıklayınca koyu)</div>
+      <div><span style={squareStyle} />Turuncu kare = parselin ~tahmini alanı (yaklaşık)</div>
+      <div><span style={realBoundaryStyle} />Yeşil dolgu = <b>gerçek tapu sınırı (Regrid)</b> · seçili parsel</div>
       <div><span style={compLegendStyle} />Kırmızı elmas = <b>rakip ilanı</b> (yaklaşık konum, şehir merkezi)</div>
       <hr style={{ border: "none", borderTop: "1px solid #e2e8f0", margin: "6px 0" }} />
       <div style={{ fontWeight: 600, color: "#64748b" }}>Altlık (OpenStreetMap — bizim değil):</div>
       <div>🔺 kahverengi üçgen = dağ zirvesi</div>
-      <div>━ isimli kahverengi/gri çizgi = <b>yol</b> (ör. "North Charles Drive")</div>
+      <div>━ isimli kahverengi/gri çizgi = <b>yol</b> (ör. &quot;North Charles Drive&quot;)</div>
       <div><span style={{ color: "#7dd3fc" }}>┅</span> açık mavi kesik = <b>kuru dere / çöl washı</b> (yağışta akar → sel riski)</div>
-      <div>┄ kesik gri çizgi = ilçe sınırı · ▦ paralel = demiryolu</div>
+      <div>🌊 FEMA Sel Tehlikesi katmanı = sağ-üst katman seçiciden aç (yaklaşık · resmî FEMA panelinden teyit)</div>
       <div style={{ marginTop: 5, color: "#64748b", fontStyle: "italic" }}>
-        Sağ üstten: <b>"Uydu"</b> = gerçek arazi · <b>"🛣️ Yollar"</b> = yollar+isimler üstte (uydu'da bile kalın/net). Parselin yol/elektrik/sel detayı için marker'a tıkla → popup.
+        Sağ üstten: <b>Uydu</b> = gerçek arazi · <b>🛣️ Yollar</b> = yollar+isimler üstte. Parsel detayı için marker&apos;a tıkla → popup.
       </div>
     </div>
   );
@@ -147,7 +214,7 @@ function ParcelAreas({ points }: { points: MapPoint[] }) {
 // Popup açılınca dd-check'i çağırır → ⚡ elektrik + 🛣️ yol rozeti.
 // Sadece tıklanan parsel için çalışır (Leaflet popup içeriği lazy mount).
 function EnrichBadges({ lat, lng }: { lat: number; lng: number }) {
-  const [state, setState] = useState<{ loading: boolean; power?: any; road?: any; err?: boolean }>({ loading: true });
+  const [state, setState] = useState<{ loading: boolean; power?: Record<string, unknown>; road?: Record<string, unknown>; err?: boolean }>({ loading: true });
   useEffect(() => {
     let alive = true;
     fetch(`/api/dd-check?lat=${lat}&lon=${lng}`)
@@ -160,7 +227,8 @@ function EnrichBadges({ lat, lng }: { lat: number; lng: number }) {
   if (state.loading) return <div style={{ color: "#94a3b8", fontSize: 11, marginTop: 4 }}>⚡🛣️ çevre kontrol ediliyor…</div>;
   if (state.err) return <div style={{ color: "#94a3b8", fontSize: 11, marginTop: 4 }}>Çevre verisi alınamadı</div>;
 
-  const p = state.power ?? {}, r = state.road ?? {};
+  const p = (state.power ?? {}) as Record<string, unknown>;
+  const r = (state.road ?? {}) as Record<string, unknown>;
   const powerBadge = p.hasPower === true
     ? { t: `⚡ Elektrik ${p.proximity === "onsite" ? "bitişik" : "yakın"} (~${p.nearestPowerMeters}m)`, c: "#047857", bg: "#ecfdf5" }
     : p.hasPower === false
@@ -181,11 +249,93 @@ function EnrichBadges({ lat, lng }: { lat: number; lng: number }) {
   );
 }
 
+// ── Renklendir / Filtrele paneli (pure client, dep yok) ─────────────────────────
+type Filters = {
+  grade: "" | "A" | "B" | "C";
+  absentee: boolean;
+  comp: boolean;
+  bigSpread: boolean;
+  nearComp: boolean;
+  multiOwner: boolean;
+};
+const chipStyle = (active: boolean): React.CSSProperties => ({
+  fontSize: 11, fontWeight: 600, padding: "3px 8px", borderRadius: 6, cursor: "pointer",
+  border: `1px solid ${active ? "#0f172a" : "#e2e8f0"}`,
+  background: active ? "#0f172a" : "#fff", color: active ? "#fff" : "#475569",
+});
+function FilterPanel({
+  f, setF, visible, total,
+}: { f: Filters; setF: (u: Partial<Filters>) => void; visible: number; total: number }) {
+  const [open, setOpen] = useState(false);
+  if (!open) {
+    return (
+      <button
+        onClick={() => setOpen(true)}
+        style={{
+          background: "rgba(255,255,255,0.95)", border: "1px solid #e2e8f0", borderRadius: 8,
+          padding: "6px 11px", fontSize: 12, fontWeight: 600, color: "#334155",
+          cursor: "pointer", boxShadow: "0 2px 8px rgba(0,0,0,0.18)",
+        }}
+      >
+        ⚙ Filtre & Renk{visible !== total ? ` · ${visible}/${total}` : ""}
+      </button>
+    );
+  }
+  const checks: { k: keyof Filters; label: string }[] = [
+    { k: "absentee", label: "Absentee" },
+    { k: "comp", label: "Comp-var" },
+    { k: "bigSpread", label: `Spread ≥ $${(BIG_SPREAD / 1000).toFixed(0)}k` },
+    { k: "nearComp", label: `Rakibe ≤${NEAR_COMP_MI}mi` },
+    { k: "multiOwner", label: "Çoklu-parsel sahip" },
+  ];
+  return (
+    <div style={{
+      background: "rgba(255,255,255,0.97)", border: "1px solid #e2e8f0", borderRadius: 8,
+      padding: "9px 11px", boxShadow: "0 2px 10px rgba(0,0,0,0.18)", maxWidth: 250,
+    }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+        <span style={{ fontWeight: 700, fontSize: 12, color: "#0f172a" }}>Filtre & Renk</span>
+        <button onClick={() => setOpen(false)} aria-label="Kapat"
+          style={{ border: "none", background: "transparent", cursor: "pointer", fontSize: 15, lineHeight: 1, color: "#94a3b8", padding: 0 }}>×</button>
+      </div>
+      <div style={{ fontSize: 10, color: "#64748b", marginBottom: 4 }}>Deal notu</div>
+      <div style={{ display: "flex", gap: 4, flexWrap: "wrap", marginBottom: 7 }}>
+        {(["", "A", "B", "C"] as const).map((g) => (
+          <span key={g || "all"} onClick={() => setF({ grade: g })}
+            style={{ ...chipStyle(f.grade === g), ...(g && f.grade === g ? { background: GRADE_COLOR[g], borderColor: GRADE_COLOR[g] } : {}) }}>
+            {g || "Hepsi"}
+          </span>
+        ))}
+      </div>
+      <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
+        {checks.map((c) => (
+          <span key={c.k} onClick={() => setF({ [c.k]: !f[c.k] } as Partial<Filters>)} style={chipStyle(!!f[c.k])}>{c.label}</span>
+        ))}
+      </div>
+      <div style={{ fontSize: 10, color: "#64748b", marginTop: 7 }}>
+        Görünür: <b style={{ color: "#0f172a" }}>{visible.toLocaleString()}</b> / {total.toLocaleString()} parsel
+      </div>
+    </div>
+  );
+}
+
+const toggleBtnStyle = (active: boolean, on: string, onBorder: string): React.CSSProperties => ({
+  background: active ? on : "rgba(255,255,255,0.95)",
+  color: active ? "#fff" : "#334155",
+  border: `1px solid ${active ? onBorder : "#e2e8f0"}`,
+  borderRadius: 8, padding: "6px 11px", fontSize: 12, fontWeight: 600,
+  cursor: "pointer", boxShadow: "0 2px 8px rgba(0,0,0,0.18)", textAlign: "left",
+});
+
 export default function DealsMap({ points }: { points: MapPoint[] }) {
   const [selected, setSelected] = useState<MapPoint | null>(null);
+  const [selRealBoundary, setSelRealBoundary] = useState(false);
   const [showAreas, setShowAreas] = useState(true);
   const [competitors, setCompetitors] = useState<CompMarker[]>([]);
   const [showComp, setShowComp] = useState(true);
+  const [filters, setFilters] = useState<Filters>({ grade: "", absentee: false, comp: false, bigSpread: false, nearComp: false, multiOwner: false });
+  const setF = (u: Partial<Filters>) => setFilters((p) => ({ ...p, ...u }));
+
   useEffect(() => {
     let alive = true;
     fetch("/api/admin/competitor-map")
@@ -194,12 +344,54 @@ export default function DealsMap({ points }: { points: MapPoint[] }) {
       .catch(() => {});
     return () => { alive = false; };
   }, []);
+
+  // Sahip kümeleme: owner → parsel sayısı (motive toplu satıcı kozu).
+  const ownerCounts = useMemo(() => {
+    const m = new Map<string, number>();
+    for (const p of points) {
+      const o = (p.owner || "").trim().toLowerCase();
+      if (o) m.set(o, (m.get(o) || 0) + 1);
+    }
+    return m;
+  }, [points]);
+  const ownerCount = (o: string | undefined) => ownerCounts.get((o || "").trim().toLowerCase()) || 0;
+
+  // En yakın rakip mesafesi (mil) — filtre + popup için.
+  const nearestCompMiles = useMemo(() => {
+    return (lat: number, lng: number): number | null => {
+      let best: number | null = null;
+      for (const c of competitors) {
+        const m = distanceMiles(lat, lng, c.lat, c.lng);
+        if (best == null || m < best) best = m;
+      }
+      return best;
+    };
+  }, [competitors]);
+
+  // Görünür parseller — filtreden geçenler.
+  const visiblePoints = useMemo(() => {
+    return points.filter((p) => {
+      if (filters.grade && p.dealGrade !== filters.grade) return false;
+      if (filters.absentee && !p.absentee) return false;
+      if (filters.comp && !hasComp(p)) return false;
+      if (filters.bigSpread && !(p.spread >= BIG_SPREAD)) return false;
+      if (filters.multiOwner && ownerCount(p.owner) < 2) return false;
+      if (filters.nearComp) {
+        const m = nearestCompMiles(p.lat, p.lng);
+        if (m == null || m > NEAR_COMP_MI) return false;
+      }
+      return true;
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [points, filters, ownerCounts, nearestCompMiles]);
+
   if (!points.length) return null;
   const lat = points.reduce((s, p) => s + p.lat, 0) / points.length;
   const lng = points.reduce((s, p) => s + p.lng, 0) / points.length;
 
   return (
     <div style={{ position: "relative", height: "100%", width: "100%" }}>
+      {/* Zoom +/− sol-üstte TEK BAŞINA kalsın (Leaflet varsayılanı). Diğer tüm UI sol-altta. */}
       <MapContainer center={[lat, lng]} zoom={9} scrollWheelZoom style={{ height: "100%", width: "100%" }}>
         {/* Altlık katmanı seçici: Sokak (OSM) ↔ Uydu (Esri) — çöl arsasında yolu/araziyi uydu'da gör. */}
         <LayersControl position="topright">
@@ -221,20 +413,35 @@ export default function DealsMap({ points }: { points: MapPoint[] }) {
               maxZoom={19}
             />
           </LayersControl.Overlay>
+          {/* FEMA NFHL sel-tehlike katmanı (WMS) — varsayılan KAPALI; açınca yüklenir.
+              Dürüst: yaklaşık görsel; resmî sel-bölgesi kararı için FEMA panelinden teyit. */}
+          <LayersControl.Overlay name="🌊 FEMA Sel Tehlikesi (NFHL · yaklaşık)">
+            <WMSTileLayer
+              url="https://hazards.fema.gov/arcgis/services/public/NFHL/MapServer/WMSServer"
+              layers="28"
+              format="image/png"
+              transparent
+              opacity={0.5}
+              attribution="FEMA NFHL — sel tehlike bölgeleri (yaklaşık)"
+            />
+          </LayersControl.Overlay>
         </LayersControl>
 
-        {/* Parsel tahmini alanları — toggle ile aç/kapa (iç içe girince kapatabilirsin). */}
-        {showAreas && <ParcelAreas points={points} />}
-        {showAreas && selected && (
+        {/* Parsel tahmini alanları — toggle ile aç/kapa (iç içe girince kapatabilirsin). Filtreli set. */}
+        {showAreas && <ParcelAreas points={visiblePoints} />}
+        {/* Seçili parsel: gerçek Regrid sınırı varsa onu çiz; yoksa yaklaşık kare. */}
+        {selected && <RegridBoundary p={selected} onReal={setSelRealBoundary} />}
+        {showAreas && selected && !selRealBoundary && (
           <Polygon
             positions={parcelBounds(selected.lat, selected.lng, selected.acres)}
             pathOptions={{ color: "#b45309", weight: 2.5, dashArray: "6 4", fillColor: "#f59e0b", fillOpacity: 0.2 }}
           />
         )}
 
-        {points.map((p) => {
+        {visiblePoints.map((p) => {
           const color = GRADE_COLOR[p.dealGrade ?? ""] ?? "#cbd5e1";
           const r = p.dealGrade === "A" ? 6 : 4;
+          const oc = ownerCount(p.owner);
           return (
             <div key={p.id}>
               {/* Absentee = eyalet-dışı motive sahip → marker'ın etrafında amber halka (tıklamadan belli). */}
@@ -250,7 +457,7 @@ export default function DealsMap({ points }: { points: MapPoint[] }) {
                 radius={r}
                 pathOptions={{ color: "#fff", weight: 1, fillColor: color, fillOpacity: 0.85 }}
                 eventHandlers={{
-                  popupopen: () => setSelected(p),
+                  popupopen: () => { setSelected(p); setSelRealBoundary(false); },
                   popupclose: () => setSelected((s) => (s?.id === p.id ? null : s)),
                 }}
               >
@@ -263,6 +470,11 @@ export default function DealsMap({ points }: { points: MapPoint[] }) {
                       {p.owner || p.apn}
                     </div>
                     <div style={{ color: "#64748b" }}>{p.region} · {p.acres?.toFixed(2)} acre {p.absentee ? "· absentee" : ""}</div>
+                    {oc > 1 && (
+                      <div style={{ fontSize: 11, fontWeight: 600, color: "#7c3aed", marginTop: 2 }}>
+                        🏠 Bu sahipte {oc} parsel (toplu satıcı kozu)
+                      </div>
+                    )}
                     <hr style={{ border: "none", borderTop: "1px solid #eee", margin: "5px 0" }} />
                     <div>Piyasa: <b>{p.valBasis === "mismatch" ? "⚠ comp uyumsuz — doğrula" : p.marketValue ? usd(p.marketValue) : "comp gerekli"}</b></div>
                     {p.marketValue != null && (
@@ -274,6 +486,7 @@ export default function DealsMap({ points }: { points: MapPoint[] }) {
                     )}
                     <div>Teklif: <b style={{ color: "#059669" }}>{p.estOffer ? usd(p.estOffer) : "—"}</b> · Spread: <b style={{ color: "#059669" }}>{p.spread ? usd(p.spread) : "—"}</b></div>
                     <div style={{ fontSize: 10, color: "#94a3b8" }}>🟧 Haritada ~{p.acres?.toFixed(2)} acre tahmini alan (kare yaklaşık, gerçek tapu sınırı değil)</div>
+                    <RegridStatus p={p} />
                     {(() => {
                       // Bölge satış-açısı + dürüst zoning notu (region-playbook; config'de yoksa güvenli default).
                       const pb = regionPlaybook({ state: p.state, county: p.county, region: p.region, address: p.address });
@@ -285,17 +498,20 @@ export default function DealsMap({ points }: { points: MapPoint[] }) {
                       );
                     })()}
                     {(() => {
-                      // Yakınlık: en yakın RAKİP ilanı (pazar kanıtı) + en yakın su (Lake Mead vb.).
+                      // Yakınlık scorecard: en yakın şehir + highway + rakip + su (hepsi yaklaşık referans).
+                      const city = nearestRef(p.lat, p.lng, "city");
+                      const hwy = nearestRef(p.lat, p.lng, "highway");
                       const water = nearestRef(p.lat, p.lng, "water");
-                      let nc: number | null = null;
-                      for (const c of competitors) {
-                        const m = distanceMiles(p.lat, p.lng, c.lat, c.lng);
-                        if (nc == null || m < nc) nc = m;
-                      }
+                      const nc = nearestCompMiles(p.lat, p.lng);
                       return (
-                        <div style={{ fontSize: 10, color: "#64748b", marginTop: 4 }}>
-                          📍 {nc != null ? `En yakın rakip ~${nc.toFixed(1)} mi` : "rakip verisi yükleniyor"}
-                          {water ? ` · ${water.name} ~${water.miles.toFixed(0)} mi` : ""}
+                        <div style={{ fontSize: 10, color: "#64748b", marginTop: 4, lineHeight: 1.5 }}>
+                          {city ? <div>🏙️ En yakın şehir: {city.name} ~{city.miles.toFixed(0)} mi</div> : null}
+                          {hwy ? <div>🛣️ En yakın anayol: {hwy.name} ~{hwy.miles.toFixed(0)} mi</div> : null}
+                          <div>
+                            📍 {nc != null ? `En yakın rakip ~${nc.toFixed(1)} mi` : "rakip verisi yükleniyor"}
+                            {water ? ` · 💧 ${water.name} ~${water.miles.toFixed(0)} mi` : ""}
+                          </div>
+                          <div style={{ fontStyle: "italic", color: "#94a3b8" }}>(yaklaşık · sabit referans noktasına)</div>
                         </div>
                       );
                     })()}
@@ -323,35 +539,31 @@ export default function DealsMap({ points }: { points: MapPoint[] }) {
           </Marker>
         ))}
       </MapContainer>
-      <button
-        onClick={() => setShowAreas((v) => !v)}
-        title="Parselin tahmini alanı kutularını aç/kapat"
-        style={{
-          position: "absolute", top: 10, left: 10, zIndex: 1000,
-          background: showAreas ? "#f59e0b" : "rgba(255,255,255,0.95)",
-          color: showAreas ? "#fff" : "#334155",
-          border: `1px solid ${showAreas ? "#d97706" : "#e2e8f0"}`,
-          borderRadius: 8, padding: "6px 11px", fontSize: 12, fontWeight: 600,
-          cursor: "pointer", boxShadow: "0 2px 8px rgba(0,0,0,0.18)",
-        }}
-      >
-        🟧 Parsel alanları: {showAreas ? "Açık" : "Kapalı"}
-      </button>
-      <button
-        onClick={() => setShowComp((v) => !v)}
-        title="Rakip ilanlarını aç/kapat"
-        style={{
-          position: "absolute", top: 48, left: 10, zIndex: 1000,
-          background: showComp ? "#dc2626" : "rgba(255,255,255,0.95)",
-          color: showComp ? "#fff" : "#334155",
-          border: `1px solid ${showComp ? "#b91c1c" : "#e2e8f0"}`,
-          borderRadius: 8, padding: "6px 11px", fontSize: 12, fontWeight: 600,
-          cursor: "pointer", boxShadow: "0 2px 8px rgba(0,0,0,0.18)",
-        }}
-      >
-        🟥 Rakip ilanları{competitors.length ? ` (${competitors.length})` : ""}: {showComp ? "Açık" : "Kapalı"}
-      </button>
-      <MapLegend />
+
+      {/* ── Sol-ALT kontrol yığını (dikey): filtre paneli + toggle'lar + legend.
+          Sol-ÜST'ü Leaflet zoom +/− için BOŞ bırakıyoruz; sağ-üst LayersControl. ── */}
+      <div style={{
+        position: "absolute", bottom: 16, left: 10, zIndex: 1000,
+        display: "flex", flexDirection: "column", gap: 8, alignItems: "flex-start",
+        maxHeight: "calc(100% - 90px)", overflowY: "auto",
+      }}>
+        <FilterPanel f={filters} setF={setF} visible={visiblePoints.length} total={points.length} />
+        <button
+          onClick={() => setShowAreas((v) => !v)}
+          title="Parselin tahmini alanı kutularını aç/kapat"
+          style={toggleBtnStyle(showAreas, "#f59e0b", "#d97706")}
+        >
+          🟧 Parsel alanları: {showAreas ? "Açık" : "Kapalı"}
+        </button>
+        <button
+          onClick={() => setShowComp((v) => !v)}
+          title="Rakip ilanlarını aç/kapat"
+          style={toggleBtnStyle(showComp, "#dc2626", "#b91c1c")}
+        >
+          🟥 Rakip ilanları{competitors.length ? ` (${competitors.length})` : ""}: {showComp ? "Açık" : "Kapalı"}
+        </button>
+        <MapLegend />
+      </div>
     </div>
   );
 }
