@@ -92,7 +92,7 @@ export default function DealsMap({ points }: { points: MapPoint[] }) {
               </div>
               <div style={{ color: "#64748b" }}>{p.region} · {p.acres?.toFixed(2)} acre {p.absentee ? "· absentee" : ""}</div>
               <hr style={{ border: "none", borderTop: "1px solid #eee", margin: "5px 0" }} />
-              <div>Piyasa: <b>{p.marketValue ? usd(p.marketValue) : "comp gerekli"}</b></div>
+              <div>Piyasa: <b>{p.valBasis === "mismatch" ? "⚠ comp uyumsuz — doğrula" : p.marketValue ? usd(p.marketValue) : "comp gerekli"}</b></div>
               {p.marketValue != null && (
                 <div style={{ fontSize: 10, color: "#94a3b8" }}>
                   {BASIS_LABEL[p.valBasis ?? "none"] ?? p.valBasis}

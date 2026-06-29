@@ -108,7 +108,8 @@ export function mapListing(r: RawListing): Property {
     soldDate: null,
     monthlyExpenses: r.monthlyExpenses ?? 0,
     useCases: r.useCases ?? [],
-    interestRate: r.interestRate ?? 0,
+    // owner-finance default %9-11 bandı: null kalırsa public ilan "0% APR" göstermesin
+    interestRate: r.interestRate ?? 9.9,
   };
 }
 
