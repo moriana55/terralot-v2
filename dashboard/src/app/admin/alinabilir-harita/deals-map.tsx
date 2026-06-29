@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { MapContainer, TileLayer, CircleMarker, Popup, LayersControl, Polygon, useMapEvents, Marker, WMSTileLayer, GeoJSON } from "react-leaflet";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { MapContainer, TileLayer, CircleMarker, Popup, LayersControl, Polygon, Polyline, useMapEvents, useMap, Marker, WMSTileLayer, GeoJSON } from "react-leaflet";
 import L from "leaflet";
 import type { GeoJsonObject } from "geojson";
 import "leaflet/dist/leaflet.css";
@@ -180,6 +180,13 @@ function MapLegend() {
       <div>━ isimli kahverengi/gri çizgi = <b>yol</b> (ör. &quot;North Charles Drive&quot;)</div>
       <div><span style={{ color: "#7dd3fc" }}>┅</span> açık mavi kesik = <b>kuru dere / çöl washı</b> (yağışta akar → sel riski)</div>
       <div>🌊 FEMA Sel Tehlikesi katmanı = sağ-üst katman seçiciden aç (yaklaşık · resmî FEMA panelinden teyit)</div>
+      <hr style={{ border: "none", borderTop: "1px solid #e2e8f0", margin: "6px 0" }} />
+      <div style={{ fontWeight: 600, color: "#64748b" }}>🛤️ OSM yolları (sol-alt düğme · zoom ≥ 13):</div>
+      <div><span style={{ display: "inline-block", width: 16, height: 0, borderTop: "3px solid #dc2626", marginRight: 5, verticalAlign: "middle" }} />Anayol (motorway/trunk/primary)</div>
+      <div><span style={{ display: "inline-block", width: 16, height: 0, borderTop: "2px solid #f97316", marginRight: 5, verticalAlign: "middle" }} />İkincil asfalt (secondary/tertiary)</div>
+      <div><span style={{ display: "inline-block", width: 16, height: 0, borderTop: "2px solid #eab308", marginRight: 5, verticalAlign: "middle" }} />Asfalt sokak (residential)</div>
+      <div><span style={{ display: "inline-block", width: 16, height: 0, borderTop: "2px dashed #92400e", marginRight: 5, verticalAlign: "middle" }} />Toprak/track (off-road · parsel erişimi)</div>
+      <div><span style={{ display: "inline-block", width: 16, height: 0, borderTop: "1.5px dashed #78716c", marginRight: 5, verticalAlign: "middle" }} />Servis yolu</div>
       <div style={{ marginTop: 5, color: "#64748b", fontStyle: "italic" }}>
         Sağ üstten: <b>Uydu</b> = gerçek arazi · <b>🛣️ Yollar</b> = yollar+isimler üstte. Parsel detayı için marker&apos;a tıkla → popup.
       </div>
@@ -249,6 +256,139 @@ function EnrichBadges({ lat, lng }: { lat: number; lng: number }) {
   );
 }
 
+// ── OSM YOL-TİPİ VEKTÖR KATMANI (Overpass, client-side) ─────────────────────────
+// Esri overlay sadece anayolları gösterir; çöldeki TOPRAK/track yollar (parsele
+// erişim!) uydu'da kaybolur. Çözüm: görüş alanı (bbox) için OSM yollarını tarayıcıdan
+// Overpass ile çek, highway tipine göre renkli Polyline çiz. SADECE katman AÇIKKEN +
+// zoom ≥ minZoom çalışır; moveend/zoomend debounce'lu; bbox-cache'li; graceful.
+const ROAD_MIN_ZOOM = 13;
+const ROAD_DEBOUNCE_MS = 600;
+const OVERPASS_URL = "https://overpass-api.de/api/interpreter";
+
+type RoadCat = "highway" | "paved" | "dirt" | "service";
+type RoadTypes = Record<RoadCat, boolean>;
+const ROAD_CAT_LABEL: Record<RoadCat, string> = {
+  highway: "Anayol",
+  paved: "Asfalt",
+  dirt: "Toprak (track)",
+  service: "Servis",
+};
+
+interface RoadStyle { cat: RoadCat; color: string; weight: number; dash?: string }
+
+// highway tag + surface → kategori + renk. Bilinmeyen/yaya-only tipler null (atla).
+function classifyRoad(tags: Record<string, string>): RoadStyle | null {
+  const hw = tags.highway;
+  if (!hw) return null;
+  const surf = (tags.surface || "").toLowerCase();
+  const unpaved = /unpaved|dirt|ground|gravel|sand|earth|compacted|fine_gravel|grass|rock|pebble/.test(surf);
+  if (["motorway", "trunk", "primary", "motorway_link", "trunk_link", "primary_link"].includes(hw))
+    return { cat: "highway", color: "#dc2626", weight: 3 };
+  if (["secondary", "tertiary", "secondary_link", "tertiary_link"].includes(hw))
+    return { cat: "paved", color: "#f97316", weight: 2.5 };
+  if (["residential", "unclassified", "living_street", "road"].includes(hw))
+    return unpaved
+      ? { cat: "dirt", color: "#92400e", weight: 2, dash: "5 5" }
+      : { cat: "paved", color: "#eab308", weight: 2 };
+  if (["track", "path", "bridleway"].includes(hw))
+    return { cat: "dirt", color: "#92400e", weight: 2, dash: "5 5" };
+  if (hw === "service")
+    return unpaved
+      ? { cat: "dirt", color: "#92400e", weight: 1.8, dash: "5 5" }
+      : { cat: "service", color: "#78716c", weight: 1.5, dash: "3 4" };
+  return null; // footway/cycleway/steps vb. → atla
+}
+
+type OsmWay = { id: number; tags: Record<string, string>; geometry: { lat: number; lon: number }[] };
+type OverpassEl = { type: string; id: number; tags?: Record<string, string>; geometry?: { lat: number; lon: number }[] };
+
+export type RoadState = { loading: boolean; count: number; tooFar: boolean };
+
+// Yalnız showRoads açıkken MOUNT edilir (parent: {showRoads && <OsmRoads/>}).
+// Böylece kapanınca state doğal olarak temizlenir (efekt içinde senkron setState yok).
+function OsmRoads({
+  types, report,
+}: { types: RoadTypes; report: (s: RoadState) => void }) {
+  const map = useMap();
+  const [ways, setWays] = useState<OsmWay[]>([]);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const cacheRef = useRef(new Map<string, OsmWay[]>());
+  const reqIdRef = useRef(0);
+
+  useEffect(() => {
+    const bboxKey = (b: L.LatLngBounds) =>
+      [b.getSouth(), b.getWest(), b.getNorth(), b.getEast()].map((n) => n.toFixed(2)).join(",");
+
+    const run = () => {
+      if (map.getZoom() < ROAD_MIN_ZOOM) {
+        setWays([]);
+        report({ loading: false, count: 0, tooFar: true });
+        return;
+      }
+      const b = map.getBounds();
+      const key = bboxKey(b);
+      const cached = cacheRef.current.get(key);
+      if (cached) {
+        setWays(cached);
+        report({ loading: false, count: cached.length, tooFar: false });
+        return;
+      }
+      const myId = ++reqIdRef.current;
+      report({ loading: true, count: 0, tooFar: false });
+      const q = `[out:json][timeout:25];way["highway"](${b.getSouth()},${b.getWest()},${b.getNorth()},${b.getEast()});out geom;`;
+      fetch(`${OVERPASS_URL}?data=${encodeURIComponent(q)}`)
+        .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
+        .then((d: { elements?: OverpassEl[] }) => {
+          if (myId !== reqIdRef.current) return; // bayat istek — at
+          const w: OsmWay[] = (d.elements ?? [])
+            .filter((e) => e.type === "way" && Array.isArray(e.geometry) && e.geometry.length > 1)
+            .map((e) => ({ id: e.id, tags: e.tags ?? {}, geometry: e.geometry as { lat: number; lon: number }[] }));
+          cacheRef.current.set(key, w);
+          if (cacheRef.current.size > 40) {
+            const oldest = cacheRef.current.keys().next().value;
+            if (oldest) cacheRef.current.delete(oldest);
+          }
+          setWays(w);
+          report({ loading: false, count: w.length, tooFar: false });
+        })
+        .catch(() => {
+          if (myId === reqIdRef.current) report({ loading: false, count: 0, tooFar: false });
+        });
+    };
+
+    const schedule = () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+      timerRef.current = setTimeout(run, ROAD_DEBOUNCE_MS);
+    };
+    map.on("moveend", schedule);
+    map.on("zoomend", schedule);
+    run(); // ilk yükleme
+
+    return () => {
+      map.off("moveend", schedule);
+      map.off("zoomend", schedule);
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, [map, report]);
+
+  return (
+    <>
+      {ways.map((w) => {
+        const cls = classifyRoad(w.tags);
+        if (!cls || !types[cls.cat]) return null;
+        const positions = w.geometry.map((g) => [g.lat, g.lon] as [number, number]);
+        return (
+          <Polyline
+            key={"osm" + w.id}
+            positions={positions}
+            pathOptions={{ color: cls.color, weight: cls.weight, dashArray: cls.dash, opacity: 0.9 }}
+          />
+        );
+      })}
+    </>
+  );
+}
+
 // ── Renklendir / Filtrele paneli (pure client, dep yok) ─────────────────────────
 type Filters = {
   grade: "" | "A" | "B" | "C";
@@ -263,9 +403,16 @@ const chipStyle = (active: boolean): React.CSSProperties => ({
   border: `1px solid ${active ? "#0f172a" : "#e2e8f0"}`,
   background: active ? "#0f172a" : "#fff", color: active ? "#fff" : "#475569",
 });
+// Yol kategorisi → temsil rengi (filtre çipi noktası).
+const ROAD_CAT_COLOR: Record<RoadCat, string> = {
+  highway: "#dc2626", paved: "#eab308", dirt: "#92400e", service: "#78716c",
+};
 function FilterPanel({
-  f, setF, visible, total,
-}: { f: Filters; setF: (u: Partial<Filters>) => void; visible: number; total: number }) {
+  f, setF, visible, total, roads,
+}: {
+  f: Filters; setF: (u: Partial<Filters>) => void; visible: number; total: number;
+  roads: { show: boolean; types: RoadTypes; toggleType: (c: RoadCat) => void; state: RoadState };
+}) {
   const [open, setOpen] = useState(false);
   if (!open) {
     return (
@@ -288,6 +435,7 @@ function FilterPanel({
     { k: "nearComp", label: `Rakibe ≤${NEAR_COMP_MI}mi` },
     { k: "multiOwner", label: "Çoklu-parsel sahip" },
   ];
+  const roadCats: RoadCat[] = ["highway", "paved", "dirt", "service"];
   return (
     <div style={{
       background: "rgba(255,255,255,0.97)", border: "1px solid #e2e8f0", borderRadius: 8,
@@ -315,6 +463,32 @@ function FilterPanel({
       <div style={{ fontSize: 10, color: "#64748b", marginTop: 7 }}>
         Görünür: <b style={{ color: "#0f172a" }}>{visible.toLocaleString()}</b> / {total.toLocaleString()} parsel
       </div>
+
+      {/* ── Yol tipleri (OSM vektör) ── */}
+      <div style={{ borderTop: "1px solid #e2e8f0", marginTop: 8, paddingTop: 7 }}>
+        <div style={{ fontSize: 10, color: "#64748b", marginBottom: 4, display: "flex", justifyContent: "space-between" }}>
+          <span>Yol tipleri (OSM)</span>
+          {roads.show && (
+            <span style={{ color: "#0f172a" }}>
+              {roads.state.tooFar ? "🔎 yakınlaş ≥13" : roads.state.loading ? "⏳ yükleniyor…" : `${roads.state.count} yol`}
+            </span>
+          )}
+        </div>
+        <div style={{ display: "flex", gap: 4, flexWrap: "wrap", opacity: roads.show ? 1 : 0.45 }}>
+          {roadCats.map((c) => (
+            <span key={c} onClick={() => roads.toggleType(c)}
+              style={{ ...chipStyle(roads.types[c]), display: "inline-flex", alignItems: "center", gap: 4 }}>
+              <span style={{ width: 8, height: 8, borderRadius: 2, background: ROAD_CAT_COLOR[c], display: "inline-block" }} />
+              {ROAD_CAT_LABEL[c]}
+            </span>
+          ))}
+        </div>
+        <div style={{ fontSize: 9, color: "#94a3b8", marginTop: 4, lineHeight: 1.4 }}>
+          {roads.show
+            ? "Veri: OpenStreetMap — tüm çöl tracklar haritalı olmayabilir."
+            : "Yolları görmek için “🛤️ Yollar (OSM)” düğmesini aç (zoom ≥ 13)."}
+        </div>
+      </div>
     </div>
   );
 }
@@ -335,6 +509,11 @@ export default function DealsMap({ points }: { points: MapPoint[] }) {
   const [showComp, setShowComp] = useState(true);
   const [filters, setFilters] = useState<Filters>({ grade: "", absentee: false, comp: false, bigSpread: false, nearComp: false, multiOwner: false });
   const setF = (u: Partial<Filters>) => setFilters((p) => ({ ...p, ...u }));
+  // OSM yol-tipi katmanı (varsayılan KAPALI — açınca Overpass çalışır).
+  const [showRoads, setShowRoads] = useState(false);
+  const [roadTypes, setRoadTypes] = useState<RoadTypes>({ highway: true, paved: true, dirt: true, service: true });
+  const toggleRoadType = (c: RoadCat) => setRoadTypes((p) => ({ ...p, [c]: !p[c] }));
+  const [roadsState, setRoadsState] = useState<RoadState>({ loading: false, count: 0, tooFar: false });
 
   useEffect(() => {
     let alive = true;
@@ -426,6 +605,10 @@ export default function DealsMap({ points }: { points: MapPoint[] }) {
             />
           </LayersControl.Overlay>
         </LayersControl>
+
+        {/* OSM yol-tipi vektör katmanı (Overpass) — markerların ALTINDA çizilir.
+            Sadece showRoads açıkken MOUNT (kapanınca temizlenir). */}
+        {showRoads && <OsmRoads types={roadTypes} report={setRoadsState} />}
 
         {/* Parsel tahmini alanları — toggle ile aç/kapa (iç içe girince kapatabilirsin). Filtreli set. */}
         {showAreas && <ParcelAreas points={visiblePoints} />}
@@ -547,7 +730,10 @@ export default function DealsMap({ points }: { points: MapPoint[] }) {
         display: "flex", flexDirection: "column", gap: 8, alignItems: "flex-start",
         maxHeight: "calc(100% - 90px)", overflowY: "auto",
       }}>
-        <FilterPanel f={filters} setF={setF} visible={visiblePoints.length} total={points.length} />
+        <FilterPanel
+          f={filters} setF={setF} visible={visiblePoints.length} total={points.length}
+          roads={{ show: showRoads, types: roadTypes, toggleType: toggleRoadType, state: roadsState }}
+        />
         <button
           onClick={() => setShowAreas((v) => !v)}
           title="Parselin tahmini alanı kutularını aç/kapat"
@@ -561,6 +747,13 @@ export default function DealsMap({ points }: { points: MapPoint[] }) {
           style={toggleBtnStyle(showComp, "#dc2626", "#b91c1c")}
         >
           🟥 Rakip ilanları{competitors.length ? ` (${competitors.length})` : ""}: {showComp ? "Açık" : "Kapalı"}
+        </button>
+        <button
+          onClick={() => { if (showRoads) setRoadsState({ loading: false, count: 0, tooFar: false }); setShowRoads((v) => !v); }}
+          title="OSM yol-tipi katmanı (Overpass) — açınca zoom ≥ 13'te yollar çizilir"
+          style={toggleBtnStyle(showRoads, "#0f766e", "#115e59")}
+        >
+          🛤️ Yollar (OSM){showRoads ? (roadsState.tooFar ? " · yakınlaş ≥13" : roadsState.loading ? " · ⏳" : roadsState.count ? ` · ${roadsState.count}` : "") : ""}: {showRoads ? "Açık" : "Kapalı"}
         </button>
         <MapLegend />
       </div>
