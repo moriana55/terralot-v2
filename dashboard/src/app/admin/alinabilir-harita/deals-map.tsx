@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { MapContainer, TileLayer, CircleMarker, Popup, LayersControl, Polygon, useMapEvents } from "react-leaflet";
+import { MapContainer, TileLayer, CircleMarker, Popup, LayersControl, Polygon, useMapEvents, Marker } from "react-leaflet";
+import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { regionPlaybook } from "@/lib/region-playbook";
+import { distanceMiles, nearestRef } from "@/lib/geo-proximity";
 
 export type MapPoint = {
   id: string; lat: number; lng: number; owner: string; region: string;
@@ -24,6 +26,20 @@ const BASIS_LABEL: Record<string, string> = {
   none: "emsal yok",
 };
 const GRADE_COLOR: Record<string, string> = { A: "#059669", B: "#0284c7", C: "#94a3b8" };
+const COMP_COLOR = "#dc2626";
+
+// Rakip ilanı (competitor_listings) — koordinatı yok, şehir merkezine yaklaşık oturtuldu.
+// Bizim yeşil dairelerden ayrışsın diye KIRMIZI ELMAS (divIcon).
+type CompMarker = {
+  id: string; competitor: string; title: string; acres: number | null;
+  price: number | null; rawUrl: string | null; lat: number; lng: number; matched: string;
+};
+const compIcon = L.divIcon({
+  className: "comp-marker",
+  html: `<div style="width:11px;height:11px;background:${COMP_COLOR};border:2px solid #fff;transform:rotate(45deg);box-shadow:0 1px 3px rgba(0,0,0,0.5)"></div>`,
+  iconSize: [11, 11],
+  iconAnchor: [6, 6],
+});
 
 // Parselin TAHMİNİ alanı: acres → merkeze oturmuş kare polygon. Kabaca "ne kadar yer
 // kaplar" görseli — GERÇEK tapu sınırı DEĞİL (onun için Regrid parsel geometrisi gerek).
@@ -50,6 +66,10 @@ const ringStyle: React.CSSProperties = {
 const squareStyle: React.CSSProperties = {
   display: "inline-block", width: 11, height: 11,
   border: "1.5px dashed #d97706", background: "rgba(245,158,11,0.15)", marginRight: 5, verticalAlign: "middle",
+};
+const compLegendStyle: React.CSSProperties = {
+  display: "inline-block", width: 9, height: 9, background: "#dc2626",
+  transform: "rotate(45deg)", marginRight: 7, marginLeft: 1, verticalAlign: "middle",
 };
 
 function MapLegend() {
@@ -86,6 +106,7 @@ function MapLegend() {
       <div><span style={dot(GRADE_COLOR.C)} />C deal</div>
       <div><span style={ringStyle} />Halka = absentee (eyalet-dışı motive sahip)</div>
       <div><span style={squareStyle} />Turuncu kare = parselin ~tahmini alanı (yakınlaşınca hepsi · tıklayınca koyu)</div>
+      <div><span style={compLegendStyle} />Kırmızı elmas = <b>rakip ilanı</b> (yaklaşık konum, şehir merkezi)</div>
       <hr style={{ border: "none", borderTop: "1px solid #e2e8f0", margin: "6px 0" }} />
       <div style={{ fontWeight: 600, color: "#64748b" }}>Altlık (OpenStreetMap — bizim değil):</div>
       <div>🔺 kahverengi üçgen = dağ zirvesi</div>
@@ -163,6 +184,16 @@ function EnrichBadges({ lat, lng }: { lat: number; lng: number }) {
 export default function DealsMap({ points }: { points: MapPoint[] }) {
   const [selected, setSelected] = useState<MapPoint | null>(null);
   const [showAreas, setShowAreas] = useState(true);
+  const [competitors, setCompetitors] = useState<CompMarker[]>([]);
+  const [showComp, setShowComp] = useState(true);
+  useEffect(() => {
+    let alive = true;
+    fetch("/api/admin/competitor-map")
+      .then((r) => r.json())
+      .then((d) => { if (alive) setCompetitors(Array.isArray(d.markers) ? d.markers : []); })
+      .catch(() => {});
+    return () => { alive = false; };
+  }, []);
   if (!points.length) return null;
   const lat = points.reduce((s, p) => s + p.lat, 0) / points.length;
   const lng = points.reduce((s, p) => s + p.lng, 0) / points.length;
@@ -253,6 +284,21 @@ export default function DealsMap({ points }: { points: MapPoint[] }) {
                         </div>
                       );
                     })()}
+                    {(() => {
+                      // Yakınlık: en yakın RAKİP ilanı (pazar kanıtı) + en yakın su (Lake Mead vb.).
+                      const water = nearestRef(p.lat, p.lng, "water");
+                      let nc: number | null = null;
+                      for (const c of competitors) {
+                        const m = distanceMiles(p.lat, p.lng, c.lat, c.lng);
+                        if (nc == null || m < nc) nc = m;
+                      }
+                      return (
+                        <div style={{ fontSize: 10, color: "#64748b", marginTop: 4 }}>
+                          📍 {nc != null ? `En yakın rakip ~${nc.toFixed(1)} mi` : "rakip verisi yükleniyor"}
+                          {water ? ` · ${water.name} ~${water.miles.toFixed(0)} mi` : ""}
+                        </div>
+                      );
+                    })()}
                     <a href={`https://www.google.com/maps/@${p.lat},${p.lng},600m/data=!3m1!1e3`} target="_blank" rel="noreferrer" style={{ color: "#0284c7", display: "inline-block", marginTop: 6 }}>🛰️ Uydu</a>
                     <EnrichBadges lat={p.lat} lng={p.lng} />
                   </div>
@@ -261,6 +307,21 @@ export default function DealsMap({ points }: { points: MapPoint[] }) {
             </div>
           );
         })}
+
+        {/* RAKİP ilanları (🟥 kırmızı elmas) — yaklaşık şehir-merkezi konumu. */}
+        {showComp && competitors.map((c) => (
+          <Marker key={"c" + c.id} position={[c.lat, c.lng]} icon={compIcon}>
+            <Popup>
+              <div style={{ fontSize: 12, lineHeight: 1.5, minWidth: 170 }}>
+                <div style={{ fontWeight: 700, color: COMP_COLOR }}>🟥 RAKİP — {c.competitor}</div>
+                <div style={{ color: "#64748b", marginTop: 2 }}>{c.title}</div>
+                <div style={{ marginTop: 4 }}>{c.acres ? `${c.acres} acre` : ""}{c.price ? ` · $${c.price.toLocaleString()}` : ""}</div>
+                <div style={{ fontSize: 10, color: "#94a3b8", marginTop: 3 }}>Konum yaklaşık (≈{c.matched} şehir merkezi) — parsel-kesin değil</div>
+                {c.rawUrl && <a href={c.rawUrl} target="_blank" rel="noreferrer" style={{ color: "#0284c7", display: "inline-block", marginTop: 4 }}>İlanı aç ↗</a>}
+              </div>
+            </Popup>
+          </Marker>
+        ))}
       </MapContainer>
       <button
         onClick={() => setShowAreas((v) => !v)}
@@ -275,6 +336,20 @@ export default function DealsMap({ points }: { points: MapPoint[] }) {
         }}
       >
         🟧 Parsel alanları: {showAreas ? "Açık" : "Kapalı"}
+      </button>
+      <button
+        onClick={() => setShowComp((v) => !v)}
+        title="Rakip ilanlarını aç/kapat"
+        style={{
+          position: "absolute", top: 48, left: 10, zIndex: 1000,
+          background: showComp ? "#dc2626" : "rgba(255,255,255,0.95)",
+          color: showComp ? "#fff" : "#334155",
+          border: `1px solid ${showComp ? "#b91c1c" : "#e2e8f0"}`,
+          borderRadius: 8, padding: "6px 11px", fontSize: 12, fontWeight: 600,
+          cursor: "pointer", boxShadow: "0 2px 8px rgba(0,0,0,0.18)",
+        }}
+      >
+        🟥 Rakip ilanları{competitors.length ? ` (${competitors.length})` : ""}: {showComp ? "Açık" : "Kapalı"}
       </button>
       <MapLegend />
     </div>
