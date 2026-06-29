@@ -35,6 +35,22 @@ const ringStyle: React.CSSProperties = {
 };
 
 function MapLegend() {
+  const [open, setOpen] = useState(true);
+  if (!open) {
+    return (
+      <button
+        onClick={() => setOpen(true)}
+        style={{
+          position: "absolute", bottom: 16, left: 10, zIndex: 1000,
+          background: "rgba(255,255,255,0.95)", border: "1px solid #e2e8f0", borderRadius: 8,
+          padding: "6px 10px", fontSize: 11, fontWeight: 600, color: "#334155",
+          cursor: "pointer", boxShadow: "0 2px 10px rgba(0,0,0,0.18)",
+        }}
+      >
+        ⓘ Açıklama
+      </button>
+    );
+  }
   return (
     <div style={{
       position: "absolute", bottom: 16, left: 10, zIndex: 1000,
@@ -42,7 +58,11 @@ function MapLegend() {
       padding: "9px 11px", fontSize: 11, lineHeight: 1.7, color: "#334155",
       maxWidth: 240, boxShadow: "0 2px 10px rgba(0,0,0,0.18)",
     }}>
-      <div style={{ fontWeight: 700, marginBottom: 3 }}>Açıklama</div>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 3 }}>
+        <span style={{ fontWeight: 700 }}>Açıklama</span>
+        <button onClick={() => setOpen(false)} aria-label="Açıklamayı kapat"
+          style={{ border: "none", background: "transparent", cursor: "pointer", fontSize: 15, lineHeight: 1, color: "#94a3b8", padding: 0, marginLeft: 10 }}>×</button>
+      </div>
       <div><span style={dot(GRADE_COLOR.A)} />A deal — en iyi</div>
       <div><span style={dot(GRADE_COLOR.B)} />B deal</div>
       <div><span style={dot(GRADE_COLOR.C)} />C deal</div>
