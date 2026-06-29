@@ -10,7 +10,7 @@ export const API_RATE_LIMIT = 60; // requests/window/IP
 
 // Due-diligence external fetch timeouts (src/app/api/dd-check/route.ts)
 export const DD_FEMA_TIMEOUT_MS = 5000;
-export const DD_OVERPASS_TIMEOUT_MS = 4000;
+export const DD_OVERPASS_TIMEOUT_MS = 13000;
 
 // Hot-counties / catalysts result caps (src/app/api/hot-counties/route.ts)
 export const HOT_COUNTIES_CAP = 25;
