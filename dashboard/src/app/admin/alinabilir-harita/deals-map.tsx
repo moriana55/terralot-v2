@@ -1010,7 +1010,7 @@ export default function DealsMap({ points }: { points: MapPoint[] }) {
                       );
                     })()}
                     <div style={{ display: "flex", gap: 8, alignItems: "center", marginTop: 6, flexWrap: "wrap" }}>
-                      <a href={`https://www.google.com/maps/@${p.lat},${p.lng},600m/data=!3m1!1e3`} target="_blank" rel="noreferrer" style={{ color: "#0284c7" }}>🛰️ Uydu</a>
+                      <a href={`https://www.google.com/maps/place/${p.lat},${p.lng}/@${p.lat},${p.lng},800m/data=!3m1!1e3`} target="_blank" rel="noreferrer" style={{ color: "#0284c7" }}>🛰️ Uydu (📍 pinli)</a>
                       <button
                         onClick={() => setMarketImg(p)}
                         style={{ border: "none", background: "#0ea5e9", color: "#fff", borderRadius: 5, padding: "3px 8px", fontSize: 11, fontWeight: 600, cursor: "pointer" }}
