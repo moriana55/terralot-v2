@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
 import { enforceRateLimit, requireGate } from "@/lib/api-guard";
 import { PRICING } from "@/lib/pricing";
+import { regionPlaybook } from "@/lib/region-playbook";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -93,6 +94,10 @@ function buildDealSheet(lead: Lead, offerPct: number, marketValueOverride?: numb
   const st = abbr(lead.state);
   const cty = normCounty(lead.county);
   const title = `${lead.acres ? lead.acres + "-Acre" : "Parcel"}${cty ? " — " + cty + ", " + (st || "") : ""}`;
+  // Bölgeye göre DOĞRU satış dili + dürüst zoning notu (region-playbook; config'de
+  // yoksa güvenli default). Mektup bölgeye uygun açıyı kullansın diye merge var'a
+  // beslenir; ASLA blanket hukuki vaat değil (lib KIRMIZI ÇİZGİ ile garanti).
+  const pb = regionPlaybook({ state: lead.state, county: lead.county, region: lead.county, address: lead.property_address });
   return {
     title,
     apn: lead.apn,
@@ -105,6 +110,15 @@ function buildDealSheet(lead: Lead, offerPct: number, marketValueOverride?: numb
     offerPct: offerPct,
     score: lead.final_score,
     propertyAddress: lead.property_address,
+    playbook: {
+      region: pb.region,
+      salesAngle: pb.salesAngle,
+      allowedUses: pb.allowedUses,
+      zoningNote: pb.zoningNote,
+      installmentNote: pb.installmentNote ?? null,
+      confidence: pb.confidence,
+      matchBasis: pb.matchBasis,
+    },
     merge_variables: {
       owner_name: lead.owner_name || "Property Owner",
       county: cty || lead.county || "",
@@ -113,6 +127,9 @@ function buildDealSheet(lead: Lead, offerPct: number, marketValueOverride?: numb
       offer: offer != null ? `$${offer.toLocaleString()}` : "a fair cash price",
       offer_amount: offer != null ? offer.toLocaleString() : "",
       apn: lead.apn || "",
+      // Bölge-uygun satış dili (mektup template'i bu değişkenleri kullanabilir).
+      sales_angle: pb.salesAngle,
+      zoning_note: pb.zoningNote,
     },
   };
 }

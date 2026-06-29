@@ -3,12 +3,14 @@
 import { useEffect, useState } from "react";
 import { MapContainer, TileLayer, CircleMarker, Popup, LayersControl, Polygon, useMapEvents } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
+import { regionPlaybook } from "@/lib/region-playbook";
 
 export type MapPoint = {
   id: string; lat: number; lng: number; owner: string; region: string;
   acres: number; marketValue: number | null; estOffer: number; spread: number;
   dealGrade: string | null; absentee: boolean; apn: string;
   valBasis?: string | null; comps?: number; valAsOf?: string | null; compYears?: string | null;
+  state?: string | null; county?: string | null; address?: string | null;
 };
 
 const usd = (n: number) => "$" + Math.round(n).toLocaleString("en-US");
@@ -241,7 +243,17 @@ export default function DealsMap({ points }: { points: MapPoint[] }) {
                     )}
                     <div>Teklif: <b style={{ color: "#059669" }}>{p.estOffer ? usd(p.estOffer) : "—"}</b> · Spread: <b style={{ color: "#059669" }}>{p.spread ? usd(p.spread) : "—"}</b></div>
                     <div style={{ fontSize: 10, color: "#94a3b8" }}>🟧 Haritada ~{p.acres?.toFixed(2)} acre tahmini alan (kare yaklaşık, gerçek tapu sınırı değil)</div>
-                    <a href={`https://www.google.com/maps/@${p.lat},${p.lng},600m/data=!3m1!1e3`} target="_blank" rel="noreferrer" style={{ color: "#0284c7" }}>🛰️ Uydu</a>
+                    {(() => {
+                      // Bölge satış-açısı + dürüst zoning notu (region-playbook; config'de yoksa güvenli default).
+                      const pb = regionPlaybook({ state: p.state, county: p.county, region: p.region, address: p.address });
+                      return (
+                        <div style={{ marginTop: 6, padding: "5px 7px", background: "#f8fafc", borderRadius: 5, fontSize: 10, lineHeight: 1.45 }}>
+                          <div style={{ color: "#0f172a" }}><b>Satış açısı:</b> {pb.salesAngle}</div>
+                          <div style={{ color: "#b45309", marginTop: 2 }}>⚠ {pb.zoningNote}</div>
+                        </div>
+                      );
+                    })()}
+                    <a href={`https://www.google.com/maps/@${p.lat},${p.lng},600m/data=!3m1!1e3`} target="_blank" rel="noreferrer" style={{ color: "#0284c7", display: "inline-block", marginTop: 6 }}>🛰️ Uydu</a>
                     <EnrichBadges lat={p.lat} lng={p.lng} />
                   </div>
                 </Popup>

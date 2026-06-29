@@ -8,9 +8,10 @@
 // ─────────────────────────────────────────────────────────────────────────────
 import data from "@/data/cheap-land.json";
 import Link from "next/link";
-import { ArrowLeft, Satellite, MailPlus, CheckCircle2, Calculator, Clock, ExternalLink } from "lucide-react";
+import { ArrowLeft, Satellite, MailPlus, CheckCircle2, Calculator, Clock, ExternalLink, Megaphone } from "lucide-react";
 import { notFound } from "next/navigation";
 import SellOwnerFinanceButton from "@/components/SellOwnerFinanceButton";
+import { regionPlaybook, USE_LABELS } from "@/lib/region-playbook";
 
 const fmt = (n: number | null | undefined) => (n == null ? "—" : `$${Math.round(n).toLocaleString("en-US")}`);
 
@@ -33,6 +34,10 @@ export default async function ArsaDegerlemePage({ params }: { params: Promise<{ 
 
   const street = d.property.split(",")[0].replace(/^0\s+/, "").trim();
   const gradeColor = d.grade === "A" ? "#16a34a" : d.grade === "B" ? "#eab308" : d.grade === "C" ? "#f97316" : "var(--muted)";
+
+  // Bölge satış-açısı + dürüst zoning/izin notu (region-playbook; eşleşme yoksa güvenli default).
+  const pb = regionPlaybook({ state: d.state, county: d.county, region: d.county, address: d.property });
+  const confLabel = pb.confidence === "high" ? "yüksek güven" : pb.confidence === "medium" ? "orta güven" : "düşük güven (genel)";
 
   // "Mektup at" → mailer Quick Send, prefilled with this owner + mailing
   // address. Template tpl3 (Formal Offer Letter) matches the deal hook:
@@ -142,6 +147,40 @@ export default async function ArsaDegerlemePage({ params }: { params: Promise<{ 
           <div className="flex justify-between"><span>🌊 Sel bölgesi (flood zone)</span><span style={{ color: "var(--muted)" }}>henüz veri yok — FEMA map'ten teyit</span></div>
         </div>
         <p className="text-[11px] mt-3" style={{ color: "var(--muted)" }}>Bunları henüz veriyle doldurmadık — Landio gibi göstermek için sonraki adımda GIS/utility verisi bağlanır. Şimdilik dürüstçe "teyit edilecek".</p>
+      </section>
+
+      {/* 3.5 BÖLGE SATIŞ-AÇISI + ZONING NOTU (region-playbook) */}
+      <section className="rounded-xl border p-5 mb-4" style={{ borderColor: "var(--outline)", background: "var(--surface)" }}>
+        <div className="flex items-center gap-2 mb-3 flex-wrap">
+          <Megaphone className="w-4 h-4" style={{ color: "#8b5cf6" }} />
+          <h2 className="font-bold text-sm">Bölge Satış-Açısı + Zoning / İzin Notu</h2>
+          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: "rgba(139,92,246,0.12)", color: "#8b5cf6" }}>
+            {pb.region} · {confLabel}
+          </span>
+        </div>
+        <p className="text-sm mb-3" style={{ color: "var(--foreground)" }}>
+          <b style={{ color: "var(--primary,#16a34a)" }}>Satış açısı:</b> {pb.salesAngle}
+        </p>
+        {pb.allowedUses.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 mb-3">
+            {pb.allowedUses.map((u) => (
+              <span key={u} className="text-[11px] font-semibold px-2 py-0.5 rounded-full" style={{ background: "var(--surface-high)", color: "var(--foreground)" }}>
+                {USE_LABELS[u]}
+              </span>
+            ))}
+          </div>
+        )}
+        <div className="rounded-lg p-3 text-xs" style={{ background: "rgba(234,179,8,0.08)", color: "#92400e" }}>
+          <b>⚠ Zoning / izin (dürüst uyarı):</b> {pb.zoningNote}
+        </div>
+        {pb.installmentNote && (
+          <p className="text-[11px] mt-2" style={{ color: "var(--muted)" }}>
+            <b>Taksitli satış:</b> {pb.installmentNote}
+          </p>
+        )}
+        <p className="text-[10px] mt-2" style={{ color: "var(--muted)" }}>
+          Bu satış dili + uyarı bölgeye göre otomatik gelir; hukuki vaat değildir — kullanım/izin alıcı tarafından county zoning&apos;den teyit edilmeli.
+        </p>
       </section>
 
       {/* 4. STRATEJİ */}
