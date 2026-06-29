@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   SlidersHorizontal, RotateCcw, Download, Loader2, MapPin, ExternalLink,
-  ChevronLeft, ChevronRight, Search, ShieldCheck, X,
+  ChevronLeft, ChevronRight, Search, ShieldCheck, X, MailPlus,
 } from "lucide-react";
 
 type Deal = {
@@ -652,11 +652,18 @@ export default function AllDealsPage() {
                   {title && !title.ok && <p className="text-[11px] text-amber-600">{title.reason || "ATTOM tapu kaydı bulunamadı."}</p>}
                 </div>
 
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
                   <button onClick={() => { setDetailFor(null); openScrub(d); }}
                     className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-slate-900 px-3 py-2 text-sm font-semibold text-white hover:bg-slate-700">
                     <ShieldCheck className="h-4 w-4" /> Scrub çalıştır
                   </button>
+                  {d.owner && d.address && d.valBasis !== "mismatch" && (
+                    <a
+                      href={`/admin/mailer?prefill=1&owner=${encodeURIComponent(d.owner)}&addr=${encodeURIComponent(d.address)}&deal=${encodeURIComponent(d.address.split(",")[0].trim())}&tpl=tpl3&dealId=${encodeURIComponent(d.id)}&mv=${d.marketValue ?? d.landValue ?? 0}&county=${encodeURIComponent(d.county ?? "")}&st=${encodeURIComponent(d.state ?? "")}&acres=${d.acres ?? ""}`}
+                      className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-700 hover:bg-emerald-100">
+                      <MailPlus className="h-4 w-4" /> Mektup At
+                    </a>
+                  )}
                   {d.mapUrl && (
                     <a href={d.mapUrl} target="_blank" rel="noreferrer"
                       className="flex items-center justify-center gap-1.5 rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50">
