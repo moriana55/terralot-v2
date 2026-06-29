@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { MapContainer, TileLayer, CircleMarker, Popup, LayersControl, Polygon } from "react-leaflet";
+import { MapContainer, TileLayer, CircleMarker, Popup, LayersControl, Polygon, useMapEvents } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 
 export type MapPoint = {
@@ -83,7 +83,7 @@ function MapLegend() {
       <div><span style={dot(GRADE_COLOR.B)} />B deal</div>
       <div><span style={dot(GRADE_COLOR.C)} />C deal</div>
       <div><span style={ringStyle} />Halka = absentee (eyalet-dışı motive sahip)</div>
-      <div><span style={squareStyle} />Turuncu kesik kare = parselin ~tahmini alanı (marker'a tıkla)</div>
+      <div><span style={squareStyle} />Turuncu kare = parselin ~tahmini alanı (yakınlaşınca hepsi · tıklayınca koyu)</div>
       <hr style={{ border: "none", borderTop: "1px solid #e2e8f0", margin: "6px 0" }} />
       <div style={{ fontWeight: 600, color: "#64748b" }}>Altlık (OpenStreetMap — bizim değil):</div>
       <div>🔺 kahverengi üçgen = dağ zirvesi</div>
@@ -94,6 +94,30 @@ function MapLegend() {
         Sağ üstten: <b>"Uydu"</b> = gerçek arazi · <b>"🛣️ Yollar"</b> = yollar+isimler üstte (uydu'da bile kalın/net). Parselin yol/elektrik/sel detayı için marker'a tıkla → popup.
       </div>
     </div>
+  );
+}
+
+// Yakınlaşınca (zoom ≥ 12) görüş alanındaki TÜM parsellerin tahmini alanını KALICI çizer
+// (aynı anda birden çok). Performans için sadece görünür + en fazla 400 parsel.
+function ParcelAreas({ points }: { points: MapPoint[] }) {
+  const [, force] = useState(0);
+  const map = useMapEvents({
+    moveend: () => force((n) => n + 1),
+    zoomend: () => force((n) => n + 1),
+  });
+  if (map.getZoom() < 12) return null;
+  const b = map.getBounds();
+  const visible = points.filter((p) => b.contains([p.lat, p.lng] as [number, number])).slice(0, 400);
+  return (
+    <>
+      {visible.map((p) => (
+        <Polygon
+          key={"pa" + p.id}
+          positions={parcelBounds(p.lat, p.lng, p.acres)}
+          pathOptions={{ color: "#d97706", weight: 1.5, dashArray: "5 4", fillColor: "#f59e0b", fillOpacity: 0.1 }}
+        />
+      ))}
+    </>
   );
 }
 
@@ -165,11 +189,13 @@ export default function DealsMap({ points }: { points: MapPoint[] }) {
           </LayersControl.Overlay>
         </LayersControl>
 
-        {/* Seçili parselin TAHMİNİ alanı (marker'a tıklayınca) — turuncu kesik kare. */}
+        {/* Yakınlaşınca görüş alanındaki tüm parsellerin tahmini alanı (kalıcı, çoklu). */}
+        <ParcelAreas points={points} />
+        {/* Seçili parsel (tıklanan) daha koyu vurgulanır — zoom uzaktayken de görünür. */}
         {selected && (
           <Polygon
             positions={parcelBounds(selected.lat, selected.lng, selected.acres)}
-            pathOptions={{ color: "#d97706", weight: 2, dashArray: "6 4", fillColor: "#f59e0b", fillOpacity: 0.12 }}
+            pathOptions={{ color: "#b45309", weight: 2.5, dashArray: "6 4", fillColor: "#f59e0b", fillOpacity: 0.2 }}
           />
         )}
 
