@@ -53,3 +53,14 @@ step node competitor-scraper.js
 
 echo "==== done ${TS} ====" | tee -a "$LOG"
 echo "Log: $LOG"
+
+# 5) Heartbeat (dead-man's switch): koşu bittiğinde Telegram bildirimi gönder.
+# Token'lar boşsa sessizce atlar. Bu, run-all BAŞLADIKTAN sonraki hataları yakalar;
+# launchd'nin script'i hiç çalıştıramaması (TCC/Desktop) ayrı sorun — projeyi taşı.
+set -a; [ -f ".env" ] && . "./.env"; set +a
+if [ -n "${TELEGRAM_BOT_TOKEN:-}" ] && [ -n "${TELEGRAM_CHAT_ID:-}" ]; then
+  WARNS=$(grep -c "WARN" "$LOG" 2>/dev/null || echo 0)
+  curl -s -m 15 "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+    --data-urlencode "chat_id=${TELEGRAM_CHAT_ID}" \
+    --data-urlencode "text=🐺 Cerberus koşusu bitti ${TS} · ${WARNS} uyarı · ${LOG}" >/dev/null 2>&1 || true
+fi

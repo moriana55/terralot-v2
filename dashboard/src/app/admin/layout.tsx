@@ -30,7 +30,7 @@ const SECTIONS: { label: string | null; wip?: boolean; items: { href: string; ic
       { href: "/admin/ucuz-arsa", icon: MapPin, label: "🏠 Ucuz Boş Arsa (Değerle→Mektup→Sat)" },
       { href: "/admin/alinabilir-harita", icon: Map, label: "🗺️ Alınabilir Harita" },
       { href: "/admin/tax-leads", icon: FileSearch, label: "Tax Leads" },
-      { href: "/admin/off-market-leads", icon: MailPlus, label: "Off-Market Leads" },
+      { href: "/admin/off-market-leads", icon: MailPlus, label: "Vergi-Borçlu Lead'ler" },
       { href: "/admin/scraper", icon: Cpu, label: "Cerberus Botları" },
       { href: "/admin/market-listings", icon: CircleDollarSign, label: "Piyasa İlanları" },
     ],

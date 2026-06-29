@@ -179,7 +179,7 @@ export default function OffMarketLeadsPage() {
         <div>
           <h1 className="text-2xl font-bold mb-1 flex items-center gap-2">
             <MailPlus className="w-5 h-5" style={{ color: "var(--accent-ink)" }} />
-            Off-Market Leads — Mektup Atılacak Gerçek Sahipler
+            Vergi-Borçlu Motive Sahipler — Mektup Atılacak
           </h1>
           <p className="text-sm" style={{ color: "var(--muted)" }}>
             Gerçek isimli + posta adresli + vergi-borçlu (motive) sahipler. Mektup, posta adresine gider.
