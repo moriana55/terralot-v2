@@ -160,6 +160,7 @@ function EnrichBadges({ lat, lng }: { lat: number; lng: number }) {
 
 export default function DealsMap({ points }: { points: MapPoint[] }) {
   const [selected, setSelected] = useState<MapPoint | null>(null);
+  const [showAreas, setShowAreas] = useState(true);
   if (!points.length) return null;
   const lat = points.reduce((s, p) => s + p.lat, 0) / points.length;
   const lng = points.reduce((s, p) => s + p.lng, 0) / points.length;
@@ -189,10 +190,9 @@ export default function DealsMap({ points }: { points: MapPoint[] }) {
           </LayersControl.Overlay>
         </LayersControl>
 
-        {/* Yakınlaşınca görüş alanındaki tüm parsellerin tahmini alanı (kalıcı, çoklu). */}
-        <ParcelAreas points={points} />
-        {/* Seçili parsel (tıklanan) daha koyu vurgulanır — zoom uzaktayken de görünür. */}
-        {selected && (
+        {/* Parsel tahmini alanları — toggle ile aç/kapa (iç içe girince kapatabilirsin). */}
+        {showAreas && <ParcelAreas points={points} />}
+        {showAreas && selected && (
           <Polygon
             positions={parcelBounds(selected.lat, selected.lng, selected.acres)}
             pathOptions={{ color: "#b45309", weight: 2.5, dashArray: "6 4", fillColor: "#f59e0b", fillOpacity: 0.2 }}
@@ -250,6 +250,20 @@ export default function DealsMap({ points }: { points: MapPoint[] }) {
           );
         })}
       </MapContainer>
+      <button
+        onClick={() => setShowAreas((v) => !v)}
+        title="Parselin tahmini alanı kutularını aç/kapat"
+        style={{
+          position: "absolute", top: 10, left: 10, zIndex: 1000,
+          background: showAreas ? "#f59e0b" : "rgba(255,255,255,0.95)",
+          color: showAreas ? "#fff" : "#334155",
+          border: `1px solid ${showAreas ? "#d97706" : "#e2e8f0"}`,
+          borderRadius: 8, padding: "6px 11px", fontSize: 12, fontWeight: 600,
+          cursor: "pointer", boxShadow: "0 2px 8px rgba(0,0,0,0.18)",
+        }}
+      >
+        🟧 Parsel alanları: {showAreas ? "Açık" : "Kapalı"}
+      </button>
       <MapLegend />
     </div>
   );
