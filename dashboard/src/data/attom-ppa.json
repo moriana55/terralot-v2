@@ -1,18 +1,26 @@
 {
-  "generatedAt": "2026-06-28T04:49:20.395Z",
-  "source": "ATTOM sale/snapshot + expandedprofile (sqft→acre), bulk-scrubbed",
+  "generatedAt": "2026-06-29T01:55:57.069Z",
+  "recentYears": 4,
+  "minYear": 2022,
+  "source": "ATTOM sale/snapshot + expandedprofile (sqft→acre), bulk-scrubbed, son 4 yıl emsal",
   "ppa": {
     "AZ|Golden Valley / Kingman": {
-      "ppa": 2926,
-      "n": 10
+      "ppa": 4096,
+      "n": 4,
+      "yearMin": 2022,
+      "yearMax": 2024
     },
     "AZ|Meadview / Lake Mead": {
       "ppa": 1600,
-      "n": 6
+      "n": 5,
+      "yearMin": 2024,
+      "yearMax": 2026
     },
     "AZ|Yucca / Kingman G.": {
-      "ppa": 1319,
-      "n": 7
+      "ppa": 2128,
+      "n": 3,
+      "yearMin": 2022,
+      "yearMax": 2025
     }
   }
 }

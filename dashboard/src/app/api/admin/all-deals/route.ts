@@ -16,7 +16,7 @@ import { valuationMismatch, dealGrade } from "@/lib/deal-quality";
 import attomPpaData from "@/data/attom-ppa.json";
 
 // ATTOM gerçek satış $/acre — bölge bazında (offline script ile üretildi).
-const ATTOM_PPA = (attomPpaData as { ppa?: Record<string, { ppa: number; n: number }> }).ppa ?? {};
+const ATTOM_PPA = (attomPpaData as { ppa?: Record<string, { ppa: number; n: number; yearMin?: number; yearMax?: number }> }).ppa ?? {};
 // Değerlemenin "as-of" tarihi: ATTOM emsal verisi en son ne zaman çekildi (şeffaflık).
 const ATTOM_ASOF: string | null = (attomPpaData as { generatedAt?: string }).generatedAt ?? null;
 
@@ -373,6 +373,10 @@ export async function GET(req: NextRequest) {
         address: d.address, county: d.county, state: d.state,
         valBasis: d.valBasis, comps: d.comps,
         valAsOf: d.valBasis === "attom_region" ? ATTOM_ASOF : null,
+        compYears: (() => {
+          const a = ATTOM_PPA[`${d.state}|${d.region}`];
+          return d.valBasis === "attom_region" && a?.yearMin ? `${a.yearMin}–${a.yearMax}` : null;
+        })(),
       }));
     return NextResponse.json({ total, mapped: points.length, points });
   }

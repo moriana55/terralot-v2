@@ -8,7 +8,7 @@ export type MapPoint = {
   id: string; lat: number; lng: number; owner: string; region: string;
   acres: number; marketValue: number | null; estOffer: number; spread: number;
   dealGrade: string | null; absentee: boolean; apn: string;
-  valBasis?: string | null; comps?: number; valAsOf?: string | null;
+  valBasis?: string | null; comps?: number; valAsOf?: string | null; compYears?: string | null;
 };
 
 const usd = (n: number) => "$" + Math.round(n).toLocaleString("en-US");
@@ -97,7 +97,7 @@ export default function DealsMap({ points }: { points: MapPoint[] }) {
                 <div style={{ fontSize: 10, color: "#94a3b8" }}>
                   {BASIS_LABEL[p.valBasis ?? "none"] ?? p.valBasis}
                   {p.comps ? ` · ${p.comps} emsal` : ""}
-                  {p.valAsOf ? ` · ${p.valAsOf.slice(0, 10)}` : ""}
+                  {p.compYears ? ` (${p.compYears})` : p.valAsOf ? ` · ${p.valAsOf.slice(0, 10)}` : ""}
                 </div>
               )}
               <div>Teklif: <b style={{ color: "#059669" }}>{p.estOffer ? usd(p.estOffer) : "—"}</b> · Spread: <b style={{ color: "#059669" }}>{p.spread ? usd(p.spread) : "—"}</b></div>
