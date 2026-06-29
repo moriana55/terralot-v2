@@ -15,6 +15,11 @@ const H = { apikey: KEY, Accept: "application/json" };
 const med = (a) => { if (!a.length) return null; const b=[...a].sort((x,y)=>x-y); const m=Math.floor(b.length/2); return b.length%2?b[m]:(b[m-1]+b[m])/2; };
 const sanePpa = (p) => p >= 200 && p <= 40000; // raw land makul $/acre bandı
 const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+// TAZELİK: 2016 satışı 2026 değerini yansıtmaz. Son RECENT_YEARS yılı tut;
+// eski emsaller elenir. Her bölgenin emsal YIL ARALIĞI da kaydedilir (şeffaflık).
+const RECENT_YEARS = 4;
+const MIN_YEAR = new Date().getFullYear() - RECENT_YEARS; // örn 2026 → 2022+
+const yearOf = (x) => { const y = Number(String(x?.sale?.salesearchdate || "").slice(0, 4)); return Number.isFinite(y) && y > 1990 ? y : null; };
 
 // ── Bölge → temsili koordinat (lat/lng olan kaynaklar: mohave, propstream NM) ──
 function regionPoints() {
@@ -39,32 +44,34 @@ async function regionPpa(lat, lng) {
   if (!r.ok) return { ppa: null, n: 0, raw: 0 };
   const j = await r.json();
   const all = (j.property || []).filter(x => /vacant|land/i.test(String(x.summary?.propertyType || "")) && Number(x.sale?.amount?.saleamt) > 0);
+  // 1b) TAZELİK: sadece son RECENT_YEARS yılın satışları (eski emsal bugünün değerini yansıtmaz)
+  const fresh = all.filter(x => { const y = yearOf(x); return y !== null && y >= MIN_YEAR; });
   // 2) bulk scrub (aynı tutar+tarih tek temsilci)
   const seen = new Map();
-  for (const x of all) { const k = x.sale.amount.saleamt + "|" + x.sale.salesearchdate; if (!seen.has(k)) seen.set(k, x); }
+  for (const x of fresh) { const k = x.sale.amount.saleamt + "|" + x.sale.salesearchdate; if (!seen.has(k)) seen.set(k, x); }
   const clean = [...seen.values()].slice(0, 12);
   // 3) her comp icin sqft -> acre -> $/acre (sane)
-  const ppas = [];
+  const ppas = []; const years = [];
   for (const c of clean) {
     try {
       const d = await fetch(`${B}/property/expandedprofile?attomid=${c.identifier.attomId}`, { headers: H });
       const dj = await d.json();
       const sqft = Number(dj.property?.[0]?.lot?.lotSize2 || 0);
-      if (sqft > 0) { const ac = sqft / 43560; const ppa = c.sale.amount.saleamt / ac; if (sanePpa(ppa)) ppas.push(ppa); }
+      if (sqft > 0) { const ac = sqft / 43560; const ppa = c.sale.amount.saleamt / ac; if (sanePpa(ppa)) { ppas.push(ppa); const y = yearOf(c); if (y) years.push(y); } }
       await sleep(120);
     } catch {}
   }
-  return { ppa: med(ppas) ? Math.round(med(ppas)) : null, n: ppas.length, raw: all.length };
+  return { ppa: med(ppas) ? Math.round(med(ppas)) : null, n: ppas.length, raw: all.length, fresh: fresh.length, yearMin: years.length ? Math.min(...years) : null, yearMax: years.length ? Math.max(...years) : null };
 }
 
 const points = regionPoints();
 console.log(`${points.length} bölge işlenecek...`);
 const out = {};
 for (const p of points) {
-  const { ppa, n, raw } = await regionPpa(p.lat, p.lng);
-  if (ppa && n >= 3) { out[`${p.state}|${p.region}`] = { ppa, n }; console.log(`✓ ${p.state}|${p.region}: $${ppa}/ac (${n} comp)`); }
-  else console.log(`· ${p.state}|${p.region}: yetersiz (n=${n}, raw=${raw}) → comp gerekli`);
+  const { ppa, n, raw, fresh, yearMin, yearMax } = await regionPpa(p.lat, p.lng);
+  if (ppa && n >= 3) { out[`${p.state}|${p.region}`] = { ppa, n, yearMin, yearMax }; console.log(`✓ ${p.state}|${p.region}: $${ppa}/ac (${n} comp, ${yearMin}–${yearMax})`); }
+  else console.log(`· ${p.state}|${p.region}: yetersiz (n=${n}, raw=${raw}, taze=${fresh ?? 0}) → comp gerekli`);
   await sleep(150);
 }
-writeFileSync("./src/data/attom-ppa.json", JSON.stringify({ generatedAt: new Date().toISOString(), source: "ATTOM sale/snapshot + expandedprofile (sqft→acre), bulk-scrubbed", ppa: out }, null, 2));
+writeFileSync("./src/data/attom-ppa.json", JSON.stringify({ generatedAt: new Date().toISOString(), recentYears: RECENT_YEARS, minYear: MIN_YEAR, source: `ATTOM sale/snapshot + expandedprofile (sqft→acre), bulk-scrubbed, son ${RECENT_YEARS} yıl emsal`, ppa: out }, null, 2));
 console.log(`\nYazıldı: src/data/attom-ppa.json · ${Object.keys(out).length} bölge gerçek $/acre`);

@@ -14,9 +14,9 @@
 import { intrinsicValue, type Basis, type Confidence } from "@/lib/land-valuation";
 
 export const PRICING = {
-  OFFER_PCT: 0.2, // blind-offer = piyasa değerinin %20'si (roadmap %15–25 aralığı)
-  OFFER_PCT_SMALL: 0.15, // ≤ küçük-parsel eşiği → %15 ile sınırla (aşırı teklif yok)
-  SMALL_PARCEL_USD: 10_000, // roadmap: ≤$10K parselde teklif %15'i geçmesin
+  OFFER_PCT: 0.25, // blind-offer = piyasa değerinin %25'i (Yiğit kararı 2026-06-29: lowball çok kırıyordu, %25'e çıkıldı)
+  OFFER_PCT_SMALL: 0.25, // küçük parselde de %25 (sahip kırılmasın; kabul şansı↑, spread hâlâ sağlıklı)
+  SMALL_PARCEL_USD: 10_000, // (artık teklif yüzdesini düşürmüyor; eşik ileride başka kural için duruyor)
   CASH_SELL_PCT: 0.65, // nakit satış = piyasanın %65'i (indirimli-arazi modeli)
   FINANCE_SELL_PCT: 0.9, // owner-finance satış daha yüksek (taksitli prim)
   MIN_COMPS: 3, // güvenilir (mailSafe) değer için minimum comp örneği

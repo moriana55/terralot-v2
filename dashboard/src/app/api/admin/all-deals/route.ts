@@ -368,6 +368,7 @@ export async function GET(req: NextRequest) {
         id: d.id, lat: d.lat, lng: d.lng, owner: d.owner, region: d.region,
         acres: d.acres, marketValue: d.marketValue, estOffer: d.estOffer,
         spread: d.spread, dealGrade: d.dealGrade, absentee: d.absentee, apn: d.apn,
+        address: d.address, county: d.county, state: d.state,
       }));
     return NextResponse.json({ total, mapped: points.length, points });
   }
