@@ -27,6 +27,7 @@ const SECTIONS: { label: string | null; wip?: boolean; items: { href: string; ic
       // kümeleri Tüm Dealler "Kaynak" filtresinde. Deal Map kaldırıldı: eski
       // popup judgment'ı "Değer" diye gösteriyordu (Alınabilir Harita doğrusu).
       { href: "/admin/all-deals", icon: Target, label: "🔍 Tüm Dealler (Filtre)" },
+      { href: "/admin/apn-sorgula", icon: FileSearch, label: "🔎 APN Sorgula" },
       { href: "/admin/satilabilir-cekirdek", icon: Target, label: "🎯 Satılabilir Çekirdek" },
       { href: "/admin/ucuz-arsa", icon: MapPin, label: "🏠 Ucuz Boş Arsa (Değerle→Mektup→Sat)" },
       { href: "/admin/alinabilir-harita", icon: Map, label: "🗺️ Alınabilir Harita" },
