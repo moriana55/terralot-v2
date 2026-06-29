@@ -58,6 +58,10 @@ export interface PlaybookQuery {
 // Tüm zoningNote'ların ortak güvenli kuyruğu — her entry'de teyit şerhi GARANTİ.
 const CONFIRM_TAIL = "Kullanım/izin parselin zone'una göre değişir — alıcı county zoning'den teyit etmeli.";
 
+// Arizona'ya özgü — arazi temizliği/ağaç kesme: korumalı yerli bitki uyarısı (Native Plant Law).
+const AZ_NATIVE_PLANT =
+  "Arazi temizliği: Arizona Native Plant Law korumalı yerli türleri (Joshua tree, saguaro, ocotillo, ironwood, bazı kaktüsler) kapsar — serbestçe kesilemez; AZ Dept of Agriculture'a bildirim/izin (bazen salvage/taşıma) gerekebilir. Çöl çalısı (creosote/brush) genelde serbest. Korumalı bitki için alıcı teyit etmeli.";
+
 // ── State normalizasyonu (market-overlap / all-deals deseniyle uyumlu) ──────────
 const FULL: Record<string, string> = {
   alabama: "AL", arizona: "AZ", arkansas: "AR", california: "CA", colorado: "CO",
@@ -113,6 +117,7 @@ const AZ_MOHAVE_PB: Omit<Playbook, "matchBasis"> = {
   allowedUses: ["off-grid", "rv", "camping", "homestead", "mobile-home", "recreational"],
   zoningNote:
     "Mohave County görece izin verici; off-grid genelde sorun değil. Ancak RV'de SÜREKLI oturma süresi parselin zone'una (ör. AR/RR) göre değişir — RV oturumu için blanket izin vaadi verilmez. " +
+    AZ_NATIVE_PLANT + " " +
     CONFIRM_TAIL,
   installmentNote: "AZ non-judicial foreclosure → temerrütte hızlı geri-al; senet + deed of trust (CFD kullanma).",
   confidence: "high",
@@ -125,6 +130,7 @@ const AZ_COCONINO_PB: Omit<Playbook, "matchBasis"> = {
   allowedUses: ["recreational", "camping", "site-built"],
   zoningNote:
     "Coconino County off-grid/RV ve permit kurallarını Mohave'den DAHA SIKI uygular; süreli oturma ve yapı izinleri sınırlı olabilir — alıcı county zoning/permit ofisinden teyit etmeli. " +
+    AZ_NATIVE_PLANT + " " +
     CONFIRM_TAIL,
   installmentNote: "AZ non-judicial foreclosure → hızlı geri-al; senet + deed of trust.",
   confidence: "high",
