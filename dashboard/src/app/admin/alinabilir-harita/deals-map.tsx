@@ -5,6 +5,7 @@ import { MapContainer, TileLayer, CircleMarker, Popup, LayersControl, Polygon, P
 import L from "leaflet";
 import type { GeoJsonObject } from "geojson";
 import "leaflet/dist/leaflet.css";
+import CountyGisLayer from "./CountyGisLayer";
 import { regionPlaybook } from "@/lib/region-playbook";
 import { distanceMiles, nearestRef } from "@/lib/geo-proximity";
 
@@ -876,6 +877,13 @@ export default function DealsMap({ points }: { points: MapPoint[] }) {
               opacity={0.5}
               attribution="FEMA NFHL — sel tehlike bölgeleri (yaklaşık)"
             />
+          </LayersControl.Overlay>
+          {/* Mohave County GIS — gerçek parsel sınırı + yol grid + APN; OSM'in
+              içermediği isimli subdivision sokakları (Fireside Dr, Pipeline Rd…).
+              Default KAPALI; açınca yüklenir. Datacenter IP'den timeout olur,
+              kullanıcının residential tarayıcısından çalışır — fail-soft. */}
+          <LayersControl.Overlay name="🏛️ County Parsel+Yol (Mohave GIS)">
+            <CountyGisLayer />
           </LayersControl.Overlay>
         </LayersControl>
 
