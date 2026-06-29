@@ -11,6 +11,7 @@ import Link from "next/link";
 import { ArrowLeft, Satellite, MailPlus, CheckCircle2, Calculator, Clock, ExternalLink, Megaphone } from "lucide-react";
 import { notFound } from "next/navigation";
 import SellOwnerFinanceButton from "@/components/SellOwnerFinanceButton";
+import ListingCopyButton from "@/components/ListingCopyButton";
 import { regionPlaybook, USE_LABELS } from "@/lib/region-playbook";
 
 const fmt = (n: number | null | undefined) => (n == null ? "—" : `$${Math.round(n).toLocaleString("en-US")}`);
@@ -181,6 +182,27 @@ export default async function ArsaDegerlemePage({ params }: { params: Promise<{ 
         <p className="text-[10px] mt-2" style={{ color: "var(--muted)" }}>
           Bu satış dili + uyarı bölgeye göre otomatik gelir; hukuki vaat değildir — kullanım/izin alıcı tarafından county zoning&apos;den teyit edilmeli.
         </p>
+      </section>
+
+      {/* 3.6 SATILIK İLAN METNİ ÜRETECİ (LANDiO/Discount Lots tarzı) */}
+      <section className="rounded-xl border p-5 mb-4" style={{ borderColor: "var(--outline)", background: "var(--surface)" }}>
+        <div className="flex items-center gap-2 mb-3 flex-wrap">
+          <Megaphone className="w-4 h-4" style={{ color: "#8b5cf6" }} />
+          <h2 className="font-bold text-sm">Satılık İlan Metni Üreteci</h2>
+          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: "rgba(139,92,246,0.12)", color: "#8b5cf6" }}>
+            LANDiO / Discount Lots tarzı
+          </span>
+        </div>
+        <p className="text-xs mb-3" style={{ color: "var(--muted)" }}>
+          Bu parselin gerçek verisinden (dönüm, bölge, piyasa değeri) satışa-hazır ilan metni üretir — bölgeye uygun satış açısı + dürüst zoning/izin notu ile.
+        </p>
+        <ListingCopyButton
+          acres={d.acres ?? null}
+          county={d.county ?? null}
+          state={d.state ?? null}
+          situs={d.property ?? null}
+          marketValue={(d.marketValue ?? d.landValue) ?? null}
+        />
       </section>
 
       {/* 4. STRATEJİ */}
