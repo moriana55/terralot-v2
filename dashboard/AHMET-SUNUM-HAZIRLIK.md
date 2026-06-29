@@ -68,3 +68,33 @@ _Son güncelleme: 2026-06-29. Amaç: Ahmet'in sorabileceği zor sorulara hazır 
 
 ## 4) Tek Cümlelik Güven Mesajı (Ahmet'e)
 > "Hiçbir değeri uydurmuyoruz: her piyasa rakamı gerçek satış emsaline dayanıyor, tarihi ve kaç emsal olduğu kartta yazıyor, emsal yoksa değer vermiyoruz. Off-market tarafında Mohave'de 20 bin doğrulanmış absentee lead hazır; ölçek için PropStream/ReportAll yolu net."
+
+---
+
+## 5) 20K Lead'i NASIL Bulduk? (sistematik — Ahmet "nasıl buldunuz" derse)
+**Hedef profili: araziyi alıp unutmuş, sahibi uzakta (eyalet-dışı) olan boş arsalar.** Mohave County'nin **halka açık ArcGIS** parsel verisinden ($0, scraper'ımla) şu filtreyle çektik:
+- **IMPVALUE = 0** → boş arsa (üstünde yapı/ev YOK)
+- **Sahip eyaleti ≠ AZ** → ABSENTEE (sahibi başka eyalette, uzakta)
+- **0.8–5 acre** → mektuba + satışa uygun lot boyutu
+- ucuz / düşük vergi değeri
+
+**Neden motive satıcı:** 1950-70'lerin spekülatif çöl arsa-bölme kalıntısı. Sahip onlarca yıl önce almış, hiç yapmamış, gitmemiş, belki unutmuş, boşuna vergi ödüyor → mektup gelince ucuza satmaya açık. Bu **gerçek off-market** (ihale DEĞİL, doğrudan sahibe direct-mail).
+
+## 6) 50 Eyalete Nasıl Çıkarız? (veri kaynağı karar ağacı)
+Bir county'de lead lazım → o county'nin BEDAVA ArcGIS'i owner + **posta adresi** veriyor mu?
+- **EVET** (nadir; Mohave gibi) → bedava çek ($0)
+- **HAYIR** (çoğu county — posta adresi vermez) → **PropStream** ($99/ay, 50 eyalet, vacant+absentee+mailing filtre) ile çek → hacim büyürse **ReportAll** (~$1000 PREPAY kredi, aylık değil; ulusal API, owner+mailing)
+
+Her aracın işi: **BUL** = ArcGIS(bedava)/PropStream/ReportAll · **DEĞERLE** = ATTOM (sold comps; şu an trial key, hacimde paralı) · **AT** = Lob (~$1/mektup) · **SINIR(görsel)** = Regrid (opsiyonel, en son). Hepsi aynı `offmarket_leads` tablosuna akar — sistem ayırt etmez.
+
+## 7) Maliyet Sahipliği — Hangi Gider Kimin (TOPLANTIDA NET TUT)
+| Kalem | Kim öder |
+|---|---|
+| Veri (PropStream/ReportAll/ATTOM/skip-trace) | **Ahmet** (iş gideri) |
+| Lob mektup/posta | **Ahmet** |
+| Parsel ALIM sermayesi + kapanış (title/US LLC/FIRPTA) | **Ahmet** |
+| Hosting (Supabase/Vercel/domain) | **Ahmet** (iş tarafı) |
+| Yazılım + entegrasyon + işletme | **Yiğit** (haftalık ücret + komisyon) |
+| Yiğit'in kendi bilgisayarı/dev ortamı | Yiğit (sadece bu) |
+
+**Ezber cümle:** "Ben motor, sen yakıt. Yazılım + entegrasyon bende; veri + sermaye + kapanış sende. Bu muslukları açtığın gün deal akar." Veri abonelikleri **Ahmet'in kartına/hesabına** açılır, key'i Yiğit sisteme takar — geliştirme ücretinin DIŞINDA.
