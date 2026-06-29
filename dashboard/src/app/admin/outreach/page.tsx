@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { Send, Loader2, Search, Mail, FileText, CheckCircle2, AlertTriangle, Clock } from "lucide-react";
+import { Send, Loader2, Search, Mail, FileText, CheckCircle2, AlertTriangle, Clock, Play, Repeat, Ban } from "lucide-react";
+import { nextAction, CADENCE_STEPS, CADENCE_TOTAL_STEPS } from "@/lib/cadence";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // ONE-CLICK OWNER OUTREACH (admin)
@@ -18,6 +19,9 @@ interface Lead {
 interface Event {
   id: string; lead_ref: string | null; channel: string; type: string; status: string;
   provider_id: string | null; recipient_name: string | null; created_at: string; error: string | null;
+  // Kadans alanları (outreach_cadence.sql sonrası dolu; öncesi undefined → graceful).
+  sequence_step?: number | null; next_action_at?: string | null; sequence_status?: string | null;
+  responded?: boolean | null; last_sent_at?: string | null;
 }
 interface DealSheet {
   title: string; offerPrice: number | null; offerPct: number; minimumBid: number | null;
@@ -44,6 +48,10 @@ export default function OutreachPage() {
   const [sending, setSending] = useState(false);
   const [result, setResult] = useState<null | { status: string; dealSheet: DealSheet; note: string; error: string | null; lob: Record<string, unknown> | null }>(null);
   const [events, setEvents] = useState<Event[]>([]);
+  // Kadans (multi-touch) tik + "yanıt geldi → durdur".
+  const [ticking, setTicking] = useState(false);
+  const [responding, setResponding] = useState(false);
+  const [tickMsg, setTickMsg] = useState<string | null>(null);
 
   const loadEvents = async (leadId?: string) => {
     const url = leadId ? `/api/outreach?leadId=${leadId}` : "/api/outreach";
@@ -82,19 +90,66 @@ export default function OutreachPage() {
     loadEvents(lead.id);
   };
 
+  // Lead'in en yeni outreach kaydı kadans işaretçisini taşır. cadence.ts saf
+  // mantığıyla "sıradaki ne, ne zaman"ı hesapla (kolonlar yoksa undefined → graceful).
+  const latest = lead ? events.find((e) => e.lead_ref === lead.id) : undefined;
+  const cadence = latest ? nextAction(latest) : null;
+
+  // Tüm vadesi gelen lead'ler için sıradaki dokunuşu gönder (cron'un elle hali).
+  const runTick = async () => {
+    setTicking(true); setTickMsg(null);
+    try {
+      const j = await (await fetch("/api/admin/outreach-tick", {
+        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({}),
+      })).json();
+      setTickMsg(j.note || `${j.processed ?? 0} işlendi · ${j.sent ?? 0} gönderildi`);
+    } catch (e) { setTickMsg(String(e)); }
+    setTicking(false);
+    if (lead) loadEvents(lead.id); else loadEvents();
+  };
+
+  // Sahip yanıt verdi → bu lead'in kadansını durdur.
+  const markResponded = async () => {
+    if (!lead) return;
+    setResponding(true); setTickMsg(null);
+    try {
+      const j = await (await fetch("/api/outreach", {
+        method: "PATCH", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ leadId: lead.id, responded: true }),
+      })).json();
+      setTickMsg(j.ok ? "Yanıt işaretlendi — kadans durduruldu." : (j.reason || "İşaretlenemedi"));
+    } catch (e) { setTickMsg(String(e)); }
+    setResponding(false);
+    loadEvents(lead.id);
+  };
+
   const hasAddress = !!lead?.owner_address;
 
   return (
     <div className="p-8 max-w-[1200px]">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold mb-1 flex items-center gap-2">
-          <Send className="w-5 h-5" style={{ color: "var(--accent-ink)" }} />
-          Tek-Tık Sahip Outreach
-        </h1>
-        <p className="text-sm" style={{ color: "var(--muted)" }}>
-          Bir lead seç → deal-sheet otomatik üretilir → Lob mektup/postcard tetikle (key yoksa mock) → outreach_events&apos;e loglanır.
-        </p>
+      <div className="mb-6 flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <h1 className="text-2xl font-bold mb-1 flex items-center gap-2">
+            <Send className="w-5 h-5" style={{ color: "var(--accent-ink)" }} />
+            Çok-Dokunuşlu Sahip Outreach (Kadans)
+          </h1>
+          <p className="text-sm" style={{ color: "var(--muted)" }}>
+            Touch 1 teklif mektubu (şimdi) → Touch 2 postcard (+14g) → Touch 3 son mektup (+30g). Sahip yanıt verince durur.
+          </p>
+        </div>
+        <button onClick={runTick} disabled={ticking}
+          className="px-3 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 shrink-0"
+          style={{ background: "var(--accent-ink)", color: "var(--background)" }}
+          title="Vadesi gelen tüm lead'lere sıradaki dokunuşu gönder (gecelik cron'un elle hali)">
+          {ticking ? <Loader2 className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4" />}
+          ▶ Kadansı ilerlet (tick)
+        </button>
       </div>
+      {tickMsg && (
+        <div className="mb-5 text-xs rounded-lg border border-dashed px-3 py-2" style={{ borderColor: "var(--outline)", color: "var(--muted)" }}>
+          {tickMsg}
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-[340px_1fr] gap-6">
         {/* Lead search */}
@@ -136,6 +191,53 @@ export default function OutreachPage() {
                     <div className="text-xs mt-0.5" style={{ color: hasAddress ? "var(--muted)" : "var(--error)" }}>
                       {hasAddress ? `Adres: ${lead.owner_address}` : "⚠ owner_address yok — Lob gönderimi başarısız olur"}
                     </div>
+                  </div>
+                </div>
+
+                {/* Kadans durumu — sıradaki dokunuş + tarih + "yanıt geldi → durdur" */}
+                <div className="rounded-lg border p-3 mb-4" style={{ borderColor: "var(--outline)", background: "var(--surface-low)" }}>
+                  <div className="flex items-center gap-2 mb-2">
+                    <Repeat className="w-3.5 h-3.5" style={{ color: "var(--accent-ink)" }} />
+                    <span className="text-[11px] font-bold uppercase tracking-wider" style={{ color: "var(--muted)" }}>Kadans durumu</span>
+                    {cadence && (
+                      <span className="ml-auto text-[10px] font-bold uppercase px-2 py-0.5 rounded-full"
+                        style={{ background: "var(--surface-high)", color: cadence.kind === "paused" ? "var(--warn)" : cadence.kind === "done" ? "var(--grade-a)" : "var(--accent-ink)" }}>
+                        {cadence.kind === "send" ? "aktif" : cadence.kind === "done" ? "tamamlandı" : "durduruldu"}
+                      </span>
+                    )}
+                  </div>
+                  {/* 3 dokunuş ilerleme noktaları */}
+                  <div className="flex items-center gap-1.5 mb-2">
+                    {CADENCE_STEPS.map((st) => {
+                      const done = (latest?.sequence_step ?? 0) >= st.step;
+                      const isNext = cadence?.kind === "send" && cadence.step.step === st.step;
+                      return (
+                        <div key={st.step} className="flex-1 text-center">
+                          <div className="h-1.5 rounded-full mb-1" style={{ background: done ? "var(--grade-a)" : isNext ? "var(--accent-ink)" : "var(--surface-high)" }} />
+                          <div className="text-[9px]" style={{ color: isNext ? "var(--accent-ink)" : "var(--muted)" }}>{st.label}</div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <div className="flex items-center justify-between gap-2 flex-wrap">
+                    <div className="text-[11px]" style={{ color: "var(--muted)" }}>
+                      {!latest
+                        ? `Henüz dokunuş yok — "Gönder" Touch 1'i (teklif mektubu) atar, kadansı başlatır.`
+                        : latest.sequence_step == null
+                          ? "Kadans kolonları yok — dashboard/sql/outreach_cadence.sql uygula (sonra adım/tarih burada görünür)."
+                          : cadence?.kind === "send"
+                            ? `Gönderilen: ${latest.sequence_step}/${CADENCE_TOTAL_STEPS} · Sıradaki: ${cadence.reason}`
+                            : cadence?.kind === "done"
+                              ? `Tüm ${CADENCE_TOTAL_STEPS} dokunuş tamamlandı.`
+                              : "Sahip yanıt verdi — kadans durduruldu."}
+                    </div>
+                    <button onClick={markResponded} disabled={responding || !latest || latest.responded === true}
+                      className="px-2.5 py-1.5 rounded-lg text-[11px] font-semibold flex items-center gap-1.5 disabled:opacity-40"
+                      style={{ background: "var(--surface-high)", color: "var(--warn)" }}
+                      title="Sahip yanıt verdi — bu lead'in kadansını durdur">
+                      {responding ? <Loader2 className="w-3 h-3 animate-spin" /> : <Ban className="w-3 h-3" />}
+                      yanıt geldi → durdur
+                    </button>
                   </div>
                 </div>
 
@@ -211,6 +313,9 @@ export default function OutreachPage() {
                       return (
                         <div key={e.id} className="flex items-center gap-3 px-5 py-2.5 border-b text-xs" style={{ borderColor: "var(--surface-high)" }}>
                           <S.icon className="w-4 h-4 shrink-0" style={{ color: S.color }} />
+                          {e.sequence_step != null && (
+                            <span className="font-mono text-[10px] px-1.5 py-0.5 rounded shrink-0" style={{ background: "var(--surface-high)", color: "var(--accent-ink)" }}>T{e.sequence_step}</span>
+                          )}
                           <span className="font-semibold capitalize w-16">{e.channel}</span>
                           <span style={{ color: "var(--muted)" }}>{e.recipient_name || "—"}</span>
                           <span className="ml-auto tabular-nums" style={{ color: "var(--muted)" }}>{new Date(e.created_at).toLocaleString()}</span>
@@ -224,6 +329,14 @@ export default function OutreachPage() {
             </>
           )}
         </div>
+      </div>
+
+      {/* DÜRÜST NOT */}
+      <div className="mt-6 text-[11px] rounded-lg border border-dashed px-3 py-2 leading-relaxed" style={{ borderColor: "var(--outline)", color: "var(--muted)" }}>
+        <strong style={{ color: "var(--warn)" }}>Dürüst durum:</strong> Gerçek posta için <code>LOB_API_KEY</code> + gecelik cron gerekir.
+        Key yokken gönderimler <strong>mock/sandbox</strong>&apos;tır (para harcanmaz) ve kadans zamanı geldiğinde otomatik ilerlemez —
+        yukarıdaki <strong>▶ Kadansı ilerlet (tick)</strong> ile <strong>elle</strong> tetiklersin. Cron kurulunca aynı route gecelik çağrılır.
+        Adım/tarih kolonları için <code>dashboard/sql/outreach_cadence.sql</code> bir kez çalıştırılmalı.
       </div>
     </div>
   );

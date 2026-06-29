@@ -3,6 +3,13 @@ import { supabaseAdmin } from "@/lib/supabase";
 import { enforceRateLimit, requireGate } from "@/lib/api-guard";
 import { PRICING } from "@/lib/pricing";
 import { regionPlaybook } from "@/lib/region-playbook";
+import { afterSend, markResponded, CADENCE_TOTAL_STEPS } from "@/lib/cadence";
+
+// outreach_cadence.sql uygulanmadan önce kadans kolonları yok olabilir; insert
+// o kolonlarla patlarsa bu desenle tanıyıp kolonsuz tekrar deneriz (graceful).
+function isMissingColumn(msg?: string | null): boolean {
+  return /schema cache|does not exist|could not find|column/i.test(msg ?? "");
+}
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -174,6 +181,10 @@ export async function POST(req: NextRequest) {
   const marketValueOverride =
     typeof body.marketValue === "number" && body.marketValue > 0 ? body.marketValue : null;
   const doSend = body.send !== false; // default: send
+  // KADANS: bu gönderim kaçıncı dokunuş? Manuel tek teklif → 1 (offer). Tick
+  // route'u Touch 2/3 için 2/3 geçer. [1..toplam] arası clamp.
+  const rawStep = typeof body.sequenceStep === "number" ? Math.trunc(body.sequenceStep) : 1;
+  const sequenceStep = Math.min(CADENCE_TOTAL_STEPS, Math.max(1, rawStep));
 
   const s = supabaseAdmin();
 
@@ -232,31 +243,51 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // 4) log outreach_events (graceful)
+  // 4) log outreach_events (+ kadans işaretçisi). Gönderim başarılıysa diziyi
+  //    bu dokunuşa göre ilerlet (sequence_step + sıradaki next_action_at). Kolonlar
+  //    yoksa (migration uygulanmamış) kolonsuz tekrar dene — demo asla patlamaz.
+  const base = {
+    lead_ref: lead.id,
+    channel,
+    type,
+    status,
+    provider_id: providerId,
+    recipient_name: lead.owner_name,
+    recipient_address: lead.owner_address,
+    payload_json: { sheet, lob: lobResult },
+    error: errMsg,
+  };
+  // Yalnızca gerçekten gönderildiyse (sent/mock) kadansı ilerlet; failed/queued
+  // diziyi ileriye taşımasın (sonra tekrar denenebilsin).
+  const advanced = status === "sent" || status === "mock";
+  const cadence = advanced ? afterSend(sequenceStep, new Date()) : {};
+
   let eventId: string | null = null;
+  let cadenceApplied = false;
   try {
-    const { data } = await s
+    const { data, error } = await s
       .from("outreach_events")
-      .insert({
-        lead_ref: lead.id,
-        channel,
-        type,
-        status,
-        provider_id: providerId,
-        recipient_name: lead.owner_name,
-        recipient_address: lead.owner_address,
-        payload_json: { sheet, lob: lobResult },
-        error: errMsg,
-      })
+      .insert({ ...base, ...cadence })
       .select("id")
       .maybeSingle();
-    eventId = (data?.id as string) || null;
+    if (error) {
+      if (advanced && isMissingColumn(error.message)) {
+        // kadans kolonları yok → kolonsuz tekrar dene
+        const { data: d2 } = await s.from("outreach_events").insert(base).select("id").maybeSingle();
+        eventId = (d2?.id as string) || null;
+      }
+    } else {
+      eventId = (data?.id as string) || null;
+      cadenceApplied = advanced;
+    }
   } catch { /* graceful — table may not exist yet */ }
 
   return NextResponse.json({
     eventId,
     status,
     channel,
+    sequenceStep,
+    cadence: cadenceApplied ? cadence : null,
     dealSheet: sheet,
     recipient: addr,
     lob: lobResult,
@@ -268,4 +299,45 @@ export async function POST(req: NextRequest) {
           ? "Gönderilemedi — detay için error alanına bak."
           : "Gönderildi.",
   });
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PATCH /api/outreach  → kadansı DURDUR (sahip yanıt verdi).
+//   body: { leadId, responded?: true }
+// Lead'in en yeni outreach_event satırını responded=true + status=paused yapar.
+// Kadans kolonları yoksa graceful no-op ({ ok:false, reason }).
+// ─────────────────────────────────────────────────────────────────────────────
+export async function PATCH(req: NextRequest) {
+  const limited = enforceRateLimit(req, { limit: 30 });
+  if (limited) return limited;
+  const unauth = await requireGate(req);
+  if (unauth) return unauth;
+
+  const body = await req.json().catch(() => ({} as Record<string, unknown>));
+  if (!body.leadId) return NextResponse.json({ error: "leadId required" }, { status: 400 });
+  if (body.responded === false) return NextResponse.json({ ok: false, reason: "responded=false desteklenmiyor" });
+
+  const s = supabaseAdmin();
+  try {
+    // En yeni satır kadans işaretçisini taşır — onu durdur.
+    const { data: recent } = await s
+      .from("outreach_events")
+      .select("id")
+      .eq("lead_ref", body.leadId)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (!recent?.id) return NextResponse.json({ ok: false, reason: "lead için outreach kaydı yok" });
+
+    const { error } = await s.from("outreach_events").update(markResponded()).eq("id", recent.id);
+    if (error) {
+      if (isMissingColumn(error.message)) {
+        return NextResponse.json({ ok: false, reason: "kadans kolonları yok — outreach_cadence.sql uygula" });
+      }
+      return NextResponse.json({ ok: false, reason: error.message });
+    }
+    return NextResponse.json({ ok: true, leadId: body.leadId, eventId: recent.id });
+  } catch (e) {
+    return NextResponse.json({ ok: false, reason: String(e) });
+  }
 }
