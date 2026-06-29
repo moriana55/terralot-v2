@@ -73,7 +73,7 @@ export default function AdminDashboard() {
               <h1 className="text-xl font-extrabold tracking-tight" style={{ color: "#f4f7fb" }}>Komuta Merkezi</h1>
               <p className="text-[11px] mt-0.5" style={{ color: "rgba(244,247,251,0.55)" }}>Cerberus · canlı deal akışı</p>
             </div>
-            <Link href="/admin/acquisitions" className="hidden sm:inline-flex items-center gap-1.5 text-xs font-semibold px-3.5 py-2 rounded-lg transition-opacity hover:opacity-90" style={{ background: "#8ed1df", color: "#06202b" }}>
+            <Link href="/admin/all-deals" className="hidden sm:inline-flex items-center gap-1.5 text-xs font-semibold px-3.5 py-2 rounded-lg transition-opacity hover:opacity-90" style={{ background: "#8ed1df", color: "#06202b" }}>
               En iyi deal'ler <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
@@ -109,7 +109,7 @@ export default function AdminDashboard() {
             {fresh.map((d) => {
               const disc = d.judgment_amount && d.minimum_bid ? Math.round(((d.judgment_amount - d.minimum_bid) / d.judgment_amount) * 100) : null;
               return (
-                <Link key={d.id} href={`/admin/acquisitions?q=${encodeURIComponent(d.county)}`} className="shrink-0 w-44 rounded-lg p-3 border transition-colors hover:bg-[var(--surface-low)]" style={{ borderColor: "var(--surface-high)" }}>
+                <Link key={d.id} href={`/admin/all-deals?q=${encodeURIComponent(d.county)}`} className="shrink-0 w-44 rounded-lg p-3 border transition-colors hover:bg-[var(--surface-low)]" style={{ borderColor: "var(--surface-high)" }}>
                   <div className="flex items-center gap-2 mb-1"><ScoreBadge score={d.final_score} size={28} /><span className="text-xs font-semibold truncate">{d.county}, {d.state}</span></div>
                   <p className="text-[11px]" style={{ color: "var(--muted)" }}>{money(d.minimum_bid)}{disc != null ? ` · -${disc}%` : ""}</p>
                 </Link>
@@ -144,7 +144,7 @@ export default function AdminDashboard() {
             <Target className="w-4 h-4" style={{ color: "var(--accent-ink)" }} />
             <h2 className="font-bold text-sm">Günün en iyi deal'leri</h2>
           </div>
-          <Link href="/admin/acquisitions" className="text-xs font-semibold inline-flex items-center gap-1" style={{ color: "var(--accent-ink)" }}>
+          <Link href="/admin/all-deals" className="text-xs font-semibold inline-flex items-center gap-1" style={{ color: "var(--accent-ink)" }}>
             Tümü <ArrowRight className="w-3 h-3" />
           </Link>
         </div>

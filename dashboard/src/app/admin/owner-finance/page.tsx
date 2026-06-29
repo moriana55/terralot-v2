@@ -131,7 +131,7 @@ export default function OwnerFinancePage() {
       ) : listings.length === 0 ? (
         <div className="text-center py-20 rounded-xl border border-dashed" style={{ borderColor: "var(--outline)", color: "var(--muted)" }}>
           <p className="text-sm font-medium mb-1">Henüz liste yok</p>
-          <p className="text-xs">add_innovation_features_batch2.sql çalıştır, sonra &quot;Yeni Liste&quot; ile ekle.</p>
+          <p className="text-xs">İlk owner-finance ilanını oluşturmak için &quot;Yeni Liste&quot;ye tıkla.</p>
         </div>
       ) : (
         <div className="rounded-xl border overflow-hidden" style={{ background: "var(--surface)", borderColor: "var(--surface-high)" }}>

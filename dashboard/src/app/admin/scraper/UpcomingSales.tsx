@@ -235,7 +235,7 @@ export function UpcomingSales({ max }: { max?: number } = {}) {
                         </a>
                       )}
                       <Link
-                        href={`/admin/acquisitions?src=tax&state=${encodeURIComponent(s.state || "")}`}
+                        href={`/admin/all-deals?src=tax&state=${encodeURIComponent(s.state || "")}`}
                         className="inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1.5 rounded-lg transition-colors hover:opacity-80"
                         style={{ background: "var(--surface-high)", color: "var(--accent-ink)" }}
                         title="Bu eyaletteki dealleri gör"

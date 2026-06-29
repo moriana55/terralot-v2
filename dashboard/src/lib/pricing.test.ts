@@ -13,8 +13,8 @@ test("comp-tabanlı değer → teklif/nakit/finansman aynı değerden türetilir
   assert.equal(p.basis, "county_comp");
   assert.equal(p.confidence, "high");
   assert.equal(p.comps, 10);
-  // teklif (mail) = %20, nakit satış = %65, owner-finance = %90 — hepsi AYNI piyasa değerinden
-  assert.equal(p.offer, 20_000);
+  // teklif (mail) = %25, nakit satış = %65, owner-finance = %90 — hepsi AYNI piyasa değerinden
+  assert.equal(p.offer, 25_000);
   assert.equal(p.cashPrice, 65_000);
   assert.equal(p.financePrice, 90_000);
   // sıralama tutarlı: teklif < nakit < finansman
@@ -34,11 +34,11 @@ test("comp YOKSA fiyat üretme — null + mailSafe=false (uydurma teklif gitmez)
   assert.ok(p.reasons.some((r) => /comp|değer|veri/i.test(r)));
 });
 
-test("küçük parsel (≤$10k) → teklif %20 değil %15 ile sınırlanır (aşırı teklif yok)", () => {
-  // 0.2 acre × $20k = $4k piyasa değeri (≤ $10k eşiği)
+test("küçük parsel de %25 (2026-06-29: ayrı düşük-teklif sınırı kaldırıldı, OFFER_PCT_SMALL=OFFER_PCT)", () => {
+  // 0.2 acre × $20k = $4k piyasa değeri (≤ $10k eşiği — artık teklif yüzdesini düşürmüyor)
   const p = priceParcel({ acres: 0.2, countyRate: 20000, countyComps: 5 });
   assert.equal(p.marketValue, 4_000);
-  assert.equal(p.offer, Math.round(4_000 * PRICING.OFFER_PCT_SMALL)); // 600, %15
+  assert.equal(p.offer, Math.round(4_000 * PRICING.OFFER_PCT_SMALL)); // 1000, %25
 });
 
 test("sadece state comp + az örnek (<3) → mailSafe=false (DOĞRULA, otomatik mail atma)", () => {

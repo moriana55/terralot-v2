@@ -8,14 +8,14 @@ import { dealEconomics } from "./deal-economics.ts";
 import { priceParcel } from "./pricing.ts";
 
 test("gerçek priceParcel çıktısıyla: spread/ROI/marj tutarlı ve pozitif", () => {
-  // 5 acre × $20k/acre = $100k → offer 20k / cash 65k / finance 90k
+  // 5 acre × $20k/acre = $100k → offer 25k / cash 65k / finance 90k
   const p = priceParcel({ acres: 5, countyRate: 20_000, countyComps: 10 });
   const e = dealEconomics({ offer: p.offer, cashPrice: p.cashPrice, financePrice: p.financePrice });
-  assert.equal(e.totalCost, 20_000); // offer, acquisitionCost yok
-  assert.equal(e.cashSpread, 45_000); // 65k − 20k
-  assert.equal(e.cashRoiPct, 225); // 45k/20k × 100
-  // brüt marj = spread / satış fiyatı = 45k/65k ≈ %69.2
-  assert.ok(Math.abs(e.grossMarginPct! - 69.23) < 0.1);
+  assert.equal(e.totalCost, 25_000); // offer, acquisitionCost yok
+  assert.equal(e.cashSpread, 40_000); // 65k − 25k
+  assert.equal(e.cashRoiPct, 160); // 40k/25k × 100
+  // brüt marj = spread / satış fiyatı = 40k/65k ≈ %61.5
+  assert.ok(Math.abs(e.grossMarginPct! - 61.54) < 0.1);
   // owner-finance toplam tahsilat > nakit spread senaryosu → daha yüksek ROI
   assert.ok(e.ownerFinanceTotalCollected! > e.cashSpread!);
   assert.ok(e.ownerFinanceTotalRoiPct! > e.cashRoiPct!);
