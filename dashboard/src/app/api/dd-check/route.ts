@@ -162,6 +162,55 @@ async function checkRoad(lat: number, lon: number) {
   }
 }
 
+// ─── Elektrik (OSM power) ─────────────────────────────────────────────────────
+// Şebeke yakınlığı = arsanın değer + yaşanabilirlik sinyali. OSM'de dağıtım
+// hattı (power=line/minor_line) ve direk (power=pole/tower) sorgulanır. HONEST:
+// veri yoksa "bilinmiyor" döner, asla uydurma mesafe verilmez.
+async function powerWithin(lat: number, lon: number, radius: number) {
+  const query =
+    `[out:json][timeout:15];(` +
+    `way(around:${radius},${lat},${lon})[power~"^(line|minor_line|cable)$"];` +
+    `node(around:${radius},${lat},${lon})[power~"^(pole|tower)$"];` +
+    `);out tags center 1;`;
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), DD_OVERPASS_TIMEOUT_MS);
+  const res = await fetch(OVERPASS_URL, {
+    method: "POST",
+    headers: { "content-type": "application/x-www-form-urlencoded", "user-agent": "TerralotDD/0.1", accept: "application/json" },
+    body: "data=" + encodeURIComponent(query),
+    signal: controller.signal,
+  });
+  clearTimeout(id);
+  if (!res.ok) throw new Error(`Overpass HTTP ${res.status}`);
+  const data: { elements?: { tags?: { power?: string } }[] } = await res.json().catch(() => {
+    throw new Error("Overpass returned invalid JSON");
+  });
+  const el = data.elements?.[0];
+  if (!el) return null;
+  const p = el.tags?.power || "";
+  const kind = /line|minor_line|cable/.test(p) ? "hat" : "direk";
+  return { kind, dist: radius };
+}
+
+async function checkPower(lat: number, lon: number) {
+  try {
+    let hit: { kind: string; dist: number } | null = null;
+    let proximity: "onsite" | "near" | "far" = "far";
+    for (const [radius, type] of [[150, "onsite"], [500, "near"], [1500, "near"]] as const) {
+      hit = await powerWithin(lat, lon, radius);
+      if (hit) { proximity = type; break; }
+    }
+    if (!hit) return { hasPower: false, nearestPowerMeters: null, proximity: "none", powerKind: null, powerNote: "Yakında şebeke hattı bulunamadı (off-grid)" };
+    const note = proximity === "onsite"
+      ? `Şebeke arsada/bitişik (~${hit.dist}m, ${hit.kind})`
+      : `Şebeke yakın (~${hit.dist}m, ${hit.kind})`;
+    return { hasPower: true, nearestPowerMeters: hit.dist, proximity, powerKind: hit.kind, powerNote: note };
+  } catch (err: any) {
+    console.warn("Power API failed:", err.message);
+    return { hasPower: null, nearestPowerMeters: null, proximity: "unknown", powerKind: null, powerNote: "Elektrik verisi alınamadı — haritadan doğrula.", error: err.message, fallback: true };
+  }
+}
+
 // ─── Route ───────────────────────────────────────────────────────────────────
 
 export async function GET(req: NextRequest) {
@@ -181,10 +230,11 @@ export async function GET(req: NextRequest) {
   }
   const { lat, lon } = parsed.data;
 
-  const [flood, road] = await Promise.allSettled([checkFlood(lat, lon), checkRoad(lat, lon)]);
+  const [flood, road, power] = await Promise.allSettled([checkFlood(lat, lon), checkRoad(lat, lon), checkPower(lat, lon)]);
 
   return NextResponse.json({
     flood: flood.status === "fulfilled" ? flood.value : { error: (flood as any).reason?.message },
     road: road.status === "fulfilled" ? road.value : { error: (road as any).reason?.message },
+    power: power.status === "fulfilled" ? power.value : { error: (power as any).reason?.message },
   });
 }

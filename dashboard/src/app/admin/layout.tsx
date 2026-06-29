@@ -20,13 +20,14 @@ const SECTIONS: { label: string | null; wip?: boolean; items: { href: string; ic
   {
     label: "✅ Canlı · Gerçek Veri",
     items: [
+      // NOT: Ucuz Boş Arsa (cheap-land), Gerçek Dealler (dallas) ve Mohave
+      // Off-Market (mohave) sayfaları, "Tüm Dealler"in topladığı 4 kaynağın
+      // alt kümeleri olduğu için nav'dan kaldırıldı (2026-06-29). Aynı veriye
+      // Tüm Dealler içindeki "Kaynak" filtresinden ulaşılır. Sayfalar silinmedi.
       { href: "/admin/all-deals", icon: Target, label: "🔍 Tüm Dealler (Filtre)" },
       { href: "/admin/alinabilir-harita", icon: Map, label: "🗺️ Alınabilir Harita" },
-      { href: "/admin/ucuz-arsa", icon: MapPin, label: "★ Ucuz Boş Arsa" },
       { href: "/admin/tax-leads", icon: FileSearch, label: "Tax Leads" },
       { href: "/admin/off-market-leads", icon: MailPlus, label: "Off-Market Leads" },
-      { href: "/admin/real-deals", icon: CircleDollarSign, label: "★ Gerçek Dealler" },
-      { href: "/admin/mohave", icon: MapPin, label: "★ Mohave Off-Market" },
       { href: "/admin/deal-map", icon: Map, label: "Deal Map" },
       { href: "/admin/scraper", icon: Cpu, label: "Cerberus Botları" },
       { href: "/admin/market-listings", icon: CircleDollarSign, label: "Piyasa İlanları" },

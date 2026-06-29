@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { MapContainer, TileLayer, CircleMarker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 
@@ -11,6 +12,43 @@ export type MapPoint = {
 
 const usd = (n: number) => "$" + Math.round(n).toLocaleString("en-US");
 const GRADE_COLOR: Record<string, string> = { A: "#059669", B: "#0284c7", C: "#94a3b8" };
+
+// Popup açılınca dd-check'i çağırır → ⚡ elektrik + 🛣️ yol rozeti.
+// Sadece tıklanan parsel için çalışır (Leaflet popup içeriği lazy mount).
+function EnrichBadges({ lat, lng }: { lat: number; lng: number }) {
+  const [state, setState] = useState<{ loading: boolean; power?: any; road?: any; err?: boolean }>({ loading: true });
+  useEffect(() => {
+    let alive = true;
+    fetch(`/api/dd-check?lat=${lat}&lon=${lng}`)
+      .then((r) => r.json())
+      .then((d) => { if (alive) setState({ loading: false, power: d.power, road: d.road }); })
+      .catch(() => { if (alive) setState({ loading: false, err: true }); });
+    return () => { alive = false; };
+  }, [lat, lng]);
+
+  if (state.loading) return <div style={{ color: "#94a3b8", fontSize: 11, marginTop: 4 }}>⚡🛣️ çevre kontrol ediliyor…</div>;
+  if (state.err) return <div style={{ color: "#94a3b8", fontSize: 11, marginTop: 4 }}>Çevre verisi alınamadı</div>;
+
+  const p = state.power ?? {}, r = state.road ?? {};
+  const powerBadge = p.hasPower === true
+    ? { t: `⚡ Elektrik ${p.proximity === "onsite" ? "bitişik" : "yakın"} (~${p.nearestPowerMeters}m)`, c: "#047857", bg: "#ecfdf5" }
+    : p.hasPower === false
+    ? { t: "⚡ Off-grid (şebeke yok)", c: "#92400e", bg: "#fffbeb" }
+    : { t: "⚡ Elektrik: bilinmiyor", c: "#64748b", bg: "#f1f5f9" };
+  const roadBadge = r.hasRoadAccess === true
+    ? { t: `🛣️ ${r.surface === "paved" ? "Asfalt" : r.surface === "gravel" ? "Stabilize" : r.surface === "dirt" ? "Toprak" : "Yol"} ${r.accessType === "direct" ? "erişimi" : "yakın"} (~${r.nearestRoadMeters}m)`, c: "#1d4ed8", bg: "#eff6ff" }
+    : r.hasRoadAccess === false
+    ? { t: "🛣️ Yol erişimi YOK (landlocked)", c: "#b91c1c", bg: "#fef2f2" }
+    : { t: "🛣️ Yol: bilinmiyor", c: "#64748b", bg: "#f1f5f9" };
+
+  return (
+    <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginTop: 6 }}>
+      {[powerBadge, roadBadge].map((b, i) => (
+        <span key={i} style={{ fontSize: 10, fontWeight: 600, color: b.c, background: b.bg, borderRadius: 4, padding: "2px 6px" }}>{b.t}</span>
+      ))}
+    </div>
+  );
+}
 
 export default function DealsMap({ points }: { points: MapPoint[] }) {
   if (!points.length) return null;
@@ -47,6 +85,7 @@ export default function DealsMap({ points }: { points: MapPoint[] }) {
               <div>Piyasa: <b>{p.marketValue ? usd(p.marketValue) : "comp gerekli"}</b></div>
               <div>Teklif: <b style={{ color: "#059669" }}>{p.estOffer ? usd(p.estOffer) : "—"}</b> · Spread: <b style={{ color: "#059669" }}>{p.spread ? usd(p.spread) : "—"}</b></div>
               <a href={`https://www.google.com/maps/@${p.lat},${p.lng},600m/data=!3m1!1e3`} target="_blank" rel="noreferrer" style={{ color: "#0284c7" }}>🛰️ Uydu</a>
+              <EnrichBadges lat={p.lat} lng={p.lng} />
             </div>
           </Popup>
         </CircleMarker>
