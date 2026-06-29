@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { MapContainer, TileLayer, CircleMarker, Popup, LayersControl } from "react-leaflet";
+import { MapContainer, TileLayer, CircleMarker, Popup, LayersControl, Polygon } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 
 export type MapPoint = {
@@ -23,6 +23,18 @@ const BASIS_LABEL: Record<string, string> = {
 };
 const GRADE_COLOR: Record<string, string> = { A: "#059669", B: "#0284c7", C: "#94a3b8" };
 
+// Parselin TAHMİNİ alanı: acres → merkeze oturmuş kare polygon. Kabaca "ne kadar yer
+// kaplar" görseli — GERÇEK tapu sınırı DEĞİL (onun için Regrid parsel geometrisi gerek).
+function parcelBounds(lat: number, lng: number, acres: number): [number, number][] {
+  const side = Math.sqrt(Math.max(acres, 0.05) * 4046.86); // metre kenar
+  const dLat = (side / 2) / 111320;
+  const dLng = (side / 2) / (111320 * Math.cos((lat * Math.PI) / 180));
+  return [
+    [lat - dLat, lng - dLng], [lat - dLat, lng + dLng],
+    [lat + dLat, lng + dLng], [lat + dLat, lng - dLng],
+  ];
+}
+
 // Harita üstü açıklama kutusu — bakışta "ne neymiş" belli olsun (Ahmet'e anlatırken).
 // Hem BİZİM marker'larımızı hem OSM altlık işaretlerini (üçgen=dağ, çizgiler) ayırt eder.
 const dot = (c: string): React.CSSProperties => ({
@@ -32,6 +44,10 @@ const dot = (c: string): React.CSSProperties => ({
 const ringStyle: React.CSSProperties = {
   display: "inline-block", width: 11, height: 11, borderRadius: "50%",
   border: "2px solid #d97706", background: "transparent", marginRight: 5, verticalAlign: "middle",
+};
+const squareStyle: React.CSSProperties = {
+  display: "inline-block", width: 11, height: 11,
+  border: "1.5px dashed #d97706", background: "rgba(245,158,11,0.15)", marginRight: 5, verticalAlign: "middle",
 };
 
 function MapLegend() {
@@ -67,6 +83,7 @@ function MapLegend() {
       <div><span style={dot(GRADE_COLOR.B)} />B deal</div>
       <div><span style={dot(GRADE_COLOR.C)} />C deal</div>
       <div><span style={ringStyle} />Halka = absentee (eyalet-dışı motive sahip)</div>
+      <div><span style={squareStyle} />Turuncu kesik kare = parselin ~tahmini alanı (marker'a tıkla)</div>
       <hr style={{ border: "none", borderTop: "1px solid #e2e8f0", margin: "6px 0" }} />
       <div style={{ fontWeight: 600, color: "#64748b" }}>Altlık (OpenStreetMap — bizim değil):</div>
       <div>🔺 kahverengi üçgen = dağ zirvesi</div>
@@ -118,6 +135,7 @@ function EnrichBadges({ lat, lng }: { lat: number; lng: number }) {
 }
 
 export default function DealsMap({ points }: { points: MapPoint[] }) {
+  const [selected, setSelected] = useState<MapPoint | null>(null);
   if (!points.length) return null;
   const lat = points.reduce((s, p) => s + p.lat, 0) / points.length;
   const lng = points.reduce((s, p) => s + p.lng, 0) / points.length;
@@ -147,6 +165,14 @@ export default function DealsMap({ points }: { points: MapPoint[] }) {
           </LayersControl.Overlay>
         </LayersControl>
 
+        {/* Seçili parselin TAHMİNİ alanı (marker'a tıklayınca) — turuncu kesik kare. */}
+        {selected && (
+          <Polygon
+            positions={parcelBounds(selected.lat, selected.lng, selected.acres)}
+            pathOptions={{ color: "#d97706", weight: 2, dashArray: "6 4", fillColor: "#f59e0b", fillOpacity: 0.12 }}
+          />
+        )}
+
         {points.map((p) => {
           const color = GRADE_COLOR[p.dealGrade ?? ""] ?? "#cbd5e1";
           const r = p.dealGrade === "A" ? 6 : 4;
@@ -164,6 +190,10 @@ export default function DealsMap({ points }: { points: MapPoint[] }) {
                 center={[p.lat, p.lng]}
                 radius={r}
                 pathOptions={{ color: "#fff", weight: 1, fillColor: color, fillOpacity: 0.85 }}
+                eventHandlers={{
+                  popupopen: () => setSelected(p),
+                  popupclose: () => setSelected((s) => (s?.id === p.id ? null : s)),
+                }}
               >
                 <Popup>
                   <div style={{ fontSize: 12, lineHeight: 1.5, minWidth: 180 }}>
@@ -184,6 +214,7 @@ export default function DealsMap({ points }: { points: MapPoint[] }) {
                       </div>
                     )}
                     <div>Teklif: <b style={{ color: "#059669" }}>{p.estOffer ? usd(p.estOffer) : "—"}</b> · Spread: <b style={{ color: "#059669" }}>{p.spread ? usd(p.spread) : "—"}</b></div>
+                    <div style={{ fontSize: 10, color: "#94a3b8" }}>🟧 Haritada ~{p.acres?.toFixed(2)} acre tahmini alan (kare yaklaşık, gerçek tapu sınırı değil)</div>
                     <a href={`https://www.google.com/maps/@${p.lat},${p.lng},600m/data=!3m1!1e3`} target="_blank" rel="noreferrer" style={{ color: "#0284c7" }}>🛰️ Uydu</a>
                     <EnrichBadges lat={p.lat} lng={p.lng} />
                   </div>
