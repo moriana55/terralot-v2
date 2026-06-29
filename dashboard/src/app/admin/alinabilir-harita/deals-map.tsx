@@ -54,7 +54,7 @@ function MapLegend() {
       <div><span style={{ color: "#7dd3fc" }}>┅</span> açık mavi kesik = <b>kuru dere / çöl washı</b> (yağışta akar → sel riski)</div>
       <div>┄ kesik gri çizgi = ilçe sınırı · ▦ paralel = demiryolu</div>
       <div style={{ marginTop: 5, color: "#64748b", fontStyle: "italic" }}>
-        Parselin yol/elektrik/sel detayı için marker'a tıkla → popup (🛣️⚡). Araziyi gerçek görmek için sağ üstten "Uydu" katmanı.
+        Sağ üstten: <b>"Uydu"</b> = gerçek arazi · <b>"🛣️ Yollar"</b> = yollar+isimler üstte (uydu'da bile kalın/net). Parselin yol/elektrik/sel detayı için marker'a tıkla → popup.
       </div>
     </div>
   );
@@ -117,6 +117,14 @@ export default function DealsMap({ points }: { points: MapPoint[] }) {
               maxZoom={19}
             />
           </LayersControl.BaseLayer>
+          {/* Şeffaf yol+isim overlay'i — uydu'nun BİLE üstünde yolları kalın/isimli gösterir. */}
+          <LayersControl.Overlay checked name="🛣️ Yollar + isimler (üstte)">
+            <TileLayer
+              attribution="&copy; Esri World Transportation"
+              url="https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}"
+              maxZoom={19}
+            />
+          </LayersControl.Overlay>
         </LayersControl>
 
         {points.map((p) => {
