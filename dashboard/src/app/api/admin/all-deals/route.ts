@@ -358,6 +358,20 @@ export async function GET(req: NextRequest) {
   });
 
   const total = filtered.length;
+
+  // ── Map mode: tüm noktalar (sayfalamadan, lat/lng olanlar, capped) ──
+  if (sp.get("map") === "1") {
+    const points = filtered
+      .filter((d) => d.lat != null && d.lng != null)
+      .slice(0, 3000)
+      .map((d) => ({
+        id: d.id, lat: d.lat, lng: d.lng, owner: d.owner, region: d.region,
+        acres: d.acres, marketValue: d.marketValue, estOffer: d.estOffer,
+        spread: d.spread, dealGrade: d.dealGrade, absentee: d.absentee, apn: d.apn,
+      }));
+    return NextResponse.json({ total, mapped: points.length, points });
+  }
+
   const rows = filtered.slice((page - 1) * pageSize, (page - 1) * pageSize + pageSize);
 
   // ── Real-data stats over the filtered set (CoStar-style summary) ──

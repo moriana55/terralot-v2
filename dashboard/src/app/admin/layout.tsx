@@ -21,6 +21,7 @@ const SECTIONS: { label: string | null; wip?: boolean; items: { href: string; ic
     label: "✅ Canlı · Gerçek Veri",
     items: [
       { href: "/admin/all-deals", icon: Target, label: "🔍 Tüm Dealler (Filtre)" },
+      { href: "/admin/alinabilir-harita", icon: Map, label: "🗺️ Alınabilir Harita" },
       { href: "/admin/ucuz-arsa", icon: MapPin, label: "★ Ucuz Boş Arsa" },
       { href: "/admin/tax-leads", icon: FileSearch, label: "Tax Leads" },
       { href: "/admin/off-market-leads", icon: MailPlus, label: "Off-Market Leads" },

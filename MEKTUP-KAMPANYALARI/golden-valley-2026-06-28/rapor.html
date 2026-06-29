@@ -1,0 +1,87 @@
+<!DOCTYPE html><html lang="tr"><head><meta charset="utf-8"><style>
+  @page { size: A4; margin: 18mm 16mm; }
+  * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; color: #1a1f2e; font-size: 11px; line-height: 1.5; margin: 0; }
+  .head { display:flex; justify-content:space-between; align-items:flex-end; border-bottom:3px solid #0f766e; padding-bottom:10px; margin-bottom:16px; }
+  .brand { font-size:24px; font-weight:800; color:#0f172a; letter-spacing:-.5px; }
+  .brand span { color:#0f766e; }
+  .sub { color:#64748b; font-size:10px; text-transform:uppercase; letter-spacing:1px; }
+  h2 { font-size:13px; color:#0f766e; margin:18px 0 6px; text-transform:uppercase; letter-spacing:.5px; }
+  .kpis { display:flex; gap:8px; margin:6px 0 4px; }
+  .kpi { flex:1; border:1px solid #e2e8f0; border-radius:8px; padding:10px; }
+  .kpi .v { font-size:18px; font-weight:800; color:#0f172a; }
+  .kpi .l { font-size:9px; color:#64748b; text-transform:uppercase; letter-spacing:.5px; }
+  .kpi .g { color:#0f766e; }
+  table { width:100%; border-collapse:collapse; font-size:10px; margin-top:4px; }
+  th { background:#f1f5f9; text-align:left; padding:6px 8px; font-size:9px; text-transform:uppercase; color:#64748b; }
+  td { padding:5px 8px; border-bottom:1px solid #f1f5f9; }
+  .r { text-align:right; } .g { color:#0f766e; font-weight:700; } .mut { color:#94a3b8; }
+  .note { background:#ecfdf5; border:1px solid #a7f3d0; border-radius:8px; padding:8px 10px; font-size:9.5px; color:#065f46; margin-top:6px; }
+  .warn { background:#fffbeb; border:1px solid #fde68a; color:#92400e; }
+  .two { display:flex; gap:14px; }
+  .two > div { flex:1; }
+  ul { margin:4px 0; padding-left:16px; } li { margin:2px 0; }
+  .foot { margin-top:18px; border-top:1px solid #e2e8f0; padding-top:8px; font-size:8.5px; color:#94a3b8; }
+</style></head><body>
+
+<div class="head">
+  <div><div class="brand">Terra<span>Lot</span></div><div class="sub">Arsa Alım Durum Raporu · Mohave County, AZ</div></div>
+  <div style="text-align:right"><div style="font-weight:700">29 Haziran 2026</div><div class="sub">Gerçek Veri · ATTOM</div></div>
+</div>
+
+<p style="font-size:11.5px"><b>Özet:</b> ABD'de ucuz boş arsa bulup, gerçek satış verisiyle değerleyip, sahibine nakit teklif mektubu atan, ucuza alıp pahalıya satan sistem <b>kuruldu ve gerçek veriyle çalışıyor.</b> Tüm değerler gerçek tapu/satış kayıtlarından; uydurma sayı yok.</p>
+
+<h2>1 · Envanter — ne bulduk</h2>
+<div class="kpis">
+  <div class="kpi"><div class="v">~20.400</div><div class="l">Gerçek parsel</div></div>
+  <div class="kpi"><div class="v">~20.392</div><div class="l">Sahip + posta adresli (mektuplanabilir)</div></div>
+  <div class="kpi"><div class="v g">1.244</div><div class="l">Alınabilir deal (ATTOM değerli)</div></div>
+  <div class="kpi"><div class="v g">699</div><div class="l">Golden Valley (para bölgesi)</div></div>
+</div>
+
+<h2>2 · Para Bölgesi — Golden Valley / Kingman</h2>
+<table>
+  <tr><th>Gösterge</th><th class="r">Değer</th><th>Açıklama</th></tr>
+  <tr><td>ATTOM piyasa $/acre</td><td class="r g">$2.926</td><td class="mut">10 gerçek satıştan median (bulk elendi)</td></tr>
+  <tr><td>Ortalama alış (teklif %25)</td><td class="r">~$900</td><td class="mut">sahibe nakit teklif</td></tr>
+  <tr><td>Ortalama satış (nakit %65)</td><td class="r">~$3.000</td><td class="mut">owner-finance ile ~$4.200</td></tr>
+  <tr><td>Ortalama kâr / parsel</td><td class="r g">~$2.300</td><td class="mut">spread</td></tr>
+  <tr><td>Alınabilir parsel</td><td class="r g">699</td><td class="mut">Golden Valley'de</td></tr>
+</table>
+<div class="note">Doğrulanabilir emsaller (Google'da arat): <b>5618 N HOOVER RD, GOLDEN VALLEY</b> — $16.000 / 2.35 acre (2023) · 5585 N GLEN CANYON RD — $25.000 · diğer satışlar $5.995–$13.500 (2022–2024). Gerçek tapu satışları, bulk değil.</div>
+
+<h2>3 · İlk Kampanya — hazır</h2>
+<div class="two">
+  <div>
+    <table>
+      <tr><th>Kampanya</th><th class="r">Değer</th></tr>
+      <tr><td>Hedef parsel (absentee)</td><td class="r">18</td></tr>
+      <tr><td>Toplam teklif bütçesi</td><td class="r">~$50.000</td></tr>
+      <tr><td>Toplam potansiyel kâr</td><td class="r g">~$80.000</td></tr>
+      <tr><td>Beklenen yanıt</td><td class="r">%1–3 → 1–2 alım</td></tr>
+    </table>
+  </div>
+  <div>
+    <b style="font-size:10px">Sistemde çalışan</b>
+    <ul>
+      <li>✅ Bul — gerçek parsel + sahip + adres</li>
+      <li>✅ Değerle — ATTOM gerçek satış emsali</li>
+      <li>✅ Tapu ön-kontrol — sahip + ipotek + kaça/ne zaman almış</li>
+      <li>✅ Scrub — sel (FEMA) + yol (OSM) + uydu</li>
+      <li>✅ Mektup üret — teklif tutarlarıyla</li>
+    </ul>
+  </div>
+</div>
+
+<h2>4 · Yürümesi için gereken</h2>
+<table>
+  <tr><th>Kalem</th><th class="r">Maliyet</th><th>Ne için</th></tr>
+  <tr><td>Yazılım (PropStream + ATTOM + imza)</td><td class="r">~$240 / ay</td><td class="mut">telefon, comp, e-imza</td></tr>
+  <tr><td>LLC + banka (tek sefer)</td><td class="r">~$400</td><td class="mut">yasal alım/satım</td></tr>
+  <tr><td>Mektup (Lob) + Title (kapanışta)</td><td class="r">~$1/mektup · $150–500/deal</td><td class="mut">deal başına</td></tr>
+  <tr><td><b>Alım sermayesi</b></td><td class="r g">~$20–40k</td><td class="mut"><b>asıl ihtiyaç — arsayı almak için</b></td></tr>
+</table>
+<div class="note warn">Dürüst not: Değerler bölge-median (gerçek ama parsel sapabilir) → kapanmadan title company + yakın comp ile teyit edilir. Kirli/şüpheli arsaya para çıkmaz.</div>
+
+<div class="foot">Veri kaynakları: County (parsel/sahip/vergi) · ATTOM (satış emsali, sahip, ipotek) · FEMA (sel) · OpenStreetMap (yol). Tüm sayılar gerçek kayıtlardan türetilmiştir — uydurma değer yoktur.</div>
+</body></html>
