@@ -8,9 +8,19 @@ export type MapPoint = {
   id: string; lat: number; lng: number; owner: string; region: string;
   acres: number; marketValue: number | null; estOffer: number; spread: number;
   dealGrade: string | null; absentee: boolean; apn: string;
+  valBasis?: string | null; comps?: number; valAsOf?: string | null;
 };
 
 const usd = (n: number) => "$" + Math.round(n).toLocaleString("en-US");
+
+// Değerleme temeli → insan-okur etiket (kartta "neye göre" sorusunu yanıtlar).
+const BASIS_LABEL: Record<string, string> = {
+  attom_region: "ATTOM bölge emsali",
+  county_comp: "county emsal",
+  state_comp: "eyalet emsali",
+  mismatch: "⚠ doğrulama gerek",
+  none: "emsal yok",
+};
 const GRADE_COLOR: Record<string, string> = { A: "#059669", B: "#0284c7", C: "#94a3b8" };
 
 // Popup açılınca dd-check'i çağırır → ⚡ elektrik + 🛣️ yol rozeti.
@@ -83,6 +93,13 @@ export default function DealsMap({ points }: { points: MapPoint[] }) {
               <div style={{ color: "#64748b" }}>{p.region} · {p.acres?.toFixed(2)} acre {p.absentee ? "· absentee" : ""}</div>
               <hr style={{ border: "none", borderTop: "1px solid #eee", margin: "5px 0" }} />
               <div>Piyasa: <b>{p.marketValue ? usd(p.marketValue) : "comp gerekli"}</b></div>
+              {p.marketValue != null && (
+                <div style={{ fontSize: 10, color: "#94a3b8" }}>
+                  {BASIS_LABEL[p.valBasis ?? "none"] ?? p.valBasis}
+                  {p.comps ? ` · ${p.comps} emsal` : ""}
+                  {p.valAsOf ? ` · ${p.valAsOf.slice(0, 10)}` : ""}
+                </div>
+              )}
               <div>Teklif: <b style={{ color: "#059669" }}>{p.estOffer ? usd(p.estOffer) : "—"}</b> · Spread: <b style={{ color: "#059669" }}>{p.spread ? usd(p.spread) : "—"}</b></div>
               <a href={`https://www.google.com/maps/@${p.lat},${p.lng},600m/data=!3m1!1e3`} target="_blank" rel="noreferrer" style={{ color: "#0284c7" }}>🛰️ Uydu</a>
               <EnrichBadges lat={p.lat} lng={p.lng} />

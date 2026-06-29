@@ -17,6 +17,8 @@ import attomPpaData from "@/data/attom-ppa.json";
 
 // ATTOM gerçek satış $/acre — bölge bazında (offline script ile üretildi).
 const ATTOM_PPA = (attomPpaData as { ppa?: Record<string, { ppa: number; n: number }> }).ppa ?? {};
+// Değerlemenin "as-of" tarihi: ATTOM emsal verisi en son ne zaman çekildi (şeffaflık).
+const ATTOM_ASOF: string | null = (attomPpaData as { generatedAt?: string }).generatedAt ?? null;
 
 export type UnifiedDeal = {
   id: string;
@@ -369,6 +371,8 @@ export async function GET(req: NextRequest) {
         acres: d.acres, marketValue: d.marketValue, estOffer: d.estOffer,
         spread: d.spread, dealGrade: d.dealGrade, absentee: d.absentee, apn: d.apn,
         address: d.address, county: d.county, state: d.state,
+        valBasis: d.valBasis, comps: d.comps,
+        valAsOf: d.valBasis === "attom_region" ? ATTOM_ASOF : null,
       }));
     return NextResponse.json({ total, mapped: points.length, points });
   }
