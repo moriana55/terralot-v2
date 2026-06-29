@@ -64,3 +64,9 @@ if [ -n "${TELEGRAM_BOT_TOKEN:-}" ] && [ -n "${TELEGRAM_CHAT_ID:-}" ]; then
     --data-urlencode "chat_id=${TELEGRAM_CHAT_ID}" \
     --data-urlencode "text=🐺 Cerberus koşusu bitti ${TS} · ${WARNS} uyarı · ${LOG}" >/dev/null 2>&1 || true
 fi
+
+# 6) Per-source freshness/staleness check (kaynak bazlı bayatlık + satır düşüşü).
+# Supabase'den kaynak başına son tarih + satır sayısını çeker, önceki snapshot ile
+# kıyaslar; sorun varsa (token varsa) Telegram'a "⚠ STALE/DROP" yollar. Token boşsa
+# stdout'a yazar. Tablo/kolon eksikse o kaynağı atlar, koşuyu DÜŞÜRMEZ.
+step node freshness-check.mjs
