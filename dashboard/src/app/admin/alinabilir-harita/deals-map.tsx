@@ -21,6 +21,7 @@ const usd = (n: number) => "$" + Math.round(n).toLocaleString("en-US");
 // Filtre eşikleri.
 const BIG_SPREAD = 5000; // "spread büyük" eşiği ($)
 const NEAR_COMP_MI = 10; // "rakibe yakın" eşiği (mil)
+const ACCESS_MAX_MI = 25; // en yakın anayol/şehir bunu aşarsa "uzak / erişim zayıf"
 
 // Değerleme temeli → insan-okur etiket (kartta "neye göre" sorusunu yanıtlar).
 const BASIS_LABEL: Record<string, string> = {
@@ -171,6 +172,7 @@ function MapLegend() {
       <div><span style={dot(GRADE_COLOR.B)} />B deal</div>
       <div><span style={dot(GRADE_COLOR.C)} />C deal</div>
       <div><span style={ringStyle} />Halka = absentee (eyalet-dışı motive sahip)</div>
+      <div><span style={{ display: "inline-block", width: 11, height: 11, borderRadius: "50%", border: "1.5px solid #94a3b8", background: "rgba(148,163,184,0.4)", marginRight: 5, verticalAlign: "middle" }} />Soluk gri kenar = uzak/erişim zayıf (anayol/şehir &gt;{ACCESS_MAX_MI}mi · grade DEĞİŞMEZ)</div>
       <div><span style={squareStyle} />Turuncu kare = parselin ~tahmini alanı (yaklaşık)</div>
       <div><span style={realBoundaryStyle} />Yeşil dolgu = <b>gerçek tapu sınırı (Regrid)</b> · seçili parsel</div>
       <div><span style={compLegendStyle} />Kırmızı elmas = <b>rakip ilanı</b> (yaklaşık konum, şehir merkezi)</div>
@@ -397,6 +399,7 @@ type Filters = {
   bigSpread: boolean;
   nearComp: boolean;
   multiOwner: boolean;
+  nearAccess: boolean; // sadece yakın-erişim (≤25mi anayol/şehir) — uzakları gizle
 };
 const chipStyle = (active: boolean): React.CSSProperties => ({
   fontSize: 11, fontWeight: 600, padding: "3px 8px", borderRadius: 6, cursor: "pointer",
@@ -434,6 +437,7 @@ function FilterPanel({
     { k: "bigSpread", label: `Spread ≥ $${(BIG_SPREAD / 1000).toFixed(0)}k` },
     { k: "nearComp", label: `Rakibe ≤${NEAR_COMP_MI}mi` },
     { k: "multiOwner", label: "Çoklu-parsel sahip" },
+    { k: "nearAccess", label: `Yakın-erişim ≤${ACCESS_MAX_MI}mi` },
   ];
   const roadCats: RoadCat[] = ["highway", "paved", "dirt", "service"];
   return (
@@ -507,7 +511,7 @@ export default function DealsMap({ points }: { points: MapPoint[] }) {
   const [showAreas, setShowAreas] = useState(true);
   const [competitors, setCompetitors] = useState<CompMarker[]>([]);
   const [showComp, setShowComp] = useState(true);
-  const [filters, setFilters] = useState<Filters>({ grade: "", absentee: false, comp: false, bigSpread: false, nearComp: false, multiOwner: false });
+  const [filters, setFilters] = useState<Filters>({ grade: "", absentee: false, comp: false, bigSpread: false, nearComp: false, multiOwner: false, nearAccess: false });
   const setF = (u: Partial<Filters>) => setFilters((p) => ({ ...p, ...u }));
   // OSM yol-tipi katmanı (varsayılan KAPALI — açınca Overpass çalışır).
   const [showRoads, setShowRoads] = useState(false);
@@ -547,6 +551,21 @@ export default function DealsMap({ points }: { points: MapPoint[] }) {
     };
   }, [competitors]);
 
+  // Erişim/uzaklık sinyali — en yakın ŞEHİR + ANAYOL (geo-proximity, yaklaşık sabit
+  // referans). dealGrade'i DEĞİŞTİRMEZ; AYRI dürüst sinyal. Parsel başına 1 kez hesap.
+  const accessByPoint = useMemo(() => {
+    const m = new Map<string, { far: boolean; cityMi: number | null; hwyMi: number | null }>();
+    for (const p of points) {
+      const city = nearestRef(p.lat, p.lng, "city");
+      const hwy = nearestRef(p.lat, p.lng, "highway");
+      const cityMi = city ? city.miles : null;
+      const hwyMi = hwy ? hwy.miles : null;
+      const far = (hwyMi != null && hwyMi > ACCESS_MAX_MI) || (cityMi != null && cityMi > ACCESS_MAX_MI);
+      m.set(p.id, { far, cityMi, hwyMi });
+    }
+    return m;
+  }, [points]);
+
   // Görünür parseller — filtreden geçenler.
   const visiblePoints = useMemo(() => {
     return points.filter((p) => {
@@ -559,10 +578,11 @@ export default function DealsMap({ points }: { points: MapPoint[] }) {
         const m = nearestCompMiles(p.lat, p.lng);
         if (m == null || m > NEAR_COMP_MI) return false;
       }
+      if (filters.nearAccess && accessByPoint.get(p.id)?.far) return false;
       return true;
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [points, filters, ownerCounts, nearestCompMiles]);
+  }, [points, filters, ownerCounts, nearestCompMiles, accessByPoint]);
 
   if (!points.length) return null;
   const lat = points.reduce((s, p) => s + p.lat, 0) / points.length;
@@ -625,6 +645,11 @@ export default function DealsMap({ points }: { points: MapPoint[] }) {
           const color = GRADE_COLOR[p.dealGrade ?? ""] ?? "#cbd5e1";
           const r = p.dealGrade === "A" ? 6 : 4;
           const oc = ownerCount(p.owner);
+          const acc = accessByPoint.get(p.id);
+          // Uzak parsel → marker kenarı SOLUK GRİ + biraz şeffaf (görsel ipucu).
+          // dealGrade RENGİ (fillColor) DEĞİŞMEZ — sadece kenar/şeffaflık.
+          const edge = acc?.far ? "#94a3b8" : "#fff";
+          const fillOp = acc?.far ? 0.55 : 0.85;
           return (
             <div key={p.id}>
               {/* Absentee = eyalet-dışı motive sahip → marker'ın etrafında amber halka (tıklamadan belli). */}
@@ -638,7 +663,7 @@ export default function DealsMap({ points }: { points: MapPoint[] }) {
               <CircleMarker
                 center={[p.lat, p.lng]}
                 radius={r}
-                pathOptions={{ color: "#fff", weight: 1, fillColor: color, fillOpacity: 0.85 }}
+                pathOptions={{ color: edge, weight: acc?.far ? 1.5 : 1, fillColor: color, fillOpacity: fillOp }}
                 eventHandlers={{
                   popupopen: () => { setSelected(p); setSelRealBoundary(false); },
                   popupclose: () => setSelected((s) => (s?.id === p.id ? null : s)),
@@ -677,6 +702,27 @@ export default function DealsMap({ points }: { points: MapPoint[] }) {
                         <div style={{ marginTop: 6, padding: "5px 7px", background: "#f8fafc", borderRadius: 5, fontSize: 10, lineHeight: 1.45 }}>
                           <div style={{ color: "#0f172a" }}><b>Satış açısı:</b> {pb.salesAngle}</div>
                           <div style={{ color: "#b45309", marginTop: 2 }}>⚠ {pb.zoningNote}</div>
+                        </div>
+                      );
+                    })()}
+                    {(() => {
+                      // ERİŞİM/UZAKLIK ROZETİ — dealGrade'den AYRI dürüst sinyal. "A deal" görünen
+                      // ama dağlık + çok uzak parsel aslında zayıf; bunu görünür yapar (grade'e dokunmaz).
+                      const a = acc ?? { far: false, cityMi: null, hwyMi: null };
+                      const refMi = a.hwyMi ?? a.cityMi; // gösterimde anayol önce
+                      const refTxt = refMi != null ? `anayol ${Math.round(a.hwyMi ?? refMi)}mi` : "mesafe yok";
+                      return (
+                        <div
+                          style={{
+                            marginTop: 5, fontSize: 11, fontWeight: 600, borderRadius: 5, padding: "3px 7px",
+                            color: a.far ? "#92400e" : "#047857",
+                            background: a.far ? "#fffbeb" : "#ecfdf5",
+                            border: `1px solid ${a.far ? "#fcd34d" : "#a7f3d0"}`,
+                          }}
+                        >
+                          {a.far
+                            ? `⚠ Uzak — erişim zayıf (${refTxt})`
+                            : `✓ Erişim iyi (${refTxt})`}
                         </div>
                       );
                     })()}
