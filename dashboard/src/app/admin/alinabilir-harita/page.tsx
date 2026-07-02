@@ -14,10 +14,21 @@ const DealsMap = dynamic(() => import("./deals-map"), {
   ),
 });
 
+// 3D mod (MapLibre GL + arazi) — 2D varsayılan kalır, 3D isteğe bağlı yüklenir.
+const DealsMap3D = dynamic(() => import("./deals-map-3d"), {
+  ssr: false,
+  loading: () => (
+    <div className="flex h-full items-center justify-center text-slate-400">
+      <Loader2 className="h-6 w-6 animate-spin" />
+    </div>
+  ),
+});
+
 export default function AlinabilirHaritaPage() {
   const [points, setPoints] = useState<MapPoint[]>([]);
   const [loading, setLoading] = useState(true);
   const [minGrade, setMinGrade] = useState("B"); // A+B varsayılan
+  const [mode3d, setMode3d] = useState(false); // 2D Leaflet varsayılan; 3D = MapLibre + arazi
 
   useEffect(() => {
     setLoading(true);
@@ -48,6 +59,14 @@ export default function AlinabilirHaritaPage() {
         </div>
         <div className="flex items-center gap-3">
           <div className="flex gap-1">
+            {[[false, "2D"], [true, "3D Arazi"]].map(([v, l]) => (
+              <button key={String(l)} onClick={() => setMode3d(v as boolean)}
+                className={`rounded-lg px-3 py-1.5 text-xs font-semibold ${mode3d === v ? "bg-cyan-700 text-white" : "bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-50"}`}>
+                {l as string}
+              </button>
+            ))}
+          </div>
+          <div className="flex gap-1">
             {[["A", "Sadece A"], ["B", "A + B"], ["", "Hepsi"]].map(([v, l]) => (
               <button key={l} onClick={() => setMinGrade(v)}
                 className={`rounded-lg px-3 py-1.5 text-xs font-semibold ${minGrade === v ? "bg-slate-900 text-white" : "bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-50"}`}>
@@ -72,7 +91,7 @@ export default function AlinabilirHaritaPage() {
         {!loading && points.length === 0 && (
           <div className="flex h-full items-center justify-center text-slate-400">Koordinatlı alınabilir parsel yok.</div>
         )}
-        {points.length > 0 && <DealsMap points={points} />}
+        {points.length > 0 && (mode3d ? <DealsMap3D points={points} /> : <DealsMap points={points} />)}
       </div>
     </div>
   );
