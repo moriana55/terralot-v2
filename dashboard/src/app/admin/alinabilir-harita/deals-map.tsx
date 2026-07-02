@@ -1019,6 +1019,13 @@ export default function DealsMap({ points }: { points: MapPoint[] }) {
                       >
                         📸 Satılık görseli
                       </button>
+                      <a
+                        href={`/admin/parcel-sunum?id=${encodeURIComponent(p.id)}`}
+                        target="_blank" rel="noreferrer"
+                        style={{ background: "#0f172a", color: "#fff", borderRadius: 5, padding: "3px 8px", fontSize: 11, fontWeight: 600, textDecoration: "none" }}
+                      >
+                        🖨 Tek Sayfa (PDF)
+                      </a>
                     </div>
                     <EnrichBadges lat={p.lat} lng={p.lng} />
                   </div>

@@ -115,8 +115,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   return (
     <div className="min-h-screen flex" style={{ background: "var(--background)", color: "var(--foreground)" }}>
+      {/* print:hidden — yazdırmada (ör. parsel tek-sayfa sunumu) sidebar çıkmasın */}
       <aside
-        className="shrink-0 flex flex-col transition-all duration-200"
+        className="shrink-0 flex flex-col transition-all duration-200 print:hidden"
         style={{ width: collapsed ? 60 : 234, background: "var(--surface)", borderRight: "1px solid var(--surface-high)" }}
       >
         {/* Header — Cerberus mark + TerraLot */}
@@ -183,7 +184,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </div>
       </aside>
 
-      <main className="flex-1 overflow-y-auto">{children}</main>
+      <main className="flex-1 overflow-y-auto print:overflow-visible">{children}</main>
     </div>
   );
 }

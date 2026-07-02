@@ -305,6 +305,14 @@ export async function GET(req: NextRequest) {
   const sp = req.nextUrl.searchParams;
   const all = await getDeals();
 
+  // ── Tekil deal (one-pager / sunum sayfası): ?id=… → sadece o deal ──
+  const wantId = sp.get("id");
+  if (wantId) {
+    const deal = all.find((d) => d.id === wantId) ?? null;
+    if (!deal) return NextResponse.json({ deal: null }, { status: 404 });
+    return NextResponse.json({ deal });
+  }
+
   const state = sp.get("state") || "";
   const source = sp.get("source") || "";
   const county = (sp.get("county") || "").toLowerCase();
