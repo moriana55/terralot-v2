@@ -47,13 +47,20 @@ export async function GET(req: NextRequest) {
     } catch {
       return bad("invalid_json");
     }
-    const fc = data as { features?: { geometry?: { type?: string; coordinates?: unknown }; properties?: Record<string, unknown> }[] };
-    const feat = Array.isArray(fc.features) ? fc.features[0] : undefined;
+    // Regrid v2, FeatureCollection'ı `parcels` anahtarına sarar:
+    // { "parcels": { "type":"FeatureCollection", "features":[...] } }
+    // Eski/düz şekil de desteklenir (top-level features) — iki şekli de oku.
+    type Feat = { geometry?: { type?: string; coordinates?: unknown }; properties?: Record<string, unknown> };
+    const raw = data as { features?: Feat[]; parcels?: { features?: Feat[] } };
+    const features = Array.isArray(raw.parcels?.features) ? raw.parcels.features : raw.features;
+    const feat = Array.isArray(features) ? features[0] : undefined;
     const geom = feat?.geometry;
     if (!geom || (geom.type !== "Polygon" && geom.type !== "MultiPolygon") || !geom.coordinates) {
       return bad("no_coverage"); // bu county Regrid'de yok / poligon dönmedi
     }
-    const props = feat?.properties ?? {};
+    // v2'de parsel öznitelikleri properties.fields altında; düz shape da desteklenir.
+    const rawProps = (feat?.properties ?? {}) as Record<string, unknown>;
+    const props = (rawProps.fields as Record<string, unknown> | undefined) ?? rawProps;
     return NextResponse.json({
       real: true,
       geometry: geom,
