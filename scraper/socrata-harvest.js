@@ -13,7 +13,6 @@ const { createClient } = require('@supabase/supabase-js');
 const { liqFor, scoreDeal, extraScores, redemptionPenalty } = require('./scoring');
 const detId = (key) => { const h = crypto.createHash('sha256').update(key).digest('hex'); return `${h.slice(0,8)}-${h.slice(8,12)}-${h.slice(12,16)}-${h.slice(16,20)}-${h.slice(20,32)}`; };
 
-const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
 const ROWS = parseInt(process.env.SOCRATA_ROWS || '300', 10);
 const MAX_DATASETS = parseInt(process.env.SOCRATA_DATASETS || '100', 10);
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -74,7 +73,19 @@ function isoDate(v) {
   return null;
 }
 
-function mapRow(r, m, domain, domainState, idx, dsId) {
+// APN kolonu olmayan dataset'lerde satır İÇERİĞİNDEN deterministik anahtar.
+// Eski hal `${dsId}-${idx}` idi: Socrata $order'sız sorguda satır sırasını
+// GARANTİ ETMEZ → aynı parsel her gece farklı idx/id alabilir → upsert yeni
+// satır üretir (id kayması = çift kayıt + deal_tracking/snapshot kopması).
+// İçerik hash'i sıradan bağımsızdır; aynı satır her koşuda aynı id'ye düşer.
+// (JSON.stringify key sırası: Socrata JSON'ı satır başına aynı şema/sırayla
+// döner; yine de anahtarları sort'layarak tamamen sıra-bağımsız yapıyoruz.)
+function rowKey(r) {
+  const stable = JSON.stringify(r, Object.keys(r).sort());
+  return crypto.createHash('sha256').update(stable).digest('hex').slice(0, 16);
+}
+
+function mapRow(r, m, domain, domainState, dsId) {
   const value = m.value ? num(r[m.value]) : null;
   const bid = m.bid ? num(r[m.bid]) : null;
   if (value == null && bid == null) return null; // unusable
@@ -87,7 +98,7 @@ function mapRow(r, m, domain, domainState, idx, dsId) {
   const liq = liqFor(state, county);
   const sc = scoreDeal({ value, bid, source, ownerName: owner, ...liq });
   const ex = extraScores({ value, bid, liq01: liq.liq01, source, ownerName: owner, hasCoords: !!(lat && lng), acres: m.acres ? num(r[m.acres]) : null });
-  const apn = (m.apn && r[m.apn] != null ? String(r[m.apn]).slice(0, 60) : null) || `${dsId}-${idx}`;
+  const apn = (m.apn && r[m.apn] != null ? String(r[m.apn]).slice(0, 60) : null) || `${dsId}-${rowKey(r)}`;
   return {
     id: detId(`SOCRATA|${domain}|${apn}`),
     source,
@@ -140,10 +151,11 @@ async function fetchDataset(ds) {
   const m = buildMapper(rows[0]);
   if (!m.value && !m.bid) return []; // no money column => skip
   const domainState = stateFromDomain(ds.domain);
-  return rows.map((row, i) => mapRow(row, m, ds.domain, domainState, i, ds.id)).filter(Boolean);
+  return rows.map((row) => mapRow(row, m, ds.domain, domainState, ds.id)).filter(Boolean);
 }
 
-(async () => {
+async function main() {
+  const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
   console.log('→ Socrata Discovery taranıyor...');
   const datasets = await discover();
   console.log(`  ${datasets.length} aday dataset bulundu.`);
@@ -174,4 +186,8 @@ async function fetchDataset(ds) {
   }
   const states = new Set(all.map((r) => r.state).filter((s) => s && s !== 'Unknown'));
   console.log(`✅ ${inserted} Socrata lead yazıldı | ${datasets.length} dataset | ${states.size} eyalet`);
-})().catch((e) => { console.error('FATAL:', e); process.exit(1); });
+}
+
+// Test'ten require edilebilsin diye saf parçaları dışa aç; main sadece CLI'da.
+module.exports = { rowKey, mapRow, buildMapper, stateFromDomain, detId };
+if (require.main === module) main().catch((e) => { console.error('FATAL:', e); process.exit(1); });

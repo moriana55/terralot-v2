@@ -146,6 +146,23 @@ export function mhEligibility(q: MhQuery): MhResult {
   };
 }
 
+// ── Mektup / deal-sheet satış kozu satırı ────────────────────────────────────
+// SADECE status === "likely" iken üretilir; "verify"/"unlikely"/null için ASLA
+// satır dönmez (dürüstlük kırmızı çizgisi: teyitsiz parselde MH kozu YOK).
+// İngilizce (Lob mektubu ABD'li sahibe/alıcıya gider) ve blanket yasallık vaadi
+// içermez — "buyer to verify with the county" şerhi cümlenin PARÇASI, ayrı
+// dipnot değil, ki şablon satırı kırpsa bile şerh kozdan kopamasın.
+export const MH_MAIL_LINE =
+  "MH-friendly signal: county land-use records suggest this lot may accommodate a manufactured home — an increasingly popular option after the ROAD Act. Not a zoning determination; buyer to verify current zoning and permits with the county.";
+
+/**
+ * MH satış kozu → mektup/deal-sheet satırı.
+ *   "likely" → sabit dürüst satır; diğer HER durum → null (satır eklenmez).
+ */
+export function mhMailLine(status: MhStatus | null | undefined): string | null {
+  return status === "likely" ? MH_MAIL_LINE : null;
+}
+
 /** UI rozet etiketi. */
 export const MH_LABELS: Record<MhStatus, string> = {
   likely: "🏠 MH-uygun",

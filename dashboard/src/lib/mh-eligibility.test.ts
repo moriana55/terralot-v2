@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { mhEligibility } from "@/lib/mh-eligibility";
+import { mhEligibility, mhMailLine, MH_MAIL_LINE } from "@/lib/mh-eligibility";
 
 // ── 1) Kod doğrudan MH diyor → likely (bölgeden bağımsız) ─────────────────────
 test("MH kullanım kodu → likely (Mohave 0083-VL-MH)", () => {
@@ -94,4 +94,29 @@ test("likely gerekçeleri bile teyit şerhi taşır", () => {
     assert.equal(r.status, "likely");
     assert.match(r.reason, /teyit/i);
   }
+});
+
+// ── 7) mhMailLine — mektup/deal-sheet satış kozu satırı ───────────────────────
+test("mhMailLine: SADECE likely satır üretir; verify/unlikely/null → null", () => {
+  assert.equal(mhMailLine("likely"), MH_MAIL_LINE);
+  assert.equal(mhMailLine("verify"), null);
+  assert.equal(mhMailLine("unlikely"), null);
+  assert.equal(mhMailLine(null), null);
+  assert.equal(mhMailLine(undefined), null);
+});
+
+test("mhMailLine: satır county teyit şerhini İÇİNDE taşır, blanket vaat yok", () => {
+  const line = mhMailLine("likely")!;
+  assert.match(line, /buyer to verify .* with the county/i);
+  assert.match(line, /may accommodate/i); // "may" — kesinlik iddiası değil
+  assert.doesNotMatch(line, /\bguaranteed\b|\bis legal\b|\bis zoned\b/i);
+  // Lob merge var şeması value'yu 500 karakterle sınırlar — satır sığmalı.
+  assert.ok(line.length <= 500);
+});
+
+test("mhMailLine: gerçek uçtan uca — Mohave likely → satır, Coconino verify → yok", () => {
+  const likely = mhEligibility({ useCode: "0003-VL-UNDET-RURAL-SUBD", acres: 2, state: "AZ", county: "Mohave" });
+  assert.equal(typeof mhMailLine(likely.status), "string");
+  const verify = mhEligibility({ useCode: "", acres: 2, state: "AZ", county: "Coconino" });
+  assert.equal(mhMailLine(verify.status), null);
 });

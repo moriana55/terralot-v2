@@ -3,6 +3,7 @@ import { supabaseAdmin } from "@/lib/supabase";
 import { enforceRateLimit, requireGate } from "@/lib/api-guard";
 import { PRICING } from "@/lib/pricing";
 import { regionPlaybook } from "@/lib/region-playbook";
+import { mhEligibility, mhMailLine } from "@/lib/mh-eligibility";
 import { afterSend, markResponded, CADENCE_TOTAL_STEPS } from "@/lib/cadence";
 
 // outreach_cadence.sql uygulanmadan önce kadans kolonları yok olabilir; insert
@@ -89,7 +90,15 @@ function parseAddress(raw: string | null): { line1: string; city: string; state:
 //   own market_value/land_value columns. If no market value is known at all we
 //   return offerPrice=null and an honest "fair cash price" — we do NOT invent a
 //   number off the min bid.
-function buildDealSheet(lead: Lead, offerPct: number, marketValueOverride?: number | null) {
+//   `useCodeOverride`: tax_delinquent_properties satırında assessor kullanım
+//   kodu kolonu yok — caller (ör. ucuz-arsa detayından gelen akış) elindeki
+//   useCode'u geçebilir; yoksa MH sinyali sadece bölge playbook'undan türer.
+function buildDealSheet(
+  lead: Lead,
+  offerPct: number,
+  marketValueOverride?: number | null,
+  useCodeOverride?: string | null
+) {
   const minBid = lead.minimum_bid ?? lead.judgment_amount ?? 0;
   const marketValue =
     (marketValueOverride && marketValueOverride > 0 ? marketValueOverride : null) ??
@@ -105,6 +114,18 @@ function buildDealSheet(lead: Lead, offerPct: number, marketValueOverride?: numb
   // yoksa güvenli default). Mektup bölgeye uygun açıyı kullansın diye merge var'a
   // beslenir; ASLA blanket hukuki vaat değil (lib KIRMIZI ÇİZGİ ile garanti).
   const pb = regionPlaybook({ state: lead.state, county: lead.county, region: lead.county, address: lead.property_address });
+  // MH (ROAD Act) satış kozu — mh-eligibility tek kaynak. SADECE "likely"
+  // parselde mektuba satır girer (mhMailLine verify/unlikely/null → null);
+  // satırın kendisi "buyer to verify with the county" şerhini içerir.
+  const mh = mhEligibility({
+    useCode: useCodeOverride ?? null,
+    acres: lead.acres,
+    state: lead.state,
+    county: lead.county,
+    region: lead.county,
+    address: lead.property_address,
+  });
+  const mhLine = mhMailLine(mh.status);
   return {
     title,
     apn: lead.apn,
@@ -117,6 +138,7 @@ function buildDealSheet(lead: Lead, offerPct: number, marketValueOverride?: numb
     offerPct: offerPct,
     score: lead.final_score,
     propertyAddress: lead.property_address,
+    mh: { status: mh.status, reason: mh.reason, mailLine: mhLine },
     playbook: {
       region: pb.region,
       salesAngle: pb.salesAngle,
@@ -137,6 +159,9 @@ function buildDealSheet(lead: Lead, offerPct: number, marketValueOverride?: numb
       // Bölge-uygun satış dili (mektup template'i bu değişkenleri kullanabilir).
       sales_angle: pb.salesAngle,
       zoning_note: pb.zoningNote,
+      // MH kozu: template {{mh_note}} kullanabilir — "likely" değilse boş string
+      // (satır hiç basılmaz), böylece şablon her lead'de güvenle aynı kalır.
+      mh_note: mhLine ?? "",
     },
   };
 }
@@ -180,6 +205,10 @@ export async function POST(req: NextRequest) {
   // the offer is anchored to resale value even when the lead row lacks it.
   const marketValueOverride =
     typeof body.marketValue === "number" && body.marketValue > 0 ? body.marketValue : null;
+  // Optional: caller passes the assessor use code (lead row lacks that column)
+  // so the MH signal can use the strongest source instead of region-only.
+  const useCodeOverride =
+    typeof body.useCode === "string" && body.useCode.trim() ? body.useCode.trim().slice(0, 80) : null;
   const doSend = body.send !== false; // default: send
   // KADANS: bu gönderim kaçıncı dokunuş? Manuel tek teklif → 1 (offer). Tick
   // route'u Touch 2/3 için 2/3 geçer. [1..toplam] arası clamp.
@@ -197,7 +226,7 @@ export async function POST(req: NextRequest) {
   if (!lead) return NextResponse.json({ error: "lead not found" }, { status: 404 });
 
   // 2) deal-sheet (offer anchored to market value × offerPct)
-  const sheet = buildDealSheet(lead, offerPct, marketValueOverride);
+  const sheet = buildDealSheet(lead, offerPct, marketValueOverride, useCodeOverride);
   const addr = parseAddress(lead.owner_address);
 
   // 3) send via existing /api/lob (it mocks when LOB_API_KEY is absent)
