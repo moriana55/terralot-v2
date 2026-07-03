@@ -1045,6 +1045,8 @@ export default function DealsMap({ points }: { points: MapPoint[] }) {
                 <div style={{ marginTop: 4 }}>{c.acres ? `${c.acres} acre` : ""}{c.price ? ` · $${c.price.toLocaleString()}` : ""}</div>
                 <div style={{ fontSize: 10, color: "#94a3b8", marginTop: 3 }}>Konum yaklaşık (≈{c.matched} şehir merkezi) — parsel-kesin değil</div>
                 {c.rawUrl && <a href={c.rawUrl} target="_blank" rel="noreferrer" style={{ color: "#0284c7", display: "inline-block", marginTop: 4 }}>İlanı aç ↗</a>}
+                {/* Rakip Radar'daki yaşam döngüsü kaydına atla (başlıkla arar) */}
+                <a href={`/admin/rakip-radar?q=${encodeURIComponent(c.title || c.competitor)}`} style={{ color: "#0284c7", display: "block", marginTop: 2 }}>📡 Radar kaydı (DOM/satış takibi) ↗</a>
               </div>
             </Popup>
           </Marker>

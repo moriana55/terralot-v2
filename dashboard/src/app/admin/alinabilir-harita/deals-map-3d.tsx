@@ -462,7 +462,8 @@ export default function DealsMap3D({ points }: { points: MapPoint[] }) {
           .setHTML(
             `<div style="font-size:12px;line-height:1.5"><b style="color:${COMP_COLOR}">🟥 RAKİP — ${pr.competitor}</b><br/>${pr.title}<br/>` +
             `${pr.acres ? pr.acres + " acre" : ""}${pr.price ? " · $" + Number(pr.price).toLocaleString() : ""}` +
-            `<div style="font-size:10px;color:#94a3b8">Konum yaklaşık (şehir merkezi)</div></div>`
+            `<div style="font-size:10px;color:#94a3b8">Konum yaklaşık (şehir merkezi)</div>` +
+            `<a href="/admin/rakip-radar?q=${encodeURIComponent(String(pr.title || pr.competitor || ""))}" style="color:#0284c7">📡 Radar kaydı ↗</a></div>`
           )
           .addTo(map);
       });

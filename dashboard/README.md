@@ -26,6 +26,7 @@ birleştirir.
 - **Deal Map** — parsellerin harita görünümü
 - **Cerberus Botları** — scraper / veri toplama motoru
 - **Piyasa İlanları** — market listing verisi
+- **Rakip Radar** (`/admin/rakip-radar`) — rakip ilan yaşam döngüsü (snapshot + diff), satış şüphesi & doğrulama (bkz. aşağıdaki bölüm)
 
 Geliştirme aşamasındaki modüller (Acquisitions, Owner Outreach, AI Underwriting, Owner-Finance
 pazaryeri, Payments, Financials vb.) ve "Yakında / kilitli" modüller varsayılan olarak müşteri
@@ -68,6 +69,39 @@ Bu gruplar henüz mock/gerçek-olmayan veri içerdiğinden müşteri görünüm�
 - `NEXT_PUBLIC_SHOW_WIP=1` → **geliştirici görünümü**: tüm gruplar görünür.
 
 Kalıcı silme değil; geliştirici flag'i set ederek her şeye erişebilir.
+
+## Rakip Radar (snapshot + diff + satış doğrulama)
+
+İki soruya veriyle cevap verir: **rakipler gerçekten satıyor mu** (sadece listeleme değil) ve
+**geçmiş satış performansları ne** (satış süresi/DOM, $/acre, indirim davranışı).
+
+- Kaynak: `competitor_listings` (Supabase; `../scraper/competitor-scraper.js` doldurur — Discount Lots, Rina Land, Landio).
+- Tablolar: `competitor_snapshots` / `competitor_tracked` / `competitor_events` — DDL: `sql/rakip_radar.sql`
+  (RLS açık, anon policy yok → service-role-only). Kurulum: `psql "$DIRECT_URL" -f sql/rakip_radar.sql`
+  (⚠️ `.env.local`'daki `DIRECT_URL`/`DATABASE_URL` hâlâ `aws-0-eu-central-1` pooler'ına işaret ediyor ve o tenant artık yok —
+  çalışan host `aws-1-eu-central-1.pooler.supabase.com`. Tablolar 2026-07-03'te bu hostla kuruldu; Prisma kullanılacaksa env düzeltilmeli).
+- Motor: `src/lib/rakip-radar.ts` (saf, birim testli) — diff olayları `NEW / PRICE_CHANGED / STATUS_CHANGED / DISAPPEARED / REAPPEARED`.
+- Kaybolan ilan → **"satış şüphesi"** → Regrid malik kontrolü (`/api/admin/rakip-radar/verify`, gerçek APN gerekir) veya
+  Mohave Recorder (`https://eaglerss.mohave.gov/web/` — grantor'a rakip adı yazılır; URL parametresi taşımaz) +
+  AZ **Affidavit of Value** araması (gerçek satış fiyatı) ile doğrulanır. Manuel "Satıldı onayla (fiyat)" / "Çekildi" butonları var.
+
+### Günlük çalıştırma (cron)
+Sıra önemli: önce scraper kaynak tabloyu tazeler, sonra diff koşusu snapshot alır.
+```bash
+cd terralot-v2/scraper && node competitor-scraper.js          # 1) kaynak tazele (Puppeteer)
+cd ../dashboard && node --env-file=.env.local scripts/rakip-radar-refresh.mjs   # 2) snapshot + diff
+```
+crontab örneği (her gün 09:00):
+```
+0 9 * * * cd $HOME/Desktop/Aktif\ Projeler/terralot-v2/scraper && /usr/local/bin/node competitor-scraper.js && cd ../dashboard && /usr/local/bin/node --env-file=.env.local scripts/rakip-radar-refresh.mjs >> /tmp/rakip-radar.log 2>&1
+```
+> ⚠️ launchd notu: scraper'ın eski launchd job'ı (`com.terralot.sourcing.plist`) 16 Haziran'dan beri ölü —
+> proje Desktop'ta olduğu için TCC izni düşmüş olabilir. Yeni bir job kurarsan `launchctl print` ile
+> gerçekten koştuğunu doğrula; scraper koşmadan alınan snapshot "değişiklik yok" üretir (yanlış DISAPPEARED üretmez,
+> çünkü kaynak tablo upsert'tir ve eski kayıtlar yerinde kalır — ama fiyat/kaybolma sinyali de gelmez).
+
+UI notu: Ekran ilk 279 ilanla tohumlandı (2026-07-03). Tarih **birikiyor** — ilk gerçek diff bir sonraki
+snapshot'ta görünür; "çürüyen vs satılan" histogramı DOM ≥ 60 gün ve doğrulanmış satış biriktikçe dolar.
 
 ## İlgili Dokümanlar
 - `../AHMET-ARSA-YOL-HARITASI.md` — operasyonel saha kılavuzu + rakip analizi

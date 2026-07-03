@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { LayoutDashboard, MapPin, MessageSquare, CreditCard, ArrowLeft, BarChart3, Users, CircleDollarSign, Map, Mail, Wallet, Target, Globe, Tv, FileSearch, ChevronLeft, ChevronRight, ChevronDown, Cpu, Brain, TrendingDown, Rocket, Hammer, Calculator, Copy, BellRing, Send, MailPlus, Database, Swords } from "lucide-react";
+import { LayoutDashboard, MapPin, MessageSquare, CreditCard, ArrowLeft, BarChart3, Users, CircleDollarSign, Map, Mail, Wallet, Target, Globe, Tv, FileSearch, ChevronLeft, ChevronRight, ChevronDown, Cpu, Brain, TrendingDown, Rocket, Hammer, Calculator, Copy, BellRing, Send, MailPlus, Database, Swords, Radar } from "lucide-react";
 import { CerberusLogo } from "@/components/DealHoundLogo";
 
 // `wip: true` = mock/uydurma veri içeren gruplar. Müşteri (Ahmet) görünümünde
@@ -36,6 +36,7 @@ const SECTIONS: { label: string | null; wip?: boolean; items: { href: string; ic
       { href: "/admin/data-coverage", icon: Database, label: "Veri Kapsama & Kalite" },
       { href: "/admin/portfoy", icon: BarChart3, label: "📊 Portföy / KPI" },
       { href: "/admin/pazar-ortusme", icon: Swords, label: "⚔️ Rakip vs Envanter" },
+      { href: "/admin/rakip-radar", icon: Radar, label: "📡 Rakip Radar (satış takibi)" },
       { href: "/admin/scraper", icon: Cpu, label: "Cerberus Botları" },
       { href: "/admin/market-listings", icon: CircleDollarSign, label: "Piyasa İlanları" },
     ],
