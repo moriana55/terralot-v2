@@ -685,7 +685,7 @@ export default function AllDealsPage() {
                   </button>
                   {d.owner && d.address && d.valBasis !== "mismatch" && (
                     <a
-                      href={`/admin/mailer?prefill=1&owner=${encodeURIComponent(d.owner)}&addr=${encodeURIComponent(d.address)}&deal=${encodeURIComponent(d.address.split(",")[0].trim())}&tpl=tpl3&dealId=${encodeURIComponent(d.id)}&mv=${d.marketValue ?? d.landValue ?? 0}&county=${encodeURIComponent(d.county ?? "")}&st=${encodeURIComponent(d.state ?? "")}&acres=${d.acres ?? ""}`}
+                      href={`/admin/mailer?prefill=1&owner=${encodeURIComponent(d.owner)}&addr=${encodeURIComponent(d.address)}&deal=${encodeURIComponent(d.address.split(",")[0].trim())}&tpl=tpl3&dealId=${encodeURIComponent(d.id)}&mv=${d.marketValue ?? d.landValue ?? 0}&county=${encodeURIComponent(d.county ?? "")}&st=${encodeURIComponent(d.state ?? "")}&acres=${d.acres ?? ""}${d.mh === "likely" ? "&mh=1" : ""}`}
                       className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-700 hover:bg-emerald-100">
                       <MailPlus className="h-4 w-4" /> Mektup At
                     </a>

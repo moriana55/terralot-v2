@@ -128,13 +128,27 @@ export function getMailerStats() {
   };
 }
 
+/**
+ * `{{mh_note}}` placeholder'ını doldurur ya da İZSİZ siler.
+ *
+ * MH satırı (ROAD Act kozu) sadece "likely" parsellerde mektuba girer; diğer
+ * her durumda placeholder, kendi paragraf boşluğuyla BİRLİKTE kaldırılır —
+ * mektupta boş paragraf / yetim satır kalmaz. Şablonlar bu sayede her lead'de
+ * güvenle aynı kalır (outreach route'taki merge davranışıyla tutarlı).
+ */
+export function applyMhNote(text: string, note: string | null | undefined): string {
+  const line = note?.trim();
+  if (line) return text.replace(/\{\{mh_note\}\}/g, line);
+  return text.replace(/\n*\{\{mh_note\}\}\n?/g, "\n").replace(/\n{3,}/g, "\n\n").replace(/^\n+/, "");
+}
+
 // Letter templates
 export const LETTER_TEMPLATES: { id: string; name: string; type: MailType; preview: string }[] = [
   {
     id: "tpl1",
     name: "Yellow Letter — Friendly Offer",
     type: "yellow_letter",
-    preview: "Hi {{owner_name}},\n\nI noticed you own a beautiful piece of land in {{county}}, {{state}}. I'm interested in purchasing your property at {{address}}.\n\nI can offer a fair cash price and close quickly. Would you be open to a conversation?\n\nBest regards,\nTerraLot Team",
+    preview: "Hi {{owner_name}},\n\nI noticed you own a beautiful piece of land in {{county}}, {{state}}. I'm interested in purchasing your property at {{address}}.\n\nI can offer a fair cash price and close quickly. Would you be open to a conversation?\n\n{{mh_note}}\n\nBest regards,\nTerraLot Team",
   },
   {
     id: "tpl2",
@@ -146,13 +160,13 @@ export const LETTER_TEMPLATES: { id: string; name: string; type: MailType; previ
     id: "tpl3",
     name: "Formal Offer Letter",
     type: "offer_letter",
-    preview: "Dear {{owner_name}},\n\nRe: Purchase Offer for APN {{apn}}\n\nWe are writing to express our interest in purchasing your property located at {{address}}, {{county}}, {{state}}.\n\nOur offer: ${{offer_amount}}\n\nThis is a cash offer with no contingencies. We can close within 30 days.\n\nSincerely,\nTerraLot Acquisitions",
+    preview: "Dear {{owner_name}},\n\nRe: Purchase Offer for APN {{apn}}\n\nWe are writing to express our interest in purchasing your property located at {{address}}, {{county}}, {{state}}.\n\nOur offer: ${{offer_amount}}\n\nThis is a cash offer with no contingencies. We can close within 30 days.\n\n{{mh_note}}\n\nSincerely,\nTerraLot Acquisitions",
   },
   {
     id: "tpl4",
     name: "Follow-up Letter",
     type: "follow_up",
-    preview: "Hi {{owner_name}},\n\nI reached out a few weeks ago about your property in {{county}}. I wanted to follow up — our offer still stands and we're flexible on terms.\n\nIf you've thought about it, I'd love to chat.\n\nBest,\nTerraLot Team",
+    preview: "Hi {{owner_name}},\n\nI reached out a few weeks ago about your property in {{county}}. I wanted to follow up — our offer still stands and we're flexible on terms.\n\nIf you've thought about it, I'd love to chat.\n\n{{mh_note}}\n\nBest,\nTerraLot Team",
   },
   {
     id: "tpl5",

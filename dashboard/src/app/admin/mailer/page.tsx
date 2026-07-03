@@ -1,7 +1,8 @@
 "use client";
 
 import { Mail, Send, Eye, Plus, FileText, Loader2 } from "lucide-react";
-import { campaigns, mailPieces, getMailerStats, MAIL_TYPE_LABELS, MAIL_STATUS_LABELS, CAMPAIGN_STATUS_LABELS, getCampaignStatusColor, getMailStatusColor, getCampaignPieces, LETTER_TEMPLATES } from "@/lib/mailer-data";
+import { campaigns, mailPieces, getMailerStats, MAIL_TYPE_LABELS, MAIL_STATUS_LABELS, CAMPAIGN_STATUS_LABELS, getCampaignStatusColor, getMailStatusColor, getCampaignPieces, LETTER_TEMPLATES, applyMhNote } from "@/lib/mailer-data";
+import { MH_MAIL_LINE } from "@/lib/mh-eligibility";
 import type { CampaignStatus } from "@/lib/mailer-data";
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
@@ -44,7 +45,7 @@ function MailerInner() {
   // letter is computed from the parcel's REAL market value (× 20%, roadmap rule),
   // not a hardcoded number, and (b) after sending we can create a real
   // owner-finance listing from this exact parcel ("Bu parseli satışa koy").
-  const [deal, setDeal] = useState<null | { id: string; mv: number; county: string; state: string; acres: number | null }>(null);
+  const [deal, setDeal] = useState<null | { id: string; mv: number; county: string; state: string; acres: number | null; mhLikely: boolean }>(null);
 
   // Read the deal querystring once and populate the Quick Send form. Mailing
   // address arrives as "owner" + "addr" ("STREET, CITY, STATE, ZIP"); we split
@@ -83,6 +84,9 @@ function MailerInner() {
         county: searchParams.get("county") || "",
         state: searchParams.get("st") || "",
         acres: searchParams.get("acres") ? Number(searchParams.get("acres")) : null,
+        // ROAD Act MH kozu: all-deals SADECE "likely" parselde mh=1 gönderir;
+        // yoksa {{mh_note}} satırı şablondan izsiz düşer (applyMhNote).
+        mhLikely: searchParams.get("mh") === "1",
       });
     }
     setSelectedCampaign(null); // ensure the Quick Send card is visible
@@ -130,7 +134,9 @@ function MailerInner() {
             state: "TX",
             zip: "78701",
           },
-          template: templateData?.preview || "",
+          // MH satırı Lob merge'üne bırakılmaz: boşken merge boş paragraf
+          // bırakırdı. applyMhNote satırı ya doldurur ya İZSİZ siler.
+          template: applyMhNote(templateData?.preview || "", deal?.mhLikely ? MH_MAIL_LINE : null),
           merge_variables: {
             owner_name: recipientName,
             county: countyVar,
@@ -249,7 +255,9 @@ function MailerInner() {
               {previewTemplate ? (() => {
                 const tpl = LETTER_TEMPLATES.find(t => t.id === previewTemplate)!;
                 const previewOffer = deal && deal.mv > 0 ? Math.round(deal.mv * 0.2).toLocaleString() : "____";
-                const mockContent = tpl.preview
+                // MH kozu: deal "likely" ise satır görünür, değilse boş
+                // paragraf bırakmadan kaybolur (applyMhNote).
+                const mockContent = applyMhNote(tpl.preview, deal?.mhLikely ? MH_MAIL_LINE : null)
                   .replace(/\{\{owner_name\}\}/g, recipientName || "John Doe")
                   .replace(/\{\{county\}\}/g, deal?.county || "____")
                   .replace(/\{\{state\}\}/g, stateCode || "TX")
