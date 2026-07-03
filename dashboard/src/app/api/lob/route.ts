@@ -45,7 +45,12 @@ const lobSchema = z.discriminatedUnion("action", [
     action: z.literal("send_letter"),
     to: addressTo,
     from: addressFrom,
-    template: z.string().trim().max(200).optional(),
+    // Mektup GÖVDESİ buradan geçer (Lob "file" alanı düz metin/HTML içeriği de
+    // kabul eder). Eski max(200) sınırı template-ID varsayımıydı; oysa
+    // LETTER_TEMPLATES önizlemeleri ~240-750 karakter → Quick Send mektupları
+    // sandbox'ta bile zod'da 400 dönüyordu. Üst sınır kötüye kullanıma karşı
+    // duruyor, sadece gerçek gövdeye yer açacak kadar genişletildi.
+    template: z.string().trim().max(10_000).optional(),
     description: z.string().trim().max(200).optional(),
     merge_variables: mergeVars,
   }),
