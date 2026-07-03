@@ -12,6 +12,7 @@ import { supabaseAdmin } from "@/lib/supabase";
 import { priceParcel } from "@/lib/pricing";
 import { medianPpa } from "@/lib/land-valuation";
 import { valuationMismatch, dealGrade } from "@/lib/deal-quality";
+import { mhEligibility, type MhStatus } from "@/lib/mh-eligibility";
 import attomPpaData from "@/data/attom-ppa.json";
 
 // ATTOM gerçek satış $/acre — bölge bazında (offline script ile üretildi).
@@ -40,6 +41,11 @@ export type UnifiedDeal = {
   lat: number | null;
   lng: number | null;
   mapUrl: string;
+  /** Assessor kullanım kodu (varsa) — MH-uygunluk sinyalinin girdisi. */
+  useCode: string;
+  /** ROAD Act MH-uygunluk sinyali (likely/verify/unlikely; null = sinyal yok). */
+  mh: MhStatus | null;
+  mhReason: string;
   // ── comp-based valuation (real; null/0 when no comps) ──
   marketValue: number | null;
   comps: number;
@@ -48,7 +54,7 @@ export type UnifiedDeal = {
   dealGrade: string | null; // A/B/C — yalnızca comp-değerli deal'lerde (yoksa null)
 };
 
-type BaseDeal = Omit<UnifiedDeal, "marketValue" | "comps" | "mailSafe" | "valBasis" | "dealGrade">;
+type BaseDeal = Omit<UnifiedDeal, "marketValue" | "comps" | "mailSafe" | "valBasis" | "dealGrade" | "mh" | "mhReason">;
 
 export const num = (v: unknown): number => {
   const n = typeof v === "string" ? parseFloat(v.replace(/[^0-9.\-]/g, "")) : Number(v);
@@ -122,6 +128,7 @@ function buildDeals(): BaseDeal[] {
       lat: r.lat == null ? null : num(r.lat),
       lng: r.lng == null ? null : num(r.lng),
       mapUrl: r.lat && r.lng ? `https://www.google.com/maps?q=${r.lat},${r.lng}` : "",
+      useCode: str(r.use),
     });
   }
 
@@ -154,6 +161,7 @@ function buildDeals(): BaseDeal[] {
       lat: null,
       lng: null,
       mapUrl: str(r.mapUrl),
+      useCode: str(r.use),
     });
   }
 
@@ -182,6 +190,8 @@ function buildDeals(): BaseDeal[] {
       lat: null,
       lng: null,
       mapUrl: str(r.mapUrl),
+      // landUse burada haritalanmamış NUMERİK kod (ör. "1000") → MH sinyaline sokma.
+      useCode: "",
     });
   }
 
@@ -210,6 +220,9 @@ function buildDeals(): BaseDeal[] {
       lat: r.lat == null ? null : num(r.lat),
       lng: r.lng == null ? null : num(r.lng),
       mapUrl: r.lat && r.lng ? `https://www.google.com/maps?q=${r.lat},${r.lng}` : "",
+      // PropStream export'unda `use` alanı ipotek/equity durumu taşıyor
+      // ("Free&Clear") — kullanım kodu DEĞİL → MH sinyaline sokma.
+      useCode: "",
     });
   }
 
@@ -280,8 +293,15 @@ export async function getDeals(): Promise<UnifiedDeal[]> {
       marketValue: mv, mismatch, absentee: d.absentee,
       acres: d.acres, mailSafe: p.mailSafe, assessed: d.landValue,
     });
+    // ROAD Act MH-uygunluk sinyali (assessor kodu + region playbook; dürüst).
+    const mh = mhEligibility({
+      useCode: d.useCode, acres: d.acres,
+      state: d.state, county: d.county, region: d.region, address: d.address,
+    });
     return {
       ...d,
+      mh: mh.status,
+      mhReason: mh.reason,
       marketValue: mv,
       comps: p.comps,
       mailSafe: p.mailSafe && !mismatch,

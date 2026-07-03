@@ -42,6 +42,8 @@ export async function GET(req: NextRequest) {
   const minSpread = sp.get("minSpread") ? num(sp.get("minSpread")) : null;
   const absentee = sp.get("absentee") === "1";
   const onlyComp = sp.get("onlyComp") === "1";
+  // ROAD Act MH filtresi: "1"/"likely" → sadece MH-uygun · "verify" → uygun+teyitli
+  const mhParam = sp.get("mh") || "";
   const minGrade = sp.get("minGrade") || ""; // "A" → sadece A · "B" → A+B
   const sort = sp.get("sort") || "spread";
   const dir = sp.get("dir") === "asc" ? 1 : -1;
@@ -59,6 +61,7 @@ export async function GET(req: NextRequest) {
     (maxValue == null || d.landValue <= maxValue) &&
     (minSpread == null || d.spread >= minSpread) &&
     (!absentee || d.absentee) &&
+    (!mhParam || (mhParam === "verify" ? d.mh === "likely" || d.mh === "verify" : d.mh === "likely")) &&
     (!onlyComp || (d.marketValue != null && d.valBasis !== "mismatch")) &&
     (!minGrade || (d.dealGrade != null && (minGrade === "B" ? d.dealGrade !== "C" : d.dealGrade === "A")));
 
@@ -98,6 +101,7 @@ export async function GET(req: NextRequest) {
         spread: d.spread, dealGrade: d.dealGrade, absentee: d.absentee, apn: d.apn,
         address: d.address, county: d.county, state: d.state,
         valBasis: d.valBasis, comps: d.comps,
+        mh: d.mh, mhReason: d.mhReason,
         valAsOf: d.valBasis === "attom_region" ? ATTOM_ASOF : null,
         compYears: (() => {
           const a = ATTOM_PPA[`${d.state}|${d.region}`];
@@ -116,10 +120,12 @@ export async function GET(req: NextRequest) {
   let compMarketSum = 0;
   let totalSpread = 0;
   let absenteeN = 0;
+  let mhLikely = 0;
   const stMap = new Map<string, { count: number; acres: number; withComp: number; absentee: number }>();
   for (const d of filtered) {
     totalAcres += d.acres || 0;
     if (d.absentee) absenteeN++;
+    if (d.mh === "likely") mhLikely++;
     let sd = stMap.get(d.state);
     if (!sd) { sd = { count: 0, acres: 0, withComp: 0, absentee: 0 }; stMap.set(d.state, sd); }
     sd.count++; sd.acres += d.acres || 0; if (d.absentee) sd.absentee++;
@@ -151,6 +157,8 @@ export async function GET(req: NextRequest) {
     withComp,
     withCompPct: total ? Math.round((withComp / total) * 100) : 0,
     absenteePct: total ? Math.round((absenteeN / total) * 100) : 0,
+    mhLikely,
+    mhLikelyPct: total ? Math.round((mhLikely / total) * 100) : 0,
     compMarketSum: Math.round(compMarketSum),
     totalSpread: Math.round(totalSpread),
     statePpa,

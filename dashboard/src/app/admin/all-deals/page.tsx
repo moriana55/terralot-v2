@@ -12,6 +12,7 @@ type Deal = {
   acres: number; landValue: number; estOffer: number; estResale: number; spread: number;
   score: number | null; apn: string; lat: number | null; lng: number | null; mapUrl: string;
   marketValue: number | null; comps: number; mailSafe: boolean; valBasis: string; dealGrade: string | null;
+  useCode: string; mh: "likely" | "verify" | "unlikely" | null; mhReason: string;
 };
 
 const GRADE_UI: Record<string, string> = {
@@ -20,6 +21,7 @@ const GRADE_UI: Record<string, string> = {
 type StateDetail = { state: string; count: number; acres: number; ppa: number | null; comps: number; withCompPct: number; absenteePct: number };
 type Stats = {
   totalAcres: number; withComp: number; withCompPct: number; absenteePct: number;
+  mhLikely?: number; mhLikelyPct?: number;
   compMarketSum: number; totalSpread: number; statePpa: Record<string, { ppa: number; n: number }>;
   byStateDetail: StateDetail[];
 };
@@ -69,6 +71,7 @@ export default function AllDealsPage() {
   const [maxValue, setMaxValue] = useState("");
   const [absentee, setAbsentee] = useState(false);
   const [onlyComp, setOnlyComp] = useState(false);
+  const [mhOnly, setMhOnly] = useState(false); // ROAD Act MH-uygun filtresi
   const [gradeFilter, setGradeFilter] = useState("");
   const [minSpread, setMinSpread] = useState("");
   const [sort, setSort] = useState("spread");
@@ -136,12 +139,13 @@ export default function AllDealsPage() {
     if (minSpread) p.set("minSpread", minSpread);
     if (absentee) p.set("absentee", "1");
     if (onlyComp) p.set("onlyComp", "1");
+    if (mhOnly) p.set("mh", "1");
     if (gradeFilter) p.set("minGrade", gradeFilter);
     p.set("sort", sort);
     p.set("dir", dir);
     p.set("page", String(page));
     return p.toString();
-  }, [state, source, county, q, minAcres, maxAcres, minValue, maxValue, minSpread, absentee, onlyComp, gradeFilter, sort, dir, page]);
+  }, [state, source, county, q, minAcres, maxAcres, minValue, maxValue, minSpread, absentee, onlyComp, mhOnly, gradeFilter, sort, dir, page]);
 
   useEffect(() => {
     setLoading(true);
@@ -156,12 +160,12 @@ export default function AllDealsPage() {
 
   // reset to page 1 when any filter (not page) changes
   useEffect(() => { setPage(1); },
-    [state, source, county, q, minAcres, maxAcres, minValue, maxValue, minSpread, absentee, onlyComp, gradeFilter, sort, dir]);
+    [state, source, county, q, minAcres, maxAcres, minValue, maxValue, minSpread, absentee, onlyComp, mhOnly, gradeFilter, sort, dir]);
 
   const reset = () => {
     setState(""); setSource(""); setCounty(""); setQ("");
     setMinAcres(""); setMaxAcres(""); setMinValue(""); setMaxValue("");
-    setMinSpread(""); setAbsentee(false); setOnlyComp(false); setGradeFilter(""); setSort("spread"); setDir("desc"); setPage(1);
+    setMinSpread(""); setAbsentee(false); setOnlyComp(false); setMhOnly(false); setGradeFilter(""); setSort("spread"); setDir("desc"); setPage(1);
   };
 
   const toggleSort = (key: string) => {
@@ -221,12 +225,13 @@ export default function AllDealsPage() {
 
       {/* CoStar-style KPI band (real data) */}
       {data?.stats && (
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-7">
           {[
             { l: "Sonuç", v: data.total.toLocaleString(), s: "deal" },
             { l: "Toplam alan", v: data.stats.totalAcres.toLocaleString(), s: "acre" },
             { l: "Comp-değerli", v: `%${data.stats.withCompPct}`, s: `${data.stats.withComp.toLocaleString()} parsel` },
             { l: "Absentee", v: `%${data.stats.absenteePct}`, s: "şehir-dışı sahip" },
+            { l: "🏠 MH-uygun", v: `%${data.stats.mhLikelyPct ?? 0}`, s: `${(data.stats.mhLikely ?? 0).toLocaleString()} parsel (ROAD Act)` },
             { l: "Comp piyasa Σ", v: data.stats.compMarketSum >= 1e6 ? `$${(data.stats.compMarketSum / 1e6).toFixed(1)}M` : usd(data.stats.compMarketSum), s: "gerçek comp" },
             { l: "Spread Σ", v: data.stats.totalSpread >= 1e6 ? `$${(data.stats.totalSpread / 1e6).toFixed(1)}M` : usd(data.stats.totalSpread), s: "potansiyel" },
           ].map((k) => (
@@ -379,6 +384,11 @@ export default function AllDealsPage() {
           className={`rounded-full px-3 py-1 text-xs font-semibold ${absentee ? "bg-rose-500 text-white" : "bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-50"}`}>
           Absentee
         </button>
+        <button onClick={() => setMhOnly((v) => !v)}
+          title="ROAD Act satış kozu: manufactured home koyulabilir sinyali taşıyan parseller (assessor kodu + bölge playbook'u; kesin izin county'den teyit edilmeli)"
+          className={`rounded-full px-3 py-1 text-xs font-semibold ${mhOnly ? "bg-teal-600 text-white" : "bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-50"}`}>
+          🏠 MH-uygun (ROAD Act)
+        </button>
       </div>
 
       {/* Honesty note */}
@@ -432,7 +442,10 @@ export default function AllDealsPage() {
                     <span className="font-medium text-slate-800">{d.owner || "—"}</span>
                     {d.absentee && <span className="ml-1.5 rounded bg-rose-50 px-1.5 py-0.5 text-[10px] font-semibold text-rose-600">absentee {d.ownerState}</span>}
                   </td>
-                  <td className="px-3 py-2.5 text-slate-500">{d.address || "—"}</td>
+                  <td className="px-3 py-2.5 text-slate-500">
+                    {d.address || "—"}
+                    {d.mh === "likely" && <span className="ml-1.5 rounded bg-teal-50 px-1.5 py-0.5 text-[10px] font-semibold text-teal-700" title={d.mhReason}>🏠 MH</span>}
+                  </td>
                   <td className="px-3 py-2.5 text-right tabular-nums text-slate-700">{d.acres ? d.acres.toFixed(2) : "—"}</td>
                   <td className="px-3 py-2.5 text-right tabular-nums text-slate-700">{d.landValue ? usd(d.landValue) : "—"}</td>
                   <td className="px-3 py-2.5 text-right tabular-nums">
@@ -594,6 +607,19 @@ export default function AllDealsPage() {
                   <Row k="Mailing eyaleti" v={d.ownerState || "—"} />
                   <Row k="Durum" v={d.absentee ? <span className="text-rose-600">Absentee (şehir-dışı)</span> : "Eyalet içi"} />
                 </div>
+                {/* ROAD Act MH-uygunluk — dürüst sinyal (assessor kodu + bölge playbook, teyit şerhli) */}
+                {d.mh && (
+                  <div className="rounded-xl border border-slate-200 p-4">
+                    <div className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-slate-400">Manufactured Home (ROAD Act)</div>
+                    <Row k="Sinyal" v={
+                      d.mh === "likely" ? <span className="font-semibold text-teal-700">🏠 MH-uygun (teyit şerhli)</span>
+                      : d.mh === "verify" ? <span className="text-amber-600">County teyidi şart</span>
+                      : <span className="text-slate-500">Uygun değil</span>
+                    } />
+                    {d.useCode && <Row k="Kullanım kodu" v={d.useCode} />}
+                    <p className="mt-1 text-[11px] leading-relaxed text-slate-500">{d.mhReason}</p>
+                  </div>
+                )}
                 {/* ATTOM gerçek satışlar */}
                 <div className="rounded-xl border border-slate-200 p-4">
                   <div className="mb-2 flex items-center justify-between">

@@ -16,6 +16,8 @@ export type MapPoint = {
   dealGrade: string | null; absentee: boolean; apn: string;
   valBasis?: string | null; comps?: number; valAsOf?: string | null; compYears?: string | null;
   state?: string | null; county?: string | null; address?: string | null;
+  /** ROAD Act MH-uygunluk sinyali (likely/verify/unlikely; null = sinyal yok). */
+  mh?: string | null; mhReason?: string | null;
 };
 
 const usd = (n: number) => "$" + Math.round(n).toLocaleString("en-US");
@@ -426,6 +428,7 @@ type Filters = {
   nearComp: boolean;
   multiOwner: boolean;
   nearAccess: boolean; // sadece yakın-erişim (≤25mi anayol/şehir) — uzakları gizle
+  mhOnly: boolean; // sadece MH-uygun (ROAD Act — manufactured home koyulabilir sinyali)
 };
 const chipStyle = (active: boolean): React.CSSProperties => ({
   fontSize: 11, fontWeight: 600, padding: "3px 8px", borderRadius: 6, cursor: "pointer",
@@ -464,6 +467,7 @@ function FilterPanel({
     { k: "nearComp", label: `Rakibe ≤${NEAR_COMP_MI}mi` },
     { k: "multiOwner", label: "Çoklu-parsel sahip" },
     { k: "nearAccess", label: `Yakın-erişim ≤${ACCESS_MAX_MI}mi` },
+    { k: "mhOnly", label: "🏠 MH-uygun (ROAD Act)" },
   ];
   const roadCats: RoadCat[] = ["highway", "paved", "dirt", "service"];
   return (
@@ -764,7 +768,7 @@ export default function DealsMap({ points }: { points: MapPoint[] }) {
   const [showAreas, setShowAreas] = useState(true);
   const [competitors, setCompetitors] = useState<CompMarker[]>([]);
   const [showComp, setShowComp] = useState(true);
-  const [filters, setFilters] = useState<Filters>({ grade: "", absentee: false, comp: false, bigSpread: false, nearComp: false, multiOwner: false, nearAccess: false });
+  const [filters, setFilters] = useState<Filters>({ grade: "", absentee: false, comp: false, bigSpread: false, nearComp: false, multiOwner: false, nearAccess: false, mhOnly: false });
   const setF = (u: Partial<Filters>) => setFilters((p) => ({ ...p, ...u }));
   // OSM yol-tipi katmanı (varsayılan KAPALI — açınca Overpass çalışır).
   const [showRoads, setShowRoads] = useState(false);
@@ -834,6 +838,7 @@ export default function DealsMap({ points }: { points: MapPoint[] }) {
         if (m == null || m > NEAR_COMP_MI) return false;
       }
       if (filters.nearAccess && accessByPoint.get(p.id)?.far) return false;
+      if (filters.mhOnly && p.mh !== "likely") return false;
       return true;
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -947,6 +952,20 @@ export default function DealsMap({ points }: { points: MapPoint[] }) {
                     {oc > 1 && (
                       <div style={{ fontSize: 11, fontWeight: 600, color: "#7c3aed", marginTop: 2 }}>
                         🏠 Bu sahipte {oc} parsel (toplu satıcı kozu)
+                      </div>
+                    )}
+                    {/* ROAD Act MH-uygunluk rozeti — dürüst sinyal (mhReason teyit şerhli). */}
+                    {p.mh && (
+                      <div
+                        title={p.mhReason ?? undefined}
+                        style={{
+                          marginTop: 3, display: "inline-block", fontSize: 10, fontWeight: 700,
+                          borderRadius: 4, padding: "1px 6px",
+                          color: p.mh === "likely" ? "#065f46" : p.mh === "verify" ? "#92400e" : "#475569",
+                          background: p.mh === "likely" ? "#d1fae5" : p.mh === "verify" ? "#fef3c7" : "#f1f5f9",
+                        }}
+                      >
+                        {p.mh === "likely" ? "🏠 MH-uygun (ROAD Act) — teyit şerhli" : p.mh === "verify" ? "🏠 MH: county teyidi şart" : "MH uygun değil"}
                       </div>
                     )}
                     <hr style={{ border: "none", borderTop: "1px solid #eee", margin: "5px 0" }} />

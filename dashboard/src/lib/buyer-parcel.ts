@@ -41,6 +41,8 @@ export const BUYER_FORBIDDEN_FIELDS = [
   "owner", "ownerState", "absentee", "landValue", "estOffer", "estResale",
   "spread", "score", "marketValue", "comps", "mailSafe", "valBasis",
   "dealGrade", "source", "sourceLabel", "mapUrl",
+  // MH-uygunluk iç sinyaldir (gerekçe metni iç satış dilini içerir) — alıcıya sızmaz.
+  "useCode", "mh", "mhReason",
 ] as const;
 
 const finite = (v: unknown): number | null =>
