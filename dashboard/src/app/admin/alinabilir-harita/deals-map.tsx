@@ -8,6 +8,7 @@ import "leaflet/dist/leaflet.css";
 import CountyGisLayer from "./CountyGisLayer";
 import { regionPlaybook } from "@/lib/region-playbook";
 import { distanceMiles, nearestRef } from "@/lib/geo-proximity";
+import CopyBuyerLink from "@/components/CopyBuyerLink";
 
 export type MapPoint = {
   id: string; lat: number; lng: number; owner: string; region: string;
@@ -1026,6 +1027,7 @@ export default function DealsMap({ points }: { points: MapPoint[] }) {
                       >
                         🖨 Tek Sayfa (PDF)
                       </a>
+                      <CopyBuyerLink dealId={p.id} />
                     </div>
                     <EnrichBadges lat={p.lat} lng={p.lng} />
                   </div>

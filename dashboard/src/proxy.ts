@@ -10,6 +10,10 @@ import { GATE_COOKIE, clerkIsReal, gateEnabled, gateToken } from "@/lib/gate";
 const PUBLIC_API = [
   "/api/gate",
   "/api/inquiries",
+  // /p/[id] alıcı sayfasının talep formu — POST-only lead capture; route
+  // düzeyinde sıkı per-IP rate limit + zod doğrulama uygular. Okuma ucu YOK
+  // (liste sadece gated /api/admin/parcel-inquiries üzerinden).
+  "/api/parcel-inquiries",
   "/api/checkout",
   "/api/hot-counties",
   "/api/growth-catalysts",

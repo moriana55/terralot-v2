@@ -20,6 +20,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import type { MapPoint } from "./deals-map";
+import CopyBuyerLink from "@/components/CopyBuyerLink";
 
 const usd = (n: number) => "$" + Math.round(n).toLocaleString("en-US");
 const GRADE_COLOR: Record<string, string> = { A: "#059669", B: "#0284c7", C: "#94a3b8" };
@@ -739,6 +740,12 @@ export default function DealsMap3D({ points }: { points: MapPoint[] }) {
           >
             🖨 Tek Sayfa Sunum (PDF)
           </a>
+          <span style={{ display: "inline-block", marginLeft: 6, marginTop: 7 }}>
+            <CopyBuyerLink
+              dealId={selected.id}
+              style={{ border: "none", background: "#7c3aed", color: "#fff", borderRadius: 6, padding: "5px 10px", fontSize: 11, fontWeight: 600, cursor: "pointer" }}
+            />
+          </span>
         </div>
       )}
 

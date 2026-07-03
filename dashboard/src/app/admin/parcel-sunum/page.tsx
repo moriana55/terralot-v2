@@ -9,6 +9,7 @@
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Loader2, Printer } from "lucide-react";
+import CopyBuyerLink from "@/components/CopyBuyerLink";
 
 type Deal = {
   id: string; source: string; sourceLabel: string; state: string; county: string;
@@ -143,10 +144,16 @@ function OnePager() {
         <div className="text-sm">
           <b>Tek Sayfa Sunum</b> — &quot;Yazdır&quot; → hedef olarak <b>PDF olarak kaydet</b> seç → WhatsApp&apos;tan gönder.
         </div>
-        <button onClick={() => window.print()}
-          className="flex items-center gap-2 rounded-lg bg-emerald-500 px-4 py-2 text-sm font-semibold hover:bg-emerald-400">
-          <Printer className="h-4 w-4" /> Yazdır / PDF
-        </button>
+        <div className="flex items-center gap-2">
+          <CopyBuyerLink
+            dealId={deal.id}
+            className="flex items-center gap-2 rounded-lg bg-violet-600 px-4 py-2 text-sm font-semibold hover:bg-violet-500"
+          />
+          <button onClick={() => window.print()}
+            className="flex items-center gap-2 rounded-lg bg-emerald-500 px-4 py-2 text-sm font-semibold hover:bg-emerald-400">
+            <Printer className="h-4 w-4" /> Yazdır / PDF
+          </button>
+        </div>
       </div>
 
       {/* ── TerraLot başlık ── */}
