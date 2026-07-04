@@ -1,7 +1,11 @@
+import { readFileSync } from "node:fs";
+import { homedir } from "node:os";
+import { join } from "node:path";
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
 import { enforceRateLimit, requireGate } from "@/lib/api-guard";
 import { loadTracked } from "@/lib/rakip-radar-store";
+import { scraperHealth, type RunnerStatus } from "@/lib/scraper-health";
 import {
   competitorStats,
   ppaHistogram,
@@ -29,10 +33,26 @@ export async function GET(req: NextRequest) {
     const s = supabaseAdmin();
     const tracked = await loadTracked(s);
 
-    const [{ data: events }, { data: runs }] = await Promise.all([
+    const [{ data: events }, { data: runs }, { data: lastScrape }] = await Promise.all([
       s.from("competitor_events").select("*").order("at", { ascending: false }).limit(200),
       s.from("competitor_snapshots").select("run_at").order("run_at", { ascending: false }).limit(1),
+      // Scraper tazeliği: kaynak tablodaki en yeni scraped_at (snapshot'tan
+      // bağımsız — scraper ölürse burası bayatlar ve rozet kırmızıya döner).
+      s.from("competitor_listings").select("scraped_at").order("scraped_at", { ascending: false, nullsFirst: false }).limit(1),
     ]);
+
+    // Runner status dosyası (launchd koşucusu yazar). Vercel'de/başka makinede
+    // dosya yoktur → null; sağlık o zaman sadece veri tazeliğinden hesaplanır.
+    let runner: RunnerStatus | null = null;
+    try {
+      const p =
+        process.env.TERRALOT_RUNNER_STATUS ||
+        join(homedir(), "Library", "Application Support", "terralot-runner", "status.json");
+      runner = JSON.parse(readFileSync(p, "utf8")) as RunnerStatus;
+    } catch {
+      runner = null;
+    }
+    const lastScrapeAt = lastScrape?.[0]?.scraped_at ?? null;
 
     const listings = tracked
       .map((t) => ({
@@ -58,6 +78,8 @@ export async function GET(req: NextRequest) {
       listings,
       events: events ?? [],
       lastRunAt: runs?.[0]?.run_at ?? null,
+      lastScrapeAt,
+      health: scraperHealth(lastScrapeAt, runner, now),
       trackedCount: tracked.length,
     });
   } catch (e) {

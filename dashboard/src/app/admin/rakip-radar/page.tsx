@@ -78,9 +78,34 @@ interface Resp {
   listings: Row[];
   events: Ev[];
   lastRunAt: string | null;
+  lastScrapeAt: string | null;
+  health: { ageDays: number | null; stale: boolean; runnerWarning: string | null } | null;
   trackedCount: number;
   error?: string;
   hint?: string;
+}
+
+// "son rakip taraması: X gün önce" rozeti — 3 günü geçince kırmızı.
+// Amaç: scraper bir daha 2,5 hafta fark edilmeden ölmesin.
+function ScrapeFreshnessBadge({ health, lastScrapeAt }: { health: Resp["health"]; lastScrapeAt: string | null }) {
+  if (!health) return null;
+  const label =
+    health.ageDays == null ? "hiç" : health.ageDays === 0 ? "bugün" : `${health.ageDays} gün önce`;
+  return (
+    <span
+      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold whitespace-nowrap"
+      style={
+        health.stale
+          ? { background: "rgba(186,26,26,0.12)", color: "var(--error)" }
+          : { background: "rgba(34,197,94,0.12)", color: "var(--grade-a)" }
+      }
+      title={lastScrapeAt ? `Son competitor-scraper koşumu: ${fmtDate(lastScrapeAt)}` : "competitor_listings boş"}
+    >
+      <span className="w-1.5 h-1.5 rounded-full" style={{ background: "currentColor" }} />
+      Son rakip taraması: {label}
+      {health.stale && " — BAYAT"}
+    </span>
+  );
 }
 
 const STATUS_BADGE: Record<Row["status"], { label: string; color: string; bg: string }> = {
@@ -243,6 +268,11 @@ function RakipRadarInner() {
             Rakip gerçekten SATIYOR mu? Kaybolan ilan = satış şüphesi → Regrid malik kontrolü + Mohave Recorder ile doğrula.
             {data?.lastRunAt ? ` Son snapshot: ${fmtDate(data.lastRunAt)}.` : ""}
           </p>
+          {data && (
+            <div className="mt-2">
+              <ScrapeFreshnessBadge health={data.health} lastScrapeAt={data.lastScrapeAt} />
+            </div>
+          )}
         </div>
         <button
           onClick={refresh}
@@ -266,6 +296,22 @@ function RakipRadarInner() {
           Kaynak veri scraper&apos;dan gelir; scraper koşmadan alınan snapshot &quot;değişiklik yok&quot; gösterir.
         </span>
       </div>
+
+      {/* Scraper sağlık uyarıları — bayat veri / ölü koşucu görünür olsun */}
+      {data?.health && (data.health.stale || data.health.runnerWarning) && (
+        <div className="flex items-start gap-2.5 px-4 py-3 rounded-lg text-xs mb-4"
+          style={{ background: "rgba(186,26,26,0.08)", border: "1px solid rgba(186,26,26,0.3)", color: "var(--error)" }}>
+          <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
+          <span>
+            {data.health.stale && (
+              <><strong>Rakip verisi bayat</strong> — son tarama {data.health.ageDays == null ? "hiç yapılmamış" : `${data.health.ageDays} gün önce`} (eşik 3 gün).
+                Radar diff&apos;leri güvenilir değil; scraper koşucusunu kontrol et
+                (launchd: com.terralot.sourcing → ~/Library/Application Support/terralot-runner). </>
+            )}
+            {data.health.runnerWarning && <>{data.health.runnerWarning}</>}
+          </span>
+        </div>
+      )}
 
       {historyAccumulating && (
         <div className="flex items-start gap-2.5 px-4 py-3 rounded-lg text-xs mb-4"
