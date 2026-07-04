@@ -31,6 +31,10 @@ const FULL_DEAL: UnifiedDeal = {
   mailSafe: true,
   valBasis: "attom_region",
   dealGrade: "A",
+  // MH sinyali İÇ alandır — buyer whitelist testleri sızmadığını da doğrular.
+  useCode: "VACANT LAND",
+  mh: "likely",
+  mhReason: "AZ ROAD Act — county teyidi şart",
 };
 
 test("toBuyerParcel: sadece whitelist alanları döner", () => {

@@ -106,6 +106,9 @@ function pointsToGeoJSON(points: MapPoint[]): GeoJSON.FeatureCollection {
       properties: {
         id: p.id, grade: p.dealGrade ?? "", spread: p.spread || 0,
         absentee: p.absentee ? 1 : 0,
+        // ROAD Act MH-uygunluk sinyali (2D çipin eşdeğeri): sadece "likely"
+        // yeşil halka alır. Admin haritası — alıcı sayfasına SIZMAZ.
+        mh: p.mh === "likely" ? 1 : 0,
         // Gerçek Regrid sınırı yüklü mü? Yüklüyse yüksek zoom'da nokta küçülüp
         // soluklaşır (sınır+dolgu zaten oradadır); yoksa nokta BÜYÜK kalır.
         hasGeo: geoCache.get(p.id)?.real ? 1 : 0,
@@ -200,6 +203,15 @@ const RING_RADIUS = ["interpolate", ["linear"], ["zoom"],
   14, ["case", ["==", ["get", "hasGeo"], 1], 7, aSize(16, 14)],
   16, ["case", ["==", ["get", "hasGeo"], 1], 6, aSize(18, 15.5)],
 ] as unknown as maplibregl.ExpressionSpecification;
+// MH halkası absentee halkasının ~3px DIŞINDA durur → ikisi aynı parselde
+// üst üste binmez (amber iç, yeşil dış).
+const MH_RING_RADIUS = ["interpolate", ["linear"], ["zoom"],
+  8, aSize(12, 10.5),
+  12, aSize(16, 14),
+  14, ["case", ["==", ["get", "hasGeo"], 1], 10, aSize(19, 17)],
+  16, ["case", ["==", ["get", "hasGeo"], 1], 9, aSize(21, 18.5)],
+] as unknown as maplibregl.ExpressionSpecification;
+const MH_GREEN = "#22c55e"; // MH-uygun halka/rozet rengi (tier A #059669'dan ayrık, parlak)
 
 export default function DealsMap3D({ points }: { points: MapPoint[] }) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -213,6 +225,9 @@ export default function DealsMap3D({ points }: { points: MapPoint[] }) {
   const [pitched, setPitched] = useState(true);
   // OSM 3D binalar (OpenFreeMap) — varsayılan KAPALI; zoom ≥ 14'te etkili.
   const [showBuildings, setShowBuildings] = useState(false);
+  // ROAD Act MH filtresi (2D "🏠 MH-uygun" çipinin 3D eşdeğeri): açıkken sadece
+  // mh === "likely" parseller (nokta + sınır + kule + tur) görünür.
+  const [mhOnly, setMhOnly] = useState(false);
   // Regrid sınır durumu: geoVersion cache her büyüyünce artar → kaynaklar tazelenir.
   const [geoVersion, setGeoVersion] = useState(0);
   const [boundaryLoading, setBoundaryLoading] = useState(0); // uçuştaki istek sayısı
@@ -221,12 +236,24 @@ export default function DealsMap3D({ points }: { points: MapPoint[] }) {
   const tourTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pointsRef = useRef(points);
   pointsRef.current = points;
+  // Görünür (MH filtreli) küme ref'i — viewport sınır yükleyici GİZLİ parsele
+  // Regrid isteği harcamasın (rate limit 60/dk, bütçe değerli).
+  const visibleRef = useRef(points);
   const hoveredIdRef = useRef<string | null>(null);
   const tourStopIdRef = useRef<string | null>(null); // aktif tur durağı (geç gelen sınırla yeniden kadrajlama)
 
+  // MH filtresi uygulanmış görünür küme — tüm katmanlar + sunum turu bunu
+  // kullanır (tur gizli parsele uçmasın; kadraj/uçuş mantığı DEĞİŞMEZ).
+  const mhCount = useMemo(() => points.filter((p) => p.mh === "likely").length, [points]);
+  const visiblePoints = useMemo(
+    () => (mhOnly ? points.filter((p) => p.mh === "likely") : points),
+    [points, mhOnly]
+  );
+  visibleRef.current = visiblePoints;
+
   const topDeals = useMemo(
-    () => [...points].sort((a, b) => (b.spread || 0) - (a.spread || 0)).slice(0, TOUR_STOPS),
-    [points]
+    () => [...visiblePoints].sort((a, b) => (b.spread || 0) - (a.spread || 0)).slice(0, TOUR_STOPS),
+    [visiblePoints]
   );
 
   // Cache'teki gerçek sınır sayısı (legend rozeti).
@@ -244,7 +271,7 @@ export default function DealsMap3D({ points }: { points: MapPoint[] }) {
     if (!map || map.getZoom() < BOUNDARY_MIN_ZOOM) return;
     const b = map.getBounds();
     const c = map.getCenter();
-    const candidates = pointsRef.current
+    const candidates = visibleRef.current
       .filter((p) => !geoCache.has(p.id) && !geoPending.has(p.id) && b.contains([p.lng, p.lat]))
       .map((p) => ({ p, d: (p.lat - c.lat) ** 2 + (p.lng - c.lng) ** 2 }))
       .sort((a, z) => a.d - z.d)
@@ -401,6 +428,19 @@ export default function DealsMap3D({ points }: { points: MapPoint[] }) {
           "circle-pitch-alignment": "map",
         },
       });
+      // MH-uygun (ROAD Act "likely") halkası — yeşil, absentee amberinin dışında.
+      map.addLayer({
+        id: "deal-mh", type: "circle", source: "deals",
+        filter: ["==", ["get", "mh"], 1],
+        paint: {
+          "circle-radius": MH_RING_RADIUS,
+          "circle-color": "rgba(0,0,0,0)",
+          "circle-stroke-color": MH_GREEN,
+          "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 8, 1.5, 14, 2.5],
+          "circle-stroke-opacity": DOT_OPACITY,
+          "circle-pitch-alignment": "map",
+        },
+      });
       map.addLayer({
         id: "deal-dots", type: "circle", source: "deals",
         paint: {
@@ -510,13 +550,13 @@ export default function DealsMap3D({ points }: { points: MapPoint[] }) {
     };
     map.on("moveend", schedule);
     map.on("zoomend", schedule);
-    schedule(); // ilk yükleme (kullanıcı zaten yakınsa)
+    schedule(); // ilk yükleme (kullanıcı zaten yakınsa) + mhOnly değişince görünür küme için tekrar
     return () => {
       map.off("moveend", schedule);
       map.off("zoomend", schedule);
       if (timer) clearTimeout(timer);
     };
-  }, [ready, loadViewportBoundaries]);
+  }, [ready, loadViewportBoundaries, mhOnly]);
 
   // Rakip ilanları (2D ile aynı endpoint).
   useEffect(() => {
@@ -533,10 +573,10 @@ export default function DealsMap3D({ points }: { points: MapPoint[] }) {
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !ready) return;
-    (map.getSource("deals") as maplibregl.GeoJSONSource | undefined)?.setData(pointsToGeoJSON(points));
-    (map.getSource("columns") as maplibregl.GeoJSONSource | undefined)?.setData(spreadColumnsGeoJSON(points));
-    (map.getSource("parcels") as maplibregl.GeoJSONSource | undefined)?.setData(parcelBoundariesGeoJSON(points));
-  }, [points, geoVersion, ready]);
+    (map.getSource("deals") as maplibregl.GeoJSONSource | undefined)?.setData(pointsToGeoJSON(visiblePoints));
+    (map.getSource("columns") as maplibregl.GeoJSONSource | undefined)?.setData(spreadColumnsGeoJSON(visiblePoints));
+    (map.getSource("parcels") as maplibregl.GeoJSONSource | undefined)?.setData(parcelBoundariesGeoJSON(visiblePoints));
+  }, [visiblePoints, geoVersion, ready]);
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !ready) return;
@@ -701,11 +741,20 @@ export default function DealsMap3D({ points }: { points: MapPoint[] }) {
         <button onClick={() => setShowBuildings((v) => !v)} style={btn3d(showBuildings, "#78716c", "#57534e")} title="OSM bina ayak izlerini 3D olarak göster (OpenFreeMap · zoom ≥ 14)">
           🏢 3D Binalar: {showBuildings ? "Açık" : "Kapalı"}
         </button>
+        {/* 2D'deki "🏠 MH-uygun (ROAD Act)" çipinin 3D eşdeğeri. */}
+        <button
+          onClick={() => setMhOnly((v) => !v)}
+          style={btn3d(mhOnly, "#047857", "#065f46")}
+          title="Sadece MH-uygun (ROAD Act 'likely') parselleri göster — county teyidi şerhli iç sinyal"
+        >
+          🏠 MH-uygun (ROAD Act){mhCount ? ` (${mhCount})` : ""}: {mhOnly ? "Açık" : "Kapalı"}
+        </button>
         <div style={{ background: "rgba(255,255,255,0.95)", border: "1px solid #e2e8f0", borderRadius: 8, padding: "7px 10px", fontSize: 11, lineHeight: 1.7, color: "#334155", boxShadow: "0 2px 8px rgba(0,0,0,0.18)", maxWidth: 230 }}>
           <div style={{ fontWeight: 700, marginBottom: 2 }}>3D Arazi</div>
           <div><span style={{ display: "inline-block", width: 10, height: 10, borderRadius: "50%", background: GRADE_COLOR.A, marginRight: 6 }} />A deal · <span style={{ display: "inline-block", width: 10, height: 10, borderRadius: "50%", background: GRADE_COLOR.B, marginRight: 6, marginLeft: 4 }} />B · <span style={{ display: "inline-block", width: 10, height: 10, borderRadius: "50%", background: GRADE_COLOR.C, marginRight: 6, marginLeft: 4 }} />C</div>
           <div><span style={{ display: "inline-block", width: 11, height: 11, border: `2px solid ${GRADE_BRIGHT.A}`, background: "rgba(52,211,153,0.15)", borderRadius: 2, marginRight: 6, verticalAlign: "middle" }} />Parlak kontur = <b>gerçek tapu sınırı (Regrid)</b>{boundaryCount ? ` · ${boundaryCount} yüklü` : ""}</div>
           <div style={{ fontSize: 10, color: "#64748b" }}>Sınırlar zoom ≥ {BOUNDARY_MIN_ZOOM}&apos;de görünür bölge için yüklenir · seçili/tur parseli amber yanıp söner</div>
+          <div><span style={{ display: "inline-block", width: 11, height: 11, borderRadius: "50%", border: `2px solid ${MH_GREEN}`, marginRight: 6, verticalAlign: "middle" }} />Yeşil halka = <b>MH-uygun (ROAD Act)</b> — county teyidi şerhli</div>
           <div><span style={{ display: "inline-block", width: 9, height: 9, background: COMP_COLOR, transform: "rotate(45deg)", marginRight: 7 }} />Rakip ilanı (yaklaşık)</div>
           <div style={{ color: "#64748b" }}>Sağ tık / iki parmak: eğ &amp; döndür · 🏔 düğmesi: 3D araziyi aç/kapa</div>
           <div style={{ fontSize: 9, color: "#94a3b8", marginTop: 2 }}>Kot: AWS Terrain (~30m) — parsel-kesin değil · 1.4× abartı · Kuleler: Regrid şekli varsa gerçek, yoksa ~kare · 🏢 Binalar: OSM/OpenFreeMap, zoom ≥ {BUILDING_MIN_ZOOM}</div>
@@ -724,6 +773,19 @@ export default function DealsMap3D({ points }: { points: MapPoint[] }) {
           </div>
           <div style={{ color: "#64748b" }}>{[selected.region, selected.county, selected.state].filter(Boolean).join(", ")}</div>
           <div>{selected.acres?.toFixed(2)} acre{selected.absentee ? " · absentee" : ""} · APN {selected.apn || "—"}</div>
+          {/* ROAD Act MH rozeti — 2D popup'la aynı dil/renk (dürüst, teyit şerhli). */}
+          {selected.mh && (
+            <div
+              title={selected.mhReason ?? undefined}
+              style={{
+                display: "inline-block", borderRadius: 5, padding: "1px 7px", fontSize: 10.5, fontWeight: 700, margin: "2px 0",
+                color: selected.mh === "likely" ? "#065f46" : selected.mh === "verify" ? "#92400e" : "#475569",
+                background: selected.mh === "likely" ? "#d1fae5" : selected.mh === "verify" ? "#fef3c7" : "#f1f5f9",
+              }}
+            >
+              {selected.mh === "likely" ? "🏠 MH-uygun (ROAD Act) — teyit şerhli" : selected.mh === "verify" ? "🏠 MH: county teyidi şart" : "MH uygun değil"}
+            </div>
+          )}
           <div>Piyasa: <b>{selected.marketValue ? usd(selected.marketValue) : "comp gerekli"}</b></div>
           <div>Teklif: <b style={{ color: "#059669" }}>{selected.estOffer ? usd(selected.estOffer) : "—"}</b> · Spread: <b style={{ color: "#059669" }}>{selected.spread ? usd(selected.spread) : "—"}</b></div>
           <div style={{ fontSize: 10, marginTop: 2, color: geoCache.get(selected.id)?.real ? "#047857" : "#94a3b8" }}>
@@ -760,6 +822,12 @@ export default function DealsMap3D({ points }: { points: MapPoint[] }) {
             {[tourDeal.county, tourDeal.state].filter(Boolean).join(", ") || tourDeal.region}
           </div>
           <div style={{ color: "#94a3b8", fontSize: 12 }}>{tourDeal.region} · {tourDeal.acres?.toFixed(2)} acre</div>
+          {/* Tur kartı koyu temada MH rozeti (sunumda satış kozu görünür kalsın). */}
+          {tourDeal.mh === "likely" && (
+            <div title={tourDeal.mhReason ?? undefined} style={{ display: "inline-block", borderRadius: 5, padding: "1px 7px", fontSize: 10.5, fontWeight: 700, marginTop: 3, color: "#052e16", background: "#4ade80" }}>
+              🏠 MH-uygun (ROAD Act) — teyit şerhli
+            </div>
+          )}
           <div style={{ fontSize: 10, marginTop: 2, color: geoCache.get(tourDeal.id)?.real ? "#4ade80" : "#94a3b8" }}>
             {geoCache.get(tourDeal.id)?.real ? "📐 Gerçek tapu sınırı kadrajda (Regrid)" : "📐 Sınır: Regrid kapsamına göre"}
           </div>
