@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { z } from "zod";
 import { enforceRateLimit, requireGate } from "@/lib/api-guard";
+import { lobSchema, type LobInput } from "@/lib/lob-schema";
+import { POSTCARD_FRONT_HTML } from "@/lib/mailer-data";
 
 export const runtime = "nodejs";
 
@@ -18,63 +19,8 @@ const LOB_BASE = "https://api.lob.com/v1";
 // reach the upstream API.
 // ─────────────────────────────────────────────────────────────────────────────
 
-const addressTo = z.object({
-  name: z.string().trim().min(1).max(120),
-  address_line1: z.string().trim().min(1).max(200),
-  city: z.string().trim().min(1).max(100),
-  state: z.string().trim().min(2).max(40),
-  zip: z.string().trim().min(3).max(12),
-});
-
-const addressFrom = z
-  .object({
-    name: z.string().trim().max(120).optional(),
-    address_line1: z.string().trim().max(200).optional(),
-    city: z.string().trim().max(100).optional(),
-    state: z.string().trim().max(40).optional(),
-    zip: z.string().trim().max(12).optional(),
-  })
-  .optional();
-
-// merge_variables: shallow record of short strings only (no nested objects /
-// arrays / huge blobs reaching Lob).
-const mergeVars = z.record(z.string().max(60), z.string().max(500)).optional();
-
-const lobSchema = z.discriminatedUnion("action", [
-  z.object({
-    action: z.literal("send_letter"),
-    to: addressTo,
-    from: addressFrom,
-    // Mektup GÖVDESİ buradan geçer (Lob "file" alanı düz metin/HTML içeriği de
-    // kabul eder). Eski max(200) sınırı template-ID varsayımıydı; oysa
-    // LETTER_TEMPLATES önizlemeleri ~240-750 karakter → Quick Send mektupları
-    // sandbox'ta bile zod'da 400 dönüyordu. Üst sınır kötüye kullanıma karşı
-    // duruyor, sadece gerçek gövdeye yer açacak kadar genişletildi.
-    template: z.string().trim().max(10_000).optional(),
-    description: z.string().trim().max(200).optional(),
-    merge_variables: mergeVars,
-  }),
-  z.object({
-    action: z.literal("send_postcard"),
-    to: addressTo,
-    from: addressFrom,
-    front: z.string().trim().max(200).optional(),
-    back: z.string().trim().max(200).optional(),
-    description: z.string().trim().max(200).optional(),
-    merge_variables: mergeVars,
-  }),
-  z.object({
-    action: z.literal("verify_address"),
-    address: z.object({
-      address_line1: z.string().trim().min(1).max(200),
-      city: z.string().trim().max(100).optional(),
-      state: z.string().trim().max(40).optional(),
-      zip: z.string().trim().max(12).optional(),
-    }),
-  }),
-]);
-
-type LobInput = z.infer<typeof lobSchema>;
+// Şema src/lib/lob-schema.ts'e taşındı (node:test ile test edilebilsin diye).
+// Postcard front/back artık max(10_000): Quick Send gövdesi back'ten geçer.
 
 // Parse an upstream Lob response safely; returns a 502 if the body isn't JSON.
 async function lobJson(res: Response): Promise<NextResponse> {
@@ -209,7 +155,10 @@ export async function POST(req: NextRequest) {
           address_state: from?.state || "TX",
           address_zip: from?.zip || "78701",
         },
-        front,
+        // Lob gerçek API'de postcard için front + back ZORUNLU. Quick Send
+        // gövdeyi back'e koyar; front göndermeyen eski çağıranlar için markalı
+        // varsayılan ön yüz devreye girer (istek sessizce içeriksiz gitmesin).
+        front: front || POSTCARD_FRONT_HTML,
         back,
         size: "6x9",
         merge_variables,

@@ -175,3 +175,47 @@ export const LETTER_TEMPLATES: { id: string; name: string; type: MailType; previ
     preview: "REAL ESTATE PURCHASE CONTRACT (ALL-CASH OFFER)\n\n1. PARTIES: TerraLot Acquisitions LLC (\"Buyer\") agrees to buy, and {{owner_name}} (\"Seller\") agrees to sell the property described below.\n2. PROPERTY DESCRIPTION: Land parcel located in {{county}} County, {{state}}, APN: {{apn}}.\n3. PURCHASE PRICE: Buyer shall pay Seller at closing: ${{offer_amount}} (All-Cash, no financing contingencies).\n4. CLOSING: Closing shall occur within 30 days. Title and escrow fees to be split equally.\n5. CONVEYANCE: Seller warrants marketable title, free of liens, conveyed by General Warranty Deed.\n\nSELLER SIGNATURE: _______________________ DATE: _________\n\nBUYER SIGNATURE: TerraLot Acquisitions Authorized Signatory",
   },
 ];
+
+// ── Lob içerik köprüsü (Quick Send → /api/lob) ───────────────────────────────
+// BUG FIX: postcard şablonu seçiliyken sayfa `template` alanı gönderiyordu; ama
+// send_postcard şeması template TANIMAZ (zod bilinmeyen key'i sessizce düşürür)
+// → içerik kaybolur, gerçek Lob key'inde front/back zorunlu olduğundan istek
+// patlar. Artık gövde tipe göre doğru alana bağlanır:
+//   letter   → { template }            (Lob "file" alanına gider)
+//   postcard → { front, back }         (gövde back'te; front markalı sabit yüz)
+
+/**
+ * Postcard ÖN YÜZÜ: markalı, sabit, kişisel veri/iç sinyal İÇERMEZ.
+ * Lob gerçek API'de front+back zorunlu; Quick Send şablonu tek gövde metni
+ * ürettiğinden gövde back'e gider, ön yüz bu HTML olur.
+ */
+export const POSTCARD_FRONT_HTML =
+  '<html><body style="margin:0"><div style="width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#0f172a;color:#fff;font-family:Georgia,serif;text-align:center;padding:24px;box-sizing:border-box">' +
+  '<div style="font-size:34px;font-weight:700;letter-spacing:1px">WE BUY LAND</div>' +
+  '<div style="font-size:16px;margin-top:10px;color:#cbd5e1">Fair cash offer &middot; No fees &middot; Fast closing</div>' +
+  '<div style="font-size:14px;margin-top:16px;color:#94a3b8">TerraLot Acquisitions &middot; terralot.com</div>' +
+  "</div></body></html>";
+
+/** Gövde metnini HTML'e güvenle gömer ({{merge}} yer tutucularına dokunmaz). */
+function escapeHtml(s: string): string {
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+/**
+ * Şablon tipi + render edilmiş gövde → /api/lob şemasına UYGUN içerik alanları.
+ * Postcard gövdesi satır sonları korunarak minik bir HTML zarfına sarılır
+ * (Lob back alanı HTML bekler; düz \n orada yutulurdu).
+ */
+export function buildLobContent(
+  type: MailType,
+  body: string
+): { template: string } | { front: string; back: string } {
+  if (type !== "postcard") return { template: body };
+  return {
+    front: POSTCARD_FRONT_HTML,
+    back:
+      '<html><body style="margin:0"><div style="padding:20px;font-family:Georgia,serif;font-size:13px;line-height:1.55;color:#0f172a;white-space:pre-line">' +
+      escapeHtml(body) +
+      "</div></body></html>",
+  };
+}

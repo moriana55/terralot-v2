@@ -1,7 +1,7 @@
 "use client";
 
 import { Mail, Send, Eye, Plus, FileText, Loader2 } from "lucide-react";
-import { campaigns, mailPieces, getMailerStats, MAIL_TYPE_LABELS, MAIL_STATUS_LABELS, CAMPAIGN_STATUS_LABELS, getCampaignStatusColor, getMailStatusColor, getCampaignPieces, LETTER_TEMPLATES, applyMhNote } from "@/lib/mailer-data";
+import { campaigns, mailPieces, getMailerStats, MAIL_TYPE_LABELS, MAIL_STATUS_LABELS, CAMPAIGN_STATUS_LABELS, getCampaignStatusColor, getMailStatusColor, getCampaignPieces, LETTER_TEMPLATES, applyMhNote, buildLobContent } from "@/lib/mailer-data";
 import { MH_MAIL_LINE } from "@/lib/mh-eligibility";
 import type { CampaignStatus } from "@/lib/mailer-data";
 import { useState, useEffect, Suspense } from "react";
@@ -136,7 +136,13 @@ function MailerInner() {
           },
           // MH satırı Lob merge'üne bırakılmaz: boşken merge boş paragraf
           // bırakırdı. applyMhNote satırı ya doldurur ya İZSİZ siler.
-          template: applyMhNote(templateData?.preview || "", deal?.mhLikely ? MH_MAIL_LINE : null),
+          // buildLobContent gövdeyi tipe göre DOĞRU alana koyar: mektup →
+          // template, postcard → front/back (eskiden postcard'da template
+          // gönderiliyordu; şema tanımadığı için içerik sessizce düşüyordu).
+          ...buildLobContent(
+            templateData?.type ?? "offer_letter",
+            applyMhNote(templateData?.preview || "", deal?.mhLikely ? MH_MAIL_LINE : null)
+          ),
           merge_variables: {
             owner_name: recipientName,
             county: countyVar,
