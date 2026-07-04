@@ -112,7 +112,11 @@ export default function CompetitorAnalysisPage() {
     return matchesCompetitor && matchesSearch;
   });
 
-  const activeListing = listings.find(l => l.id === selectedListingId) || listings[0];
+  // Varsayılan: finansman verisi olan ilk ilan — yoksa sağ panel $0'larla dolu açılıyordu.
+  const activeListing =
+    listings.find(l => l.id === selectedListingId) ||
+    listings.find(l => l.ourSourceCost > 0 || l.downPayment > 0 || l.monthlyPayment > 0) ||
+    listings[0];
 
   // Calculations for active listing
   const totalRetailFinanced = activeListing 
@@ -131,16 +135,16 @@ export default function CompetitorAnalysisPage() {
     <div className="p-8 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold mb-1">Competitor Intel & Sourcing Arbitrage</h1>
+          <h1 className="text-2xl font-bold mb-1">Rakip Analizi & Kaynak Arbitrajı</h1>
           <p className="text-sm" style={{ color: "var(--muted)" }}>
-            Monitor and crawl retail land listings from Discount Lots and Rina Land. Analyze variables to structure high-margin owner financing offers.
+            Discount Lots ve Rina Land retail arsa ilanlarını izle ve tara. Yüksek marjlı owner-finance teklifleri kurmak için değişkenleri analiz et.
           </p>
         </div>
         <button onClick={runCompetitorScraper} disabled={scraping}
           className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all hover:opacity-90 active:scale-95 disabled:opacity-50"
           style={{ background: "var(--primary)", color: "var(--background)" }}>
           {scraping ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
-          {scraping ? "Crawling Competitors..." : "Execute Competitor Scraper"}
+          {scraping ? "Rakipler taranıyor…" : "Rakip Tarayıcıyı Çalıştır"}
         </button>
       </div>
 
@@ -173,24 +177,24 @@ export default function CompetitorAnalysisPage() {
             name: "Discount Lots",
             avgDown: "$0 - $295",
             typicalTerms: "60 - 84 mos",
-            strategy: "High volume, $99 down/monthly anchors, heavy doc fee markup ($300).",
-            status: "Low-Down Retailer",
+            strategy: "Yüksek hacim, $99 peşinat/aylık çıpası, yüklü doc-fee marjı ($300).",
+            status: "Düşük Peşinat Perakendecisi",
             color: "var(--primary)"
           },
           {
             name: "Rina Land",
             avgDown: "$199 - $500",
             typicalTerms: "48 - 72 mos",
-            strategy: "Off-grid rural plots, simple raw land contracts, targeting preppers.",
-            status: "Off-Grid Specialist",
+            strategy: "Off-grid kırsal parseller, basit ham arazi sözleşmeleri, prepper kitlesine odaklı.",
+            status: "Off-Grid Uzmanı",
             color: "var(--tertiary)"
           },
           {
             name: "TerraLot (Us)",
             avgDown: "Flexible ($250)",
             typicalTerms: "36 - 60 mos",
-            strategy: "Premium GIS-verified land, automated Stripe management, high comps integrity.",
-            status: "Our Target Model",
+            strategy: "Premium GIS-doğrulamalı arazi, otomatik Stripe yönetimi, sağlam emsal disiplini.",
+            status: "Bizim Hedef Model",
             color: "var(--success)"
           }
         ].map(comp => (
@@ -205,7 +209,7 @@ export default function CompetitorAnalysisPage() {
             <p className="text-xs" style={{ color: "var(--muted)" }}>{comp.strategy}</p>
             <div className="pt-2 border-t grid grid-cols-2 gap-2 text-xs" style={{ borderColor: "rgba(255,255,255,0.05)" }}>
               <div>
-                <p style={{ color: "var(--muted)" }}>Peşinat Model:</p>
+                <p style={{ color: "var(--muted)" }}>Peşinat Modeli:</p>
                 <p className="font-bold">{comp.avgDown}</p>
               </div>
               <div>
@@ -225,7 +229,7 @@ export default function CompetitorAnalysisPage() {
           <div className="flex gap-3 items-center">
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: "var(--muted)" }} />
-              <input type="text" placeholder="Filter by county or state..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
+              <input type="text" placeholder="County ya da eyalete göre filtrele…" value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
                 className="w-full h-10 pl-10 pr-4 rounded-lg text-sm border outline-none bg-[var(--surface)]"
                 style={{ borderColor: "var(--outline)", color: "var(--foreground)" }} />
             </div>
@@ -237,7 +241,7 @@ export default function CompetitorAnalysisPage() {
                     background: selectedCompetitor === c ? "rgba(142,209,223,0.1)" : "transparent",
                     color: selectedCompetitor === c ? "var(--primary)" : "var(--muted)",
                   }}>
-                  {c === "all" ? "All Competitors" : c}
+                  {c === "all" ? "Tüm Rakipler" : c}
                 </button>
               ))}
             </div>
@@ -258,11 +262,11 @@ export default function CompetitorAnalysisPage() {
                   <tr>
                     <td colSpan={6} className="py-12 text-center text-xs" style={{ color: "var(--muted)" }}>
                       {loading ? (
-                        <span className="inline-flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> Loading competitor listings…</span>
+                        <span className="inline-flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> Rakip ilanları yükleniyor…</span>
                       ) : error ? (
-                        <span style={{ color: "#ff5050" }}>Supabase error: {error}</span>
+                        <span style={{ color: "#ff5050" }}>Supabase hatası: {error}</span>
                       ) : (
-                        <span>No competitor listings yet. Run <strong>Execute Competitor Scraper</strong> to crawl Discount Lots, Rina Land &amp; Landio.</span>
+                        <span>Henüz rakip ilanı yok. Discount Lots, Rina Land ve Landio&apos;yu taramak için <strong>Rakip Tarayıcıyı Çalıştır</strong>&apos;a bas.</span>
                       )}
                     </td>
                   </tr>
@@ -301,7 +305,7 @@ export default function CompetitorAnalysisPage() {
                     <td className="py-3 px-4 text-xs font-semibold text-emerald-400">${l.ourSourceCost}</td>
                     <td className="py-3 px-4">
                       <button className="text-[10px] font-bold uppercase text-[var(--primary)] hover:underline">
-                        Calculate ↗
+                        Hesapla ↗
                       </button>
                     </td>
                   </tr>
@@ -316,30 +320,30 @@ export default function CompetitorAnalysisPage() {
           {activeListing ? (
             <div className="rounded-xl border p-5 space-y-5" style={{ background: "var(--surface)", borderColor: "var(--outline)" }}>
               <div className="border-b pb-3" style={{ borderColor: "rgba(255,255,255,0.05)" }}>
-                <span className="text-[9px] font-bold uppercase tracking-widest text-[var(--primary)]">{activeListing.competitor} Contract</span>
+                <span className="text-[9px] font-bold uppercase tracking-widest text-[var(--primary)]">{activeListing.competitor} Sözleşmesi</span>
                 <h3 className="font-bold text-sm mt-1">{activeListing.title}</h3>
                 <p className="text-xs" style={{ color: "var(--muted)" }}>{activeListing.county} County, {activeListing.state} · APN: {activeListing.apn}</p>
               </div>
 
               {/* Dynamic Arbitrage Math Calculator display */}
               <div className="space-y-3">
-                <h4 className="text-[10px] font-bold uppercase tracking-wider" style={{ color: "var(--muted)" }}>Arbitrage Financial Breakdown</h4>
+                <h4 className="text-[10px] font-bold uppercase tracking-wider" style={{ color: "var(--muted)" }}>Arbitraj Finansal Dökümü</h4>
                 
                 <div className="space-y-2 text-xs p-3 rounded-lg" style={{ background: "var(--surface-low)" }}>
                   <div className="flex justify-between">
-                    <span style={{ color: "var(--muted)" }}>Down Payment</span>
+                    <span style={{ color: "var(--muted)" }}>Peşinat</span>
                     <span className="font-semibold">${activeListing.downPayment}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span style={{ color: "var(--muted)" }}>Doc Setup Fee</span>
+                    <span style={{ color: "var(--muted)" }}>Doc/Setup Ücreti</span>
                     <span className="font-semibold text-amber-500">${activeListing.docFee}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span style={{ color: "var(--muted)" }}>Financed Term</span>
+                    <span style={{ color: "var(--muted)" }}>Finansman Vadesi</span>
                     <span className="font-semibold">${activeListing.monthlyPayment} × {activeListing.termMonths} mos</span>
                   </div>
                   <div className="border-t pt-2 mt-2 flex justify-between font-bold" style={{ borderColor: "rgba(255,255,255,0.05)" }}>
-                    <span>Total Retail Financed</span>
+                    <span>Toplam Retail Finansman</span>
                     <span className="text-amber-500 font-mono">${totalRetailFinanced.toLocaleString()}</span>
                   </div>
                 </div>
@@ -348,15 +352,15 @@ export default function CompetitorAnalysisPage() {
 
                 <div className="p-3 rounded-lg border border-emerald-500/20" style={{ background: "rgba(16,185,129,0.02)" }}>
                   <div className="flex justify-between text-xs mb-1">
-                    <span style={{ color: "var(--muted)" }}>Our Sourcing Cost (Tax Deed)</span>
+                    <span style={{ color: "var(--muted)" }}>Bizim Kaynak Maliyeti (Tax Deed)</span>
                     <span className="font-bold text-emerald-400 font-mono">${activeListing.ourSourceCost.toLocaleString()}</span>
                   </div>
-                  <p className="text-[9px]" style={{ color: "var(--muted)" }}>Outstanding taxes + deed registration + title lookup</p>
+                  <p className="text-[9px]" style={{ color: "var(--muted)" }}>Birikmiş vergi + tapu kaydı + title sorgusu</p>
                 </div>
 
                 {/* Final ROI Metric */}
                 <div className="p-4 rounded-xl text-center space-y-1" style={{ background: "rgba(16,185,129,0.08)", border: "1px solid rgba(16,185,129,0.2)" }}>
-                  <p className="text-[9px] uppercase tracking-wider font-semibold text-emerald-500">Gross Arbitrage Spread</p>
+                  <p className="text-[9px] uppercase tracking-wider font-semibold text-emerald-500">Brüt Arbitraj Spread&apos;i</p>
                   <p className="text-2xl font-extrabold font-mono text-emerald-400">{hasArbitrageData ? `+$${netArbitrageProfit.toLocaleString()}` : "—"}</p>
                   {markupPercent == null ? (
                     <p className="text-xs font-bold flex items-center justify-center gap-1" style={{ color: "var(--muted)" }}>
@@ -365,7 +369,7 @@ export default function CompetitorAnalysisPage() {
                   ) : (
                     <p className="text-xs font-bold text-emerald-500 flex items-center justify-center gap-1">
                       <ArrowUpRight className="w-4 h-4" />
-                      <span>{markupPercent}% Markup ROI</span>
+                      <span>%{markupPercent} marj (ROI)</span>
                     </p>
                   )}
                 </div>
@@ -378,7 +382,7 @@ export default function CompetitorAnalysisPage() {
             </div>
           ) : (
             <div className="rounded-xl border border-dashed p-8 text-center" style={{ color: "var(--muted)" }}>
-              <p className="text-sm">Select a listing to calculate target ROI</p>
+              <p className="text-sm">ROI hesaplamak için bir ilan seç</p>
             </div>
           )}
         </div>

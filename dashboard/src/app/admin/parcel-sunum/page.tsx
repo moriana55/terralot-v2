@@ -81,7 +81,9 @@ function InstallmentTable({ price }: { price: number }) {
           </tr>
           <tr className="border-b border-slate-200">
             <td className="py-1.5 text-slate-600">Aylık taksit</td>
-            <td className="py-1.5 text-right font-bold">{usd(monthly)} <span className="font-normal text-slate-500">× {months} ay</span></td>
+            {/* Son taksit farklıysa tam taksit sayısı months-1'dir; "× months ay" yazınca
+                tablo toplamı elle sağlanamıyordu (örn. $199×65 + $76 ≠ toplam). */}
+            <td className="py-1.5 text-right font-bold">{usd(monthly)} <span className="font-normal text-slate-500">× {months > 1 && lastPayment !== monthly ? months - 1 : months} ay</span></td>
           </tr>
           {months > 1 && lastPayment !== monthly && (
             <tr className="border-b border-slate-200">
