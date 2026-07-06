@@ -41,7 +41,7 @@ interface Deal {
 
 export default function RealDealsPage() {
   const deals = (data.deals as Deal[]) || [];
-  const totalSpread = deals.reduce((s, d) => s + d.estSpread, 0);
+  const totalSpread = deals.reduce((s, d) => s + (d.estSpread || 0), 0); // null estSpread NaN üretmesin
   const totalValue = deals.reduce((s, d) => s + (d.landValue || 0), 0);
 
   return (

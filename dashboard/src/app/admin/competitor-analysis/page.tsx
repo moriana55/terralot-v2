@@ -170,7 +170,10 @@ export default function CompetitorAnalysisPage() {
         </div>
       )}
 
-      {/* Competitor Strategy Highlights */}
+      {/* Competitor Strategy Highlights — elle derlenmiş özet, canlı veri DEĞİL */}
+      <p className="text-[11px] -mb-3" style={{ color: "var(--muted)" }}>
+        Aşağıdaki strateji kartları elle derlenmiş pazar gözlemidir (temsili aralıklar) — tablodaki canlı tarama verisinden gelmez.
+      </p>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {[
           {
@@ -234,7 +237,8 @@ export default function CompetitorAnalysisPage() {
                 style={{ borderColor: "var(--outline)", color: "var(--foreground)" }} />
             </div>
             <div className="flex gap-1 rounded-lg border p-0.5" style={{ background: "var(--surface)", borderColor: "var(--outline)" }}>
-              {["all", "Discount Lots", "Rina Land"].map(c => (
+              {/* Landio da taranıyor — filtrede eksikti, ilanları "all" dışında görülemiyordu */}
+              {["all", "Discount Lots", "Rina Land", "Landio"].map(c => (
                 <button key={c} onClick={() => setSelectedCompetitor(c)}
                   className="px-3 py-1.5 rounded-md text-xs font-semibold transition-colors capitalize whitespace-nowrap"
                   style={{
@@ -302,9 +306,10 @@ export default function CompetitorAnalysisPage() {
                         </p>
                       </div>
                     </td>
-                    <td className="py-3 px-4 text-xs font-semibold text-emerald-400">${l.ourSourceCost}</td>
+                    <td className="py-3 px-4 text-xs font-semibold text-emerald-400">${l.ourSourceCost.toLocaleString()}</td>
                     <td className="py-3 px-4">
-                      <button className="text-[10px] font-bold uppercase text-[var(--primary)] hover:underline">
+                      {/* Buton kendi onClick'ine sahip — önceden sadece satır bubbling'ine yaslanıyordu */}
+                      <button onClick={() => setSelectedListingId(l.id)} className="text-[10px] font-bold uppercase text-[var(--primary)] hover:underline">
                         Hesapla ↗
                       </button>
                     </td>
@@ -397,6 +402,7 @@ export default function CompetitorAnalysisPage() {
           </h2>
           <p className="text-xs mt-1" style={{ color: "var(--muted)" }}>
             Discount Lots, Rina Land ve Landio gibi devlerin kullandığı finansal kaldıraç yöntemleri ve iş modelinin derinlemesine incelenmesi.
+            Buradaki dolar rakamları temsili örneklerdir — canlı tarama verisi değildir.
           </p>
         </div>
 

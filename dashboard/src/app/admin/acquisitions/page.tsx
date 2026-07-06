@@ -273,7 +273,7 @@ export default function AcquisitionsPage() {
       const city = p.join(", ");
       return { street, city, st, zip };
     };
-    const cols = ["owner_name", "mail_street", "mail_city", "mail_state", "mail_zip", "property_county", "property_state", "apn", "min_bid", "value", "grade", "sale_date"];
+    const cols = ["owner_name", "mail_street", "mail_city", "mail_state", "mail_zip", "property_county", "property_state", "apn", "min_bid", "judgment_amount", "grade", "sale_date"];
     const esc = (v: unknown) => { const s = v == null ? "" : String(v); return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
     const lines = [cols.join(",")];
     for (const r of rows) {
