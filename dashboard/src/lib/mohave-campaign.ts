@@ -134,6 +134,68 @@ export function buildCampaign(rows: MohaveRow[], f: CampaignFilter = {}): Campai
   };
 }
 
+// ─── Tekrar-mektup koruması: sahip+adres → deterministik owner_key ───────────
+// FNV-1a 32-bit: bağımlılıksız, hızlı, log tablosunda kısa bir anahtar yeter
+// (çakışma riski 20K ölçekte ihmal edilebilir; anahtar yine normalize metinle
+// birlikte üretildiği için insan gözüyle de doğrulanabilir).
+const normKey = (l: Pick<CampaignLetter, "owner" | "address" | "city" | "state" | "zip">): string =>
+  [l.owner, l.address, l.city, l.state, l.zip].map((s) => clean(s).toUpperCase().replace(/\s+/g, " ")).join("|");
+
+export function ownerKey(l: Pick<CampaignLetter, "owner" | "address" | "city" | "state" | "zip">): string {
+  const s = normKey(l);
+  let h = 0x811c9dc5;
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 0x01000193);
+  }
+  return (h >>> 0).toString(16).padStart(8, "0") + "-" + s.length.toString(36);
+}
+
+/** Daha önce mektup atılan sahipleri (owner_key seti) listeden düşer. */
+export function excludeMailed(
+  letters: CampaignLetter[],
+  mailedKeys: ReadonlySet<string>
+): { kept: CampaignLetter[]; excluded: number } {
+  if (mailedKeys.size === 0) return { kept: letters, excluded: 0 };
+  const kept = letters.filter((l) => !mailedKeys.has(ownerKey(l)));
+  return { kept, excluded: letters.length - kept.length };
+}
+
+// ─── Mektup gövdesi (portföy teklifi) ────────────────────────────────────────
+// DİKKAT: est_offer / spread ASLA mektuba girmez — fiyat konuşması telefonda
+// başlar. Gövde: sahip adı, APN listesi (uzunsa kısaltılır), toplam acre, iletişim.
+export interface LetterContact {
+  company: string;
+  phone?: string;
+  email?: string;
+}
+
+const MAX_APNS_IN_LETTER = 12;
+
+export function buildLetterBody(l: CampaignLetter, c: LetterContact): string {
+  const apns =
+    l.apns.length <= MAX_APNS_IN_LETTER
+      ? l.apns.join(", ")
+      : `${l.apns.slice(0, MAX_APNS_IN_LETTER).join(", ")} (+${l.apns.length - MAX_APNS_IN_LETTER} more)`;
+  const parcelWord = l.parcelCount === 1 ? "parcel" : "parcels";
+  const contactLines = [c.phone && `Phone: ${c.phone}`, c.email && `Email: ${c.email}`].filter(Boolean).join("\n");
+  return [
+    `Dear ${l.owner},`,
+    ``,
+    `We are a land investment company actively buying vacant land in Mohave County, Arizona, and county records show you own ${l.parcelCount} ${parcelWord} there (approx. ${l.totalAcres.toFixed(1)} acres total):`,
+    ``,
+    `APN${l.apns.length > 1 ? "s" : ""}: ${apns}`,
+    ``,
+    `We would like to make you a cash offer for ${l.parcelCount > 1 ? "your entire portfolio or any individual parcel" : "your parcel"}. We buy as-is, cover all closing costs, and can typically close within 30 days — no fees, no commissions, no obligation.`,
+    ``,
+    `If you have ever considered selling, this is a simple way to do it. Call or email us and we will present a written offer within 48 hours.`,
+    ``,
+    `Sincerely,`,
+    c.company,
+    contactLines,
+  ].filter((line) => line !== undefined).join("\n");
+}
+
 const csvCell = (v: string | number): string => {
   const s = String(v);
   return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;

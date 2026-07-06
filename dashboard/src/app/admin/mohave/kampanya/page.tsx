@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { Mail, Loader2, Download, Filter, Users, MapPin, DollarSign, AlertTriangle } from "lucide-react";
+import { Mail, Loader2, Download, Filter, Users, MapPin, DollarSign, AlertTriangle, Send, X, CheckCircle2 } from "lucide-react";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // MOHAVE MEKTUP KAMPANYA KURUCU (admin, Türkçe)
@@ -16,9 +16,29 @@ interface Letter {
   parcelCount: number; apns: string[]; totalAcres: number; totalOffer: number; regions: string[];
 }
 interface ApiResp {
-  summary: { letters: number; parcels: number; totalAcres: number; totalOffer: number; skippedNoAddress: number; sourceRows: number };
+  summary: {
+    letters: number; parcels: number; totalAcres: number; totalOffer: number;
+    skippedNoAddress: number; skippedGovOwner: number; excludedMailed: number; sourceRows: number;
+  };
+  /** true=log tablosu okundu, false=okunamadı (tablo/env yok), null=exclusion istenmedi. */
+  exclusionAvailable: boolean | null;
+  lobConfigured: boolean;
   regions: string[];
   preview: Letter[];
+}
+
+interface SendResult {
+  dryRun: boolean;
+  campaign: string;
+  letters?: number;
+  parcels?: number;
+  sent?: number;
+  failed?: number;
+  failures?: { owner: string; error?: string }[];
+  sample?: { owner: string; address: string; parcelCount: number }[];
+  sampleBody?: string;
+  message?: string;
+  logWarning?: string | null;
 }
 
 const usd = (n: number) => `$${Math.round(n).toLocaleString("en-US")}`;
@@ -39,9 +59,16 @@ export default function MohaveKampanyaPage() {
   const [maxLandValue, setMaxLandValue] = useState("");
   const [minParcels, setMinParcels] = useState("");
   const [costPer, setCostPer] = useState("0.89");
+  const [excludeMailed, setExcludeMailed] = useState(true);
   const [data, setData] = useState<ApiResp | null>(null);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState<string | null>(null);
+  // Gönderim akışı
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [campaignName, setCampaignName] = useState("");
+  const [sending, setSending] = useState(false);
+  const [sendResult, setSendResult] = useState<SendResult | null>(null);
+  const [sendErr, setSendErr] = useState<string | null>(null);
 
   const qs = useCallback(() => {
     const p = new URLSearchParams();
@@ -51,8 +78,9 @@ export default function MohaveKampanyaPage() {
     if (maxAcres) p.set("maxAcres", maxAcres);
     if (maxLandValue) p.set("maxLandValue", maxLandValue);
     if (minParcels) p.set("minParcels", minParcels);
+    if (excludeMailed) p.set("excludeMailed", "1");
     return p.toString();
-  }, [region, ownerScope, minAcres, maxAcres, maxLandValue, minParcels]);
+  }, [region, ownerScope, minAcres, maxAcres, maxLandValue, minParcels, excludeMailed]);
 
   // setLoading(true) çağıranın sorumluluğunda (effect içinde senkron setState
   // lint'e takılır — tax-leads ile aynı desen).
@@ -75,8 +103,44 @@ export default function MohaveKampanyaPage() {
     setMinParcels(f.minParcels ?? "");
   };
 
+  const startCampaign = async () => {
+    if (!data) return;
+    setSending(true);
+    setSendErr(null);
+    try {
+      const num = (v: string) => (v.trim() === "" ? undefined : Number(v));
+      const res = await fetch("/api/admin/mohave-campaign", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "send_campaign",
+          campaign: campaignName.trim(),
+          filter: {
+            region: region || undefined,
+            ownerScope: ownerScope === "all" ? undefined : ownerScope,
+            minAcres: num(minAcres), maxAcres: num(maxAcres),
+            maxLandValue: num(maxLandValue), minParcels: num(minParcels),
+          },
+          excludeMailed,
+          expectedLetters: data.summary.letters,
+        }),
+      });
+      const j = await res.json();
+      if (!res.ok) throw new Error(j.message || j.error || `API ${res.status}`);
+      setSendResult(j as SendResult);
+      setConfirmOpen(false);
+      // Gerçek gönderim sonrası segmenti tazele — exclusion yeni logları görsün.
+      if (!(j as SendResult).dryRun) { setLoading(true); load(); }
+    } catch (e) {
+      setSendErr(e instanceof Error ? e.message : String(e));
+    } finally {
+      setSending(false);
+    }
+  };
+
   const s = data?.summary;
   const cost = s ? s.letters * (Number(costPer) || 0) : 0;
+  const lobReady = data?.lobConfigured ?? false;
 
   const inputCls = "w-full px-2.5 py-2 rounded-lg text-sm border bg-transparent outline-none";
   const inputStyle = { borderColor: "var(--outline)" } as const;
@@ -158,14 +222,45 @@ export default function MohaveKampanyaPage() {
             style={{ background: GREEN, color: "#fff", pointerEvents: s && s.letters > 0 ? "auto" : "none", opacity: s && s.letters > 0 ? 1 : 0.4 }}>
             <Download className="h-4 w-4" /> Lob-ready CSV indir {s ? `(${s.letters.toLocaleString("en-US")} mektup)` : ""}
           </a>
+          <button onClick={() => { setSendResult(null); setSendErr(null); setConfirmOpen(true); }}
+            disabled={!s || s.letters === 0 || loading}
+            className="flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-bold"
+            style={{ background: "var(--warn)", color: "#000", opacity: s && s.letters > 0 && !loading ? 1 : 0.4 }}>
+            <Send className="h-4 w-4" /> Kampanyayı Başlat {s ? `(${s.letters.toLocaleString("en-US")})` : ""}
+          </button>
           <label className="flex items-center gap-2 text-xs" style={{ color: "var(--muted)" }}>
             Mektup başı maliyet $
             <input value={costPer} onChange={(e) => setCostPer(e.target.value)} inputMode="decimal"
               className="w-16 rounded-md border bg-transparent px-1.5 py-1 text-xs outline-none" style={inputStyle} />
           </label>
+          <label className="flex cursor-pointer items-center gap-2 text-xs font-semibold">
+            <input type="checkbox" checked={excludeMailed} onChange={(e) => { setExcludeMailed(e.target.checked); setLoading(true); }} />
+            Daha önce mektup atılan sahipleri hariç tut
+          </label>
         </div>
         {err && <p className="mt-3 text-xs" style={{ color: "var(--error)" }}>Hata: {err}</p>}
       </div>
+
+      {/* Lob durumu şeridi */}
+      {data && !lobReady && (
+        <div className="flex items-center gap-2 rounded-lg border border-dashed px-3 py-2 text-xs font-semibold"
+          style={{ borderColor: "var(--warn)", color: "var(--warn)" }}>
+          <AlertTriangle className="h-4 w-4 shrink-0" />
+          LOB_API_KEY tanımlı değil — &quot;Kampanyayı Başlat&quot; şu an <strong>DRY-RUN</strong>: gönderilecekler listelenir, mektup GİTMEZ. API key gelince aynı buton gerçek gönderim yapar.
+        </div>
+      )}
+      {data && excludeMailed && data.exclusionAvailable === false && (
+        <div className="flex items-center gap-2 rounded-lg border border-dashed px-3 py-2 text-xs"
+          style={{ borderColor: "var(--warn)", color: "var(--warn)" }}>
+          <AlertTriangle className="h-4 w-4 shrink-0" />
+          Gönderim log tablosu okunamadı (mail_campaign_log yok ya da Supabase env eksik) — &quot;hariç tut&quot; şu an etkisiz. <code>scraper/sql/mail_campaign_log.sql</code>&apos;i Supabase&apos;de çalıştırın.
+        </div>
+      )}
+      {s && excludeMailed && data?.exclusionAvailable === true && s.excludedMailed > 0 && (
+        <p className="text-xs" style={{ color: GREEN }}>
+          ✉️ {s.excludedMailed.toLocaleString("en-US")} sahip daha önce mektup aldığı için listeden düşüldü.
+        </p>
+      )}
 
       {/* Özet kartlar */}
       {s && (
@@ -186,6 +281,53 @@ export default function MohaveKampanyaPage() {
         <p className="flex items-center gap-1.5 text-xs" style={{ color: "var(--warn)" }}>
           <AlertTriangle className="h-3.5 w-3.5" /> {s.skippedNoAddress.toLocaleString("en-US")} satır posta adresi/zip eksik olduğu için atlandı (Lob&apos;da zaten başarısız olurdu).
         </p>
+      )}
+
+      {/* Gönderim sonucu */}
+      {sendResult && (
+        <div className="rounded-xl border p-4" style={{ borderColor: sendResult.dryRun ? "var(--warn)" : GREEN, background: "var(--surface)" }}>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 text-sm font-bold">
+              {sendResult.dryRun
+                ? <><AlertTriangle className="h-4 w-4" style={{ color: "var(--warn)" }} /> DRY-RUN sonucu — mektup GÖNDERİLMEDİ</>
+                : <><CheckCircle2 className="h-4 w-4" style={{ color: GREEN }} /> Kampanya gönderildi</>}
+              <span className="font-normal" style={{ color: "var(--muted)" }}>· {sendResult.campaign}</span>
+            </div>
+            <button onClick={() => setSendResult(null)} aria-label="Kapat"><X className="h-4 w-4" style={{ color: "var(--muted)" }} /></button>
+          </div>
+          {sendResult.dryRun ? (
+            <div className="mt-3 space-y-3 text-xs">
+              <p>{sendResult.message}</p>
+              <p><strong>{(sendResult.letters ?? 0).toLocaleString("en-US")}</strong> mektup gönderilecekti ({(sendResult.parcels ?? 0).toLocaleString("en-US")} parsel). İlk 10 alıcı:</p>
+              <ul className="list-disc space-y-0.5 pl-5" style={{ color: "var(--muted)" }}>
+                {(sendResult.sample ?? []).map((r, i) => (
+                  <li key={i}><strong style={{ color: "var(--foreground)" }}>{r.owner}</strong> — {r.address} ({r.parcelCount} parsel)</li>
+                ))}
+              </ul>
+              {sendResult.sampleBody && (
+                <details>
+                  <summary className="cursor-pointer font-semibold">Örnek mektup gövdesi</summary>
+                  <pre className="mt-2 overflow-x-auto whitespace-pre-wrap rounded-lg border p-3 text-[11px] leading-relaxed"
+                    style={{ borderColor: "var(--outline)", color: "var(--muted)" }}>{sendResult.sampleBody}</pre>
+                </details>
+              )}
+            </div>
+          ) : (
+            <div className="mt-3 space-y-2 text-xs">
+              <p>
+                <strong style={{ color: GREEN }}>{(sendResult.sent ?? 0).toLocaleString("en-US")} gönderildi</strong>
+                {(sendResult.failed ?? 0) > 0 && <> · <strong style={{ color: "var(--error)" }}>{sendResult.failed} başarısız</strong></>}
+                {" "}— log: mail_campaign_log.
+              </p>
+              {(sendResult.failures ?? []).length > 0 && (
+                <ul className="list-disc pl-5" style={{ color: "var(--error)" }}>
+                  {sendResult.failures!.map((f, i) => <li key={i}>{f.owner}: {f.error}</li>)}
+                </ul>
+              )}
+              {sendResult.logWarning && <p style={{ color: "var(--warn)" }}>⚠ {sendResult.logWarning}</p>}
+            </div>
+          )}
+        </div>
       )}
 
       {/* Önizleme tablosu */}
@@ -228,6 +370,71 @@ export default function MohaveKampanyaPage() {
         <strong style={{ color: "var(--warn)" }}>Not:</strong> &quot;İç teklif toplamı&quot; est_offer alanından gelir ve <strong>sadece bu admin ekranında</strong> görünür —
         müşteri satış sayfalarına sızmaz. CSV&apos;deki kolonlar Lob adres şemasıyla uyumlu; Lob kampanyası veya harici mail-house&apos;a direkt yüklenebilir.
       </div>
+
+      {/* Onay modal'ı — yanlışlıkla 735 mektup gitmesin: sayı + maliyet + isim + açık onay */}
+      {confirmOpen && s && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.6)" }}
+          onClick={() => !sending && setConfirmOpen(false)}>
+          <div className="w-full max-w-md rounded-2xl border p-5" onClick={(e) => e.stopPropagation()}
+            style={{ borderColor: "var(--border)", background: "var(--surface)" }}>
+            <div className="flex items-center justify-between">
+              <h2 className="flex items-center gap-2 text-base font-bold">
+                <Send className="h-4 w-4" style={{ color: lobReady ? GREEN : "var(--warn)" }} /> Kampanyayı Başlat
+              </h2>
+              <button onClick={() => !sending && setConfirmOpen(false)} aria-label="Kapat">
+                <X className="h-4 w-4" style={{ color: "var(--muted)" }} />
+              </button>
+            </div>
+
+            {!lobReady && (
+              <p className="mt-3 rounded-lg border border-dashed px-3 py-2 text-xs font-semibold"
+                style={{ borderColor: "var(--warn)", color: "var(--warn)" }}>
+                DRY-RUN modu: LOB_API_KEY yok — mektup gönderilmez, sadece gidecekler listelenir.
+              </p>
+            )}
+
+            <div className="mt-4 space-y-1.5 rounded-lg border p-3 text-sm" style={{ borderColor: "var(--outline)" }}>
+              <div className="flex justify-between"><span style={{ color: "var(--muted)" }}>Mektup sayısı</span><strong>{s.letters.toLocaleString("en-US")}</strong></div>
+              <div className="flex justify-between"><span style={{ color: "var(--muted)" }}>Kapsanan parsel</span><strong>{s.parcels.toLocaleString("en-US")}</strong></div>
+              <div className="flex justify-between">
+                <span style={{ color: "var(--muted)" }}>Tahmini maliyet (@${costPer || "0"}/mektup)</span>
+                <strong style={{ color: lobReady ? "var(--warn)" : "var(--muted)" }}>{usd(cost)}</strong>
+              </div>
+              <div className="flex justify-between text-xs" style={{ color: "var(--muted)" }}>
+                <span>Önceden mektup alanlar hariç</span><span>{excludeMailed ? "Evet" : "Hayır"}</span>
+              </div>
+            </div>
+
+            <label className="mt-4 block text-xs">
+              <span className="mb-1 block font-semibold" style={{ color: "var(--muted)" }}>Kampanya adı (log&apos;a yazılır)</span>
+              <input value={campaignName} onChange={(e) => setCampaignName(e.target.value)}
+                placeholder={`mohave-${new Date().toISOString().slice(0, 10)}`}
+                className="w-full rounded-lg border bg-transparent px-2.5 py-2 text-sm outline-none" style={{ borderColor: "var(--outline)" }} />
+            </label>
+
+            {sendErr && <p className="mt-3 text-xs" style={{ color: "var(--error)" }}>Hata: {sendErr}</p>}
+
+            <div className="mt-4 flex items-center justify-end gap-2">
+              <button onClick={() => setConfirmOpen(false)} disabled={sending}
+                className="rounded-lg border px-4 py-2 text-sm font-semibold" style={{ borderColor: "var(--outline)" }}>
+                Vazgeç
+              </button>
+              <button onClick={startCampaign} disabled={sending || campaignName.trim().length < 3}
+                className="flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-bold"
+                style={{
+                  background: lobReady ? GREEN : "var(--warn)", color: lobReady ? "#fff" : "#000",
+                  opacity: sending || campaignName.trim().length < 3 ? 0.5 : 1,
+                }}>
+                {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                {lobReady ? `Evet, ${s.letters.toLocaleString("en-US")} mektup gönder` : "Dry-run çalıştır"}
+              </button>
+            </div>
+            {campaignName.trim().length < 3 && (
+              <p className="mt-2 text-right text-[11px]" style={{ color: "var(--muted)" }}>Onay için kampanya adı gir (min 3 karakter).</p>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
