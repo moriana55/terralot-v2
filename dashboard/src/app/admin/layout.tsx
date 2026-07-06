@@ -31,6 +31,8 @@ const SECTIONS: { label: string | null; wip?: boolean; items: { href: string; ic
       { href: "/admin/satilabilir-cekirdek", icon: Target, label: "🎯 Satılabilir Çekirdek" },
       { href: "/admin/ucuz-arsa", icon: MapPin, label: "🏠 Ucuz Boş Arsa (Değerle→Mektup→Sat)" },
       { href: "/admin/alinabilir-harita", icon: Map, label: "🗺️ Alınabilir Harita" },
+      { href: "/admin/mohave/kampanya", icon: Mail, label: "✉️ Mektup Kampanyası (Mohave)" },
+      { href: "/admin/satis-sayfalari", icon: Globe, label: "🌐 Satış Sayfaları (/p linkleri)" },
       { href: "/admin/tax-leads", icon: FileSearch, label: "Tax Leads" },
       { href: "/admin/off-market-leads", icon: MailPlus, label: "Vergi-Borçlu Lead'ler" },
       { href: "/admin/data-coverage", icon: Database, label: "Veri Kapsama & Kalite" },
