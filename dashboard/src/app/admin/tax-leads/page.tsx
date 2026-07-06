@@ -93,7 +93,7 @@ export default function TaxLeadsPage() {
   async function runDD(lead: TaxLead) {
     const addr = lead.property_address;
     if (!addr) {
-      setDdResults((p) => ({ ...p, [lead.id]: { flood: { error: "No address" } as any, road: { error: "No address" } as any } }));
+      setDdResults((p) => ({ ...p, [lead.id]: { flood: { error: "Adres yok" } as any, road: { error: "Adres yok" } as any } }));
       return;
     }
 
@@ -146,20 +146,20 @@ export default function TaxLeadsPage() {
     <div className="p-8">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold mb-1">Tax Delinquent Leads</h1>
+          <h1 className="text-2xl font-bold mb-1">Vergi Borçlusu Lead&apos;ler</h1>
           <p className="text-sm" style={{ color: "var(--muted)" }}>
-            Scraped from LGBS and other tax auction portals
+            LGBS ve diğer vergi ihalesi portallarından toplanan kayıtlar
           </p>
         </div>
         <button onClick={() => { setPage(0); load(); }} className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold"
           style={{ background: "var(--surface)", border: "1px solid var(--outline)" }}>
-          <RefreshCw className="w-4 h-4" /> Refresh
+          <RefreshCw className="w-4 h-4" /> Yenile
         </button>
       </div>
 
       {loading && (
         <div className="flex items-center gap-2 text-sm" style={{ color: "var(--muted)" }}>
-          <Loader2 className="w-4 h-4 animate-spin" /> Loading leads…
+          <Loader2 className="w-4 h-4 animate-spin" /> Lead&apos;ler yükleniyor…
         </div>
       )}
 
@@ -172,8 +172,8 @@ export default function TaxLeadsPage() {
 
       {!loading && !error && leads.length === 0 && (
         <div className="text-center py-20 rounded-xl border border-dashed" style={{ borderColor: "var(--outline)", color: "var(--muted)" }}>
-          <p className="text-sm font-medium mb-1">No leads yet</p>
-          <p className="text-xs">Run the scraper to populate this table</p>
+          <p className="text-sm font-medium mb-1">Henüz lead yok</p>
+          <p className="text-xs">Tabloyu doldurmak için scraper&apos;ı çalıştırın</p>
         </div>
       )}
 
@@ -192,7 +192,7 @@ export default function TaxLeadsPage() {
             </colgroup>
             <thead>
               <tr className="border-b" style={{ borderColor: "var(--outline)", background: "var(--surface)" }}>
-                {["Source", "County", "APN", "Owner", "Address", "Acres", "Bid · Sale"].map((h) => (
+                {["Kaynak", "County", "APN", "Sahibi", "Adres", "Acre", "Bid · Satış"].map((h) => (
                   <th key={h} className="text-left px-4 py-3 text-xs font-bold uppercase tracking-widest whitespace-nowrap" style={{ color: "var(--muted)" }}>{h}</th>
                 ))}
                 <th className="text-left px-4 py-3 text-xs font-bold uppercase tracking-widest whitespace-nowrap sticky right-0 z-10" style={{ color: "var(--muted)", background: "var(--surface)", boxShadow: "-8px 0 12px -8px rgba(0,0,0,0.45)" }}>DD</th>
@@ -255,7 +255,7 @@ export default function TaxLeadsPage() {
                             borderColor: dd ? "rgba(34,197,94,0.2)" : "var(--outline)",
                           }}>
                           {isLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : dd ? (isExpanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />) : null}
-                          {isLoading ? "Checking…" : dd ? "DD Result" : "Run DD"}
+                          {isLoading ? "Kontrol ediliyor…" : dd ? "DD Sonucu" : "DD Çalıştır"}
                         </button>
                       </td>
                     </tr>
@@ -268,23 +268,23 @@ export default function TaxLeadsPage() {
                             <div className="flex items-start gap-3">
                               <Droplets className="w-4 h-4 mt-0.5 shrink-0" style={{ color: "#60a5fa" }} />
                               <div>
-                                <p className="text-xs font-bold mb-1">Flood Risk</p>
+                                <p className="text-xs font-bold mb-1">Sel Riski</p>
                                 {dd.flood?.error ? (
-                                  <p className="text-xs" style={{ color: "var(--muted)" }}>Error: {dd.flood.error}</p>
+                                  <p className="text-xs" style={{ color: "var(--muted)" }}>Hata: {dd.flood.error}</p>
                                 ) : (
                                   <div className="space-y-0.5">
                                     <p className="text-xs">
-                                      Zone: <strong>{dd.flood?.floodZone ?? "Not mapped"}</strong>
+                                      Bölge: <strong>{dd.flood?.floodZone ?? "Haritalanmamış"}</strong>
                                       {dd.flood?.zoneSubtype && ` (${dd.flood.zoneSubtype})`}
                                     </p>
                                     <p className="text-xs flex items-center gap-1.5">
-                                      Risk:
+                                      Risk seviyesi:
                                       <span className="font-bold" style={{ color: RISK_COLOR[dd.flood?.riskLabel ?? "unknown"] }}>
                                         {dd.flood?.riskScore != null ? `${dd.flood.riskScore}/100` : "?"} — {dd.flood?.riskLabel}
                                       </span>
                                     </p>
                                     {dd.flood?.insuranceRequired && (
-                                      <p className="text-xs font-semibold" style={{ color: "#ef4444" }}>⚠️ Flood insurance required</p>
+                                      <p className="text-xs font-semibold" style={{ color: "#ef4444" }}>⚠️ Sel sigortası zorunlu</p>
                                     )}
                                   </div>
                                 )}
@@ -297,9 +297,9 @@ export default function TaxLeadsPage() {
                             <div className="flex items-start gap-3">
                               <Route className="w-4 h-4 mt-0.5 shrink-0" style={{ color: "#5aa9ff" }} />
                               <div>
-                                <p className="text-xs font-bold mb-1">Road Access</p>
+                                <p className="text-xs font-bold mb-1">Yol Erişimi</p>
                                 {dd.road?.error ? (
-                                  <p className="text-xs" style={{ color: "var(--muted)" }}>Error: {dd.road.error}</p>
+                                  <p className="text-xs" style={{ color: "var(--muted)" }}>Hata: {dd.road.error}</p>
                                 ) : (
                                   <div className="space-y-0.5">
                                     <p className="text-xs">
@@ -311,7 +311,7 @@ export default function TaxLeadsPage() {
                                       </p>
                                     )}
                                     <p className="text-xs" style={{ color: "var(--muted)" }}>
-                                      Access type: {dd.road?.accessType}
+                                      Erişim tipi: {dd.road?.accessType}
                                     </p>
                                   </div>
                                 )}
@@ -329,14 +329,14 @@ export default function TaxLeadsPage() {
 
           {/* Pagination */}
           <div className="flex items-center justify-between px-4 py-3 border-t" style={{ borderColor: "var(--outline)" }}>
-            <span className="text-xs" style={{ color: "var(--muted)" }}>Page {page + 1}</span>
+            <span className="text-xs" style={{ color: "var(--muted)" }}>Sayfa {page + 1}</span>
             <div className="flex gap-2">
               <button disabled={page === 0} onClick={() => setPage((p) => p - 1)}
                 className="px-3 py-1.5 rounded text-xs font-semibold disabled:opacity-40"
-                style={{ background: "var(--surface-high)" }}>← Prev</button>
+                style={{ background: "var(--surface-high)" }}>← Önceki</button>
               <button disabled={leads.length < PAGE_SIZE} onClick={() => setPage((p) => p + 1)}
                 className="px-3 py-1.5 rounded text-xs font-semibold disabled:opacity-40"
-                style={{ background: "var(--surface-high)" }}>Next →</button>
+                style={{ background: "var(--surface-high)" }}>Sonraki →</button>
             </div>
           </div>
         </div>
