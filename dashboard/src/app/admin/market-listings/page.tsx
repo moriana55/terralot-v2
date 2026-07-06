@@ -118,6 +118,20 @@ export default function MarketListingsPage() {
         </p>
       </div>
 
+      {/* DÜRÜSTLÜK UYARISI: bu sayfanın tek kaynağı ZILLOW% satırları — yani
+          devre dışı bırakılan sahte scraper'ın (410 Gone) ürettiği kalıntı veri.
+          Karar için KULLANMA; gerçek rakip verisi Rakip Radar / Rakip vs Envanter'de. */}
+      <div className="rounded-xl border p-4 text-sm flex items-start gap-3"
+        style={{ borderColor: "rgba(245,158,11,0.4)", background: "rgba(245,158,11,0.08)" }}>
+        <span aria-hidden>⚠️</span>
+        <div>
+          <b>Bu veri güvenilir değil — karar için kullanma.</b> Buradaki satırlar, kalıcı olarak devre dışı
+          bırakılan eski Zillow scraper&apos;ının ürettiği kalıntı kayıtlardır (owner/fiyat/APN doğrulanamaz).
+          Gerçek rakip/piyasa verisi için <a href="/admin/rakip-radar" className="underline font-semibold">Rakip Radar</a> ve{" "}
+          <a href="/admin/pazar-ortusme" className="underline font-semibold">Rakip vs Envanter</a> sayfalarını kullan.
+        </div>
+      </div>
+
       <div className="flex items-center gap-3 flex-wrap">
         {([["all", `Hepsi (${rows.length})`], ["land", `Arsa (${land})`], ["house", `Ev (${house})`]] as const).map(([k, label]) => (
           <button key={k} onClick={() => setTab(k)}

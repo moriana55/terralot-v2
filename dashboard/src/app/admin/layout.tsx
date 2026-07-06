@@ -39,13 +39,16 @@ const SECTIONS: { label: string | null; wip?: boolean; items: { href: string; ic
       { href: "/admin/pazar-ortusme", icon: Swords, label: "⚔️ Rakip vs Envanter" },
       { href: "/admin/rakip-radar", icon: Radar, label: "📡 Rakip Radar (satış takibi)" },
       { href: "/admin/scraper", icon: Cpu, label: "Cerberus Botları" },
-      { href: "/admin/market-listings", icon: CircleDollarSign, label: "Piyasa İlanları" },
     ],
   },
   {
     label: "🚧 Geliştiriliyor",
     wip: true,
     items: [
+      // Piyasa İlanları görünür menüden WIP'e alındı (2026-07-06): tek veri
+      // kaynağı ZILLOW% satırları, yani devre dışı bırakılan sahte scraper'ın
+      // kalıntısı — gerçek rakip verisi Rakip Radar / Rakip vs Envanter'de.
+      { href: "/admin/market-listings", icon: CircleDollarSign, label: "Piyasa İlanları (eski veri)" },
       { href: "/admin/cerberus", icon: Brain, label: "Cerberus Intel" },
       { href: "/admin/acquisitions", icon: Target, label: "Acquisitions" },
       { href: "/admin/outreach", icon: Send, label: "Owner Outreach" },
