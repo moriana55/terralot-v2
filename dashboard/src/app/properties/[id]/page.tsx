@@ -5,7 +5,7 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 import {
   MapPin, Maximize, ChevronLeft, ChevronRight, ArrowRight,
-  Shield, CheckCircle2, Mail, DollarSign, Clock, Map,
+  CheckCircle2, Mail, DollarSign, Map,
   Trees, Route, Zap, FileText, Share2, CreditCard, Loader2,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
@@ -27,6 +27,22 @@ export default function PropertyDetail({ params }: { params: Promise<{ id: strin
   const [calcTerm, setCalcTerm] = useState(48);
   const [showInquiry, setShowInquiry] = useState(false);
   const [showReserve, setShowReserve] = useState(false);
+  const [shared, setShared] = useState(false);
+
+  // Share: native share sheet varsa onu, yoksa panoya kopyala (buton önceden hiçbir şey yapmıyordu).
+  const handleShare = async () => {
+    const url = window.location.href;
+    const title = property?.title ?? "TerraLot";
+    try {
+      if (navigator.share) {
+        await navigator.share({ title, url });
+      } else {
+        await navigator.clipboard.writeText(url);
+        setShared(true);
+        setTimeout(() => setShared(false), 2000);
+      }
+    } catch { /* kullanıcı paylaşımı iptal etti */ }
+  };
 
   // İlan + benzer ilanlar Supabase'den (/api/listings) çekilir.
   useEffect(() => {
@@ -101,7 +117,7 @@ export default function PropertyDetail({ params }: { params: Promise<{ id: strin
             <span>/</span>
             <Link href="/properties" className="hover:text-[var(--secondary)]">Properties</Link>
             <span>/</span>
-            <span style={{ color: "var(--foreground)" }}>{p.title}</span>
+            <span className="truncate min-w-0" style={{ color: "var(--foreground)" }}>{p.title}</span>
           </div>
         </div>
 
@@ -140,10 +156,10 @@ export default function PropertyDetail({ params }: { params: Promise<{ id: strin
 
               {/* Thumbnails */}
               {p.images.length > 1 && (
-                <div className="flex gap-3">
+                <div className="flex gap-3 overflow-x-auto pb-1">
                   {p.images.map((img, i) => (
                     <button key={i} onClick={() => setImgIdx(i)}
-                      className="w-20 h-14 rounded overflow-hidden border-2 transition-all"
+                      className="w-20 h-14 shrink-0 rounded overflow-hidden border-2 transition-all"
                       style={{ borderColor: i === imgIdx ? "var(--secondary)" : "transparent", opacity: i === imgIdx ? 1 : 0.6 }}>
                       <img src={img} alt="" className="w-full h-full object-cover" />
                     </button>
@@ -161,8 +177,8 @@ export default function PropertyDetail({ params }: { params: Promise<{ id: strin
                 </div>
                 <div className="flex gap-2">
                   <FavoriteButton propertyId={p.id} />
-                  <button className="h-10 px-4 rounded flex items-center gap-2 text-sm border border-slate-300 bg-white text-[var(--primary)] transition-colors hover:bg-slate-50">
-                    <Share2 className="w-4 h-4 text-[var(--secondary)]" /> Share
+                  <button onClick={handleShare} className="h-10 px-4 rounded flex items-center gap-2 text-sm border border-slate-300 bg-white text-[var(--primary)] transition-colors hover:bg-slate-50 cursor-pointer">
+                    <Share2 className="w-4 h-4 text-[var(--secondary)]" /> {shared ? "Link copied!" : "Share"}
                   </button>
                 </div>
               </div>
@@ -220,8 +236,8 @@ export default function PropertyDetail({ params }: { params: Promise<{ id: strin
                 <div className="rounded-xl overflow-hidden border border-slate-200 h-[450px] relative">
                   <MapView properties={[p]} center={[p.coordinates.lat, p.coordinates.lng]} zoom={14} />
                   {/* Parcel Info Overlay */}
-                  <div className="absolute bottom-3 left-3 z-[1000] rounded-lg px-4 py-3 backdrop-blur-sm border border-white/20" style={{ background: "rgba(0,0,0,0.75)" }}>
-                    <div className="flex items-center gap-4 text-white">
+                  <div className="absolute bottom-3 left-3 z-[1000] max-w-[calc(100%-1.5rem)] rounded-lg px-4 py-3 backdrop-blur-sm border border-white/20" style={{ background: "rgba(0,0,0,0.75)" }}>
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-white">
                       <div>
                         <p className="text-[10px] uppercase tracking-widest text-white/60">Area</p>
                         <p className="text-sm font-bold">{p.acres} Acres</p>
@@ -241,7 +257,7 @@ export default function PropertyDetail({ params }: { params: Promise<{ id: strin
                     </div>
                   </div>
                 </div>
-                <div className="flex items-center justify-between mt-3">
+                <div className="flex flex-wrap items-center justify-between gap-2 mt-3">
                   <p className="text-xs" style={{ color: "var(--muted)" }}>
                     GPS: {p.coordinates.lat.toFixed(4)}, {p.coordinates.lng.toFixed(4)} — {p.county} County, {p.state}
                   </p>
@@ -266,15 +282,15 @@ export default function PropertyDetail({ params }: { params: Promise<{ id: strin
                 <div className="rounded p-4 mb-6 border border-slate-200 bg-slate-50">
                   <p className="text-xs font-bold uppercase tracking-widest mb-1" style={{ color: "var(--muted)" }}>Owner Financing</p>
                   <div className="flex items-baseline gap-1">
-                    <span className="text-2xl font-bold text-[var(--secondary)]">${monthly}</span>
+                    <span className="text-2xl font-bold text-[var(--secondary)]">${monthly.toLocaleString()}</span>
                     <span className="text-sm font-medium" style={{ color: "var(--muted)" }}>/month</span>
                   </div>
                 </div>
 
                 <div className="space-y-3 mb-6">
                   {[
-                    { label: "Down Payment", value: `$${p.downPayment}` },
-                    { label: "Monthly", value: `$${monthly}/mo` },
+                    { label: "Down Payment", value: `$${p.downPayment.toLocaleString()}` },
+                    { label: "Monthly", value: `$${monthly.toLocaleString()}/mo` },
                     { label: "Interest Rate", value: `${p.interestRate}%` },
                   ].map(r => (
                     <div key={r.label} className="flex justify-between text-sm border-b border-slate-100 pb-2">
@@ -296,7 +312,7 @@ export default function PropertyDetail({ params }: { params: Promise<{ id: strin
                   <button onClick={() => setShowReserve(true)}
                     className="w-full h-12 rounded flex items-center justify-center gap-2 text-sm font-bold transition-all hover:opacity-90 cursor-pointer shadow-md bg-[var(--primary)] text-white">
                     <CreditCard className="w-4 h-4" />
-                    Reserve Now — ${p.downPayment} Down
+                    Reserve Now — ${p.downPayment.toLocaleString()} Down
                   </button>
                   <button onClick={() => setShowInquiry(true)}
                     className="w-full h-12 rounded flex items-center justify-center gap-2 text-sm font-semibold border border-slate-300 bg-white text-[var(--primary)] hover:bg-slate-50 transition-colors cursor-pointer">

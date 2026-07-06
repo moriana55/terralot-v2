@@ -221,8 +221,10 @@ function PropertiesContent() {
               )}
             </div>
           ) : viewMode === "map" ? (
-            <div className="grid lg:grid-cols-2 gap-5" style={{ height: "calc(100vh - 280px)" }}>
-              <div className="rounded-xl overflow-hidden border border-slate-200">
+            // Mobilde harita + liste alt alta: sabit yükseklik yerine min yükseklik,
+            // harita panosuna da min-h — dar ekranda harita ezilmesin.
+            <div className="grid lg:grid-cols-2 gap-5 lg:h-[calc(100vh-280px)]">
+              <div className="rounded-xl overflow-hidden border border-slate-200 h-[50vh] min-h-[320px] lg:h-auto">
                 <MapView properties={filtered} />
               </div>
               <div className="overflow-y-auto space-y-4 pr-2">

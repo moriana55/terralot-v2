@@ -29,7 +29,7 @@ export default function PropertyCard({ property: p }: { property: Property }) {
         <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between">
           <span className="text-white text-lg font-bold">${p.price.toLocaleString()}</span>
           <span className="text-white text-xs font-semibold px-2 py-0.5 rounded bg-[var(--secondary)]">
-            ${p.monthlyPayment}/mo
+            ${p.monthlyPayment.toLocaleString()}/mo
           </span>
         </div>
       </div>
@@ -58,7 +58,7 @@ export default function PropertyCard({ property: p }: { property: Property }) {
         </div>
         <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between">
           <span className="text-[10px] uppercase tracking-widest font-bold text-[var(--secondary)]">
-            ${p.downPayment} down
+            ${p.downPayment.toLocaleString()} down
           </span>
           <span className="text-[10px]" style={{ color: "var(--muted)" }}>
             Owner Financing Available
