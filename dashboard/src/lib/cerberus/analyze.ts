@@ -292,7 +292,6 @@ export function analyzeLead(
   // GERÇEK county demografisi (county_demographics) — talep fasetini besler.
   const demoRow = st && cty && ctx.demographics ? ctx.demographics[`${st}/${cty}`] : undefined;
   const demoPopGrowth = demoRow ? num(demoRow.popGrowth5y) : null;
-  const demoIncome = demoRow ? num(demoRow.medianIncome) : null;
 
   // popGrowth önceliği: canlı enrichment (Census) > county_demographics (ACS) > lead satırı.
   const popGrowthEff =
