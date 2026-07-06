@@ -15,20 +15,30 @@ export default function Footer() {
         <div>
           <h4 className="text-xs font-bold uppercase tracking-widest mb-4 text-[var(--primary)]">Browse Land</h4>
           <ul className="space-y-2">
-            {["Arizona", "Colorado", "Florida", "Texas", "Montana", "All States"].map(s => (
+            {/* Eyalet linkleri gerçekten o eyaleti filtreler (eskiden hepsi düz /properties idi) */}
+            {["Arizona", "Colorado", "Florida", "Texas", "Montana"].map(s => (
               <li key={s}>
-                <Link href="/properties" className="text-sm transition-colors hover:text-[var(--secondary)]" style={{ color: "var(--muted)" }}>{s}</Link>
+                <Link href={`/properties?state=${encodeURIComponent(s)}`} className="text-sm transition-colors hover:text-[var(--secondary)]" style={{ color: "var(--muted)" }}>{s}</Link>
               </li>
             ))}
+            <li>
+              <Link href="/properties" className="text-sm transition-colors hover:text-[var(--secondary)]" style={{ color: "var(--muted)" }}>All States</Link>
+            </li>
           </ul>
         </div>
 
         <div>
           <h4 className="text-xs font-bold uppercase tracking-widest mb-4 text-[var(--primary)]">Company</h4>
           <ul className="space-y-2">
-            {["How It Works", "Financing", "About Us", "Blog", "FAQ"].map(s => (
-              <li key={s}>
-                <Link href="/" className="text-sm transition-colors hover:text-[var(--secondary)]" style={{ color: "var(--muted)" }}>{s}</Link>
+            {/* Sadece var olan sayfalara link — About Us / FAQ sayfası yok, çıkarıldı */}
+            {[
+              { label: "How It Works", href: "/#how-it-works" },
+              { label: "Financing", href: "/#financing" },
+              { label: "Browse Land", href: "/properties" },
+              { label: "Blog", href: "/blog" },
+            ].map(s => (
+              <li key={s.label}>
+                <Link href={s.href} className="text-sm transition-colors hover:text-[var(--secondary)]" style={{ color: "var(--muted)" }}>{s.label}</Link>
               </li>
             ))}
           </ul>

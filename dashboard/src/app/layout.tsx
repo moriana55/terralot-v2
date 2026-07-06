@@ -10,11 +10,11 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: {
-    default: "TerraLot — The All-in-One Platform for Land Flippers",
+    default: "TerraLot — Affordable Land with Owner Financing",
     template: "%s | TerraLot",
   },
-  description: "Find off-market deals, send direct mail, manage subdivisions, track owner financing, and close more land deals — all from one dashboard.",
-  keywords: ["land flipping software", "land investing platform", "owner financing management", "direct mail land", "land acquisition tool"],
+  description: "Own land in America with easy owner financing. No banks, no credit checks — low down payments and fixed monthly payments on vacant land across the US.",
+  keywords: ["land for sale", "owner financed land", "cheap land", "vacant land for sale", "buy land monthly payments", "no credit check land"],
 };
 
 // Placeholder key ile clerk-js yüklenemiyor — gerçek key gelince otomatik aktif olur
