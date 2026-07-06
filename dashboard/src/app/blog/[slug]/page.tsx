@@ -12,9 +12,23 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const post = blogPosts.find(p => p.slug === slug);
+  if (!post) return { title: "Post Not Found" };
   return {
-    title: post?.title || "Blog Post",
-    description: post?.excerpt,
+    title: post.title,
+    description: post.excerpt,
+    openGraph: {
+      title: post.title,
+      description: post.excerpt,
+      type: "article",
+      publishedTime: post.date,
+      images: [{ url: post.coverImage }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: post.title,
+      description: post.excerpt,
+      images: [post.coverImage],
+    },
   };
 }
 
@@ -69,7 +83,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
           <img src={post.coverImage} alt={post.title} className="w-full h-64 md:h-80 object-cover rounded-2xl mb-8" />
 
           <div className="flex items-center gap-3 mb-4">
-            <span className="text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded" style={{ background: "rgba(142,209,223,0.1)", color: "var(--primary)" }}>
+            <span className="text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded bg-[var(--secondary)]/10 text-[var(--secondary)]">
               {post.category}
             </span>
             <span className="flex items-center gap-1 text-xs" style={{ color: "var(--muted)" }}>
@@ -94,7 +108,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
           </div>
 
           {/* Nav */}
-          <div className="mt-10 flex items-center justify-between border-t border-white/5 pt-6">
+          <div className="mt-10 flex items-center justify-between gap-4 border-t border-slate-200 pt-6">
             {prev ? (
               <Link href={`/blog/${prev.slug}`} className="flex items-center gap-2 text-sm hover:text-[var(--primary)] transition-colors" style={{ color: "var(--muted)" }}>
                 <ArrowLeft className="w-4 h-4" /> {prev.title}

@@ -7,6 +7,11 @@ import { blogPosts } from "@/lib/blog-data";
 export const metadata = {
   title: "Blog — Land Buying Guides & Investment Tips",
   description: "Expert guides on buying land, owner financing, investment strategies, and more.",
+  openGraph: {
+    title: "TerraLot Blog — Land Buying Guides & Investment Tips",
+    description: "Expert guides on buying land, owner financing, investment strategies, and more.",
+    type: "website",
+  },
 };
 
 export default function BlogPage() {
@@ -15,7 +20,8 @@ export default function BlogPage() {
       <Navbar />
 
       <div className="pt-16">
-        <div className="border-b border-white/5 py-12" style={{ background: "var(--surface-low)" }}>
+        {/* border-white/5 koyu tema kalıntısıydı — açık temada görünmez, slate'e çekildi */}
+        <div className="border-b border-slate-200 py-12" style={{ background: "var(--surface-low)" }}>
           <div className="max-w-4xl mx-auto px-6 text-center">
             <h1 className="text-3xl md:text-4xl font-bold mb-3">Land Buying Blog</h1>
             <p className="text-sm" style={{ color: "var(--muted)" }}>Guides, tips, and insights on buying and investing in vacant land.</p>
@@ -25,7 +31,7 @@ export default function BlogPage() {
         <div className="max-w-4xl mx-auto px-6 py-10 space-y-6">
           {blogPosts.map((post) => (
             <Link key={post.slug} href={`/blog/${post.slug}`}
-              className="group block rounded-xl overflow-hidden border border-white/5 transition-all hover:border-[var(--primary)]/30"
+              className="group block rounded-xl overflow-hidden border border-slate-200 transition-all hover:border-[var(--secondary)]/40 hover:shadow-lg"
               style={{ background: "var(--surface)" }}>
               <div className="md:flex">
                 <div className="md:w-72 h-48 md:h-auto shrink-0">
@@ -33,7 +39,7 @@ export default function BlogPage() {
                 </div>
                 <div className="p-6 flex flex-col justify-center">
                   <div className="flex items-center gap-3 mb-2">
-                    <span className="text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded" style={{ background: "rgba(142,209,223,0.1)", color: "var(--primary)" }}>
+                    <span className="text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded bg-[var(--secondary)]/10 text-[var(--secondary)]">
                       {post.category}
                     </span>
                     <span className="flex items-center gap-1 text-xs" style={{ color: "var(--muted)" }}>

@@ -220,7 +220,7 @@ The best time to buy land was 10 years ago. The second best time is now. Start s
     slug: "how-to-evaluate-land-value",
     title: "How to Evaluate Land Value Before You Buy",
     excerpt: "Learn to assess what a parcel is really worth — comparable sales, location factors, utilities, and zoning all play a role.",
-    coverImage: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800&h=400&fit=crop",
+    coverImage: "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=800&h=400&fit=crop",
     category: "Guides",
     tags: ["land value", "appraisal", "due diligence", "investing"],
     date: "2026-06-02",
