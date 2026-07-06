@@ -34,6 +34,7 @@ export default function Footer() {
             {[
               { label: "How It Works", href: "/#how-it-works" },
               { label: "Financing", href: "/#financing" },
+              { label: "Owner Financed Land", href: "/owner-finance" },
               { label: "Browse Land", href: "/properties" },
               { label: "Blog", href: "/blog" },
             ].map(s => (
