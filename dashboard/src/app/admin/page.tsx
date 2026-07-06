@@ -30,8 +30,9 @@ export default function AdminDashboard() {
         const since = new Date(Date.now() - 36 * 3600000).toISOString();
         const [{ properties: props }, { data: top }, { data: newDeals }, f] = await Promise.all([
           fetch("/api/admin/property?view=stats").then((r) => r.json()).catch(() => ({ properties: null })),
-          supabase.from("tax_delinquent_properties").select("id,state,county,minimum_bid,judgment_amount,final_score,road_access").order("final_score", { ascending: false, nullsFirst: false }).limit(6),
-          supabase.from("tax_delinquent_properties").select("id,state,county,minimum_bid,judgment_amount,final_score,road_access").gt("created_at", since).gte("final_score", 45).order("final_score", { ascending: false, nullsFirst: false }).limit(6),
+          // ZILLOW% hariç: sahte scraper kalıntısı satırlar dashboard vitrinine çıkmasın.
+          supabase.from("tax_delinquent_properties").select("id,state,county,minimum_bid,judgment_amount,final_score,road_access").not("source", "like", "ZILLOW%").order("final_score", { ascending: false, nullsFirst: false }).limit(6),
+          supabase.from("tax_delinquent_properties").select("id,state,county,minimum_bid,judgment_amount,final_score,road_access").not("source", "like", "ZILLOW%").gt("created_at", since).gte("final_score", 45).order("final_score", { ascending: false, nullsFirst: false }).limit(6),
           fetch("/api/acquisition-stats").then((r) => r.json()).catch(() => null),
         ]);
         if (newDeals) setFresh(newDeals as Deal[]);

@@ -124,6 +124,9 @@ export default function OffMarketLeadsPage() {
         )
         .not("owner_name", "is", null)
         .not("owner_address", "is", null)
+        // ZILLOW% hariç: sahte scraper'ın uydurma owner/adres satırları
+        // "mektuba hazır" listeye sızarsa GERÇEK mektup yanlış adrese gider.
+        .not("source", "like", "ZILLOW%")
         .range(from, from + PAGE - 1);
       if (err) {
         setError(err.message);

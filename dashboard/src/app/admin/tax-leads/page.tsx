@@ -80,6 +80,9 @@ export default function TaxLeadsPage() {
     const { data, error: err } = await supabase
       .from("tax_delinquent_properties")
       .select("*")
+      // ZILLOW% hariç: devre dışı bırakılan sahte scraper'ın uydurma owner/APN
+      // satırları gerçek tax-lead'lerin arasına karışmasın (deal-screener deseni).
+      .not("source", "like", "ZILLOW%")
       .order("scraped_at", { ascending: false })
       .range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1);
     if (err) setError(err.message);

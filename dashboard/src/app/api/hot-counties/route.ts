@@ -25,7 +25,13 @@ export async function GET(req: NextRequest) {
   const agg: Record<string, { state: string; county: string; total: number; aGrade: number; best: number }> = {};
   let from = 0;
   for (;;) {
-    const { data } = await s.from("tax_delinquent_properties").select("state,county,final_score").range(from, from + 999);
+    // ZILLOW% satırları hariç: eski sahte-scraper'ın (410 Gone) ürettiği uydurma
+    // kayıtlar county ısı skorlarını şişirmesin (deal-screener ile aynı desen).
+    const { data } = await s
+      .from("tax_delinquent_properties")
+      .select("state,county,final_score")
+      .not("source", "like", "ZILLOW%")
+      .range(from, from + 999);
     if (!data || data.length === 0) break;
     for (const r of data) {
       if (!r.state || !r.county) continue;
