@@ -5,7 +5,7 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 import {
   MapPin, Maximize, ChevronLeft, ChevronRight, ArrowRight,
-  Shield, CheckCircle2, Phone, Mail, DollarSign, Clock, Map,
+  Shield, CheckCircle2, Mail, DollarSign, Clock, Map,
   Trees, Route, Zap, FileText, Share2, CreditCard, Loader2,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
@@ -303,10 +303,11 @@ export default function PropertyDetail({ params }: { params: Promise<{ id: strin
                     <Mail className="w-4 h-4 text-[var(--secondary)]" />
                     Inquire About Parcel
                   </button>
-                  <a href="tel:+18001234567"
+                  {/* Sahte (800) telefon kaldırıldı — gerçek hat alınınca tel: linki eklenecek. */}
+                  <a href="mailto:hello@terralot.com"
                     className="w-full h-12 rounded flex items-center justify-center gap-2 text-sm font-semibold border border-slate-300 bg-white text-[var(--primary)] hover:bg-slate-50 transition-colors">
-                    <Phone className="w-4 h-4 text-[var(--secondary)]" />
-                    (800) 123-4567
+                    <Mail className="w-4 h-4 text-[var(--secondary)]" />
+                    hello@terralot.com
                   </a>
                 </div>
 

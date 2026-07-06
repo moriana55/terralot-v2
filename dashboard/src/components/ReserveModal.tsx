@@ -262,7 +262,7 @@ export default function ReserveModal({ property, onClose }: ReserveModalProps) {
                 <label className="flex items-start gap-2.5 cursor-pointer">
                   <input type="checkbox" required checked={form.agreeTerms} onChange={e => setForm({ ...form, agreeTerms: e.target.checked })} className="mt-1 accent-[var(--secondary)]" />
                   <span className="text-xs text-[var(--muted)]">
-                    I confirm that all contact details are accurate and I authorize the TerraVest deeds team to temporarily lock this parcel.
+                    I confirm that all contact details are accurate and I authorize the TerraLot deeds team to temporarily lock this parcel.
                   </span>
                 </label>
               </div>
