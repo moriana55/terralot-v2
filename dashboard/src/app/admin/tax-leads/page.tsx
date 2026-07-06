@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, Fragment } from "react";
+import { useCallback, useEffect, useState, Fragment } from "react";
 import { supabase } from "@/lib/supabase";
 import { Loader2, AlertCircle, RefreshCw, Droplets, Route, ChevronDown, ChevronUp } from "lucide-react";
 
@@ -22,24 +22,25 @@ interface TaxLead {
   scraped_at: string;
 }
 
+// Alanlar opsiyonel: hata durumunda sadece { error } set edilir (as any casti yerine).
 interface DDResult {
   flood?: {
-    floodZone: string | null;
-    zoneSubtype: string | null;
-    riskScore: number | null;
-    riskLabel: string;
-    insuranceRequired: boolean;
-    inSFHA: boolean;
+    floodZone?: string | null;
+    zoneSubtype?: string | null;
+    riskScore?: number | null;
+    riskLabel?: string;
+    insuranceRequired?: boolean;
+    inSFHA?: boolean;
     error?: string;
   };
   road?: {
-    accessType: string;
-    surface: string;
-    nearestRoadMeters: number | null;
-    nearestRoadName: string | null;
-    roadClass: string | null;
-    accessNote: string;
-    hasRoadAccess: boolean | null;
+    accessType?: string;
+    surface?: string;
+    nearestRoadMeters?: number | null;
+    nearestRoadName?: string | null;
+    roadClass?: string | null;
+    accessNote?: string;
+    hasRoadAccess?: boolean | null;
     error?: string;
   };
 }
@@ -70,30 +71,33 @@ export default function TaxLeadsPage() {
   const [page, setPage] = useState(0);
   const PAGE_SIZE = 50;
 
-  useEffect(() => {
-    load();
-  }, [page]);
-
-  async function load() {
-    setLoading(true);
-    setError(null);
-    const { data, error: err } = await supabase
+  // setLoading(true) çağıranın sorumluluğunda (effect içinde senkron setState
+  // lint kuralına takılmamak için) — mount'ta zaten true başlıyor. setState'ler
+  // .then callback'inde: react-hooks/set-state-in-effect kuralına uyumlu.
+  const load = useCallback(() => {
+    supabase
       .from("tax_delinquent_properties")
       .select("*")
       // ZILLOW% hariç: devre dışı bırakılan sahte scraper'ın uydurma owner/APN
       // satırları gerçek tax-lead'lerin arasına karışmasın (deal-screener deseni).
       .not("source", "like", "ZILLOW%")
       .order("scraped_at", { ascending: false })
-      .range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1);
-    if (err) setError(err.message);
-    else setLeads(data ?? []);
-    setLoading(false);
-  }
+      .range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1)
+      .then(({ data, error: err }) => {
+        if (err) setError(err.message);
+        else { setError(null); setLeads(data ?? []); }
+        setLoading(false);
+      });
+  }, [page]);
+
+  useEffect(() => {
+    load();
+  }, [load]);
 
   async function runDD(lead: TaxLead) {
     const addr = lead.property_address;
     if (!addr) {
-      setDdResults((p) => ({ ...p, [lead.id]: { flood: { error: "Adres yok" } as any, road: { error: "Adres yok" } as any } }));
+      setDdResults((p) => ({ ...p, [lead.id]: { flood: { error: "Adres yok" }, road: { error: "Adres yok" } } }));
       return;
     }
 
@@ -125,8 +129,8 @@ export default function TaxLeadsPage() {
         setDdResults((p) => ({
           ...p,
           [lead.id]: {
-            flood: { error: "Adres geocode edilemedi — DD atlandı (uydurma koordinat kullanılmaz)" } as any,
-            road: { error: "Adres geocode edilemedi — DD atlandı" } as any,
+            flood: { error: "Adres geocode edilemedi — DD atlandı (uydurma koordinat kullanılmaz)" },
+            road: { error: "Adres geocode edilemedi — DD atlandı" },
           },
         }));
         return;
@@ -135,8 +139,9 @@ export default function TaxLeadsPage() {
       const res = await fetch(`/api/dd-check?lat=${lat}&lon=${lon}`);
       const result: DDResult = await res.json();
       setDdResults((p) => ({ ...p, [lead.id]: result }));
-    } catch (e: any) {
-      setDdResults((p) => ({ ...p, [lead.id]: { flood: { error: e.message } as any, road: { error: e.message } as any } }));
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "DD isteği başarısız";
+      setDdResults((p) => ({ ...p, [lead.id]: { flood: { error: msg }, road: { error: msg } } }));
     } finally {
       setDdLoading((p) => ({ ...p, [lead.id]: false }));
     }
@@ -151,7 +156,7 @@ export default function TaxLeadsPage() {
             LGBS ve diğer vergi ihalesi portallarından toplanan kayıtlar
           </p>
         </div>
-        <button onClick={() => { setPage(0); load(); }} className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold"
+        <button onClick={() => { setLoading(true); setPage(0); load(); }} className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold"
           style={{ background: "var(--surface)", border: "1px solid var(--outline)" }}>
           <RefreshCw className="w-4 h-4" /> Yenile
         </button>
@@ -331,10 +336,10 @@ export default function TaxLeadsPage() {
           <div className="flex items-center justify-between px-4 py-3 border-t" style={{ borderColor: "var(--outline)" }}>
             <span className="text-xs" style={{ color: "var(--muted)" }}>Sayfa {page + 1}</span>
             <div className="flex gap-2">
-              <button disabled={page === 0} onClick={() => setPage((p) => p - 1)}
+              <button disabled={page === 0} onClick={() => { setLoading(true); setPage((p) => p - 1); }}
                 className="px-3 py-1.5 rounded text-xs font-semibold disabled:opacity-40"
                 style={{ background: "var(--surface-high)" }}>← Önceki</button>
-              <button disabled={leads.length < PAGE_SIZE} onClick={() => setPage((p) => p + 1)}
+              <button disabled={leads.length < PAGE_SIZE} onClick={() => { setLoading(true); setPage((p) => p + 1); }}
                 className="px-3 py-1.5 rounded text-xs font-semibold disabled:opacity-40"
                 style={{ background: "var(--surface-high)" }}>Sonraki →</button>
             </div>
