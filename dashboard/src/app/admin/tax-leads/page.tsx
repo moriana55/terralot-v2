@@ -107,41 +107,29 @@ export default function TaxLeadsPage() {
         { headers: { "user-agent": "TerralotDashboard/1.0" } }
       );
       
-      let lat = 31.89;
-      let lon = -109.68;
-      
+      // Geocode başarısızsa DÜRÜST hata göster — eskiden ID hash'inden uydurma
+      // koordinat türetip sel/yol DD'sini YANLIŞ noktada çalıştırıyordu ve
+      // sonucu gerçekmiş gibi gösteriyordu. Uydurma koordinat YOK.
+      let lat: number | null = null;
+      let lon: number | null = null;
       try {
         const geoData = await geoRes.json();
         if (geoData && geoData[0]) {
           lat = parseFloat(geoData[0].lat);
           lon = parseFloat(geoData[0].lon);
-        } else {
-          // Fallback to state-specific realistic coordinates so it never fails on mock data
-          const charCodeSum = lead.id.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
-          if (lead.state === "AZ") {
-            lat = 31.89 + ((charCodeSum % 50) - 25) * 0.005;
-            lon = -109.68 + ((charCodeSum % 30) - 15) * 0.005;
-          } else if (lead.state === "TX") {
-            lat = 31.25 + ((charCodeSum % 50) - 25) * 0.005;
-            lon = -105.35 + ((charCodeSum % 30) - 15) * 0.005;
-          } else if (lead.state === "NM") {
-            lat = 34.05 + ((charCodeSum % 50) - 25) * 0.005;
-            lon = -106.85 + ((charCodeSum % 30) - 15) * 0.005;
-          } else {
-            lat = 37.25 + ((charCodeSum % 50) - 25) * 0.005;
-            lon = -105.45 + ((charCodeSum % 30) - 15) * 0.005;
-          }
         }
-      } catch (e) {
-        // Fallback if geocoding fetch or json parsing fails
-        const charCodeSum = lead.id.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
-        if (lead.state === "AZ") {
-          lat = 31.89 + ((charCodeSum % 50) - 25) * 0.005;
-          lon = -109.68 + ((charCodeSum % 30) - 15) * 0.005;
-        } else {
-          lat = 31.25 + ((charCodeSum % 50) - 25) * 0.005;
-          lon = -105.35 + ((charCodeSum % 30) - 15) * 0.005;
-        }
+      } catch {
+        // JSON parse hatası → aşağıdaki null kontrolü dürüst hatayı basar
+      }
+      if (lat == null || lon == null || !Number.isFinite(lat) || !Number.isFinite(lon)) {
+        setDdResults((p) => ({
+          ...p,
+          [lead.id]: {
+            flood: { error: "Adres geocode edilemedi — DD atlandı (uydurma koordinat kullanılmaz)" } as any,
+            road: { error: "Adres geocode edilemedi — DD atlandı" } as any,
+          },
+        }));
+        return;
       }
 
       const res = await fetch(`/api/dd-check?lat=${lat}&lon=${lon}`);
