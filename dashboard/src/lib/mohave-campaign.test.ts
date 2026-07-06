@@ -61,3 +61,16 @@ test("CSV: Lob kolon başlıkları + virgül/tırnak escape", () => {
   assert.ok(head.includes("address_line1") && head.includes("address_zip"));
   assert.ok(line.startsWith('"SMITH, JOHN ""JJ"""'));
 });
+
+test("devlet/kamu sahipleri mektup listesine girmez", () => {
+  const rows = [
+    row({ owner: "UNITED STATES OF AMERICA", apn: "g1" }),
+    row({ owner: "STATE OF ARIZONA", apn: "g2" }),
+    row({ owner: "MOHAVE COUNTY", apn: "g3" }),
+    row({ owner: "BOURN THOMAS L", apn: "keep" }),
+  ];
+  const r = buildCampaign(rows, {});
+  assert.equal(r.letters.length, 1);
+  assert.equal(r.letters[0].owner, "BOURN THOMAS L");
+  assert.equal(r.skippedGovOwner, 3);
+});

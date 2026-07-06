@@ -61,7 +61,14 @@ export interface CampaignResult {
   totalOffer: number;
   /** Posta adresi/zip/sahip eksik olduğu için atlanan satırlar. */
   skippedNoAddress: number;
+  /** Devlet/kamu sahipli olduğu için atlanan satırlar (federal arazi satın alınamaz). */
+  skippedGovOwner: number;
 }
+
+// Kamu/devlet sahipleri: mektup hedefi DEĞİL (federal/eyalet/county arazisi satılık değil).
+const GOV_OWNER_RE =
+  /\b(UNITED STATES|STATE OF|COUNTY OF|MOHAVE COUNTY|CITY OF|TOWN OF|BUREAU OF LAND|SCHOOL DISTRICT|INDIAN TRIBE|TRIBAL)\b/;
+export const isGovOwner = (owner: unknown): boolean => GOV_OWNER_RE.test(String(owner ?? "").toUpperCase());
 
 const num = (v: unknown): number => {
   const n = Number(v);
@@ -69,12 +76,14 @@ const num = (v: unknown): number => {
 };
 const clean = (s: unknown): string => String(s ?? "").trim();
 
-export function filterRows(rows: MohaveRow[], f: CampaignFilter): { kept: MohaveRow[]; skippedNoAddress: number } {
+export function filterRows(rows: MohaveRow[], f: CampaignFilter): { kept: MohaveRow[]; skippedNoAddress: number; skippedGovOwner: number } {
   const kept: MohaveRow[] = [];
   let skipped = 0;
+  let skippedGov = 0;
   for (const r of rows) {
     // Adres hijyeni ÖNCE: mektup atılamayacak satır segmente hiç girmesin.
     if (!clean(r.owner) || !clean(r.mailing_address) || !clean(r.mailing_zip)) { skipped++; continue; }
+    if (isGovOwner(r.owner)) { skippedGov++; continue; }
     if (f.region && clean(r.region) !== f.region) continue;
     const acres = num(r.acres);
     if (f.minAcres != null && acres < f.minAcres) continue;
@@ -85,12 +94,12 @@ export function filterRows(rows: MohaveRow[], f: CampaignFilter): { kept: Mohave
     if (f.ownerScope === "instate" && clean(r.mailing_state).toUpperCase() !== "AZ") continue;
     kept.push(r);
   }
-  return { kept, skippedNoAddress: skipped };
+  return { kept, skippedNoAddress: skipped, skippedGovOwner: skippedGov };
 }
 
 /** Sahip + posta adresi anahtarıyla dedupe → mektup listesi. */
 export function buildCampaign(rows: MohaveRow[], f: CampaignFilter = {}): CampaignResult {
-  const { kept, skippedNoAddress } = filterRows(rows, f);
+  const { kept, skippedNoAddress, skippedGovOwner } = filterRows(rows, f);
   const map = new Map<string, CampaignLetter>();
   for (const r of kept) {
     const key = [clean(r.owner), clean(r.mailing_address), clean(r.mailing_city), clean(r.mailing_state), clean(r.mailing_zip)]
@@ -121,6 +130,7 @@ export function buildCampaign(rows: MohaveRow[], f: CampaignFilter = {}): Campai
     totalAcres: letters.reduce((a, l) => a + l.totalAcres, 0),
     totalOffer: letters.reduce((a, l) => a + l.totalOffer, 0),
     skippedNoAddress,
+    skippedGovOwner,
   };
 }
 
