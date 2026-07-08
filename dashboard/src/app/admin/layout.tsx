@@ -40,6 +40,7 @@ const SECTIONS: { label: string | null; wip?: boolean; items: { href: string; ic
       { href: "/admin/portfoy", icon: BarChart3, label: "📊 Portföy / KPI" },
       { href: "/admin/pazar-ortusme", icon: Swords, label: "⚔️ Rakip vs Envanter" },
       { href: "/admin/rakip-radar", icon: Radar, label: "📡 Rakip Radar (satış takibi)" },
+      { href: "/admin/competitor-radar", icon: Radar, label: "🛰️ Rakip Satış Radarı (manzara+PropStream)" },
       { href: "/admin/scraper", icon: Cpu, label: "Cerberus Botları" },
     ],
   },
