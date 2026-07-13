@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { LayoutDashboard, MapPin, MessageSquare, CreditCard, ArrowLeft, BarChart3, Users, CircleDollarSign, Map, Mail, Wallet, Target, Globe, Tv, FileSearch, ChevronLeft, ChevronRight, ChevronDown, Cpu, Brain, TrendingDown, Rocket, Hammer, Calculator, Copy, BellRing, Send, MailPlus, Database, Swords, Radar } from "lucide-react";
+import { LayoutDashboard, MapPin, MessageSquare, CreditCard, ArrowLeft, BarChart3, Users, CircleDollarSign, Map, Mail, Wallet, Target, Globe, Tv, FileSearch, ChevronLeft, ChevronRight, ChevronDown, Cpu, Brain, TrendingDown, Rocket, Hammer, Calculator, Copy, BellRing, Send, MailPlus, Database, Swords, Radar, Sparkles } from "lucide-react";
 import { CerberusLogo } from "@/components/DealHoundLogo";
 
 // `wip: true` = mock/uydurma veri içeren gruplar. Müşteri (Ahmet) görünümünde
@@ -13,6 +13,7 @@ const SECTIONS: { label: string | null; wip?: boolean; items: { href: string; ic
     label: null,
     items: [
       { href: "/admin", icon: LayoutDashboard, label: "Dashboard" },
+      { href: "/admin/sunum", icon: Sparkles, label: "🎯 Sunum" },
       { href: "/admin/sistem", icon: Brain, label: "📖 Sistem & Yöntem" },
       { href: "/admin/presentation", icon: Tv, label: "Pitch & Plan" },
     ],
