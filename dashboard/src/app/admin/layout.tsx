@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { LayoutDashboard, MapPin, MessageSquare, CreditCard, ArrowLeft, BarChart3, Users, CircleDollarSign, Map, Mail, Wallet, Target, Globe, Tv, FileSearch, ChevronLeft, ChevronRight, ChevronDown, Cpu, Brain, TrendingDown, Rocket, Hammer, Calculator, Copy, BellRing, Send, MailPlus, Database, Swords, Radar, Sparkles } from "lucide-react";
+import { LayoutDashboard, MapPin, MessageSquare, CreditCard, ArrowLeft, BarChart3, Users, CircleDollarSign, Map, Mail, Wallet, Target, Globe, Tv, FileSearch, ChevronLeft, ChevronRight, ChevronDown, Cpu, Brain, TrendingDown, Rocket, Hammer, Calculator, Copy, BellRing, Send, MailPlus, Database, Swords, Radar, Sparkles, ShieldCheck } from "lucide-react";
 import { CerberusLogo } from "@/components/DealHoundLogo";
 
 // `wip: true` = mock/uydurma veri içeren gruplar. Müşteri (Ahmet) görünümünde
@@ -29,6 +29,7 @@ const SECTIONS: { label: string | null; wip?: boolean; items: { href: string; ic
       // popup judgment'ı "Değer" diye gösteriyordu (Alınabilir Harita doğrusu).
       { href: "/admin/all-deals", icon: Target, label: "Tüm Dealler (Filtre)" },
       { href: "/admin/apn-sorgula", icon: FileSearch, label: "APN Sorgula" },
+      { href: "/admin/apn-dogrula", icon: ShieldCheck, label: "APN/TRS Doğrulama (bizim veri vs county)" },
       { href: "/admin/satilabilir-cekirdek", icon: Target, label: "Satılabilir Çekirdek" },
       { href: "/admin/ucuz-arsa", icon: MapPin, label: "Ucuz Boş Arsa (Değerle→Mektup→Sat)" },
       { href: "/admin/alinabilir-harita", icon: Map, label: "Alınabilir Harita" },
