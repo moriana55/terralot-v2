@@ -13,8 +13,8 @@ const SECTIONS: { label: string | null; wip?: boolean; items: { href: string; ic
     label: null,
     items: [
       { href: "/admin", icon: LayoutDashboard, label: "Dashboard" },
-      { href: "/admin/sunum", icon: Sparkles, label: "🎯 Sunum" },
-      { href: "/admin/sistem", icon: Brain, label: "📖 Sistem & Yöntem" },
+      { href: "/admin/sunum", icon: Sparkles, label: "Sunum" },
+      { href: "/admin/sistem", icon: Brain, label: "Sistem & Yöntem" },
       { href: "/admin/presentation", icon: Tv, label: "Pitch & Plan" },
     ],
   },
@@ -27,22 +27,26 @@ const SECTIONS: { label: string | null; wip?: boolean; items: { href: string; ic
       // eklendi — elle URL yazma derdi olmasın). Gerçek Dealler/Mohave alt
       // kümeleri Tüm Dealler "Kaynak" filtresinde. Deal Map kaldırıldı: eski
       // popup judgment'ı "Değer" diye gösteriyordu (Alınabilir Harita doğrusu).
-      { href: "/admin/all-deals", icon: Target, label: "🔍 Tüm Dealler (Filtre)" },
-      { href: "/admin/apn-sorgula", icon: FileSearch, label: "🔎 APN Sorgula" },
-      { href: "/admin/satilabilir-cekirdek", icon: Target, label: "🎯 Satılabilir Çekirdek" },
-      { href: "/admin/ucuz-arsa", icon: MapPin, label: "🏠 Ucuz Boş Arsa (Değerle→Mektup→Sat)" },
-      { href: "/admin/alinabilir-harita", icon: Map, label: "🗺️ Alınabilir Harita" },
-      { href: "/admin/mohave/kampanya", icon: Mail, label: "✉️ Mektup Kampanyası (Mohave)" },
-      { href: "/admin/satis-sayfalari", icon: Globe, label: "🌐 Satış Sayfaları (/p linkleri)" },
-      { href: "/admin/tax-leads", icon: FileSearch, label: "Tax Leads" },
+      { href: "/admin/all-deals", icon: Target, label: "Tüm Dealler (Filtre)" },
+      { href: "/admin/apn-sorgula", icon: FileSearch, label: "APN Sorgula" },
+      { href: "/admin/satilabilir-cekirdek", icon: Target, label: "Satılabilir Çekirdek" },
+      { href: "/admin/ucuz-arsa", icon: MapPin, label: "Ucuz Boş Arsa (Değerle→Mektup→Sat)" },
+      { href: "/admin/alinabilir-harita", icon: Map, label: "Alınabilir Harita" },
+      { href: "/admin/mohave/kampanya", icon: Mail, label: "Mektup Kampanyası (Mohave)" },
+      { href: "/admin/satis-sayfalari", icon: Globe, label: "Satış Sayfaları (/p linkleri)" },
       { href: "/admin/off-market-leads", icon: MailPlus, label: "Vergi-Borçlu Lead'ler" },
       { href: "/admin/data-coverage", icon: Database, label: "Veri Kapsama & Kalite" },
-      { href: "/admin/talepler", icon: MessageSquare, label: "💬 Alıcı Talepleri" },
-      { href: "/admin/portfoy", icon: BarChart3, label: "📊 Portföy / KPI" },
-      { href: "/admin/pazar-ortusme", icon: Swords, label: "⚔️ Rakip vs Envanter" },
-      { href: "/admin/rakip-radar", icon: Radar, label: "📡 Rakip Radar (satış takibi)" },
-      { href: "/admin/competitor-radar", icon: Radar, label: "🛰️ Rakip Satış Radarı (manzara+PropStream)" },
+      { href: "/admin/talepler", icon: MessageSquare, label: "Alıcı Talepleri" },
+      { href: "/admin/portfoy", icon: BarChart3, label: "Portföy / KPI" },
       { href: "/admin/scraper", icon: Cpu, label: "Cerberus Botları" },
+    ],
+  },
+  {
+    label: "⚔️ Rakip İstihbaratı",
+    items: [
+      { href: "/admin/pazar-ortusme", icon: Swords, label: "Rakip vs Envanter" },
+      { href: "/admin/rakip-radar", icon: Radar, label: "Rakip Radar (satış takibi)" },
+      { href: "/admin/competitor-radar", icon: Radar, label: "Rakip Satış Radarı (manzara+PropStream)" },
     ],
   },
   {
@@ -78,8 +82,8 @@ const SECTIONS: { label: string | null; wip?: boolean; items: { href: string; ic
     label: "🔒 Yakında (kilitli)",
     wip: true,
     items: [
-      { href: "/admin/financing", icon: Wallet, label: "🔒 Owner Finance" },
-      { href: "/admin/referrals", icon: CircleDollarSign, label: "🔒 Referrals" },
+      { href: "/admin/financing", icon: Wallet, label: "Owner Finance" },
+      { href: "/admin/referrals", icon: CircleDollarSign, label: "Referrals" },
     ],
   },
 ];
