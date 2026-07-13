@@ -10,6 +10,8 @@ import { regionPlaybook } from "@/lib/region-playbook";
 import { distanceMiles, nearestRef } from "@/lib/geo-proximity";
 import CopyBuyerLink from "@/components/CopyBuyerLink";
 import { buildCampaign, type MohaveRow } from "@/lib/mohave-campaign";
+import { buildRakipSatislarLayer, computeRakipSatislarOzet, type RakipSatislarData } from "@/lib/rakip-satislar";
+import rakipSatislarData from "@/data/rakip-satislar.json";
 
 export type MapPoint = {
   id: string; lat: number; lng: number; owner: string; region: string;
@@ -205,6 +207,11 @@ function MapLegend() {
       <div><span style={squareStyle} />Turuncu kare = parselin ~tahmini alanı (yaklaşık)</div>
       <div><span style={realBoundaryStyle} />Yeşil dolgu = <b>gerçek tapu sınırı (Regrid)</b> · seçili parsel</div>
       <div><span style={compLegendStyle} />Kırmızı elmas = <b>rakip ilanı</b> (yaklaşık konum, şehir merkezi)</div>
+      <hr style={{ border: "none", borderTop: "1px solid #e2e8f0", margin: "6px 0" }} />
+      <div style={{ fontWeight: 600, color: "#64748b" }}>🏁 Rakip Satışları (tapu-kanıtlı):</div>
+      <div><span style={{ display: "inline-block", width: 11, height: 11, borderRadius: "50%", background: "#4c1d95", border: "1.5px solid #fff", marginRight: 5, verticalAlign: "middle" }} />Koyu mor dolu = <b>tamamlanmış satış</b> (kalıcı fiyat etiketiyle)</div>
+      <div><span style={{ display: "inline-block", width: 11, height: 11, borderRadius: "50%", border: "2px solid #a78bfa", background: "rgba(167,139,250,0.45)", marginRight: 5, verticalAlign: "middle" }} />Açık lila = <b>taksitli satış</b> (sürüyor)</div>
+      <div><span style={{ display: "inline-block", width: 11, height: 11, borderRadius: "50%", border: "2px solid #9ca3af", background: "transparent", marginRight: 5, verticalAlign: "middle" }} />Soluk gri halka = rakip stok/envanteri</div>
       <hr style={{ border: "none", borderTop: "1px solid #e2e8f0", margin: "6px 0" }} />
       <div style={{ fontWeight: 600, color: "#64748b" }}>Altlık (OpenStreetMap — bizim değil):</div>
       <div>🔺 kahverengi üçgen = dağ zirvesi</div>
@@ -779,6 +786,17 @@ function mohaveScoreColor(score: number): string {
 // haritada HIZLI bir tahmin; gerçek maliyet kampanya kurucusunda ayarlanabilir.
 const DEFAULT_LETTER_COST = 0.89;
 
+// ── 🏁 RAKİP SATIŞLARI (tapu-kanıtlı, Discount Lots/WP RE Ventures ailesi) ──────
+// AYRI katman — mevcut "🟥 Rakip ilanları" (aktif ilan, kırmızı elmas) ile
+// KARIŞMASIN diye mor/lila/gri paletinde. Statik JSON (src/data/rakip-satislar.json),
+// build-time üretilmiş — runtime scraper bağımlılığı yok. Saf dönüşüm lib/rakip-satislar.ts.
+const RAKIP_TIP_LABEL: Record<string, string> = {
+  dogrulanmis_satis: "Tapu-kanıtlı SATILDI",
+  satis_taksitte: "Taksitli satış (sürüyor)",
+  envanter: "Rakip envanteri (stokta)",
+  belirsiz: "Durum belirsiz",
+};
+
 const toggleBtnStyle = (active: boolean, on: string, onBorder: string): React.CSSProperties => ({
   background: active ? on : "rgba(255,255,255,0.95)",
   color: active ? "#fff" : "#334155",
@@ -802,6 +820,18 @@ export default function DealsMap({ points }: { points: MapPoint[] }) {
   const [roadsState, setRoadsState] = useState<RoadState>({ loading: false, count: 0, tooFar: false });
   // Satılık pazarlama görseli modalı (popup'tan açılır).
   const [marketImg, setMarketImg] = useState<MapPoint | null>(null);
+
+  // 🏁 Rakip Satışları (tapu-kanıtlı) — statik JSON'dan bir kez üretilir, toggle
+  // ile aç/kapa (varsayılan KAPALI, "Rakip ilanları"nı bozmaz).
+  const [showRakipSatislar, setShowRakipSatislar] = useState(false);
+  const rakipSatislarPoints = useMemo(
+    () => buildRakipSatislarLayer(rakipSatislarData as RakipSatislarData),
+    [],
+  );
+  const rakipSatislarOzet = useMemo(
+    () => computeRakipSatislarOzet(rakipSatislarPoints),
+    [rakipSatislarPoints],
+  );
 
   // ⭐ Mohave off-market katmanı: 3'lü toggle (Kapalı → En İyi 750 → Tüm lead'ler)
   // + lazy fetch (katman kapalıyken 20K nokta hiç indirilmez) + kampanya sepeti.
@@ -1158,6 +1188,67 @@ export default function DealsMap({ points }: { points: MapPoint[] }) {
           </Marker>
         ))}
 
+        {/* 🏁 RAKİP SATIŞLARI (tapu-kanıtlı) — koyu mor dolu = tamamlanmış satış
+            (kalıcı fiyat etiketiyle), açık lila kontur = taksitli, soluk gri halka = stok/envanter.
+            "Rakip ilanları" (kırmızı elmas, aktif ilan) ile KARIŞMASIN diye ayrı renk paleti. */}
+        {showRakipSatislar && rakipSatislarPoints.map((p) => {
+          const isSatildi = p.kayitTipi === "dogrulanmis_satis";
+          const isTaksit = p.kayitTipi === "satis_taksitte";
+          const radius = isSatildi ? 6 : isTaksit ? 5 : 4;
+          return (
+            <div key={"rs" + p.id}>
+              <CircleMarker
+                center={[p.lat, p.lng]}
+                radius={radius}
+                pathOptions={{
+                  color: isSatildi ? "#fff" : p.color,
+                  weight: isSatildi ? 1.5 : 2,
+                  fillColor: p.color,
+                  fillOpacity: isSatildi ? 0.95 : isTaksit ? 0.45 : 0.2,
+                }}
+              >
+                <Popup>
+                  <div style={{ fontSize: 12, lineHeight: 1.5, minWidth: 190 }}>
+                    <div style={{ fontWeight: 700, color: p.color }}>
+                      🏁 {RAKIP_TIP_LABEL[p.kayitTipi] ?? p.kayitTipi}
+                    </div>
+                    <div style={{ color: "#64748b", marginTop: 2 }}>
+                      {p.sirketLlc || "Discount Lots (WP RE Ventures ailesi)"}
+                    </div>
+                    <div style={{ marginTop: 4 }}>
+                      Fiyat: <b>{p.fiyat != null ? usd(p.fiyat) : "—"}</b>
+                      {p.tarih ? ` · ${p.tarih}` : ""}
+                    </div>
+                    <div style={{ fontSize: 11, color: "#475569", marginTop: 2 }}>
+                      APN: {p.apn}{p.recordingNo ? ` · Kayıt No: ${p.recordingNo}` : ""}
+                    </div>
+                    {p.karsiTaraf && (
+                      <div style={{ fontSize: 11, color: "#475569", marginTop: 2 }}>Alıcı: {p.karsiTaraf}</div>
+                    )}
+                    {p.acres != null && (
+                      <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 2 }}>{p.acres} acre{p.bolge ? ` · ${p.bolge}` : ""}</div>
+                    )}
+                    <div style={{ fontSize: 10, color: "#94a3b8", marginTop: 4, fontStyle: "italic" }}>
+                      {p.coordSource === "exact" ? "Konum: tapu APN eşleşmesi" : "Konum: yaklaşık (aynı blok/subdivision centroid'i)"}
+                    </div>
+                  </div>
+                </Popup>
+              </CircleMarker>
+              {isSatildi && p.priceLabel && (
+                <Marker
+                  position={[p.lat, p.lng]}
+                  interactive={false}
+                  icon={L.divIcon({
+                    className: "rakip-satis-price-label",
+                    html: `<div style="transform:translate(9px,-9px);background:#4c1d95;color:#fff;font-size:10px;font-weight:700;padding:1px 5px;border-radius:4px;white-space:nowrap;box-shadow:0 1px 3px rgba(0,0,0,0.4)">${p.priceLabel}</div>`,
+                    iconSize: [0, 0],
+                  })}
+                />
+              )}
+            </div>
+          );
+        })}
+
         {/* ⭐ MOHAVE OFF-MARKET KATMANI — Canvas renderer (20K nokta SVG'de takılır).
             Top-750 üyeleri beyaz kenarlı/parlak; kalanı soluk gri/sarı/yeşil skor rengi. */}
         {visibleMohave.map((p) => (
@@ -1281,6 +1372,25 @@ export default function DealsMap({ points }: { points: MapPoint[] }) {
         >
           🟥 Rakip ilanları{competitors.length ? ` (${competitors.length})` : ""}: {showComp ? "Açık" : "Kapalı"}
         </button>
+        <button
+          onClick={() => setShowRakipSatislar((v) => !v)}
+          title="Tapu-kanıtlı rakip satışları (Discount Lots/WP RE Ventures) — 'Rakip ilanları'ndan AYRI katman"
+          style={toggleBtnStyle(showRakipSatislar, "#4c1d95", "#4c1d95")}
+        >
+          🏁 Rakip Satışları (tapu){rakipSatislarPoints.length ? ` (${rakipSatislarPoints.length})` : ""}: {showRakipSatislar ? "Açık" : "Kapalı"}
+        </button>
+        {showRakipSatislar && (
+          <div style={{
+            background: "rgba(76,29,149,0.95)", color: "#fff", borderRadius: 8,
+            padding: "6px 10px", fontSize: 11, fontWeight: 600, boxShadow: "0 2px 8px rgba(0,0,0,0.18)",
+            maxWidth: 230, lineHeight: 1.5,
+          }}>
+            {rakipSatislarOzet.rozetMetni}
+            <div style={{ fontSize: 9, fontWeight: 400, opacity: 0.85, marginTop: 2 }}>
+              {rakipSatislarOzet.envanter} stok/belirsiz · tapu kaydı, Mohave County
+            </div>
+          </div>
+        )}
         <button
           onClick={() => { if (showRoads) setRoadsState({ loading: false, count: 0, tooFar: false }); setShowRoads((v) => !v); }}
           title="OSM yol-tipi katmanı (Overpass) — açınca zoom ≥ 13'te yollar çizilir"
