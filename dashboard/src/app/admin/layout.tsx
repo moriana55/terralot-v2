@@ -48,6 +48,7 @@ const SECTIONS: { label: string | null; wip?: boolean; items: { href: string; ic
       { href: "/admin/pazar-ortusme", icon: Swords, label: "Rakip vs Envanter" },
       { href: "/admin/rakip-radar", icon: Radar, label: "Rakip Radar (satış takibi)" },
       { href: "/admin/competitor-radar", icon: Radar, label: "Rakip Satış Radarı (manzara+PropStream)" },
+      { href: "/admin/rakip-defteri", icon: Swords, label: "Rakip Defteri (aldı/sattı/taksit)" },
     ],
   },
   {
