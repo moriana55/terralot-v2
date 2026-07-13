@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
-  buildCampaign, buildLetterBody, campaignToCsv, excludeMailed, filterRows, ownerKey,
+  buildCampaign, buildLetterBody, buildTop750Campaign, campaignToCsv, excludeMailed, filterRows, ownerKey,
   type MohaveRow,
 } from "./mohave-campaign";
 
@@ -111,6 +111,81 @@ test("buildLetterBody: sahip + APN + acre + iletişim VAR, est_offer/dolar tutar
   // İç teklif rakamı mektuba SIZMAZ: gövdede hiç $ tutarı yok.
   assert.ok(!/\$\s*\d/.test(body));
   assert.ok(!body.includes("4800") && !body.includes("est_offer"));
+});
+
+test("CSV: avg_offmarket_score kolonu son sırada, skor yoksa 0", () => {
+  const c = buildCampaign([row({})], {});
+  const csv = campaignToCsv(c.letters);
+  const [head, line] = csv.trim().split("\n");
+  const cols = head.split(",");
+  assert.equal(cols[cols.length - 1], "avg_offmarket_score");
+  assert.ok(line.endsWith(",0"));
+});
+
+// ─── ⭐ "En İyi 750" reçetesi ──────────────────────────────────────────────
+
+const scoredRow = (apn: string, opts: Partial<MohaveRow> = {}): MohaveRow => row({
+  apn,
+  owner: `OWNER-${apn}`,
+  mailing_address: `${apn} MAIN ST`,
+  ...opts,
+});
+
+test("En İyi 750: yalnız ilk N parsel (skora göre azalan) seçilir", () => {
+  // 10 satır, farklı acres/land_value ile farklı offmarket_score üretir (score alanı boş bırakılır,
+  // gerçek fonksiyon kendi offmarket_score'unu hesaplar — girdideki 'score' alanı kullanılmaz).
+  const rows: MohaveRow[] = Array.from({ length: 10 }, (_, i) =>
+    scoredRow(String(i + 1), { acres: 1.5, land_value: (i + 1) * 100, region: "Meadview / Lake Mead", mailing_state: "NJ" })
+  );
+  const c = buildTop750Campaign(rows, 3);
+  assert.equal(c.requestedTopN, 3);
+  assert.equal(c.consideredParcels, 3);
+  // Düşük land_value = düşük $/acre = yüksek marj puanı → en ucuz 3 parsel seçilmeli (apn 1,2,3).
+  const selectedApns = c.letters.flatMap((l) => l.apns).sort();
+  assert.deepEqual(selectedApns, ["1", "2", "3"]);
+});
+
+test("En İyi 750: havuz N'den küçükse hepsi seçilir (crash yok)", () => {
+  const rows: MohaveRow[] = Array.from({ length: 5 }, (_, i) => scoredRow(String(i + 1)));
+  const c = buildTop750Campaign(rows, 750);
+  assert.equal(c.consideredParcels, 5);
+});
+
+test("En İyi 750: dedupe etkileşimi — aynı sahip birden çok parselle top-750'de olursa mektup < parsel", () => {
+  const rows: MohaveRow[] = [
+    // Aynı sahip + adres, 3 parsel — hepsi top-N'e girecek kadar yüksek skorlu (küçük acre, ucuz).
+    scoredRow("1", { owner: "PORTFOLIO LLC", mailing_address: "1 MAIN ST", acres: 1.5, land_value: 100 }),
+    scoredRow("2", { owner: "PORTFOLIO LLC", mailing_address: "1 MAIN ST", acres: 1.5, land_value: 100 }),
+    scoredRow("3", { owner: "PORTFOLIO LLC", mailing_address: "1 MAIN ST", acres: 1.5, land_value: 100 }),
+    scoredRow("4", { owner: "SOLO OWNER", mailing_address: "9 SOLO ST", acres: 1.5, land_value: 100 }),
+  ];
+  const c = buildTop750Campaign(rows, 4);
+  assert.equal(c.consideredParcels, 4);
+  assert.equal(c.parcels, 4); // tüm parseller kapsanıyor
+  assert.equal(c.letters.length, 2); // ama PORTFOLIO LLC tek mektupta birleşiyor → 4 parsel, 2 mektup
+});
+
+test("En İyi 750: adres eksik parsel top-N'e girse bile mektup listesine düşmez, skippedNoAddress'te sayılır", () => {
+  const rows: MohaveRow[] = [
+    scoredRow("1", { mailing_address: "" }), // en ucuz/en yüksek skorlu ama adressiz
+    scoredRow("2", { acres: 1.5, land_value: 5000 }), // daha pahalı, ama adresli
+  ];
+  const c = buildTop750Campaign(rows, 2);
+  assert.equal(c.consideredParcels, 2);
+  assert.equal(c.skippedNoAddress, 1);
+  assert.equal(c.letters.length, 1);
+  assert.deepEqual(c.letters[0].apns, ["2"]);
+});
+
+test("En İyi 750: avgScore ve regionBreakdown seçilen top-N'i (dedupe öncesi) yansıtır", () => {
+  const rows: MohaveRow[] = [
+    scoredRow("1", { region: "Meadview / Lake Mead", acres: 1.5, land_value: 100 }),
+    scoredRow("2", { region: "Yucca / Kingman G.", acres: 1.5, land_value: 100 }),
+  ];
+  const c = buildTop750Campaign(rows, 2);
+  assert.equal(c.regionBreakdown["Meadview / Lake Mead"], 1);
+  assert.equal(c.regionBreakdown["Yucca / Kingman G."], 1);
+  assert.ok(c.avgScore > 0 && c.avgScore <= 100);
 });
 
 test("buildLetterBody: 12+ APN kısaltılır (+N more), tek parselde tekil dil", () => {

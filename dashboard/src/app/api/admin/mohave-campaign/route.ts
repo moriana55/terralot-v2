@@ -4,8 +4,8 @@ import { enforceRateLimit, requireGate } from "@/lib/api-guard";
 import { supabaseAdmin } from "@/lib/supabase";
 import mohave from "@/data/mohave-offmarket.json";
 import {
-  buildCampaign, buildLetterBody, campaignToCsv, excludeMailed, ownerKey,
-  type CampaignFilter, type CampaignLetter, type MohaveRow,
+  buildCampaign, buildLetterBody, buildTop750Campaign, campaignToCsv, excludeMailed, ownerKey,
+  type CampaignFilter, type CampaignLetter, type CampaignResult, type MohaveRow, type Top750Result,
 } from "@/lib/mohave-campaign";
 
 export const runtime = "nodejs";
@@ -31,6 +31,8 @@ const REGIONS = [...new Set(ROWS.map((r) => (r.region || "").trim()).filter(Bool
 // Tek POST'ta üst sınır: parmak kayması / filtre unutması 20K mektuba dönmesin.
 const MAX_BATCH = 1500;
 const LOB_BASE = "https://api.lob.com/v1";
+// ⭐ "En İyi 750" reçetesi: skora göre azalan sıralı ilk N parsel.
+const TOP750_N = 750;
 
 const numParam = (v: string | null): number | undefined => {
   if (v == null || v.trim() === "") return undefined;
@@ -89,16 +91,21 @@ export async function GET(req: NextRequest) {
   if (unauth) return unauth;
 
   const sp = req.nextUrl.searchParams;
-  const c = buildCampaign(ROWS, filterFromParams(sp));
+  const isTop750 = sp.get("top750") === "1";
+  // ⭐ "En İyi 750": diğer segment filtreleri yok sayılır, skora göre otomatik seçim yapılır.
+  const c: CampaignResult | Top750Result = isTop750
+    ? buildTop750Campaign(ROWS, TOP750_N)
+    : buildCampaign(ROWS, filterFromParams(sp));
   const ex = await applyExclusion(c.letters, sp.get("excludeMailed") === "1");
   const letters = ex.letters;
 
   if (sp.get("format") === "csv") {
     const stamp = new Date().toISOString().slice(0, 10);
+    const tag = isTop750 ? "en-iyi-750" : "kampanya";
     return new NextResponse(campaignToCsv(letters), {
       headers: {
         "Content-Type": "text/csv; charset=utf-8",
-        "Content-Disposition": `attachment; filename="mohave-kampanya-${stamp}-${letters.length}mektup.csv"`,
+        "Content-Disposition": `attachment; filename="mohave-${tag}-${stamp}-${letters.length}mektup.csv"`,
         "Cache-Control": "no-store",
       },
     });
@@ -114,6 +121,14 @@ export async function GET(req: NextRequest) {
       skippedGovOwner: c.skippedGovOwner,
       excludedMailed: ex.excludedMailed,
       sourceRows: ROWS.length,
+      ...(isTop750
+        ? {
+            requestedTopN: (c as Top750Result).requestedTopN,
+            consideredParcels: (c as Top750Result).consideredParcels,
+            avgScore: (c as Top750Result).avgScore,
+            regionBreakdown: (c as Top750Result).regionBreakdown,
+          }
+        : {}),
     },
     exclusionAvailable: ex.exclusionAvailable,
     lobConfigured: Boolean(process.env.LOB_API_KEY),
@@ -136,6 +151,8 @@ const sendSchema = z.object({
     ownerScope: z.enum(["all", "absentee", "instate"]).optional(),
     minParcels: z.number().optional(),
   }),
+  /** true ise 'filter' yok sayılır — ⭐ "En İyi 750" reçetesi skora göre kendi seçimini yapar. */
+  top750: z.boolean().optional(),
   excludeMailed: z.boolean(),
   /** İstemcinin onay modal'ında gördüğü mektup sayısı — eşleşmezse 409. */
   expectedLetters: z.number().int().positive(),
@@ -255,7 +272,7 @@ export async function POST(req: NextRequest) {
   const body = parsed.data;
 
   // Segmenti sunucuda yeniden hesapla — istemcinin gördüğü sayıyla eşleşmeli.
-  const c = buildCampaign(ROWS, body.filter);
+  const c: CampaignResult = body.top750 ? buildTop750Campaign(ROWS, TOP750_N) : buildCampaign(ROWS, body.filter);
   const ex = await applyExclusion(c.letters, body.excludeMailed);
   const letters = ex.letters;
 

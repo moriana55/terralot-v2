@@ -5,8 +5,11 @@
 // Snapshot: src/data/mohave-offmarket.json — scraper/mohave-offmarket.mjs ile yenilenir.
 // Renkler dashboard'un AÇIK temasıyla uyumlu (var(--*)).
 // ─────────────────────────────────────────────────────────────────────────────
+import Link from "next/link";
 import data from "@/data/mohave-offmarket.json";
 import { MapPin, ExternalLink, TrendingUp, Home, Globe } from "lucide-react";
+import { scoreAllRows } from "@/lib/mohave-score";
+import { ScoreBadge } from "@/components/ScoreBadge";
 
 export const metadata = { title: "Mohave Off-Market — Terralot" };
 
@@ -22,7 +25,10 @@ interface Row {
 }
 
 const rows = (data.rows as Row[]) ?? [];
-const top = rows.slice(0, 300);
+// ⭐ offmarket_score: 0-100 runtime skor (mohave-score.ts) — marj+boyut+bölge+sahip motivasyonu.
+// Tablo skora göre azalan sıralanır; en iyi 300 gösterilir (tam liste "En İyi 750" reçetesinde).
+const scoredRows = scoreAllRows(rows);
+const top = [...scoredRows].sort((a, b) => b.offmarket_score - a.offmarket_score).slice(0, 300);
 const byRegion: Record<string, number> = {};
 const byState: Record<string, number> = {};
 for (const r of rows) {
@@ -138,11 +144,12 @@ export default function MohavePage() {
         <p className="p-3 text-xs" style={{ color: "var(--muted)" }}>En çok parsel tutan 80 sahip gösteriliyor (toplam {multiOwners.length.toLocaleString("en-US")} çok-parselli sahip).</p>
       </div>
 
-      {/* Tüm parsel listesi (en iyi 300) */}
+      {/* Tüm parsel listesi (skora göre azalan sıralı, en iyi 300) */}
       <div className="overflow-x-auto rounded-xl border" style={{ borderColor: "var(--border)" }}>
         <table className="w-full text-left text-sm">
           <thead>
             <tr className="text-xs uppercase tracking-wide" style={{ background: "var(--surface-high)", color: "var(--muted)" }}>
+              <th className="px-3 py-2.5 text-center font-bold">Skor ▼</th>
               <th className="px-3 py-2.5 font-bold">Sahip</th>
               <th className="px-3 py-2.5 font-bold">Posta adresi (mektup)</th>
               <th className="px-3 py-2.5 font-bold">Bölge</th>
@@ -155,6 +162,7 @@ export default function MohavePage() {
           <tbody>
             {top.map((r) => (
               <tr key={r.apn} className="border-t" style={{ borderColor: "var(--border)" }}>
+                <td className="px-3 py-2 text-center"><ScoreBadge score={r.offmarket_score} size={30} /></td>
                 <td className="px-3 py-2 font-medium">{r.owner}</td>
                 <td className="px-3 py-2" style={{ color: "var(--muted)" }}>
                   {r.mailing_address}, {r.mailing_city} {r.mailing_state} {r.mailing_zip}
@@ -177,7 +185,9 @@ export default function MohavePage() {
         </table>
       </div>
       <p className="text-xs" style={{ color: "var(--muted)" }}>
-        İlk 300 gösteriliyor. Tam liste ({data.count.toLocaleString("en-US")} satır) mektuba hazır:{" "}
+        Skora göre azalan sıralı ilk 300 gösteriliyor (offmarket_score: marj + boyut + bölge talebi + sahip
+        motivasyonu — bkz. <Link href="/admin/mohave/kampanya" className="underline" style={{ color: GREEN }}>Kampanya Kurucu</Link>&apos;daki
+        ⭐ &quot;En İyi 750&quot; reçetesi). Tam liste ({data.count.toLocaleString("en-US")} satır) mektuba hazır:{" "}
         <code className="rounded px-1.5 py-0.5" style={{ background: "var(--surface-high)" }}>scraper/mohave-offmarket.csv</code>
       </p>
     </div>

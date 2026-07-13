@@ -1,3 +1,5 @@
+import { scoreAllRows } from "./mohave-score";
+
 // ─────────────────────────────────────────────────────────────────────────────
 // MOHAVE MEKTUP KAMPANYASI — saf segmentasyon + sahip-dedupe + CSV motoru.
 //
@@ -24,6 +26,8 @@ export interface MohaveRow {
   region: string;
   est_offer?: number | null;
   score?: number | null;
+  /** 0-100 runtime skor (mohave-score.ts). DB'ye yazılmaz, "En İyi 750" reçetesi için hesaplanır. */
+  offmarket_score?: number | null;
 }
 
 export interface CampaignFilter {
@@ -52,6 +56,8 @@ export interface CampaignLetter {
   /** İç blind-offer toplamı (est_offer). SADECE admin — müşteri yüzeyine sızmaz. */
   totalOffer: number;
   regions: string[];
+  /** Gruptaki parsellerin offmarket_score ortalaması (mohave-score.ts). Skor hesaplanmadıysa 0. */
+  avgScore: number;
 }
 
 export interface CampaignResult {
@@ -109,7 +115,7 @@ export function buildCampaign(rows: MohaveRow[], f: CampaignFilter = {}): Campai
       g = {
         owner: clean(r.owner), address: clean(r.mailing_address), city: clean(r.mailing_city),
         state: clean(r.mailing_state), zip: clean(r.mailing_zip),
-        parcelCount: 0, apns: [], totalAcres: 0, totalOffer: 0, regions: [],
+        parcelCount: 0, apns: [], totalAcres: 0, totalOffer: 0, regions: [], avgScore: 0,
       };
       map.set(key, g);
     }
@@ -117,9 +123,12 @@ export function buildCampaign(rows: MohaveRow[], f: CampaignFilter = {}): Campai
     if (clean(r.apn)) g.apns.push(clean(r.apn));
     g.totalAcres += num(r.acres);
     g.totalOffer += num(r.est_offer);
+    // avgScore'u kümülatif toplamda tut, döngü bitince parcelCount'a böl (aşağıda).
+    g.avgScore += num(r.offmarket_score);
     const reg = clean(r.region);
     if (reg && !g.regions.includes(reg)) g.regions.push(reg);
   }
+  for (const g of map.values()) g.avgScore = g.parcelCount > 0 ? Math.round((g.avgScore / g.parcelCount) * 10) / 10 : 0;
   let letters = [...map.values()];
   if (f.minParcels != null && f.minParcels > 1) letters = letters.filter((l) => l.parcelCount >= f.minParcels!);
   // En değerli hedef üstte: çok parsel → çok acre.
@@ -205,15 +214,54 @@ const csvCell = (v: string | number): string => {
 export function campaignToCsv(letters: CampaignLetter[]): string {
   const header = [
     "recipient_name", "address_line1", "address_city", "address_state", "address_zip",
-    "parcel_count", "total_acres", "offer_total_usd", "regions", "apns",
+    "parcel_count", "total_acres", "offer_total_usd", "regions", "apns", "avg_offmarket_score",
   ];
   const lines = [header.join(",")];
   for (const l of letters) {
     lines.push([
       csvCell(l.owner), csvCell(l.address), csvCell(l.city), csvCell(l.state), csvCell(l.zip),
       l.parcelCount, l.totalAcres.toFixed(2), Math.round(l.totalOffer),
-      csvCell(l.regions.join("; ")), csvCell(l.apns.join("; ")),
+      csvCell(l.regions.join("; ")), csvCell(l.apns.join("; ")), l.avgScore,
     ].join(","));
   }
   return lines.join("\n") + "\n";
+}
+
+// ─── ⭐ Hazır reçete #4: "En İyi 750" ────────────────────────────────────────
+// mohave-score.ts ile TÜM havuza 0-100 offmarket_score hesaplanır, skora göre
+// azalan sıralanır, ilk N (varsayılan 750) parsel seçilir — SONRA aynı
+// adres-hijyeni + kamu-sahip filtresi + sahip-dedupe uygulanır. Yani "750 parsel"
+// her zaman 750 mektup ETMEZ (aynı sahibin birden çok parseli veya posta adresi
+// eksik satırlar varsa mektup sayısı düşer) — bu düşüş raporda görünür kalır.
+export interface Top750Result extends CampaignResult {
+  /** İstenen üst sınır (varsayılan 750). */
+  requestedTopN: number;
+  /** Sıralamadan sonra fiilen seçilen parsel sayısı (havuz N'den küçükse hepsi). */
+  consideredParcels: number;
+  /** Seçilen top-N parselin offmarket_score ortalaması (dedupe ÖNCESİ). */
+  avgScore: number;
+  /** Seçilen top-N içindeki bölge dağılımı (dedupe ÖNCESİ, parsel bazlı). */
+  regionBreakdown: Record<string, number>;
+}
+
+export function buildTop750Campaign(rows: MohaveRow[], n = 750): Top750Result {
+  const scored = scoreAllRows(rows);
+  const sorted = [...scored].sort(
+    (a, b) => (b.offmarket_score - a.offmarket_score) || clean(a.apn).localeCompare(clean(b.apn))
+  );
+  const top = sorted.slice(0, Math.max(0, n));
+  const campaign = buildCampaign(top, {});
+  const avgScore = top.length ? top.reduce((a, r) => a + r.offmarket_score, 0) / top.length : 0;
+  const regionBreakdown: Record<string, number> = {};
+  for (const r of top) {
+    const reg = clean(r.region) || "(bilinmiyor)";
+    regionBreakdown[reg] = (regionBreakdown[reg] ?? 0) + 1;
+  }
+  return {
+    ...campaign,
+    requestedTopN: n,
+    consideredParcels: top.length,
+    avgScore: Math.round(avgScore * 10) / 10,
+    regionBreakdown,
+  };
 }

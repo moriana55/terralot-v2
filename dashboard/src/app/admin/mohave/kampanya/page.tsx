@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { Mail, Loader2, Download, Filter, Users, MapPin, DollarSign, AlertTriangle, Send, X, CheckCircle2 } from "lucide-react";
+import { Mail, Loader2, Download, Filter, Users, MapPin, DollarSign, AlertTriangle, Send, X, CheckCircle2, Star } from "lucide-react";
+import { ScoreBadge } from "@/components/ScoreBadge";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // MOHAVE MEKTUP KAMPANYA KURUCU (admin, Türkçe)
@@ -14,11 +15,15 @@ import { Mail, Loader2, Download, Filter, Users, MapPin, DollarSign, AlertTriang
 interface Letter {
   owner: string; address: string; city: string; state: string; zip: string;
   parcelCount: number; apns: string[]; totalAcres: number; totalOffer: number; regions: string[];
+  avgScore: number;
 }
 interface ApiResp {
   summary: {
     letters: number; parcels: number; totalAcres: number; totalOffer: number;
     skippedNoAddress: number; skippedGovOwner: number; excludedMailed: number; sourceRows: number;
+    // ⭐ "En İyi 750" reçetesinde dolu gelir; diğer segmentlerde yok.
+    requestedTopN?: number; consideredParcels?: number; avgScore?: number;
+    regionBreakdown?: Record<string, number>;
   };
   /** true=log tablosu okundu, false=okunamadı (tablo/env yok), null=exclusion istenmedi. */
   exclusionAvailable: boolean | null;
@@ -60,6 +65,8 @@ export default function MohaveKampanyaPage() {
   const [minParcels, setMinParcels] = useState("");
   const [costPer, setCostPer] = useState("0.89");
   const [excludeMailed, setExcludeMailed] = useState(true);
+  // ⭐ "En İyi 750" modu: skora göre otomatik seçim — diğer filtreler yok sayılır.
+  const [top750Mode, setTop750Mode] = useState(false);
   const [data, setData] = useState<ApiResp | null>(null);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState<string | null>(null);
@@ -72,6 +79,12 @@ export default function MohaveKampanyaPage() {
 
   const qs = useCallback(() => {
     const p = new URLSearchParams();
+    if (top750Mode) {
+      // Diğer filtreler API tarafında yok sayılır — yine de temiz bir query için eklemiyoruz.
+      p.set("top750", "1");
+      if (excludeMailed) p.set("excludeMailed", "1");
+      return p.toString();
+    }
     if (region) p.set("region", region);
     if (ownerScope !== "all") p.set("ownerScope", ownerScope);
     if (minAcres) p.set("minAcres", minAcres);
@@ -80,7 +93,7 @@ export default function MohaveKampanyaPage() {
     if (minParcels) p.set("minParcels", minParcels);
     if (excludeMailed) p.set("excludeMailed", "1");
     return p.toString();
-  }, [region, ownerScope, minAcres, maxAcres, maxLandValue, minParcels, excludeMailed]);
+  }, [region, ownerScope, minAcres, maxAcres, maxLandValue, minParcels, excludeMailed, top750Mode]);
 
   // setLoading(true) çağıranın sorumluluğunda (effect içinde senkron setState
   // lint'e takılır — tax-leads ile aynı desen).
@@ -95,6 +108,7 @@ export default function MohaveKampanyaPage() {
   useEffect(() => { load(); /* ilk yük — loading zaten true başlar */ }, [load]);
 
   const applyPreset = (f: Record<string, string>) => {
+    setTop750Mode(false);
     setRegion(f.region ?? "");
     setOwnerScope(f.ownerScope ?? "all");
     setMinAcres(f.minAcres ?? "");
@@ -121,6 +135,7 @@ export default function MohaveKampanyaPage() {
             minAcres: num(minAcres), maxAcres: num(maxAcres),
             maxLandValue: num(maxLandValue), minParcels: num(minParcels),
           },
+          top750: top750Mode,
           excludeMailed,
           expectedLetters: data.summary.letters,
         }),
@@ -171,24 +186,46 @@ export default function MohaveKampanyaPage() {
             <span className="block font-normal" style={{ color: "var(--muted)" }}>{p.desc}</span>
           </button>
         ))}
+        <button onClick={() => setTop750Mode(true)} title="offmarket_score'a göre azalan sıralı ilk 750 parsel — marj + boyut + bölge talebi + sahip motivasyonu"
+          className="flex items-center gap-1.5 rounded-lg border px-3 py-2 text-left text-xs font-semibold transition-colors hover:bg-[var(--surface-high)]"
+          style={{ borderColor: top750Mode ? GREEN : "var(--outline)", background: top750Mode ? "var(--surface-high)" : "var(--surface)" }}>
+          <Star className="h-3.5 w-3.5 shrink-0" style={{ color: GREEN }} />
+          <span>
+            ⭐ En İyi 750
+            <span className="block font-normal" style={{ color: "var(--muted)" }}>Skora göre otomatik seçim — dedupe sonrası mektup sayısı düşebilir</span>
+          </span>
+        </button>
       </div>
 
+      {top750Mode && (
+        <div className="flex items-center justify-between rounded-lg border border-dashed px-3 py-2 text-xs"
+          style={{ borderColor: GREEN, color: "var(--foreground)" }}>
+          <span>
+            <strong style={{ color: GREEN }}>⭐ En İyi 750 modu aktif</strong> — segment filtreleri yok sayılır, offmarket_score&apos;a
+            göre azalan sıralı ilk {data?.summary.requestedTopN ?? 750} parsel seçilir.
+          </span>
+          <button onClick={() => setTop750Mode(false)} className="ml-3 shrink-0 underline" style={{ color: "var(--muted)" }}>
+            filtrelere dön
+          </button>
+        </div>
+      )}
+
       {/* Filtreler */}
-      <div className="rounded-xl border p-4" style={{ borderColor: "var(--border)", background: "var(--surface)" }}>
+      <div className="rounded-xl border p-4" style={{ borderColor: "var(--border)", background: "var(--surface)", opacity: top750Mode ? 0.45 : 1 }}>
         <div className="mb-3 flex items-center gap-2 text-sm font-bold">
           <Filter className="h-4 w-4" style={{ color: GREEN }} /> Segment filtreleri
         </div>
         <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">
           <label className="block text-xs">
             <span className="mb-1 block font-semibold" style={{ color: "var(--muted)" }}>Bölge</span>
-            <select value={region} onChange={(e) => setRegion(e.target.value)} className={inputCls} style={inputStyle}>
+            <select disabled={top750Mode} value={region} onChange={(e) => setRegion(e.target.value)} className={inputCls} style={inputStyle}>
               <option value="">Hepsi</option>
               {(data?.regions ?? []).map((r) => <option key={r} value={r}>{r}</option>)}
             </select>
           </label>
           <label className="block text-xs">
             <span className="mb-1 block font-semibold" style={{ color: "var(--muted)" }}>Sahip</span>
-            <select value={ownerScope} onChange={(e) => setOwnerScope(e.target.value)} className={inputCls} style={inputStyle}>
+            <select disabled={top750Mode} value={ownerScope} onChange={(e) => setOwnerScope(e.target.value)} className={inputCls} style={inputStyle}>
               <option value="all">Hepsi</option>
               <option value="absentee">Absentee (AZ dışı)</option>
               <option value="instate">AZ içi</option>
@@ -196,19 +233,19 @@ export default function MohaveKampanyaPage() {
           </label>
           <label className="block text-xs">
             <span className="mb-1 block font-semibold" style={{ color: "var(--muted)" }}>Min acre</span>
-            <input value={minAcres} onChange={(e) => setMinAcres(e.target.value)} placeholder="örn. 1" inputMode="decimal" className={inputCls} style={inputStyle} />
+            <input disabled={top750Mode} value={minAcres} onChange={(e) => setMinAcres(e.target.value)} placeholder="örn. 1" inputMode="decimal" className={inputCls} style={inputStyle} />
           </label>
           <label className="block text-xs">
             <span className="mb-1 block font-semibold" style={{ color: "var(--muted)" }}>Max acre</span>
-            <input value={maxAcres} onChange={(e) => setMaxAcres(e.target.value)} placeholder="örn. 5" inputMode="decimal" className={inputCls} style={inputStyle} />
+            <input disabled={top750Mode} value={maxAcres} onChange={(e) => setMaxAcres(e.target.value)} placeholder="örn. 5" inputMode="decimal" className={inputCls} style={inputStyle} />
           </label>
           <label className="block text-xs">
             <span className="mb-1 block font-semibold" style={{ color: "var(--muted)" }}>Max land value ($)</span>
-            <input value={maxLandValue} onChange={(e) => setMaxLandValue(e.target.value)} placeholder="örn. 1000" inputMode="numeric" className={inputCls} style={inputStyle} />
+            <input disabled={top750Mode} value={maxLandValue} onChange={(e) => setMaxLandValue(e.target.value)} placeholder="örn. 1000" inputMode="numeric" className={inputCls} style={inputStyle} />
           </label>
           <label className="block text-xs">
             <span className="mb-1 block font-semibold" style={{ color: "var(--muted)" }}>Sahip başına min parsel</span>
-            <input value={minParcels} onChange={(e) => setMinParcels(e.target.value)} placeholder="örn. 2" inputMode="numeric" className={inputCls} style={inputStyle} />
+            <input disabled={top750Mode} value={minParcels} onChange={(e) => setMinParcels(e.target.value)} placeholder="örn. 2" inputMode="numeric" className={inputCls} style={inputStyle} />
           </label>
         </div>
         <div className="mt-4 flex flex-wrap items-center gap-3">
@@ -269,6 +306,22 @@ export default function MohaveKampanyaPage() {
           <Stat icon={<MapPin className="h-4 w-4" />} label="Kapsanan parsel" value={s.parcels.toLocaleString("en-US")} />
           <Stat icon={<Users className="h-4 w-4" />} label="Toplam acre" value={s.totalAcres.toLocaleString("en-US")} />
           <Stat icon={<DollarSign className="h-4 w-4" />} label={`Tahmini posta maliyeti (@$${costPer || "0"})`} value={usd(cost)} />
+        </div>
+      )}
+      {top750Mode && s && s.avgScore != null && (
+        <div className="rounded-xl border p-4 text-sm" style={{ borderColor: "var(--border)", background: "var(--surface)" }}>
+          <div className="mb-2 font-bold">⭐ En İyi 750 — seçim özeti (dedupe öncesi, {s.consideredParcels ?? 0} parsel)</div>
+          <div className="flex flex-wrap items-center gap-4 text-xs" style={{ color: "var(--muted)" }}>
+            <span>Ortalama offmarket_score: <strong style={{ color: GREEN }}>{s.avgScore}</strong>/100</span>
+            {s.regionBreakdown && (
+              <span className="flex flex-wrap gap-2">
+                Bölge dağılımı:
+                {Object.entries(s.regionBreakdown).sort((a, b) => b[1] - a[1]).map(([reg, n]) => (
+                  <span key={reg} className="rounded-md px-2 py-0.5" style={{ background: "var(--surface-high)" }}>{reg}: <strong>{n}</strong></span>
+                ))}
+              </span>
+            )}
+          </div>
         </div>
       )}
       {s && s.parcels > 0 && s.letters < s.parcels && (
@@ -335,6 +388,7 @@ export default function MohaveKampanyaPage() {
         <table className="w-full text-left text-sm">
           <thead>
             <tr className="text-xs uppercase tracking-wide" style={{ background: "var(--surface-high)", color: "var(--muted)" }}>
+              <th className="px-3 py-2.5 text-center font-bold">Skor</th>
               <th className="px-3 py-2.5 font-bold">Sahip (mektup alıcısı)</th>
               <th className="px-3 py-2.5 font-bold">Posta adresi</th>
               <th className="px-3 py-2.5 text-right font-bold">Parsel</th>
@@ -346,6 +400,7 @@ export default function MohaveKampanyaPage() {
           <tbody>
             {(data?.preview ?? []).map((l, i) => (
               <tr key={i} className="border-t" style={{ borderColor: "var(--border)" }}>
+                <td className="px-3 py-2 text-center"><ScoreBadge score={top750Mode ? l.avgScore : null} size={28} /></td>
                 <td className="px-3 py-2 font-medium">{l.owner}</td>
                 <td className="px-3 py-2" style={{ color: "var(--muted)" }}>{l.address}, {l.city} {l.state} {l.zip}</td>
                 <td className="px-3 py-2 text-right font-bold tabular-nums" style={{ color: GREEN }}>{l.parcelCount}</td>
