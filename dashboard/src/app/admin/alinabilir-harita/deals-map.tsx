@@ -10,7 +10,7 @@ import { regionPlaybook } from "@/lib/region-playbook";
 import { distanceMiles, nearestRef } from "@/lib/geo-proximity";
 import CopyBuyerLink from "@/components/CopyBuyerLink";
 import { buildCampaign, type MohaveRow } from "@/lib/mohave-campaign";
-import { buildRakipSatislarLayer, computeRakipSatislarOzet, type RakipSatislarData } from "@/lib/rakip-satislar";
+import { buildRakipSatislarLayer, computeRakipSatislarOzet, groupRakipSatisPoints, type RakipSatisGroup, type RakipSatisPoint, type RakipSatislarData } from "@/lib/rakip-satislar";
 import rakipSatislarData from "@/data/rakip-satislar.json";
 
 export type MapPoint = {
@@ -797,6 +797,121 @@ const RAKIP_TIP_LABEL: Record<string, string> = {
   belirsiz: "Durum belirsiz",
 };
 
+// Kalıcı fiyat etiketleri sadece bu zoom ve üstünde görünür — uzaktan bakınca
+// yalnız noktalar, yaklaşınca fiyatlar (çakışmayı zoom eşiği çözer, jitter YOK).
+const RAKIP_LABEL_MIN_ZOOM = 11;
+
+// Tek kaydın popup detayı — SEMANTİK DOĞRU:
+//  - dogrulanmis_satis: fiyat = SATIŞ fiyatı, karşı taraf = GERÇEK SON ALICI.
+//  - taksitli/envanter/belirsiz: county'deki son kayıtlı işlem LLC'nin KENDİ
+//    ALIMIDIR (taksit bitmeden tapu devredilmez) → "LLC'nin alım kaydı"
+//    (maliyet tabanı) olarak etiketlenir; "Alıcı" diye GÖSTERİLMEZ.
+function RakipSatisKayitDetay({ p }: { p: RakipSatisPoint }) {
+  const isSatildi = p.kayitTipi === "dogrulanmis_satis";
+  return (
+    <div style={{ marginTop: 4 }}>
+      <div style={{ fontWeight: 700, color: p.color, fontSize: 11 }}>
+        {RAKIP_TIP_LABEL[p.kayitTipi] ?? p.kayitTipi}
+      </div>
+      {isSatildi ? (
+        <>
+          <div>
+            Satış: <b>{p.fiyat != null ? usd(p.fiyat) : "—"}</b>
+            {p.tarih ? ` · ${p.tarih}` : ""}
+          </div>
+          {p.karsiTaraf && (
+            <div style={{ fontSize: 11, color: "#475569" }}>Alıcı: {p.karsiTaraf}</div>
+          )}
+        </>
+      ) : (
+        <>
+          {p.fiyat != null && (
+            <div style={{ fontSize: 11, color: "#475569" }}>
+              LLC&apos;nin alım kaydı: <b>{usd(p.fiyat)}</b>
+              {p.tarih ? ` · ${p.tarih}` : ""} <span style={{ color: "#94a3b8" }}>(maliyet tabanı)</span>
+            </div>
+          )}
+          {p.kayitTipi === "satis_taksitte" && (
+            <div style={{ fontSize: 10, color: "#94a3b8", fontStyle: "italic" }}>
+              Son alıcı: tapu devri tamamlanınca kayda düşer
+            </div>
+          )}
+        </>
+      )}
+      <div style={{ fontSize: 11, color: "#475569" }}>
+        APN: {p.apn}{p.recordingNo ? ` · Kayıt No: ${p.recordingNo}` : ""}
+      </div>
+      {p.acres != null && (
+        <div style={{ fontSize: 11, color: "#94a3b8" }}>{p.acres} acre{p.bolge ? ` · ${p.bolge}` : ""}</div>
+      )}
+    </div>
+  );
+}
+
+// Grup marker'ları + zoom-eşikli kalıcı etiketler. Aynı koordinatı paylaşan
+// kayıtlar TEK marker (rozet "3 satış · $8K–$30K"); popup içinde tek tek liste.
+function RakipSatislarLayer({ groups }: { groups: RakipSatisGroup[] }) {
+  const [, force] = useState(0);
+  const map = useMapEvents({ zoomend: () => force((n) => n + 1) });
+  const showLabels = map.getZoom() >= RAKIP_LABEL_MIN_ZOOM;
+  return (
+    <>
+      {groups.map((g) => {
+        const isSatildi = g.dominantTip === "dogrulanmis_satis";
+        const isTaksit = g.dominantTip === "satis_taksitte";
+        const coklu = g.points.length > 1;
+        const radius = (isSatildi ? 6 : isTaksit ? 5 : 4) + (coklu ? 2 : 0);
+        return (
+          <div key={"rs" + g.key}>
+            <CircleMarker
+              center={[g.lat, g.lng]}
+              radius={radius}
+              pathOptions={{
+                color: isSatildi ? "#fff" : g.color,
+                weight: isSatildi ? 1.5 : 2,
+                fillColor: g.color,
+                fillOpacity: isSatildi ? 0.95 : isTaksit ? 0.45 : 0.2,
+              }}
+            >
+              <Popup>
+                <div style={{ fontSize: 12, lineHeight: 1.5, minWidth: 200, maxHeight: 260, overflowY: "auto" }}>
+                  <div style={{ fontWeight: 700, color: g.color }}>
+                    🏁 {coklu ? `${g.points.length} rakip kaydı (aynı nokta)` : (RAKIP_TIP_LABEL[g.points[0].kayitTipi] ?? g.points[0].kayitTipi)}
+                  </div>
+                  <div style={{ color: "#64748b", marginTop: 2 }}>
+                    {g.points[0].sirketLlc || "Discount Lots (WP RE Ventures ailesi)"}
+                  </div>
+                  {g.points.map((p, i) => (
+                    <div key={p.id} style={i > 0 || coklu ? { borderTop: "1px solid #eee", marginTop: 5, paddingTop: 3 } : undefined}>
+                      <RakipSatisKayitDetay p={p} />
+                    </div>
+                  ))}
+                  <div style={{ fontSize: 10, color: "#94a3b8", marginTop: 4, fontStyle: "italic" }}>
+                    {g.points.every((p) => p.coordSource === "exact")
+                      ? "Konum: tapu APN eşleşmesi"
+                      : "Konum: yaklaşık (aynı blok/subdivision centroid'i)"}
+                  </div>
+                </div>
+              </Popup>
+            </CircleMarker>
+            {showLabels && g.label && (
+              <Marker
+                position={[g.lat, g.lng]}
+                interactive={false}
+                icon={L.divIcon({
+                  className: "rakip-satis-price-label",
+                  html: `<div style="transform:translate(9px,-9px);background:${isSatildi ? "#4c1d95" : "#6b7280"};color:#fff;font-size:10px;font-weight:700;padding:1px 5px;border-radius:4px;white-space:nowrap;box-shadow:0 1px 3px rgba(0,0,0,0.4)">${g.label}</div>`,
+                  iconSize: [0, 0],
+                })}
+              />
+            )}
+          </div>
+        );
+      })}
+    </>
+  );
+}
+
 const toggleBtnStyle = (active: boolean, on: string, onBorder: string): React.CSSProperties => ({
   background: active ? on : "rgba(255,255,255,0.95)",
   color: active ? "#fff" : "#334155",
@@ -830,6 +945,11 @@ export default function DealsMap({ points }: { points: MapPoint[] }) {
   );
   const rakipSatislarOzet = useMemo(
     () => computeRakipSatislarOzet(rakipSatislarPoints),
+    [rakipSatislarPoints],
+  );
+  // Aynı koordinatı paylaşan kayıtlar tek marker'da (etiket çakışması fix'i).
+  const rakipSatisGroups = useMemo(
+    () => groupRakipSatisPoints(rakipSatislarPoints),
     [rakipSatislarPoints],
   );
 
@@ -1191,63 +1311,7 @@ export default function DealsMap({ points }: { points: MapPoint[] }) {
         {/* 🏁 RAKİP SATIŞLARI (tapu-kanıtlı) — koyu mor dolu = tamamlanmış satış
             (kalıcı fiyat etiketiyle), açık lila kontur = taksitli, soluk gri halka = stok/envanter.
             "Rakip ilanları" (kırmızı elmas, aktif ilan) ile KARIŞMASIN diye ayrı renk paleti. */}
-        {showRakipSatislar && rakipSatislarPoints.map((p) => {
-          const isSatildi = p.kayitTipi === "dogrulanmis_satis";
-          const isTaksit = p.kayitTipi === "satis_taksitte";
-          const radius = isSatildi ? 6 : isTaksit ? 5 : 4;
-          return (
-            <div key={"rs" + p.id}>
-              <CircleMarker
-                center={[p.lat, p.lng]}
-                radius={radius}
-                pathOptions={{
-                  color: isSatildi ? "#fff" : p.color,
-                  weight: isSatildi ? 1.5 : 2,
-                  fillColor: p.color,
-                  fillOpacity: isSatildi ? 0.95 : isTaksit ? 0.45 : 0.2,
-                }}
-              >
-                <Popup>
-                  <div style={{ fontSize: 12, lineHeight: 1.5, minWidth: 190 }}>
-                    <div style={{ fontWeight: 700, color: p.color }}>
-                      🏁 {RAKIP_TIP_LABEL[p.kayitTipi] ?? p.kayitTipi}
-                    </div>
-                    <div style={{ color: "#64748b", marginTop: 2 }}>
-                      {p.sirketLlc || "Discount Lots (WP RE Ventures ailesi)"}
-                    </div>
-                    <div style={{ marginTop: 4 }}>
-                      Fiyat: <b>{p.fiyat != null ? usd(p.fiyat) : "—"}</b>
-                      {p.tarih ? ` · ${p.tarih}` : ""}
-                    </div>
-                    <div style={{ fontSize: 11, color: "#475569", marginTop: 2 }}>
-                      APN: {p.apn}{p.recordingNo ? ` · Kayıt No: ${p.recordingNo}` : ""}
-                    </div>
-                    {p.karsiTaraf && (
-                      <div style={{ fontSize: 11, color: "#475569", marginTop: 2 }}>Alıcı: {p.karsiTaraf}</div>
-                    )}
-                    {p.acres != null && (
-                      <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 2 }}>{p.acres} acre{p.bolge ? ` · ${p.bolge}` : ""}</div>
-                    )}
-                    <div style={{ fontSize: 10, color: "#94a3b8", marginTop: 4, fontStyle: "italic" }}>
-                      {p.coordSource === "exact" ? "Konum: tapu APN eşleşmesi" : "Konum: yaklaşık (aynı blok/subdivision centroid'i)"}
-                    </div>
-                  </div>
-                </Popup>
-              </CircleMarker>
-              {isSatildi && p.priceLabel && (
-                <Marker
-                  position={[p.lat, p.lng]}
-                  interactive={false}
-                  icon={L.divIcon({
-                    className: "rakip-satis-price-label",
-                    html: `<div style="transform:translate(9px,-9px);background:#4c1d95;color:#fff;font-size:10px;font-weight:700;padding:1px 5px;border-radius:4px;white-space:nowrap;box-shadow:0 1px 3px rgba(0,0,0,0.4)">${p.priceLabel}</div>`,
-                    iconSize: [0, 0],
-                  })}
-                />
-              )}
-            </div>
-          );
-        })}
+        {showRakipSatislar && <RakipSatislarLayer groups={rakipSatisGroups} />}
 
         {/* ⭐ MOHAVE OFF-MARKET KATMANI — Canvas renderer (20K nokta SVG'de takılır).
             Top-750 üyeleri beyaz kenarlı/parlak; kalanı soluk gri/sarı/yeşil skor rengi. */}

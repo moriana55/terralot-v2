@@ -80,11 +80,77 @@ export function buildRakipSatislarLayer(data: RakipSatislarData | null | undefin
     }));
 }
 
+// ── KOORDİNAT GRUPLAMA ────────────────────────────────────────────────────────
+// Aynı (~5. ondalığa yuvarlanmış) koordinatı paylaşan kayıtlar TEK birleşik
+// marker'da toplanır — özellikle blok-merkezi (coordSource="group") kayıtları
+// aynı noktaya düşer ve kalıcı fiyat etiketleri üst üste binerdi. Jitter YOK
+// (konum yalanı olur); grup rozeti "3 satış · $8K–$30K" formatında.
+export interface RakipSatisGroup {
+  key: string;
+  lat: number;
+  lng: number;
+  points: RakipSatisPoint[];
+  /** Grubun görsel tipi: en "güçlü" kayıt (dogrulanmis > taksit > stok). */
+  dominantTip: RakipSatisRecord["kayitTipi"];
+  color: string;
+  /**
+   * Kalıcı rozet metni. Tek tamamlanmış satış → fiyat etiketi ("$8.1K");
+   * çoklu grupta SADECE tamamlanmış satış fiyatları aralığa girer
+   * ("2 satış · $8K–$30K" — taksitlilerin LLC alım fiyatları karışmaz);
+   * satışsız çoklu grup → "N kayıt"; fiyatsız tek kayıt → null.
+   */
+  label: string | null;
+}
+
+const TIP_ONCELIK: Record<RakipSatisRecord["kayitTipi"], number> = {
+  dogrulanmis_satis: 3, satis_taksitte: 2, envanter: 1, belirsiz: 0,
+};
+
+export function groupRakipSatisPoints(points: RakipSatisPoint[]): RakipSatisGroup[] {
+  const groups = new Map<string, RakipSatisPoint[]>();
+  for (const p of points) {
+    const key = `${p.lat.toFixed(5)},${p.lng.toFixed(5)}`;
+    const arr = groups.get(key);
+    if (arr) arr.push(p); else groups.set(key, [p]);
+  }
+  return [...groups.entries()].map(([key, pts]) => {
+    const dominant = pts.reduce((a, b) => (TIP_ONCELIK[b.kayitTipi] > TIP_ONCELIK[a.kayitTipi] ? b : a));
+    const satislar = pts.filter((p) => p.kayitTipi === "dogrulanmis_satis");
+    const satisFiyatlar = satislar
+      .map((p) => p.fiyat)
+      .filter((f): f is number => f != null && Number.isFinite(f) && f > 0);
+    let label: string | null;
+    if (pts.length === 1) {
+      // Tek kayıt: eski davranış — sadece tamamlanmış satışta kalıcı fiyat etiketi.
+      label = pts[0].kayitTipi === "dogrulanmis_satis" ? pts[0].priceLabel : null;
+    } else if (satisFiyatlar.length > 0) {
+      const min = Math.min(...satisFiyatlar);
+      const max = Math.max(...satisFiyatlar);
+      const aralik = min === max ? formatKisaFiyat(min) : `${formatKisaFiyat(min)}–${formatKisaFiyat(max)}`;
+      label = `${satislar.length} satış · ${aralik}`;
+    } else {
+      label = `${pts.length} kayıt`;
+    }
+    return {
+      key,
+      lat: pts[0].lat,
+      lng: pts[0].lng,
+      points: pts,
+      dominantTip: dominant.kayitTipi,
+      color: dominant.color,
+      label,
+    };
+  });
+}
+
 export interface RakipSatislarOzet {
   dogrulanmisSatis: number;
   taksitli: number;
   envanter: number; // envanter + belirsiz birlikte ("stok")
+  /** SADECE tamamlanmış (tapu-kanıtlı) satış fiyatlarının medyanı. */
   medyanFiyat: number | null;
+  /** Rakibin KENDİ alım kayıtlarının (taksitli+envanter SALEP) ortalaması — maliyet tabanı. */
+  ortalamaAlisFiyat: number | null;
   toplam: number;
   rozetMetni: string;
 }
@@ -97,26 +163,37 @@ function medyan(values: number[]): number | null {
   return sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
 }
 
-/** Katman açıldığında köşede gösterilen mini özet rozeti — rakamlar JSON'dan hesaplanır. */
+const gecerliFiyat = (f: number | null): f is number => f != null && Number.isFinite(f) && f > 0;
+
+/**
+ * Katman açıldığında köşede gösterilen mini özet rozeti — rakamlar JSON'dan hesaplanır.
+ * ÖNEMLİ SEMANTİK: medyan SADECE tamamlanmış satış fiyatlarından; taksitli/envanter
+ * kayıtlarındaki fiyat LLC'nin KENDİ ALIM kaydıdır (maliyet tabanı) — o AYRI
+ * "rakip ort. alış" rakamı olarak raporlanır, satış medyanına KARIŞMAZ.
+ */
 export function computeRakipSatislarOzet(points: RakipSatisPoint[]): RakipSatislarOzet {
   const dogrulanmis = points.filter((p) => p.kayitTipi === "dogrulanmis_satis");
   const taksitli = points.filter((p) => p.kayitTipi === "satis_taksitte");
   const stok = points.filter((p) => p.kayitTipi === "envanter" || p.kayitTipi === "belirsiz");
 
-  const fiyatlar = [...dogrulanmis, ...taksitli]
-    .map((p) => p.fiyat)
-    .filter((f): f is number => f != null && Number.isFinite(f) && f > 0);
-  const med = medyan(fiyatlar);
+  const satisFiyatlar = dogrulanmis.map((p) => p.fiyat).filter(gecerliFiyat);
+  const med = medyan(satisFiyatlar);
+
+  const alisFiyatlar = [...taksitli, ...stok].map((p) => p.fiyat).filter(gecerliFiyat);
+  const ortAlis = alisFiyatlar.length
+    ? alisFiyatlar.reduce((s, f) => s + f, 0) / alisFiyatlar.length
+    : null;
 
   const rozetMetni = `${dogrulanmis.length} tapulu satış · ${taksitli.length} taksitli${
-    med != null ? ` · medyan ${formatKisaFiyat(med)}` : ""
-  }`;
+    med != null ? ` · medyan satış ${formatKisaFiyat(med)}` : ""
+  }${ortAlis != null ? ` · rakip ort. alış ${formatKisaFiyat(ortAlis)}` : ""}`;
 
   return {
     dogrulanmisSatis: dogrulanmis.length,
     taksitli: taksitli.length,
     envanter: stok.length,
     medyanFiyat: med,
+    ortalamaAlisFiyat: ortAlis,
     toplam: points.length,
     rozetMetni,
   };

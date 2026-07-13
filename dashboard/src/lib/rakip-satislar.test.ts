@@ -4,6 +4,8 @@ import {
   buildRakipSatislarLayer,
   computeRakipSatislarOzet,
   formatKisaFiyat,
+  groupRakipSatisPoints,
+  type RakipSatisPoint,
   type RakipSatislarData,
 } from "./rakip-satislar";
 
@@ -63,15 +65,51 @@ test("buildRakipSatislarLayer: boş/eksik veri güvenli şekilde boş dizi döne
   assert.deepEqual(buildRakipSatislarLayer({} as RakipSatislarData), []);
 });
 
-test("computeRakipSatislarOzet: tip sayıları ve medyan fiyat JSON'dan hesaplanır (hard-code yok)", () => {
+test("computeRakipSatislarOzet: medyan SADECE tamamlanmış satışlardan; taksitli alım fiyatı AYRI (ort. alış)", () => {
   const points = buildRakipSatislarLayer(sampleData);
   const ozet = computeRakipSatislarOzet(points);
   assert.equal(ozet.dogrulanmisSatis, 1);
   assert.equal(ozet.taksitli, 1);
   assert.equal(ozet.envanter, 1); // envanter + belirsiz (ama belirsiz elendi NaN yüzünden) -> sadece envanter
-  assert.equal(ozet.medyanFiyat, (8117 + 8900) / 2);
+  // SEMANTİK: taksitli kayıttaki 8900 LLC'nin KENDİ ALIMI — satış medyanına KARIŞMAZ.
+  assert.equal(ozet.medyanFiyat, 8117);
+  assert.equal(ozet.ortalamaAlisFiyat, 8900);
   assert.match(ozet.rozetMetni, /1 tapulu satış/);
-  assert.match(ozet.rozetMetni, /1 taksitli/);
+  assert.match(ozet.rozetMetni, /medyan satış \$8\.1K/);
+  assert.match(ozet.rozetMetni, /rakip ort\. alış \$8\.9K/);
+});
+
+// ── Koordinat gruplama (etiket çakışması fix'i) ──────────────────────────────
+const pt = (o: Partial<RakipSatisPoint>): RakipSatisPoint => ({
+  id: "x", apn: "111-11-111", kayitTipi: "dogrulanmis_satis",
+  lat: 35.5, lng: -114.1, coordSource: "group",
+  fiyat: 8000, tarih: null, recordingNo: null, deedType: null,
+  karsiTaraf: null, sirketLlc: null, bolge: null, acres: null, legal: null, siteDurumu: null,
+  color: "#4c1d95", priceLabel: "$8K", ...o,
+});
+
+test("groupRakipSatisPoints: aynı koordinattaki 3 kayıt tek grup, rozet '2 satış · aralık' (taksitli alım fiyatı aralığa girmez)", () => {
+  const groups = groupRakipSatisPoints([
+    pt({ id: "a", fiyat: 8000, priceLabel: "$8K" }),
+    pt({ id: "b", fiyat: 30000, priceLabel: "$30K" }),
+    pt({ id: "c", kayitTipi: "satis_taksitte", fiyat: 999999, color: "#a78bfa", priceLabel: null }),
+  ]);
+  assert.equal(groups.length, 1);
+  assert.equal(groups[0].points.length, 3);
+  assert.equal(groups[0].dominantTip, "dogrulanmis_satis");
+  assert.equal(groups[0].label, "2 satış · $8K–$30K"); // 999999 (LLC alımı) aralıkta YOK
+});
+
+test("groupRakipSatisPoints: farklı koordinatlar ayrı grup; tek kayıt eski etiket davranışını korur", () => {
+  const groups = groupRakipSatisPoints([
+    pt({ id: "a", lat: 35.5 }),
+    pt({ id: "b", lat: 35.6, kayitTipi: "envanter", fiyat: null, color: "#9ca3af", priceLabel: null }),
+  ]);
+  assert.equal(groups.length, 2);
+  const satis = groups.find((g) => g.dominantTip === "dogrulanmis_satis")!;
+  assert.equal(satis.label, "$8K"); // tek tamamlanmış satış -> fiyat etiketi
+  const stok = groups.find((g) => g.dominantTip === "envanter")!;
+  assert.equal(stok.label, null); // tek stok kaydı -> kalıcı etiket yok
 });
 
 test("formatKisaFiyat: kısaltma kuralları", () => {

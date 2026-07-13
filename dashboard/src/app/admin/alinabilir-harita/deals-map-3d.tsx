@@ -21,6 +21,8 @@ import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import type { MapPoint } from "./deals-map";
 import CopyBuyerLink from "@/components/CopyBuyerLink";
+import { buildRakipSatislarLayer, groupRakipSatisPoints, type RakipSatisGroup, type RakipSatisPoint, type RakipSatislarData } from "@/lib/rakip-satislar";
+import rakipSatislarData from "@/data/rakip-satislar.json";
 
 const usd = (n: number) => "$" + Math.round(n).toLocaleString("en-US");
 const GRADE_COLOR: Record<string, string> = { A: "#059669", B: "#0284c7", C: "#94a3b8" };
@@ -171,6 +173,65 @@ function compsToGeoJSON(comps: CompMarker[]): GeoJSON.FeatureCollection {
   };
 }
 
+// ── 🏁 Rakip Satışları (tapu-kanıtlı) — 2D ile AYNI veri + gruplama (lib/rakip-satislar).
+// Koyu mor = tamamlanmış satış, lila = taksitli, gri = stok/belirsiz.
+const RAKIP_TIP_LABEL_3D: Record<string, string> = {
+  dogrulanmis_satis: "Tapu-kanıtlı SATILDI",
+  satis_taksitte: "Taksitli satış (sürüyor)",
+  envanter: "Rakip envanteri (stokta)",
+  belirsiz: "Durum belirsiz",
+};
+
+function rakipGroupsToGeoJSON(groups: RakipSatisGroup[]): GeoJSON.FeatureCollection {
+  return {
+    type: "FeatureCollection",
+    features: groups.map((g) => ({
+      type: "Feature",
+      geometry: { type: "Point", coordinates: [g.lng, g.lat] },
+      properties: {
+        key: g.key,
+        color: g.color,
+        r: g.dominantTip === "dogrulanmis_satis" ? 6 : g.dominantTip === "satis_taksitte" ? 5 : 4,
+      },
+    })),
+  };
+}
+
+const escHtml = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+// Popup HTML — SEMANTİK DOĞRU (2D RakipSatisKayitDetay ile aynı kurallar):
+// tamamlanmış satışta Alıcı = gerçek son alıcı; taksitli/envanterde county'deki
+// son işlem LLC'nin KENDİ ALIMI → "LLC'nin alım kaydı" (maliyet tabanı).
+function rakipSatisPopupHtml(g: RakipSatisGroup): string {
+  const kayitHtml = (p: RakipSatisPoint) => {
+    const tip = `<div style="font-weight:700;color:${p.color};font-size:11px">${RAKIP_TIP_LABEL_3D[p.kayitTipi] ?? p.kayitTipi}</div>`;
+    let govde = "";
+    if (p.kayitTipi === "dogrulanmis_satis") {
+      govde += `<div>Satış: <b>${p.fiyat != null ? usd(p.fiyat) : "—"}</b>${p.tarih ? " · " + escHtml(p.tarih) : ""}</div>`;
+      if (p.karsiTaraf) govde += `<div style="font-size:11px;color:#475569">Alıcı: ${escHtml(p.karsiTaraf)}</div>`;
+    } else {
+      if (p.fiyat != null) govde += `<div style="font-size:11px;color:#475569">LLC'nin alım kaydı: <b>${usd(p.fiyat)}</b>${p.tarih ? " · " + escHtml(p.tarih) : ""} <span style="color:#94a3b8">(maliyet tabanı)</span></div>`;
+      if (p.kayitTipi === "satis_taksitte") govde += `<div style="font-size:10px;color:#94a3b8;font-style:italic">Son alıcı: tapu devri tamamlanınca kayda düşer</div>`;
+    }
+    govde += `<div style="font-size:11px;color:#475569">APN: ${escHtml(p.apn)}${p.recordingNo ? " · Kayıt No: " + escHtml(p.recordingNo) : ""}</div>`;
+    if (p.acres != null) govde += `<div style="font-size:11px;color:#94a3b8">${p.acres} acre${p.bolge ? " · " + escHtml(p.bolge) : ""}</div>`;
+    return tip + govde;
+  };
+  const baslik = g.points.length > 1
+    ? `${g.points.length} rakip kaydı (aynı nokta)`
+    : (RAKIP_TIP_LABEL_3D[g.points[0].kayitTipi] ?? g.points[0].kayitTipi);
+  const konum = g.points.every((p) => p.coordSource === "exact")
+    ? "Konum: tapu APN eşleşmesi"
+    : "Konum: yaklaşık (aynı blok/subdivision centroid'i)";
+  return (
+    `<div style="font-size:12px;line-height:1.5;max-height:240px;overflow-y:auto;min-width:200px">` +
+    `<b style="color:${g.color}">🏁 ${baslik}</b>` +
+    `<div style="color:#64748b">${escHtml(g.points[0].sirketLlc || "Discount Lots (WP RE Ventures ailesi)")}</div>` +
+    g.points.map((p, i) => `<div style="${i > 0 || g.points.length > 1 ? "border-top:1px solid #eee;margin-top:5px;padding-top:3px" : "margin-top:4px"}">${kayitHtml(p)}</div>`).join("") +
+    `<div style="font-size:10px;color:#94a3b8;margin-top:4px;font-style:italic">${konum}</div></div>`
+  );
+}
+
 const btn3d = (active: boolean, on = "#0f172a", border = "#0f172a"): React.CSSProperties => ({
   background: active ? on : "rgba(255,255,255,0.95)",
   color: active ? "#fff" : "#334155",
@@ -220,6 +281,14 @@ export default function DealsMap3D({ points }: { points: MapPoint[] }) {
   const [extrude, setExtrude] = useState(false);
   const [showComp, setShowComp] = useState(true);
   const [competitors, setCompetitors] = useState<CompMarker[]>([]);
+  // 🏁 Rakip Satışları (tapu-kanıtlı) — 2D ile aynı statik JSON + gruplama.
+  const [showRakipSatis, setShowRakipSatis] = useState(false);
+  const rakipSatisGroups = useMemo(
+    () => groupRakipSatisPoints(buildRakipSatislarLayer(rakipSatislarData as RakipSatislarData)),
+    [],
+  );
+  const rakipGroupsRef = useRef(rakipSatisGroups);
+  rakipGroupsRef.current = rakipSatisGroups;
   const [selected, setSelected] = useState<MapPoint | null>(null);
   // Kamera eğik mi? (pitch > 5°) — kuş bakışından 3D'ye dönüş düğmesi için.
   const [pitched, setPitched] = useState(true);
@@ -474,6 +543,18 @@ export default function DealsMap3D({ points }: { points: MapPoint[] }) {
           "circle-pitch-alignment": "map",
         },
       });
+      // ── 🏁 rakip satışları (tapu-kanıtlı) — mor/lila/gri, toggle ile dolar ──
+      map.addSource("rakip-satis", { type: "geojson", data: rakipGroupsToGeoJSON([]) });
+      map.addLayer({
+        id: "rakip-satis-dots", type: "circle", source: "rakip-satis",
+        paint: {
+          "circle-radius": ["get", "r"] as unknown as maplibregl.ExpressionSpecification,
+          "circle-color": ["get", "color"] as unknown as maplibregl.ExpressionSpecification,
+          "circle-stroke-color": "#fff", "circle-stroke-width": 1.5,
+          "circle-opacity": 0.9,
+          "circle-pitch-alignment": "map",
+        },
+      });
 
       // Tıklama → bilgi kartı (React overlay; MapLibre popup yerine — stil tutarlı).
       const selectById = (id: string | undefined) => {
@@ -508,6 +589,18 @@ export default function DealsMap3D({ points }: { points: MapPoint[] }) {
           )
           .addTo(map);
       });
+      // 🏁 rakip satışı tıklama → semantik-doğru popup (grup listesi).
+      map.on("click", "rakip-satis-dots", (e) => {
+        const f = e.features?.[0];
+        if (!f) return;
+        const key = (f.properties as Record<string, unknown>).key as string | undefined;
+        const g = rakipGroupsRef.current.find((x) => x.key === key);
+        if (!g) return;
+        new maplibregl.Popup({ offset: 10 })
+          .setLngLat((f.geometry as GeoJSON.Point).coordinates as [number, number])
+          .setHTML(rakipSatisPopupHtml(g))
+          .addTo(map);
+      });
       // Hover: parsel dolgusu parlar (feature-state) + işaretçi.
       map.on("mousemove", "parcel-fill", (e) => {
         const id = e.features?.[0]?.properties?.id as string | undefined;
@@ -522,7 +615,7 @@ export default function DealsMap3D({ points }: { points: MapPoint[] }) {
         hoveredIdRef.current = null;
         map.getCanvas().style.cursor = "";
       });
-      for (const layer of ["deal-dots", "spread-columns", "comp-dots"]) {
+      for (const layer of ["deal-dots", "spread-columns", "comp-dots", "rakip-satis-dots"]) {
         map.on("mouseenter", layer, () => { map.getCanvas().style.cursor = "pointer"; });
         map.on("mouseleave", layer, () => { map.getCanvas().style.cursor = ""; });
       }
@@ -582,6 +675,11 @@ export default function DealsMap3D({ points }: { points: MapPoint[] }) {
     if (!map || !ready) return;
     (map.getSource("comps") as maplibregl.GeoJSONSource | undefined)?.setData(compsToGeoJSON(showComp ? competitors : []));
   }, [competitors, showComp, ready]);
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !ready) return;
+    (map.getSource("rakip-satis") as maplibregl.GeoJSONSource | undefined)?.setData(rakipGroupsToGeoJSON(showRakipSatis ? rakipSatisGroups : []));
+  }, [rakipSatisGroups, showRakipSatis, ready]);
 
   // Kule modu görünürlüğü.
   useEffect(() => {
@@ -738,6 +836,13 @@ export default function DealsMap3D({ points }: { points: MapPoint[] }) {
         <button onClick={() => setShowComp((v) => !v)} style={btn3d(showComp, "#dc2626", "#b91c1c")}>
           🟥 Rakip ilanları{competitors.length ? ` (${competitors.length})` : ""}: {showComp ? "Açık" : "Kapalı"}
         </button>
+        <button
+          onClick={() => setShowRakipSatis((v) => !v)}
+          style={btn3d(showRakipSatis, "#4c1d95", "#4c1d95")}
+          title="Tapu-kanıtlı rakip satışları (Discount Lots/WP RE Ventures) — 'Rakip ilanları'ndan AYRI katman"
+        >
+          🏁 Rakip Satışları (tapu){rakipSatisGroups.length ? ` (${rakipSatisGroups.length})` : ""}: {showRakipSatis ? "Açık" : "Kapalı"}
+        </button>
         <button onClick={() => setShowBuildings((v) => !v)} style={btn3d(showBuildings, "#78716c", "#57534e")} title="OSM bina ayak izlerini 3D olarak göster (OpenFreeMap · zoom ≥ 14)">
           🏢 3D Binalar: {showBuildings ? "Açık" : "Kapalı"}
         </button>
@@ -756,6 +861,11 @@ export default function DealsMap3D({ points }: { points: MapPoint[] }) {
           <div style={{ fontSize: 10, color: "#64748b" }}>Sınırlar zoom ≥ {BOUNDARY_MIN_ZOOM}&apos;de görünür bölge için yüklenir · seçili/tur parseli amber yanıp söner</div>
           <div><span style={{ display: "inline-block", width: 11, height: 11, borderRadius: "50%", border: `2px solid ${MH_GREEN}`, marginRight: 6, verticalAlign: "middle" }} />Yeşil halka = <b>MH-uygun (ROAD Act)</b> — county teyidi şerhli</div>
           <div><span style={{ display: "inline-block", width: 9, height: 9, background: COMP_COLOR, transform: "rotate(45deg)", marginRight: 7 }} />Rakip ilanı (yaklaşık)</div>
+          <div>
+            <span style={{ display: "inline-block", width: 10, height: 10, borderRadius: "50%", background: "#4c1d95", marginRight: 5, verticalAlign: "middle" }} />🏁 satıldı ·
+            <span style={{ display: "inline-block", width: 10, height: 10, borderRadius: "50%", background: "#a78bfa", marginRight: 5, marginLeft: 4, verticalAlign: "middle" }} />taksitli ·
+            <span style={{ display: "inline-block", width: 10, height: 10, borderRadius: "50%", background: "#9ca3af", marginRight: 5, marginLeft: 4, verticalAlign: "middle" }} />stok (tapu-kanıtlı rakip satışları)
+          </div>
           <div style={{ color: "#64748b" }}>Sağ tık / iki parmak: eğ &amp; döndür · 🏔 düğmesi: 3D araziyi aç/kapa</div>
           <div style={{ fontSize: 9, color: "#94a3b8", marginTop: 2 }}>Kot: AWS Terrain (~30m) — parsel-kesin değil · 1.4× abartı · Kuleler: Regrid şekli varsa gerçek, yoksa ~kare · 🏢 Binalar: OSM/OpenFreeMap, zoom ≥ {BUILDING_MIN_ZOOM}</div>
         </div>
