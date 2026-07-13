@@ -49,6 +49,24 @@ interface SendResult {
 const usd = (n: number) => `$${Math.round(n).toLocaleString("en-US")}`;
 const GREEN = "#16a34a";
 
+// 🗺️ ?from=map ile gelindiyse haritadaki kampanya sepetinden sessionStorage'a
+// yazılan APN listesini okur. Lazy useState initializer'da çağrılır (mount
+// effect'i içinde SENKRON setState — lint'e takılıyor — YERİNE); SSR'da
+// window yoksa boş döner.
+function readMapSelection(): string[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("from") !== "map") return [];
+    const raw = sessionStorage.getItem("terralot_map_selection");
+    if (!raw) return [];
+    const apns = JSON.parse(raw);
+    return Array.isArray(apns) ? apns.map(String) : [];
+  } catch {
+    return []; // bozuk/eksik sessionStorage — sessizce yut, filtre moduna düş
+  }
+}
+
 // Hazır segment reçeteleri — Ahmet tek tıkla anlamlı kampanya seçsin.
 const PRESETS: { label: string; desc: string; f: Record<string, string> }[] = [
   { label: "🏜️ Absentee 1–5 acre", desc: "Eyalet dışı sahip, satılması en kolay boy", f: { ownerScope: "absentee", minAcres: "1", maxAcres: "5" } },
@@ -67,6 +85,11 @@ export default function MohaveKampanyaPage() {
   const [excludeMailed, setExcludeMailed] = useState(true);
   // ⭐ "En İyi 750" modu: skora göre otomatik seçim — diğer filtreler yok sayılır.
   const [top750Mode, setTop750Mode] = useState(false);
+  // 🗺️ "Haritadan Seçim": /admin/alinabilir-harita'daki kampanya sepetinden
+  // sessionStorage üzerinden gelen APN listesi. from=map ile gelinirse otomatik
+  // uygulanır (Yiğit demoda tek tıkla göstersin diye).
+  const [mapApns] = useState<string[]>(() => readMapSelection());
+  const [mapMode, setMapMode] = useState(() => readMapSelection().length > 0);
   const [data, setData] = useState<ApiResp | null>(null);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState<string | null>(null);
@@ -85,6 +108,12 @@ export default function MohaveKampanyaPage() {
       if (excludeMailed) p.set("excludeMailed", "1");
       return p.toString();
     }
+    if (mapMode) {
+      // 🗺️ Haritadan seçim — sadece sepetteki APN'ler, diğer filtreler yok sayılır.
+      p.set("apns", mapApns.join(","));
+      if (excludeMailed) p.set("excludeMailed", "1");
+      return p.toString();
+    }
     if (region) p.set("region", region);
     if (ownerScope !== "all") p.set("ownerScope", ownerScope);
     if (minAcres) p.set("minAcres", minAcres);
@@ -93,7 +122,7 @@ export default function MohaveKampanyaPage() {
     if (minParcels) p.set("minParcels", minParcels);
     if (excludeMailed) p.set("excludeMailed", "1");
     return p.toString();
-  }, [region, ownerScope, minAcres, maxAcres, maxLandValue, minParcels, excludeMailed, top750Mode]);
+  }, [region, ownerScope, minAcres, maxAcres, maxLandValue, minParcels, excludeMailed, top750Mode, mapMode, mapApns]);
 
   // setLoading(true) çağıranın sorumluluğunda (effect içinde senkron setState
   // lint'e takılır — tax-leads ile aynı desen).
@@ -109,6 +138,7 @@ export default function MohaveKampanyaPage() {
 
   const applyPreset = (f: Record<string, string>) => {
     setTop750Mode(false);
+    setMapMode(false);
     setRegion(f.region ?? "");
     setOwnerScope(f.ownerScope ?? "all");
     setMinAcres(f.minAcres ?? "");
@@ -129,12 +159,14 @@ export default function MohaveKampanyaPage() {
         body: JSON.stringify({
           action: "send_campaign",
           campaign: campaignName.trim(),
-          filter: {
-            region: region || undefined,
-            ownerScope: ownerScope === "all" ? undefined : ownerScope,
-            minAcres: num(minAcres), maxAcres: num(maxAcres),
-            maxLandValue: num(maxLandValue), minParcels: num(minParcels),
-          },
+          filter: mapMode
+            ? { apns: mapApns }
+            : {
+                region: region || undefined,
+                ownerScope: ownerScope === "all" ? undefined : ownerScope,
+                minAcres: num(minAcres), maxAcres: num(maxAcres),
+                maxLandValue: num(maxLandValue), minParcels: num(minParcels),
+              },
           top750: top750Mode,
           excludeMailed,
           expectedLetters: data.summary.letters,
@@ -186,7 +218,7 @@ export default function MohaveKampanyaPage() {
             <span className="block font-normal" style={{ color: "var(--muted)" }}>{p.desc}</span>
           </button>
         ))}
-        <button onClick={() => setTop750Mode(true)} title="offmarket_score'a göre azalan sıralı ilk 750 parsel — marj + boyut + bölge talebi + sahip motivasyonu"
+        <button onClick={() => { setTop750Mode(true); setMapMode(false); }} title="offmarket_score'a göre azalan sıralı ilk 750 parsel — marj + boyut + bölge talebi + sahip motivasyonu"
           className="flex items-center gap-1.5 rounded-lg border px-3 py-2 text-left text-xs font-semibold transition-colors hover:bg-[var(--surface-high)]"
           style={{ borderColor: top750Mode ? GREEN : "var(--outline)", background: top750Mode ? "var(--surface-high)" : "var(--surface)" }}>
           <Star className="h-3.5 w-3.5 shrink-0" style={{ color: GREEN }} />
@@ -195,7 +227,32 @@ export default function MohaveKampanyaPage() {
             <span className="block font-normal" style={{ color: "var(--muted)" }}>Skora göre otomatik seçim — dedupe sonrası mektup sayısı düşebilir</span>
           </span>
         </button>
+        {/* 🗺️ Haritadan Seçim — sadece haritadan sepetle gelindiyse görünür (5. seçenek). */}
+        {mapApns.length > 0 && (
+          <button onClick={() => { setMapMode(true); setTop750Mode(false); }} title="Alınabilir Harita'daki kampanya sepetinden gelen parseller"
+            className="flex items-center gap-1.5 rounded-lg border px-3 py-2 text-left text-xs font-semibold transition-colors hover:bg-[var(--surface-high)]"
+            style={{ borderColor: mapMode ? "#7c3aed" : "var(--outline)", background: mapMode ? "var(--surface-high)" : "var(--surface)" }}>
+            <MapPin className="h-3.5 w-3.5 shrink-0" style={{ color: "#7c3aed" }} />
+            <span>
+              🗺️ Haritadan Seçim ({mapApns.length})
+              <span className="block font-normal" style={{ color: "var(--muted)" }}>Harita kokpitinde sepete eklenen parseller</span>
+            </span>
+          </button>
+        )}
       </div>
+
+      {mapMode && (
+        <div className="flex items-center justify-between rounded-lg border border-dashed px-3 py-2 text-xs"
+          style={{ borderColor: "#7c3aed", color: "var(--foreground)" }}>
+          <span>
+            <strong style={{ color: "#7c3aed" }}>🗺️ Haritadan Seçim modu aktif</strong> — segment filtreleri yok sayılır, haritada sepete
+            eklenen {mapApns.length} parsel kullanılır.
+          </span>
+          <button onClick={() => setMapMode(false)} className="ml-3 shrink-0 underline" style={{ color: "var(--muted)" }}>
+            filtrelere dön
+          </button>
+        </div>
+      )}
 
       {top750Mode && (
         <div className="flex items-center justify-between rounded-lg border border-dashed px-3 py-2 text-xs"
@@ -211,21 +268,21 @@ export default function MohaveKampanyaPage() {
       )}
 
       {/* Filtreler */}
-      <div className="rounded-xl border p-4" style={{ borderColor: "var(--border)", background: "var(--surface)", opacity: top750Mode ? 0.45 : 1 }}>
+      <div className="rounded-xl border p-4" style={{ borderColor: "var(--border)", background: "var(--surface)", opacity: (top750Mode || mapMode) ? 0.45 : 1 }}>
         <div className="mb-3 flex items-center gap-2 text-sm font-bold">
           <Filter className="h-4 w-4" style={{ color: GREEN }} /> Segment filtreleri
         </div>
         <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">
           <label className="block text-xs">
             <span className="mb-1 block font-semibold" style={{ color: "var(--muted)" }}>Bölge</span>
-            <select disabled={top750Mode} value={region} onChange={(e) => setRegion(e.target.value)} className={inputCls} style={inputStyle}>
+            <select disabled={top750Mode || mapMode} value={region} onChange={(e) => setRegion(e.target.value)} className={inputCls} style={inputStyle}>
               <option value="">Hepsi</option>
               {(data?.regions ?? []).map((r) => <option key={r} value={r}>{r}</option>)}
             </select>
           </label>
           <label className="block text-xs">
             <span className="mb-1 block font-semibold" style={{ color: "var(--muted)" }}>Sahip</span>
-            <select disabled={top750Mode} value={ownerScope} onChange={(e) => setOwnerScope(e.target.value)} className={inputCls} style={inputStyle}>
+            <select disabled={top750Mode || mapMode} value={ownerScope} onChange={(e) => setOwnerScope(e.target.value)} className={inputCls} style={inputStyle}>
               <option value="all">Hepsi</option>
               <option value="absentee">Absentee (AZ dışı)</option>
               <option value="instate">AZ içi</option>
@@ -233,19 +290,19 @@ export default function MohaveKampanyaPage() {
           </label>
           <label className="block text-xs">
             <span className="mb-1 block font-semibold" style={{ color: "var(--muted)" }}>Min acre</span>
-            <input disabled={top750Mode} value={minAcres} onChange={(e) => setMinAcres(e.target.value)} placeholder="örn. 1" inputMode="decimal" className={inputCls} style={inputStyle} />
+            <input disabled={top750Mode || mapMode} value={minAcres} onChange={(e) => setMinAcres(e.target.value)} placeholder="örn. 1" inputMode="decimal" className={inputCls} style={inputStyle} />
           </label>
           <label className="block text-xs">
             <span className="mb-1 block font-semibold" style={{ color: "var(--muted)" }}>Max acre</span>
-            <input disabled={top750Mode} value={maxAcres} onChange={(e) => setMaxAcres(e.target.value)} placeholder="örn. 5" inputMode="decimal" className={inputCls} style={inputStyle} />
+            <input disabled={top750Mode || mapMode} value={maxAcres} onChange={(e) => setMaxAcres(e.target.value)} placeholder="örn. 5" inputMode="decimal" className={inputCls} style={inputStyle} />
           </label>
           <label className="block text-xs">
             <span className="mb-1 block font-semibold" style={{ color: "var(--muted)" }}>Max land value ($)</span>
-            <input disabled={top750Mode} value={maxLandValue} onChange={(e) => setMaxLandValue(e.target.value)} placeholder="örn. 1000" inputMode="numeric" className={inputCls} style={inputStyle} />
+            <input disabled={top750Mode || mapMode} value={maxLandValue} onChange={(e) => setMaxLandValue(e.target.value)} placeholder="örn. 1000" inputMode="numeric" className={inputCls} style={inputStyle} />
           </label>
           <label className="block text-xs">
             <span className="mb-1 block font-semibold" style={{ color: "var(--muted)" }}>Sahip başına min parsel</span>
-            <input disabled={top750Mode} value={minParcels} onChange={(e) => setMinParcels(e.target.value)} placeholder="örn. 2" inputMode="numeric" className={inputCls} style={inputStyle} />
+            <input disabled={top750Mode || mapMode} value={minParcels} onChange={(e) => setMinParcels(e.target.value)} placeholder="örn. 2" inputMode="numeric" className={inputCls} style={inputStyle} />
           </label>
         </div>
         <div className="mt-4 flex flex-wrap items-center gap-3">

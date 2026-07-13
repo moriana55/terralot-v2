@@ -42,6 +42,7 @@ const numParam = (v: string | null): number | undefined => {
 
 function filterFromParams(sp: URLSearchParams): CampaignFilter {
   const scope = sp.get("ownerScope");
+  const apnsParam = sp.get("apns");
   return {
     region: sp.get("region") || undefined,
     minAcres: numParam(sp.get("minAcres")),
@@ -50,6 +51,9 @@ function filterFromParams(sp: URLSearchParams): CampaignFilter {
     minScore: numParam(sp.get("minScore")),
     ownerScope: scope === "absentee" || scope === "instate" ? scope : "all",
     minParcels: numParam(sp.get("minParcels")),
+    // 🗺️ Haritadan seçim köprüsü: /admin/alinabilir-harita'da sepete eklenen
+    // parseller buraya virgülle ayrılmış APN listesi olarak gelir.
+    apns: apnsParam ? apnsParam.split(",").map((s) => s.trim()).filter(Boolean) : undefined,
   };
 }
 
@@ -101,7 +105,7 @@ export async function GET(req: NextRequest) {
 
   if (sp.get("format") === "csv") {
     const stamp = new Date().toISOString().slice(0, 10);
-    const tag = isTop750 ? "en-iyi-750" : "kampanya";
+    const tag = isTop750 ? "en-iyi-750" : sp.get("apns") ? "harita-secimi" : "kampanya";
     return new NextResponse(campaignToCsv(letters), {
       headers: {
         "Content-Type": "text/csv; charset=utf-8",
@@ -150,6 +154,8 @@ const sendSchema = z.object({
     minScore: z.number().optional(),
     ownerScope: z.enum(["all", "absentee", "instate"]).optional(),
     minParcels: z.number().optional(),
+    /** 🗺️ Haritadan seçilen APN listesi (varsa) — bkz. filterFromParams. */
+    apns: z.array(z.string()).optional(),
   }),
   /** true ise 'filter' yok sayılır — ⭐ "En İyi 750" reçetesi skora göre kendi seçimini yapar. */
   top750: z.boolean().optional(),

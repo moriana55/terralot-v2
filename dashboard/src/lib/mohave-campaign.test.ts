@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
-  buildCampaign, buildLetterBody, buildTop750Campaign, campaignToCsv, excludeMailed, filterRows, ownerKey,
+  buildCampaign, buildFilterFromApns, buildLetterBody, buildTop750Campaign, campaignToCsv, excludeMailed, filterRows, ownerKey,
   type MohaveRow,
 } from "./mohave-campaign";
 
@@ -63,6 +63,40 @@ test("CSV: Lob kolon başlıkları + virgül/tırnak escape", () => {
   assert.equal(head.split(",")[0], "recipient_name");
   assert.ok(head.includes("address_line1") && head.includes("address_zip"));
   assert.ok(line.startsWith('"SMITH, JOHN ""JJ"""'));
+});
+
+// ── 🗺️ Harita köprüsü: sessionStorage'dan gelen APN listesi → segment ──────────
+test("buildFilterFromApns: id listesi → sadece o APN'ler segmente girer", () => {
+  const rows = [
+    row({ apn: "map-1" }), row({ apn: "map-2", owner: "BAŞKA LLC" }),
+    row({ apn: "not-selected" }), // haritada seçilmedi — segmentte OLMAMALI
+  ];
+  const filter = buildFilterFromApns(["map-1", "map-2"]);
+  const c = buildCampaign(rows, filter);
+  assert.equal(c.parcels, 2);
+  assert.deepEqual(
+    c.letters.flatMap((l) => l.apns).sort(),
+    ["map-1", "map-2"]
+  );
+});
+
+test("buildFilterFromApns: aynı sahip+adresli 2 seçili parsel TEK mektupta dedupe olur", () => {
+  const rows = [
+    row({ apn: "sel-1" }), row({ apn: "sel-2" }), // aynı owner/adres (row() varsayılanı)
+    row({ apn: "sel-3", owner: "DİĞER SAHİP", mailing_address: "9 OTHER ST" }),
+    row({ apn: "unselected" }),
+  ];
+  const c = buildCampaign(rows, buildFilterFromApns(["sel-1", "sel-2", "sel-3"]));
+  assert.equal(c.parcels, 3);
+  assert.equal(c.letters.length, 2); // sel-1+sel-2 aynı sahip → 1 mektup, sel-3 → 1 mektup
+  const big = c.letters.find((l) => l.parcelCount === 2);
+  assert.ok(big);
+  assert.deepEqual(big!.apns.sort(), ["sel-1", "sel-2"]);
+});
+
+test("buildFilterFromApns: boş/whitespace id'ler temizlenir", () => {
+  const filter = buildFilterFromApns([" map-1 ", "", "  ", "map-2"]);
+  assert.deepEqual(filter.apns, ["map-1", "map-2"]);
 });
 
 test("devlet/kamu sahipleri mektup listesine girmez", () => {

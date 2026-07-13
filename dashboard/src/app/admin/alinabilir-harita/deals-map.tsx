@@ -9,6 +9,7 @@ import CountyGisLayer from "./CountyGisLayer";
 import { regionPlaybook } from "@/lib/region-playbook";
 import { distanceMiles, nearestRef } from "@/lib/geo-proximity";
 import CopyBuyerLink from "@/components/CopyBuyerLink";
+import { buildCampaign, type MohaveRow } from "@/lib/mohave-campaign";
 
 export type MapPoint = {
   id: string; lat: number; lng: number; owner: string; region: string;
@@ -754,6 +755,30 @@ function MarketingImageModal({ p, onClose }: { p: MapPoint; onClose: () => void 
   );
 }
 
+// ── ⭐ MOHAVE OFF-MARKET KATMANI ("En İyi 750" reçetesi) ─────────────────────────
+// 20K off-market lead'in LEAN harita noktaları — /api/admin/mohave-map-points'ten
+// katman açılınca lazy fetch edilir (20K satırı her zaman indirme). Skor 0-100;
+// top750 = mohave-score.ts'teki TEK sıralamanın ilk 750'si (mohave-campaign.ts
+// "En İyi 750" reçetesiyle AYNI liste — iki yerde ayrı sıralama YOK).
+type MohavePoint = {
+  id: string; apn: string; lat: number; lng: number; owner: string; region: string;
+  acres: number | null; landValue: number | null;
+  mailingAddress: string; mailingCity: string; mailingState: string; mailingZip: string;
+  score: number; top750: boolean;
+  breakdown: { margin: number; size: number; demand: number; motivation: number };
+};
+type MohaveLayerMode = "off" | "top750" | "all";
+
+function mohaveScoreColor(score: number): string {
+  if (score >= 80) return "#059669"; // yeşil — güçlü aday
+  if (score >= 60) return "#eab308"; // sarı — orta
+  return "#94a3b8"; // gri — zayıf
+}
+
+// Kampanya sayfasındaki varsayılan mektup-başı maliyetle aynı ($0.89) — sadece
+// haritada HIZLI bir tahmin; gerçek maliyet kampanya kurucusunda ayarlanabilir.
+const DEFAULT_LETTER_COST = 0.89;
+
 const toggleBtnStyle = (active: boolean, on: string, onBorder: string): React.CSSProperties => ({
   background: active ? on : "rgba(255,255,255,0.95)",
   color: active ? "#fff" : "#334155",
@@ -777,6 +802,66 @@ export default function DealsMap({ points }: { points: MapPoint[] }) {
   const [roadsState, setRoadsState] = useState<RoadState>({ loading: false, count: 0, tooFar: false });
   // Satılık pazarlama görseli modalı (popup'tan açılır).
   const [marketImg, setMarketImg] = useState<MapPoint | null>(null);
+
+  // ⭐ Mohave off-market katmanı: 3'lü toggle (Kapalı → En İyi 750 → Tüm lead'ler)
+  // + lazy fetch (katman kapalıyken 20K nokta hiç indirilmez) + kampanya sepeti.
+  const [mohaveMode, setMohaveMode] = useState<MohaveLayerMode>("off");
+  const [mohavePoints, setMohavePoints] = useState<MohavePoint[]>([]);
+  const [mohaveLoading, setMohaveLoading] = useState(false);
+  const [cart, setCart] = useState<Map<string, MohavePoint>>(new Map());
+  // Ayrı Canvas renderer: 20K nokta SVG yerine canvas'ta çizilir (performans),
+  // diğer katmanlar (deal marker'ları vb.) varsayılan SVG renderer'da kalır.
+  const mohaveRenderer = useMemo(() => L.canvas({ padding: 0.5 }), []);
+
+  // Lazy fetch: yalnız kullanıcı katmanı ilk kez açtığında (Kapalı → En İyi 750/Tümü)
+  // tetiklenir — effect içinde koşullu setState YOK (lint: set-state-in-effect),
+  // doğrudan toggle handler'ından çağrılır.
+  const ensureMohaveLoaded = () => {
+    if (mohavePoints.length > 0 || mohaveLoading) return;
+    setMohaveLoading(true);
+    fetch("/api/admin/mohave-map-points")
+      .then((r) => r.json())
+      .then((d) => setMohavePoints(Array.isArray(d.points) ? d.points : []))
+      .catch(() => {})
+      .finally(() => setMohaveLoading(false));
+  };
+
+  const visibleMohave = useMemo(() => {
+    if (mohaveMode === "off") return [];
+    if (mohaveMode === "top750") return mohavePoints.filter((p) => p.top750);
+    return mohavePoints;
+  }, [mohaveMode, mohavePoints]);
+
+  const toggleCart = (p: MohavePoint) => {
+    setCart((prev) => {
+      const next = new Map(prev);
+      if (next.has(p.id)) next.delete(p.id); else next.set(p.id, p);
+      return next;
+    });
+  };
+
+  // Sepet özeti: gerçek dedupe/maliyet motorunu (mohave-campaign.ts) YENİDEN
+  // KULLAN — kopyalama yok. Aynı sahip + aynı posta adresi tek mektupta birleşir.
+  const cartSummary = useMemo(() => {
+    if (cart.size === 0) return null;
+    const rows: MohaveRow[] = [...cart.values()].map((p) => ({
+      apn: p.apn, owner: p.owner, mailing_address: p.mailingAddress, mailing_city: p.mailingCity,
+      mailing_state: p.mailingState, mailing_zip: p.mailingZip, acres: p.acres, land_value: p.landValue,
+      region: p.region, est_offer: 0, score: p.score,
+    }));
+    const c = buildCampaign(rows, {});
+    return { ...c, estCost: Math.round(c.letters.length * DEFAULT_LETTER_COST) };
+  }, [cart]);
+
+  // "Kampanya Kur →": seçili APN'leri sessionStorage'a yazıp kampanya sayfasına
+  // yönlendirir. Sayfa ?from=map görünce sessionStorage'ı okuyup "Haritadan
+  // Seçim (N)" segmentini kurar (bkz. mohave/kampanya/page.tsx).
+  const startCampaignFromCart = () => {
+    const apns = [...cart.values()].map((p) => p.apn).filter(Boolean);
+    if (!apns.length) return;
+    try { sessionStorage.setItem("terralot_map_selection", JSON.stringify(apns)); } catch { /* gizli mod vb. — sessizce yut */ }
+    window.location.href = "/admin/mohave/kampanya?from=map";
+  };
 
   useEffect(() => {
     let alive = true;
@@ -1072,10 +1157,90 @@ export default function DealsMap({ points }: { points: MapPoint[] }) {
             </Popup>
           </Marker>
         ))}
+
+        {/* ⭐ MOHAVE OFF-MARKET KATMANI — Canvas renderer (20K nokta SVG'de takılır).
+            Top-750 üyeleri beyaz kenarlı/parlak; kalanı soluk gri/sarı/yeşil skor rengi. */}
+        {visibleMohave.map((p) => (
+          <CircleMarker
+            key={"mv" + p.id}
+            center={[p.lat, p.lng]}
+            radius={p.top750 ? 5 : 3}
+            pathOptions={{
+              renderer: mohaveRenderer,
+              color: p.top750 ? "#fff" : "rgba(255,255,255,0.35)",
+              weight: p.top750 ? 1.5 : 0.5,
+              fillColor: mohaveScoreColor(p.score),
+              fillOpacity: p.top750 ? 0.95 : 0.5,
+            }}
+          >
+            <Popup>
+              <div style={{ fontSize: 12, lineHeight: 1.5, minWidth: 195 }}>
+                <div style={{ fontWeight: 700 }}>
+                  {p.top750 && (
+                    <span style={{ background: "#059669", color: "#fff", borderRadius: 3, padding: "1px 5px", marginRight: 5, fontSize: 10 }}>
+                      ⭐ Top-750
+                    </span>
+                  )}
+                  {p.owner || p.apn}
+                </div>
+                <div style={{ color: "#64748b" }}>
+                  {p.region || "bölge yok"} · {p.acres != null ? `${p.acres.toFixed(2)} acre` : "acre yok"} · sahip eyaleti: {p.mailingState || "—"}
+                </div>
+                <div style={{ marginTop: 3 }}>
+                  Land value: <b>{p.landValue != null ? usd(p.landValue) : "—"}</b>
+                </div>
+                <div style={{ marginTop: 3, fontWeight: 700, color: mohaveScoreColor(p.score) }}>
+                  Skor: {p.score}/100
+                </div>
+                <div style={{ fontSize: 10, color: "#94a3b8" }}>
+                  marj {p.breakdown.margin} · boyut {p.breakdown.size} · talep {p.breakdown.demand} · motivasyon {p.breakdown.motivation}
+                </div>
+                <button
+                  onClick={() => toggleCart(p)}
+                  style={{
+                    marginTop: 6, border: "none", borderRadius: 5, padding: "4px 9px", fontSize: 11, fontWeight: 700, cursor: "pointer",
+                    background: cart.has(p.id) ? "#dc2626" : "#7c3aed", color: "#fff",
+                  }}
+                >
+                  {cart.has(p.id) ? "✕ Sepetten çıkar" : "🛒 Kampanyaya Ekle"}
+                </button>
+              </div>
+            </Popup>
+          </CircleMarker>
+        ))}
       </MapContainer>
 
       {/* Satılık pazarlama görseli modalı (DOM overlay — haritanın üstünde). */}
       {marketImg && <MarketingImageModal p={marketImg} onClose={() => setMarketImg(null)} />}
+
+      {/* ⭐ Mohave kampanya sepeti — sağ-altta (sol yığından bağımsız, LayersControl'ün altında). */}
+      {cart.size > 0 && cartSummary && (
+        <div style={{
+          position: "absolute", bottom: 16, right: 10, zIndex: 1000, minWidth: 225,
+          background: "rgba(255,255,255,0.97)", border: "1px solid #7c3aed", borderRadius: 10,
+          padding: "10px 12px", fontSize: 12, boxShadow: "0 4px 16px rgba(0,0,0,0.22)",
+        }}>
+          <div style={{ fontWeight: 700, color: "#7c3aed", marginBottom: 4 }}>🛒 Kampanya Sepeti</div>
+          <div>{cart.size} parsel seçili → <b>{cartSummary.letters.length}</b> mektup (dedupe sonrası)</div>
+          <div style={{ color: "#64748b", marginTop: 2 }}>
+            Tahmini posta maliyeti: <b>${cartSummary.estCost.toLocaleString("en-US")}</b> (@${DEFAULT_LETTER_COST.toFixed(2)}/mektup)
+          </div>
+          <div style={{ display: "flex", gap: 6, marginTop: 8 }}>
+            <button
+              onClick={startCampaignFromCart}
+              style={{ flex: 1, border: "none", borderRadius: 6, padding: "6px 8px", fontSize: 11, fontWeight: 700, cursor: "pointer", background: "#7c3aed", color: "#fff" }}
+            >
+              Kampanya Kur →
+            </button>
+            <button
+              onClick={() => setCart(new Map())}
+              style={{ border: "1px solid #e2e8f0", background: "#fff", borderRadius: 6, padding: "6px 8px", fontSize: 11, fontWeight: 600, cursor: "pointer", color: "#475569" }}
+            >
+              Temizle
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* ── Sol-ALT kontrol yığını (dikey): filtre paneli + toggle'lar + legend.
           Sol-ÜST'ü Leaflet zoom +/− için BOŞ bırakıyoruz; sağ-üst LayersControl. ── */}
@@ -1088,6 +1253,20 @@ export default function DealsMap({ points }: { points: MapPoint[] }) {
           f={filters} setF={setF} visible={visiblePoints.length} total={points.length}
           roads={{ show: showRoads, types: roadTypes, toggleType: toggleRoadType, state: roadsState }}
         />
+        <button
+          onClick={() => {
+            setMohaveMode((m) => {
+              const next = m === "off" ? "top750" : m === "top750" ? "all" : "off";
+              if (next !== "off") ensureMohaveLoaded();
+              return next;
+            });
+          }}
+          title="Mohave off-market lead katmanı: Kapalı → ⭐ En İyi 750 → Tüm lead'ler (20K)"
+          style={toggleBtnStyle(mohaveMode !== "off", "#7c3aed", "#6d28d9")}
+        >
+          ⭐ Mohave lead&apos;ler: {mohaveMode === "off" ? "Kapalı" : mohaveMode === "top750" ? "En İyi 750" : `Tümü (${mohavePoints.length.toLocaleString("en-US")})`}
+          {mohaveLoading ? " · ⏳" : ""}
+        </button>
         <button
           onClick={() => setShowAreas((v) => !v)}
           title="Parselin tahmini alanı kutularını aç/kapat"

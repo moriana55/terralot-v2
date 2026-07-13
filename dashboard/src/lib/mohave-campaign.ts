@@ -1,4 +1,4 @@
-import { scoreAllRows } from "./mohave-score";
+import { rankByOffmarketScore } from "./mohave-score";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // MOHAVE MEKTUP KAMPANYASI — saf segmentasyon + sahip-dedupe + CSV motoru.
@@ -42,6 +42,9 @@ export interface CampaignFilter {
   ownerScope?: "all" | "absentee" | "instate";
   /** Sahip başına min parsel (2 = yalnız çok-parselli toptan hedefler). */
   minParcels?: number;
+  /** ⭐ Haritadan elle seçilen APN listesi (varsa) — diğer filtreler yine uygulanır
+   * (adres hijyeni + kamu-sahip vb.) ama sadece bu APN'ler havuza girer. */
+  apns?: string[];
 }
 
 export interface CampaignLetter {
@@ -76,6 +79,15 @@ const GOV_OWNER_RE =
   /\b(UNITED STATES|STATE OF|COUNTY OF|MOHAVE COUNTY|CITY OF|TOWN OF|BUREAU OF LAND|SCHOOL DISTRICT|INDIAN TRIBE|TRIBAL)\b/;
 export const isGovOwner = (owner: unknown): boolean => GOV_OWNER_RE.test(String(owner ?? "").toUpperCase());
 
+// ─── 🗺️ Harita köprüsü: sessionStorage'a yazılan APN listesi → segment filtresi ──
+// Harita kokpitinde tıkla-seçilen parseller /admin/mohave/kampanya?from=map'e
+// sessionStorage üzerinden taşınır (sayfa yenilense de kaybolmasın diye). Bu
+// fonksiyon o ham id listesini (sessionStorage'dan okunan JSON dizi) doğrudan
+// buildCampaign'in anladığı CampaignFilter'a çevirir — saf, testlenebilir.
+export function buildFilterFromApns(apns: string[]): CampaignFilter {
+  return { apns: apns.map((a) => clean(a)).filter(Boolean) };
+}
+
 const num = (v: unknown): number => {
   const n = Number(v);
   return Number.isFinite(n) ? n : 0;
@@ -86,7 +98,10 @@ export function filterRows(rows: MohaveRow[], f: CampaignFilter): { kept: Mohave
   const kept: MohaveRow[] = [];
   let skipped = 0;
   let skippedGov = 0;
+  // Haritadan seçim varsa hızlı üyelik testi için bir kez Set'e çevir.
+  const apnSet = f.apns && f.apns.length ? new Set(f.apns.map((a) => clean(a).toUpperCase())) : null;
   for (const r of rows) {
+    if (apnSet && !apnSet.has(clean(r.apn).toUpperCase())) continue;
     // Adres hijyeni ÖNCE: mektup atılamayacak satır segmente hiç girmesin.
     if (!clean(r.owner) || !clean(r.mailing_address) || !clean(r.mailing_zip)) { skipped++; continue; }
     if (isGovOwner(r.owner)) { skippedGov++; continue; }
@@ -245,10 +260,7 @@ export interface Top750Result extends CampaignResult {
 }
 
 export function buildTop750Campaign(rows: MohaveRow[], n = 750): Top750Result {
-  const scored = scoreAllRows(rows);
-  const sorted = [...scored].sort(
-    (a, b) => (b.offmarket_score - a.offmarket_score) || clean(a.apn).localeCompare(clean(b.apn))
-  );
+  const sorted = rankByOffmarketScore(rows);
   const top = sorted.slice(0, Math.max(0, n));
   const campaign = buildCampaign(top, {});
   const avgScore = top.length ? top.reduce((a, r) => a + r.offmarket_score, 0) / top.length : 0;

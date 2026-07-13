@@ -198,3 +198,16 @@ export function scoreAllRows<T extends ScoreRow>(rows: T[]): (T & { offmarket_sc
   const ownerParcelCounts = computeOwnerParcelCounts(rows);
   return rows.map((r) => ({ ...r, offmarket_score: scoreRow(r, regionMedians, ownerParcelCounts) }));
 }
+
+/**
+ * Tüm satırları offmarket_score'a göre AZALAN sıralar (eşitlikte APN'e göre —
+ * deterministik). "En İyi 750" reçetesi (mohave-campaign.ts) VE harita katmanının
+ * top-750 üyelik seti (mohave-map-points API'si) bu TEK sıralamayı paylaşır —
+ * iki yerde ayrı sort mantığı tekrar etmesin.
+ */
+export function rankByOffmarketScore<T extends ScoreRow>(rows: T[]): (T & { offmarket_score: number })[] {
+  const scored = scoreAllRows(rows);
+  return [...scored].sort(
+    (a, b) => b.offmarket_score - a.offmarket_score || clean(a.apn).localeCompare(clean(b.apn))
+  );
+}
