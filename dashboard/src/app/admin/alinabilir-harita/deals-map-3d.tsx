@@ -23,6 +23,7 @@ import type { MapPoint } from "./deals-map";
 import CopyBuyerLink from "@/components/CopyBuyerLink";
 import { buildRakipSatislarLayer, groupRakipSatisPoints, type RakipSatisGroup, type RakipSatisPoint, type RakipSatislarData } from "@/lib/rakip-satislar";
 import rakipSatislarData from "@/data/rakip-satislar.json";
+import { defaultSecim, expandBuyukOyuncuRows, filterBuyukOyuncuPoints, oyuncuRenk, type BuyukOyuncu, type BuyukOyuncuPoint, type BuyukOyuncularData } from "@/lib/buyuk-oyuncular";
 
 const usd = (n: number) => "$" + Math.round(n).toLocaleString("en-US");
 const GRADE_COLOR: Record<string, string> = { A: "#059669", B: "#0284c7", C: "#94a3b8" };
@@ -232,6 +233,35 @@ function rakipSatisPopupHtml(g: RakipSatisGroup): string {
   );
 }
 
+// ── 🐋 Büyük Oyuncular (Mohave kurumsal sahiplik) — 2D ile AYNI lib/veri. ──
+function buyukOyuncularToGeoJSON(points: BuyukOyuncuPoint[]): GeoJSON.FeatureCollection {
+  return {
+    type: "FeatureCollection",
+    features: points.map((p) => ({
+      type: "Feature",
+      geometry: { type: "Point", coordinates: [p.lng, p.lat] },
+      properties: {
+        c: oyuncuRenk(p.oyuncuIdx), oy: p.oyuncuIdx, apn: p.apn,
+        ac: p.acres ?? -1, lv: p.landValue ?? -1, sp: p.salep ?? -1, sd: p.saledt ?? "",
+      },
+    })),
+  };
+}
+
+function buyukOyuncuPopupHtml(pr: Record<string, unknown>, o: BuyukOyuncu | undefined): string {
+  const renk = String(pr.c || "#0e7490");
+  const ac = Number(pr.ac), lv = Number(pr.lv), sp = Number(pr.sp);
+  const sd = String(pr.sd || "");
+  let html = `<div style="font-size:12px;line-height:1.5;min-width:185px">`;
+  html += `<b style="color:${renk}">🐋 ${escHtml(o?.kisaAd ?? "?")}</b>`;
+  if (o?.tip === "gelistirici") html += `<div style="font-size:10px;font-weight:700;color:#92400e;background:#fffbeb;display:inline-block;border-radius:4px;padding:1px 6px;margin-top:2px">🏗️ geliştirici — arsa-flip rakibi değil</div>`;
+  html += `<div style="margin-top:3px">APN: <b>${escHtml(String(pr.apn || ""))}</b></div>`;
+  html += `<div style="color:#64748b">${ac > 0 ? ac + " acre" : "acre yok"}${lv > 0 ? " · land value " + usd(lv) : ""}</div>`;
+  if (sp > 0 || sd) html += `<div style="font-size:11px;color:#475569;margin-top:2px">Alım: ${sp > 0 ? "<b>" + usd(sp) + "</b>" : "fiyat yok"}${sd ? " · " + escHtml(sd) : ""} <span style="color:#94a3b8">(county SALEP/SALEDT)</span></div>`;
+  if (o?.not) html += `<div style="font-size:10px;color:#94a3b8;margin-top:3px;font-style:italic">${escHtml(o.not)}</div>`;
+  return html + `</div>`;
+}
+
 const btn3d = (active: boolean, on = "#0f172a", border = "#0f172a"): React.CSSProperties => ({
   background: active ? on : "rgba(255,255,255,0.95)",
   color: active ? "#fff" : "#334155",
@@ -289,6 +319,37 @@ export default function DealsMap3D({ points }: { points: MapPoint[] }) {
   );
   const rakipGroupsRef = useRef(rakipSatisGroups);
   rakipGroupsRef.current = rakipSatisGroups;
+
+  // 🐋 Büyük Oyuncular — lazy dynamic import (5K+ nokta, toggle açınca yüklenir).
+  const [showBuyukOyuncular, setShowBuyukOyuncular] = useState(false);
+  const [boData, setBoData] = useState<{ oyuncular: BuyukOyuncu[]; points: BuyukOyuncuPoint[] } | null>(null);
+  const [boLoading, setBoLoading] = useState(false);
+  const [boSecim, setBoSecim] = useState<Set<number>>(new Set());
+  const boOyuncularRef = useRef<BuyukOyuncu[]>([]);
+  const ensureBoLoaded = () => {
+    if (boData || boLoading) return;
+    setBoLoading(true);
+    import("@/data/buyuk-oyuncular.json")
+      .then((m) => {
+        const d = (m.default ?? m) as unknown as BuyukOyuncularData;
+        const oyuncular = d.oyuncular ?? [];
+        boOyuncularRef.current = oyuncular;
+        setBoData({ oyuncular, points: expandBuyukOyuncuRows(d) });
+        setBoSecim(defaultSecim(oyuncular));
+      })
+      .catch(() => {})
+      .finally(() => setBoLoading(false));
+  };
+  const boVisible = useMemo(
+    () => (boData ? filterBuyukOyuncuPoints(boData.points, boSecim) : []),
+    [boData, boSecim],
+  );
+  const toggleBoOyuncu = (i: number) =>
+    setBoSecim((prev) => {
+      const next = new Set(prev);
+      if (next.has(i)) next.delete(i); else next.add(i);
+      return next;
+    });
   const [selected, setSelected] = useState<MapPoint | null>(null);
   // Kamera eğik mi? (pitch > 5°) — kuş bakışından 3D'ye dönüş düğmesi için.
   const [pitched, setPitched] = useState(true);
@@ -555,6 +616,18 @@ export default function DealsMap3D({ points }: { points: MapPoint[] }) {
           "circle-pitch-alignment": "map",
         },
       });
+      // ── 🐋 büyük oyuncular (oyuncu-renkli kurumsal sahiplik) — toggle ile dolar ──
+      map.addSource("buyuk-oyuncular", { type: "geojson", data: buyukOyuncularToGeoJSON([]) });
+      map.addLayer({
+        id: "buyuk-oyuncular-dots", type: "circle", source: "buyuk-oyuncular",
+        paint: {
+          "circle-radius": 3.5,
+          "circle-color": ["get", "c"] as unknown as maplibregl.ExpressionSpecification,
+          "circle-stroke-color": "rgba(255,255,255,0.5)", "circle-stroke-width": 0.6,
+          "circle-opacity": 0.8,
+          "circle-pitch-alignment": "map",
+        },
+      });
 
       // Tıklama → bilgi kartı (React overlay; MapLibre popup yerine — stil tutarlı).
       const selectById = (id: string | undefined) => {
@@ -601,6 +674,17 @@ export default function DealsMap3D({ points }: { points: MapPoint[] }) {
           .setHTML(rakipSatisPopupHtml(g))
           .addTo(map);
       });
+      // 🐋 büyük oyuncu tıklama → oyuncu+parsel popup'ı.
+      map.on("click", "buyuk-oyuncular-dots", (e) => {
+        const f = e.features?.[0];
+        if (!f) return;
+        const pr = f.properties as Record<string, unknown>;
+        const o = boOyuncularRef.current[Number(pr.oy)];
+        new maplibregl.Popup({ offset: 10 })
+          .setLngLat((f.geometry as GeoJSON.Point).coordinates as [number, number])
+          .setHTML(buyukOyuncuPopupHtml(pr, o))
+          .addTo(map);
+      });
       // Hover: parsel dolgusu parlar (feature-state) + işaretçi.
       map.on("mousemove", "parcel-fill", (e) => {
         const id = e.features?.[0]?.properties?.id as string | undefined;
@@ -615,7 +699,7 @@ export default function DealsMap3D({ points }: { points: MapPoint[] }) {
         hoveredIdRef.current = null;
         map.getCanvas().style.cursor = "";
       });
-      for (const layer of ["deal-dots", "spread-columns", "comp-dots", "rakip-satis-dots"]) {
+      for (const layer of ["deal-dots", "spread-columns", "comp-dots", "rakip-satis-dots", "buyuk-oyuncular-dots"]) {
         map.on("mouseenter", layer, () => { map.getCanvas().style.cursor = "pointer"; });
         map.on("mouseleave", layer, () => { map.getCanvas().style.cursor = ""; });
       }
@@ -680,6 +764,11 @@ export default function DealsMap3D({ points }: { points: MapPoint[] }) {
     if (!map || !ready) return;
     (map.getSource("rakip-satis") as maplibregl.GeoJSONSource | undefined)?.setData(rakipGroupsToGeoJSON(showRakipSatis ? rakipSatisGroups : []));
   }, [rakipSatisGroups, showRakipSatis, ready]);
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !ready) return;
+    (map.getSource("buyuk-oyuncular") as maplibregl.GeoJSONSource | undefined)?.setData(buyukOyuncularToGeoJSON(showBuyukOyuncular ? boVisible : []));
+  }, [boVisible, showBuyukOyuncular, ready]);
 
   // Kule modu görünürlüğü.
   useEffect(() => {
@@ -843,6 +932,32 @@ export default function DealsMap3D({ points }: { points: MapPoint[] }) {
         >
           🏁 Rakip Satışları (tapu){rakipSatisGroups.length ? ` (${rakipSatisGroups.length})` : ""}: {showRakipSatis ? "Açık" : "Kapalı"}
         </button>
+        <button
+          onClick={() => {
+            setShowBuyukOyuncular((v) => {
+              const next = !v;
+              if (next) ensureBoLoaded();
+              return next;
+            });
+          }}
+          style={btn3d(showBuyukOyuncular, "#0e7490", "#155e75")}
+          title="Mohave'nin en büyük kurumsal arsa sahipleri (keşif ajanı, county tapu verisi)"
+        >
+          🐋 Büyük Oyuncular{boData ? ` (${boVisible.length.toLocaleString("en-US")})` : ""}: {showBuyukOyuncular ? "Açık" : "Kapalı"}{boLoading ? " · ⏳" : ""}
+        </button>
+        {showBuyukOyuncular && boData && (
+          <div style={{ background: "rgba(255,255,255,0.97)", border: "1px solid #0e7490", borderRadius: 8, padding: "8px 10px", fontSize: 11, boxShadow: "0 2px 8px rgba(0,0,0,0.18)", maxWidth: 250, lineHeight: 1.6 }}>
+            <div style={{ fontWeight: 700, color: "#0e7490", marginBottom: 3 }}>🐋 Oyuncular (tıkla → aç/kapa)</div>
+            {boData.oyuncular.map((o, i) => (
+              <label key={o.id} style={{ display: "flex", alignItems: "center", gap: 6, cursor: "pointer", opacity: boSecim.has(i) ? 1 : 0.45 }}>
+                <input type="checkbox" checked={boSecim.has(i)} onChange={() => toggleBoOyuncu(i)} style={{ margin: 0 }} />
+                <span style={{ width: 9, height: 9, borderRadius: "50%", background: oyuncuRenk(i), display: "inline-block", flexShrink: 0 }} />
+                <span style={{ color: "#334155" }}>{o.kisaAd} <b>({o.parselSayisi.toLocaleString("en-US")})</b></span>
+              </label>
+            ))}
+            <div style={{ fontSize: 9, color: "#94a3b8", marginTop: 3 }}>🏗️ geliştiriciler flip rakibi değil — varsayılan kapalı · kaynak: county tapu</div>
+          </div>
+        )}
         <button onClick={() => setShowBuildings((v) => !v)} style={btn3d(showBuildings, "#78716c", "#57534e")} title="OSM bina ayak izlerini 3D olarak göster (OpenFreeMap · zoom ≥ 14)">
           🏢 3D Binalar: {showBuildings ? "Açık" : "Kapalı"}
         </button>

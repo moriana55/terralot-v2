@@ -12,6 +12,7 @@ import CopyBuyerLink from "@/components/CopyBuyerLink";
 import { buildCampaign, type MohaveRow } from "@/lib/mohave-campaign";
 import { buildRakipSatislarLayer, computeRakipSatislarOzet, groupRakipSatisPoints, type RakipSatisGroup, type RakipSatisPoint, type RakipSatislarData } from "@/lib/rakip-satislar";
 import rakipSatislarData from "@/data/rakip-satislar.json";
+import { defaultSecim, expandBuyukOyuncuRows, filterBuyukOyuncuPoints, oyuncuRenk, type BuyukOyuncu, type BuyukOyuncuPoint, type BuyukOyuncularData } from "@/lib/buyuk-oyuncular";
 
 export type MapPoint = {
   id: string; lat: number; lng: number; owner: string; region: string;
@@ -912,6 +913,58 @@ function RakipSatislarLayer({ groups }: { groups: RakipSatisGroup[] }) {
   );
 }
 
+// ── 🐋 BÜYÜK OYUNCULAR (Mohave kurumsal sahiplik röntgeni) ──────────────────────
+// Keşif ajanının bulduğu en büyük 8 arsa oyuncusunun TÜM parselleri (5K+ nokta).
+// Veri statik JSON (src/data/buyuk-oyuncular.json) — toggle ilk açıldığında
+// dynamic import ile lazy yüklenir (ana bundle şişmez). Canvas renderer (SVG'de
+// 5K nokta takılır). Saf dönüşüm/filtre lib/buyuk-oyuncular.ts.
+function BuyukOyuncularLayer({
+  points, oyuncular, renderer,
+}: { points: BuyukOyuncuPoint[]; oyuncular: BuyukOyuncu[]; renderer: L.Renderer }) {
+  return (
+    <>
+      {points.map((p, i) => {
+        const o = oyuncular[p.oyuncuIdx];
+        return (
+          <CircleMarker
+            key={"bo" + p.apn + i}
+            center={[p.lat, p.lng]}
+            radius={3.5}
+            pathOptions={{
+              renderer,
+              color: "rgba(255,255,255,0.5)", weight: 0.6,
+              fillColor: oyuncuRenk(p.oyuncuIdx), fillOpacity: 0.75,
+            }}
+          >
+            <Popup>
+              <div style={{ fontSize: 12, lineHeight: 1.5, minWidth: 185 }}>
+                <div style={{ fontWeight: 700, color: oyuncuRenk(p.oyuncuIdx) }}>🐋 {o?.kisaAd ?? "?"}</div>
+                {o?.tip === "gelistirici" && (
+                  <div style={{ fontSize: 10, fontWeight: 700, color: "#92400e", background: "#fffbeb", display: "inline-block", borderRadius: 4, padding: "1px 6px", marginTop: 2 }}>
+                    🏗️ geliştirici — arsa-flip rakibi değil
+                  </div>
+                )}
+                <div style={{ marginTop: 3 }}>APN: <b>{p.apn}</b></div>
+                <div style={{ color: "#64748b" }}>
+                  {p.acres != null ? `${p.acres} acre` : "acre yok"}
+                  {p.landValue != null ? ` · land value ${usd(p.landValue)}` : ""}
+                </div>
+                {(p.salep != null || p.saledt) && (
+                  <div style={{ fontSize: 11, color: "#475569", marginTop: 2 }}>
+                    Alım: {p.salep != null ? <b>{usd(p.salep)}</b> : "fiyat yok"}{p.saledt ? ` · ${p.saledt}` : ""}
+                    <span style={{ color: "#94a3b8" }}> (county SALEP/SALEDT)</span>
+                  </div>
+                )}
+                {o?.not && <div style={{ fontSize: 10, color: "#94a3b8", marginTop: 3, fontStyle: "italic" }}>{o.not}</div>}
+              </div>
+            </Popup>
+          </CircleMarker>
+        );
+      })}
+    </>
+  );
+}
+
 const toggleBtnStyle = (active: boolean, on: string, onBorder: string): React.CSSProperties => ({
   background: active ? on : "rgba(255,255,255,0.95)",
   color: active ? "#fff" : "#334155",
@@ -952,6 +1005,35 @@ export default function DealsMap({ points }: { points: MapPoint[] }) {
     () => groupRakipSatisPoints(rakipSatislarPoints),
     [rakipSatislarPoints],
   );
+
+  // 🐋 Büyük Oyuncular — lazy dynamic import (5K+ nokta ana bundle'a girmesin).
+  const [showBuyukOyuncular, setShowBuyukOyuncular] = useState(false);
+  const [boData, setBoData] = useState<{ oyuncular: BuyukOyuncu[]; points: BuyukOyuncuPoint[] } | null>(null);
+  const [boLoading, setBoLoading] = useState(false);
+  const [boSecim, setBoSecim] = useState<Set<number>>(new Set());
+  const boRenderer = useMemo(() => L.canvas({ padding: 0.5 }), []);
+  const ensureBuyukOyuncularLoaded = () => {
+    if (boData || boLoading) return;
+    setBoLoading(true);
+    import("@/data/buyuk-oyuncular.json")
+      .then((m) => {
+        const d = (m.default ?? m) as unknown as BuyukOyuncularData;
+        setBoData({ oyuncular: d.oyuncular ?? [], points: expandBuyukOyuncuRows(d) });
+        setBoSecim(defaultSecim(d.oyuncular ?? []));
+      })
+      .catch(() => {})
+      .finally(() => setBoLoading(false));
+  };
+  const boVisible = useMemo(
+    () => (boData ? filterBuyukOyuncuPoints(boData.points, boSecim) : []),
+    [boData, boSecim],
+  );
+  const toggleBoOyuncu = (i: number) =>
+    setBoSecim((prev) => {
+      const next = new Set(prev);
+      if (next.has(i)) next.delete(i); else next.add(i);
+      return next;
+    });
 
   // ⭐ Mohave off-market katmanı: 3'lü toggle (Kapalı → En İyi 750 → Tüm lead'ler)
   // + lazy fetch (katman kapalıyken 20K nokta hiç indirilmez) + kampanya sepeti.
@@ -1313,6 +1395,11 @@ export default function DealsMap({ points }: { points: MapPoint[] }) {
             "Rakip ilanları" (kırmızı elmas, aktif ilan) ile KARIŞMASIN diye ayrı renk paleti. */}
         {showRakipSatislar && <RakipSatislarLayer groups={rakipSatisGroups} />}
 
+        {/* 🐋 BÜYÜK OYUNCULAR — oyuncu başına renkli 5K+ nokta (canvas renderer). */}
+        {showBuyukOyuncular && boData && (
+          <BuyukOyuncularLayer points={boVisible} oyuncular={boData.oyuncular} renderer={boRenderer} />
+        )}
+
         {/* ⭐ MOHAVE OFF-MARKET KATMANI — Canvas renderer (20K nokta SVG'de takılır).
             Top-750 üyeleri beyaz kenarlı/parlak; kalanı soluk gri/sarı/yeşil skor rengi. */}
         {visibleMohave.map((p) => (
@@ -1452,6 +1539,40 @@ export default function DealsMap({ points }: { points: MapPoint[] }) {
             {rakipSatislarOzet.rozetMetni}
             <div style={{ fontSize: 9, fontWeight: 400, opacity: 0.85, marginTop: 2 }}>
               {rakipSatislarOzet.envanter} stok/belirsiz · tapu kaydı, Mohave County
+            </div>
+          </div>
+        )}
+        <button
+          onClick={() => {
+            setShowBuyukOyuncular((v) => {
+              const next = !v;
+              if (next) ensureBuyukOyuncularLoaded();
+              return next;
+            });
+          }}
+          title="Mohave'nin en büyük kurumsal arsa sahipleri (keşif ajanı, county tapu verisi) — oyuncu bazında aç/kapa legend'da"
+          style={toggleBtnStyle(showBuyukOyuncular, "#0e7490", "#155e75")}
+        >
+          🐋 Büyük Oyuncular{boData ? ` (${boVisible.length.toLocaleString("en-US")})` : ""}: {showBuyukOyuncular ? "Açık" : "Kapalı"}{boLoading ? " · ⏳" : ""}
+        </button>
+        {showBuyukOyuncular && boData && (
+          <div style={{
+            background: "rgba(255,255,255,0.97)", border: "1px solid #0e7490", borderRadius: 8,
+            padding: "8px 10px", fontSize: 11, boxShadow: "0 2px 8px rgba(0,0,0,0.18)",
+            maxWidth: 250, lineHeight: 1.6,
+          }}>
+            <div style={{ fontWeight: 700, color: "#0e7490", marginBottom: 3 }}>🐋 Oyuncular (tıkla → aç/kapa)</div>
+            {boData.oyuncular.map((o, i) => (
+              <label key={o.id} style={{ display: "flex", alignItems: "center", gap: 6, cursor: "pointer", opacity: boSecim.has(i) ? 1 : 0.45 }}>
+                <input type="checkbox" checked={boSecim.has(i)} onChange={() => toggleBoOyuncu(i)} style={{ margin: 0 }} />
+                <span style={{ width: 9, height: 9, borderRadius: "50%", background: oyuncuRenk(i), display: "inline-block", flexShrink: 0 }} />
+                <span style={{ color: "#334155" }}>
+                  {o.kisaAd} <b>({o.parselSayisi.toLocaleString("en-US")})</b>
+                </span>
+              </label>
+            ))}
+            <div style={{ fontSize: 9, color: "#94a3b8", marginTop: 3 }}>
+              🏗️ geliştiriciler flip rakibi değil — varsayılan kapalı · kaynak: county tapu (OWNER/adres eşleşmesi)
             </div>
           </div>
         )}
