@@ -3,8 +3,14 @@
 //
 // Kaynak: src/data/buyuk-oyuncular.json (scraper/buyuk-oyuncular-uret.mjs
 // tarafından Mohave county parsel CSV'sinden owner/adres eşleştirmeyle üretilir).
-// Kompakt satır formatı: [oyuncuIdx, apn, lat, lng, acres, landValue, salep, saledt]
-// — 5K+ nokta için alan adları tekrarlanmaz (boyut ~%60 küçülür).
+// Kompakt satır formatı: [oyuncuIdx, apn, lat, lng, acres, landValue, salep,
+// saledt, deedParcelCount, birimFiyatTahmini] — 5K+ nokta için alan adları
+// tekrarlanmaz (boyut ~%60 küçülür).
+//
+// PAKET TAPU (bulk deed) alanları: aynı RECPTNO'ya bağlı N parsel varsa county
+// SALEP'i (salep) her satıra TOPLAM olarak yazar — deedParcelCount (RECPTNO
+// boşsa 1) ve birimFiyatTahmini (=salep/deedParcelCount) bunu düzeltir.
+// Bkz. lib/paket-tapu.ts (biçimlendirme) + scraper/lib/deed-utils.mjs (üretim).
 //
 // Bu dosya SADECE saf fonksiyon — network/DOM YOK, node --test ile doğrulanır.
 // ─────────────────────────────────────────────────────────────────────────────
@@ -23,6 +29,7 @@ export interface BuyukOyuncu {
 export type BuyukOyuncuRow = [
   oyuncuIdx: number, apn: string, lat: number, lng: number,
   acres: number | null, landValue: number | null, salep: number | null, saledt: string | null,
+  deedParcelCount?: number, birimFiyatTahmini?: number | null,
 ];
 
 export interface BuyukOyuncularData {
@@ -41,6 +48,10 @@ export interface BuyukOyuncuPoint {
   landValue: number | null;
   salep: number | null;
   saledt: string | null;
+  /** Aynı RECPTNO'ya bağlı parsel sayısı (RECPTNO boşsa 1 — tekil kayıt). */
+  deedParcelCount: number;
+  /** salep / deedParcelCount — paket tapularda parsel-başı tahmini fiyat. */
+  birimFiyatTahmini: number | null;
 }
 
 // 8 renklik sabit palet — mevcut katmanlarla (grade yeşil/mavi/gri, rakip-ilan
@@ -66,13 +77,24 @@ export function expandBuyukOyuncuRows(data: BuyukOyuncularData | null | undefine
   const out: BuyukOyuncuPoint[] = [];
   for (const r of data.rows) {
     if (!Array.isArray(r) || r.length < 4) continue;
-    const [oyuncuIdx, apn, lat, lng, acres, landValue, salep, saledt] = r;
+    const [oyuncuIdx, apn, lat, lng, acres, landValue, salep, saledt, deedParcelCountRaw, birimFiyatRaw] = r;
     if (typeof oyuncuIdx !== "number" || oyuncuIdx < 0 || oyuncuIdx >= n) continue;
     if (!Number.isFinite(lat) || !Number.isFinite(lng)) continue;
+    // Geriye dönük uyumluluk: eski (9 alandan az) satırlarda deed alanları yok
+    // -> tekil kayıt varsayılır (deedParcelCount=1, birim=salep).
+    const deedParcelCount =
+      typeof deedParcelCountRaw === "number" && Number.isFinite(deedParcelCountRaw) && deedParcelCountRaw > 0
+        ? deedParcelCountRaw
+        : 1;
+    const birimFiyatTahmini =
+      typeof birimFiyatRaw === "number" && Number.isFinite(birimFiyatRaw)
+        ? birimFiyatRaw
+        : (typeof salep === "number" ? salep : null);
     out.push({
       oyuncuIdx, apn: String(apn ?? ""), lat, lng,
       acres: acres ?? null, landValue: landValue ?? null,
       salep: salep ?? null, saledt: saledt ?? null,
+      deedParcelCount, birimFiyatTahmini,
     });
   }
   return out;

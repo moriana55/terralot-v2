@@ -23,6 +23,7 @@ import { createReadStream, writeFileSync, existsSync, readFileSync } from "node:
 import { createInterface } from "node:readline";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { deedParcelCount, unitPriceEstimate } from "./lib/deed-utils.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, "..");
@@ -80,8 +81,13 @@ async function main() {
   const idx = {};
   let rowNum = 0;
 
-  /** @type {Map<string, { total:number, vacant:number, absentee:number, acres:number[], landValues:number[], owners:Map<string,number>, sales:{apn:string,owner:string,salep:number,saledt:string}[] }>} */
+  /** @type {Map<string, { total:number, vacant:number, absentee:number, acres:number[], landValues:number[], owners:Map<string,number>, sales:{apn:string,owner:string,salep:number,saledt:string,recptno:string}[] }>} */
   const byTrs = new Map();
+
+  // PAKET TAPU (bulk deed) düzeltmesi: RECPTNO -> parsel sayısı, tam CSV'nin
+  // TAMAMINDA (TRS'ler arası da paylaşılabilir) — tek geçişte biriktirilir,
+  // recentSales üretiminde (döngü bittikten SONRA) kullanılır.
+  const recptnoCounts = new Map();
 
   for await (const line of rl) {
     rowNum++;
@@ -117,10 +123,13 @@ async function main() {
     const owner = (f[idx.OWNER] || "").trim();
     if (owner) bucket.owners.set(owner, (bucket.owners.get(owner) || 0) + 1);
 
+    const recptno = (f[idx.RECPTNO] || "").trim();
+    if (recptno) recptnoCounts.set(recptno, (recptnoCounts.get(recptno) || 0) + 1);
+
     const salep = Number(f[idx.SALEP]);
     const saledt = f[idx.SALEDT];
     if (Number.isFinite(salep) && salep > 0 && saledt) {
-      bucket.sales.push({ apn: f[idx.PARCEL] || "", owner, salep, saledt });
+      bucket.sales.push({ apn: f[idx.PARCEL] || "", owner, salep, saledt, recptno });
     }
   }
 
@@ -147,7 +156,17 @@ async function main() {
       .filter((s) => !Number.isNaN(Date.parse(s.saledt)))
       .sort((a, c) => Date.parse(c.saledt) - Date.parse(a.saledt))
       .slice(0, 10)
-      .map((s) => ({ apn: s.apn, owner: s.owner, salep: s.salep, saledt: s.saledt }));
+      .map((s) => {
+        const count = deedParcelCount(s.recptno, recptnoCounts);
+        return {
+          apn: s.apn,
+          owner: s.owner,
+          salep: s.salep,
+          saledt: s.saledt,
+          deedParcelCount: count,
+          birimFiyatTahmini: unitPriceEstimate(s.salep, count),
+        };
+      });
 
     out[trs] = {
       trs,

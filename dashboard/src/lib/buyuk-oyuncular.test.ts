@@ -17,10 +17,11 @@ const sample: BuyukOyuncularData = {
     { id: "yat", ad: "1D LLC", kisaAd: "1D LLC", tip: "yatirimci", parselSayisi: 1, not: "" },
   ],
   rows: [
-    [0, "111-11-111", 35.5, -114.1, 2.3, 500, 8000, "2024/05/03"],
+    // Paket tapu (bulk deed): APN 308-22-040 örneğiyle tutarlı — $35.000/6=$5.833,33.
+    [0, "111-11-111", 35.5, -114.1, 2.3, 500, 35000, "2024/05/03", 6, 5833.33],
     [0, "111-11-112", 35.6, -114.2, null, null, null, null],
     [1, "222-22-222", 35.7, -114.3, 1.1, 900, null, null],
-    [2, "333-33-333", 35.8, -114.4, 4.7, 1200, 15000, "2022/01/10"],
+    [2, "333-33-333", 35.8, -114.4, 4.7, 1200, 15000, "2022/01/10", 1, 15000],
     [9, "999-99-999", 35.9, -114.5, null, null, null, null], // geçersiz oyuncuIdx -> elenir
     [0, "000-00-000", NaN, -114.6, null, null, null, null],  // koordinatsız -> elenir
   ],
@@ -31,10 +32,31 @@ test("expandBuyukOyuncuRows: kompakt satırları açar, geçersiz index/koordina
   assert.equal(points.length, 4); // 6 satırdan 2'si elendi
   assert.deepEqual(points[0], {
     oyuncuIdx: 0, apn: "111-11-111", lat: 35.5, lng: -114.1,
-    acres: 2.3, landValue: 500, salep: 8000, saledt: "2024/05/03",
+    acres: 2.3, landValue: 500, salep: 35000, saledt: "2024/05/03",
+    deedParcelCount: 6, birimFiyatTahmini: 5833.33,
   });
   assert.deepEqual(expandBuyukOyuncuRows(null), []);
   assert.deepEqual(expandBuyukOyuncuRows({} as BuyukOyuncularData), []);
+});
+
+test("expandBuyukOyuncuRows: PAKET TAPU alanları — count>1 satır birim fiyatı taşır, eski (deed alanı olmayan) satır tekil varsayılır", () => {
+  const points = expandBuyukOyuncuRows(sample);
+  const paket = points.find((p) => p.apn === "111-11-111")!;
+  assert.equal(paket.deedParcelCount, 6);
+  assert.equal(paket.birimFiyatTahmini, 5833.33);
+
+  const tekil = points.find((p) => p.apn === "333-33-333")!;
+  assert.equal(tekil.deedParcelCount, 1);
+  assert.equal(tekil.birimFiyatTahmini, 15000);
+
+  // Eski format (deed alanları olmayan satır, koordinatsız olmayan): geriye
+  // dönük uyum -> deedParcelCount=1, birimFiyatTahmini=salep (ya da null).
+  const eskiFormat = expandBuyukOyuncuRows({
+    generatedAt: "x", source: "x", oyuncular: sample.oyuncular,
+    rows: [[1, "444-44-444", 35.9, -114.7, 2, 100, 9000, "2021/01/01"]],
+  });
+  assert.equal(eskiFormat[0].deedParcelCount, 1);
+  assert.equal(eskiFormat[0].birimFiyatTahmini, 9000);
 });
 
 test("filterBuyukOyuncuPoints + defaultSecim: geliştirici varsayılan KAPALI, diğerleri açık", () => {

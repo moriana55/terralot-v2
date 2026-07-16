@@ -24,6 +24,7 @@ import CopyBuyerLink from "@/components/CopyBuyerLink";
 import { buildRakipSatislarLayer, groupRakipSatisPoints, type RakipSatisGroup, type RakipSatisPoint, type RakipSatislarData } from "@/lib/rakip-satislar";
 import rakipSatislarData from "@/data/rakip-satislar.json";
 import { defaultSecim, expandBuyukOyuncuRows, filterBuyukOyuncuPoints, oyuncuRenk, type BuyukOyuncu, type BuyukOyuncuPoint, type BuyukOyuncularData } from "@/lib/buyuk-oyuncular";
+import { isPaketTapu, formatPaketAlimAciklama } from "@/lib/paket-tapu";
 
 const usd = (n: number) => "$" + Math.round(n).toLocaleString("en-US");
 const GRADE_COLOR: Record<string, string> = { A: "#059669", B: "#0284c7", C: "#94a3b8" };
@@ -206,13 +207,18 @@ const escHtml = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").re
 function rakipSatisPopupHtml(g: RakipSatisGroup): string {
   const kayitHtml = (p: RakipSatisPoint) => {
     const tip = `<div style="font-weight:700;color:${p.color};font-size:11px">${RAKIP_TIP_LABEL_3D[p.kayitTipi] ?? p.kayitTipi}</div>`;
+    const paket = isPaketTapu(p.deedParcelCount);
     let govde = "";
     if (p.kayitTipi === "dogrulanmis_satis") {
       govde += `<div>Satış: <b>${p.fiyat != null ? usd(p.fiyat) : "—"}</b>${p.tarih ? " · " + escHtml(p.tarih) : ""}</div>`;
       if (p.karsiTaraf) govde += `<div style="font-size:11px;color:#475569">Alıcı: ${escHtml(p.karsiTaraf)}</div>`;
     } else {
-      if (p.fiyat != null) govde += `<div style="font-size:11px;color:#475569">LLC'nin alım kaydı: <b>${usd(p.fiyat)}</b>${p.tarih ? " · " + escHtml(p.tarih) : ""} <span style="color:#94a3b8">(maliyet tabanı)</span></div>`;
+      if (p.fiyat != null && !paket) govde += `<div style="font-size:11px;color:#475569">LLC'nin alım kaydı: <b>${usd(p.fiyat)}</b>${p.tarih ? " · " + escHtml(p.tarih) : ""} <span style="color:#94a3b8">(maliyet tabanı)</span></div>`;
       if (p.kayitTipi === "satis_taksitte") govde += `<div style="font-size:10px;color:#94a3b8;font-style:italic">Son alıcı: tapu devri tamamlanınca kayda düşer</div>`;
+    }
+    // PAKET TAPU: toplamı gizleme, tek parselin fiyatıymış gibi sunma.
+    if (paket && p.fiyat != null && p.birimFiyatTahmini != null) {
+      govde += `<div style="font-size:11px;color:#b45309;background:#fffbeb;border-radius:4px;padding:2px 5px;margin-top:2px">${escHtml(formatPaketAlimAciklama(p.fiyat, p.tarih, p.deedParcelCount as number, p.birimFiyatTahmini))}</div>`;
     }
     govde += `<div style="font-size:11px;color:#475569">APN: ${escHtml(p.apn)}${p.recordingNo ? " · Kayıt No: " + escHtml(p.recordingNo) : ""}</div>`;
     if (p.acres != null) govde += `<div style="font-size:11px;color:#94a3b8">${p.acres} acre${p.bolge ? " · " + escHtml(p.bolge) : ""}</div>`;
@@ -243,6 +249,7 @@ function buyukOyuncularToGeoJSON(points: BuyukOyuncuPoint[]): GeoJSON.FeatureCol
       properties: {
         c: oyuncuRenk(p.oyuncuIdx), oy: p.oyuncuIdx, apn: p.apn,
         ac: p.acres ?? -1, lv: p.landValue ?? -1, sp: p.salep ?? -1, sd: p.saledt ?? "",
+        dpc: p.deedParcelCount ?? 1, uft: p.birimFiyatTahmini ?? -1,
       },
     })),
   };
@@ -252,12 +259,19 @@ function buyukOyuncuPopupHtml(pr: Record<string, unknown>, o: BuyukOyuncu | unde
   const renk = String(pr.c || "#0e7490");
   const ac = Number(pr.ac), lv = Number(pr.lv), sp = Number(pr.sp);
   const sd = String(pr.sd || "");
+  const dpc = Number(pr.dpc ?? 1);
+  const uft = Number(pr.uft ?? -1);
   let html = `<div style="font-size:12px;line-height:1.5;min-width:185px">`;
   html += `<b style="color:${renk}">🐋 ${escHtml(o?.kisaAd ?? "?")}</b>`;
   if (o?.tip === "gelistirici") html += `<div style="font-size:10px;font-weight:700;color:#92400e;background:#fffbeb;display:inline-block;border-radius:4px;padding:1px 6px;margin-top:2px">🏗️ geliştirici — arsa-flip rakibi değil</div>`;
   html += `<div style="margin-top:3px">APN: <b>${escHtml(String(pr.apn || ""))}</b></div>`;
   html += `<div style="color:#64748b">${ac > 0 ? ac + " acre" : "acre yok"}${lv > 0 ? " · land value " + usd(lv) : ""}</div>`;
   if (sp > 0 || sd) html += `<div style="font-size:11px;color:#475569;margin-top:2px">Alım: ${sp > 0 ? "<b>" + usd(sp) + "</b>" : "fiyat yok"}${sd ? " · " + escHtml(sd) : ""} <span style="color:#94a3b8">(county SALEP/SALEDT)</span></div>`;
+  // PAKET TAPU (bulk deed): toplam SALEP gizlenmez, ama tek parselin fiyatıymış
+  // gibi de sunulmaz — parsel başına tahmin de gösterilir (bkz. lib/paket-tapu.ts).
+  if (isPaketTapu(dpc) && sp > 0 && uft > 0) {
+    html += `<div style="font-size:10px;color:#b45309;background:#fffbeb;border-radius:4px;padding:2px 5px;margin-top:2px">${escHtml(formatPaketAlimAciklama(sp, sd || null, dpc, uft))}</div>`;
+  }
   if (o?.not) html += `<div style="font-size:10px;color:#94a3b8;margin-top:3px;font-style:italic">${escHtml(o.not)}</div>`;
   return html + `</div>`;
 }

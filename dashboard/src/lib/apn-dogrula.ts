@@ -67,6 +67,9 @@ export interface RakipSatisLike {
   karsiTaraf: string | null;
   sirketLlc: string | null;
   acres: number | null;
+  /** PAKET TAPU (bulk deed) — bkz. lib/paket-tapu.ts. Eski veride olmayabilir. */
+  deedParcelCount?: number;
+  birimFiyatTahmini?: number | null;
   [k: string]: unknown;
 }
 
@@ -133,6 +136,14 @@ export interface OurRecordSummary {
   acres: number | null;
   landValue: number | null;
   sources: string[]; // hangi dosyalardan bulundu (rapor/kanıt için)
+  /**
+   * PAKET TAPU (bulk deed) — rakipSatis kaydı aynı RECPTNO'ya bağlı birden
+   * fazla parseli kapsıyorsa (deedParcelCount>1), lastSalePrice o tapunun
+   * TOPLAM tutarıdır, tek parselin fiyatı DEĞİL. UI bunu "N parsellik paket
+   * tapusu (parsel başına ~$X)" notuyla göstermeli — bkz. lib/paket-tapu.ts.
+   */
+  deedParcelCount: number | null;
+  birimFiyatTahmini: number | null;
 }
 
 /** rakip-satislar "karsiTaraf" alanı "AD (adres...)" biçiminde — parantez öncesini al. */
@@ -163,6 +174,8 @@ export function buildOurRecordSummary(
   const lastSaleDate = rakipSatis?.tarih ?? null;
   const acres = mohave?.acres ?? rakipSatis?.acres ?? null;
   const landValue = mohave?.land_value ?? null;
+  const deedParcelCount = rakipSatis?.deedParcelCount ?? null;
+  const birimFiyatTahmini = rakipSatis?.birimFiyatTahmini ?? null;
 
   return {
     apn,
@@ -173,6 +186,8 @@ export function buildOurRecordSummary(
     acres,
     landValue,
     sources,
+    deedParcelCount,
+    birimFiyatTahmini,
   };
 }
 
@@ -296,7 +311,15 @@ export interface TrsOzetKaydi {
   medianAcres: number | null;
   medianLandValue: number | null;
   topOwners: { owner: string; count: number }[];
-  recentSales: { apn: string; owner: string; salep: number; saledt: string }[];
+  recentSales: {
+    apn: string;
+    owner: string;
+    salep: number;
+    saledt: string;
+    /** PAKET TAPU — bkz. lib/paket-tapu.ts. Eski (backfill öncesi) veride olmayabilir. */
+    deedParcelCount?: number;
+    birimFiyatTahmini?: number | null;
+  }[];
   leadPoolCount: number;
 }
 

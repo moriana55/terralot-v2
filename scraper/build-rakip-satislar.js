@@ -115,6 +115,11 @@ function main() {
       acres: toNumber(r.acres),
       legal: r.legal || null,
       siteDurumu: r.site_durumu || null,
+      // PAKET TAPU (bulk deed) düzeltmesi — bkz. scraper/lib/deed-utils.mjs +
+      // rakip-tapu-dogrula.mjs. deedParcelCount>1 ise fiyat toplu tapu tutarıdır,
+      // birimFiyatTahmini parsel başına gerçek maliyeti/satışı tahmin eder.
+      deedParcelCount: Number.isFinite(r.deed_parcel_count) ? r.deed_parcel_count : 1,
+      birimFiyatTahmini: toNumber(r.birim_fiyat_tahmini),
     });
   }
 

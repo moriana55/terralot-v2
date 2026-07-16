@@ -13,6 +13,7 @@ import { buildCampaign, type MohaveRow } from "@/lib/mohave-campaign";
 import { buildRakipSatislarLayer, computeRakipSatislarOzet, groupRakipSatisPoints, type RakipSatisGroup, type RakipSatisPoint, type RakipSatislarData } from "@/lib/rakip-satislar";
 import rakipSatislarData from "@/data/rakip-satislar.json";
 import { defaultSecim, expandBuyukOyuncuRows, filterBuyukOyuncuPoints, oyuncuRenk, type BuyukOyuncu, type BuyukOyuncuPoint, type BuyukOyuncularData } from "@/lib/buyuk-oyuncular";
+import { isPaketTapu, formatPaketAlimAciklama } from "@/lib/paket-tapu";
 
 export type MapPoint = {
   id: string; lat: number; lng: number; owner: string; region: string;
@@ -774,8 +775,9 @@ type MohavePoint = {
   mailingAddress: string; mailingCity: string; mailingState: string; mailingZip: string;
   score: number; top750: boolean;
   breakdown: { margin: number; size: number; demand: number; motivation: number };
+  trs: string; estOffer: number | null; estRetail: number | null; estMargin: number | null;
+  isCorporate: boolean;
 };
-type MohaveLayerMode = "off" | "top750" | "all";
 
 function mohaveScoreColor(score: number): string {
   if (score >= 80) return "#059669"; // yeşil — güçlü aday
@@ -809,6 +811,7 @@ const RAKIP_LABEL_MIN_ZOOM = 11;
 //    (maliyet tabanı) olarak etiketlenir; "Alıcı" diye GÖSTERİLMEZ.
 function RakipSatisKayitDetay({ p }: { p: RakipSatisPoint }) {
   const isSatildi = p.kayitTipi === "dogrulanmis_satis";
+  const paket = isPaketTapu(p.deedParcelCount);
   return (
     <div style={{ marginTop: 4 }}>
       <div style={{ fontWeight: 700, color: p.color, fontSize: 11 }}>
@@ -826,7 +829,7 @@ function RakipSatisKayitDetay({ p }: { p: RakipSatisPoint }) {
         </>
       ) : (
         <>
-          {p.fiyat != null && (
+          {p.fiyat != null && !paket && (
             <div style={{ fontSize: 11, color: "#475569" }}>
               LLC&apos;nin alım kaydı: <b>{usd(p.fiyat)}</b>
               {p.tarih ? ` · ${p.tarih}` : ""} <span style={{ color: "#94a3b8" }}>(maliyet tabanı)</span>
@@ -838,6 +841,13 @@ function RakipSatisKayitDetay({ p }: { p: RakipSatisPoint }) {
             </div>
           )}
         </>
+      )}
+      {/* PAKET TAPU (bulk deed): toplam fiyat GİZLENMEZ ama tek parselin fiyatıymış
+          gibi de SUNULMAZ — hem toplam hem parsel-başı tahmin gösterilir. */}
+      {paket && p.fiyat != null && p.birimFiyatTahmini != null && (
+        <div style={{ fontSize: 11, color: "#b45309", background: "#fffbeb", borderRadius: 4, padding: "2px 5px", marginTop: 2 }}>
+          {formatPaketAlimAciklama(p.fiyat, p.tarih, p.deedParcelCount as number, p.birimFiyatTahmini)}
+        </div>
       )}
       <div style={{ fontSize: 11, color: "#475569" }}>
         APN: {p.apn}{p.recordingNo ? ` · Kayıt No: ${p.recordingNo}` : ""}
@@ -955,6 +965,14 @@ function BuyukOyuncularLayer({
                     <span style={{ color: "#94a3b8" }}> (county SALEP/SALEDT)</span>
                   </div>
                 )}
+                {/* PAKET TAPU (bulk deed): county aynı RECPTNO'ya bağlı N parselin
+                    TOPLAM SALEP'ini her satıra yazıyor — toplamı gizlemeden parsel
+                    başına tahmini de göster (bkz. lib/paket-tapu.ts). */}
+                {isPaketTapu(p.deedParcelCount) && p.salep != null && p.birimFiyatTahmini != null && (
+                  <div style={{ fontSize: 10, color: "#b45309", background: "#fffbeb", borderRadius: 4, padding: "2px 5px", marginTop: 2 }}>
+                    {formatPaketAlimAciklama(p.salep, p.saledt, p.deedParcelCount, p.birimFiyatTahmini)}
+                  </div>
+                )}
                 {o?.not && <div style={{ fontSize: 10, color: "#94a3b8", marginTop: 3, fontStyle: "italic" }}>{o.not}</div>}
               </div>
             </Popup>
@@ -962,6 +980,77 @@ function BuyukOyuncularLayer({
         );
       })}
     </>
+  );
+}
+
+// Mohave lead popup içeriği — hem "Havuz" hem "Mektup Hedefi" katmanı BUNU paylaşır
+// (aynı JSX'i iki kere yazmayalım). APN + TRS + sahip + posta eyaleti + acre +
+// land value + skor kırılımı + tahmini teklif/perakende/marj + "🔍 APN Doğrula"
+// linki (apn-dogrula sayfası ?apn= query param'ını otomatik sorgular).
+// Kurumsal/balina/kamu (isCorporate) ise: rozet + "Kampanyaya Ekle" YOK (mektup
+// hedefi değil — boşa para/adres kirliliği).
+function MohavePopupBody({
+  p, cart, toggleCart,
+}: { p: MohavePoint; cart: Map<string, MohavePoint>; toggleCart: (p: MohavePoint) => void }) {
+  return (
+    <div style={{ fontSize: 12, lineHeight: 1.5, minWidth: 205 }}>
+      <div style={{ fontWeight: 700 }}>
+        {p.top750 && (
+          <span style={{ background: "#eab308", color: "#1c1917", borderRadius: 3, padding: "1px 5px", marginRight: 5, fontSize: 10 }}>
+            💌 Mektup Hedefi
+          </span>
+        )}
+        {p.owner || p.apn}
+      </div>
+      {p.isCorporate && (
+        <div style={{ marginTop: 3, display: "inline-block", fontSize: 10, fontWeight: 700, color: "#475569", background: "#f1f5f9", borderRadius: 4, padding: "2px 6px" }}>
+          🏢 Kurumsal/gizli-ağ sahip — mektup hedefi DEĞİL
+        </div>
+      )}
+      <div style={{ color: "#64748b", marginTop: 2 }}>
+        {p.region || "bölge yok"} · {p.acres != null ? `${p.acres.toFixed(2)} acre` : "acre yok"} · sahip eyaleti: {p.mailingState || "—"}
+      </div>
+      <div style={{ fontSize: 11, color: "#475569", marginTop: 2 }}>
+        APN: <b>{p.apn || "—"}</b>
+        {p.trs && <> · TRS: <b>{p.trs}</b></>}
+        {p.apn && (
+          <a
+            href={`/admin/apn-dogrula?apn=${encodeURIComponent(p.apn)}`}
+            target="_blank" rel="noreferrer"
+            style={{ marginLeft: 6, color: "#0891b2", fontWeight: 600, textDecoration: "none" }}
+          >
+            🔍 APN Doğrula
+          </a>
+        )}
+      </div>
+      <div style={{ marginTop: 3 }}>
+        Land value: <b>{p.landValue != null ? usd(p.landValue) : "—"}</b>
+      </div>
+      {(p.estOffer != null || p.estRetail != null) && (
+        <div style={{ fontSize: 11, color: "#475569" }}>
+          Tahmini teklif: <b style={{ color: "#059669" }}>{p.estOffer != null ? usd(p.estOffer) : "—"}</b>
+          {p.estRetail != null && <> · perakende: <b>{usd(p.estRetail)}</b></>}
+          {p.estMargin != null && <> · marj: <b style={{ color: "#059669" }}>{usd(p.estMargin)}</b></>}
+        </div>
+      )}
+      <div style={{ marginTop: 3, fontWeight: 700, color: mohaveScoreColor(p.score) }}>
+        Skor: {p.score}/100
+      </div>
+      <div style={{ fontSize: 10, color: "#94a3b8" }}>
+        marj {p.breakdown.margin} · boyut {p.breakdown.size} · talep {p.breakdown.demand} · motivasyon {p.breakdown.motivation}
+      </div>
+      {!p.isCorporate && (
+        <button
+          onClick={() => toggleCart(p)}
+          style={{
+            marginTop: 6, border: "none", borderRadius: 5, padding: "4px 9px", fontSize: 11, fontWeight: 700, cursor: "pointer",
+            background: cart.has(p.id) ? "#dc2626" : "#7c3aed", color: "#fff",
+          }}
+        >
+          {cart.has(p.id) ? "✕ Sepetten çıkar" : "🛒 Kampanyaya Ekle"}
+        </button>
+      )}
+    </div>
   );
 }
 
@@ -1035,9 +1124,13 @@ export default function DealsMap({ points }: { points: MapPoint[] }) {
       return next;
     });
 
-  // ⭐ Mohave off-market katmanı: 3'lü toggle (Kapalı → En İyi 750 → Tüm lead'ler)
-  // + lazy fetch (katman kapalıyken 20K nokta hiç indirilmez) + kampanya sepeti.
-  const [mohaveMode, setMohaveMode] = useState<MohaveLayerMode>("off");
+  // ⭐ Mohave off-market katmanı — İKİ BAĞIMSIZ toggle (eskiden tek 3'lü döngüydü):
+  //   💌 Mektup Hedefi (En İyi 750) — varsayılan AÇIK, mohave-campaign.ts#buildTop750Campaign
+  //      ile AYNI seçim (kurumsal/balina/kamu elendikten SONRAKİ sıralama).
+  //   ⭐ Mohave Havuzu (Tümü, 20K) — varsayılan KAPALI, ayrıntı/denetim için.
+  // İkisi de aynı /api/admin/mohave-map-points fetch'ini paylaşır (lazy, ilk açılışta).
+  const [showMektupHedefi, setShowMektupHedefi] = useState(true);
+  const [showMohaveHavuzu, setShowMohaveHavuzu] = useState(false);
   const [mohavePoints, setMohavePoints] = useState<MohavePoint[]>([]);
   const [mohaveLoading, setMohaveLoading] = useState(false);
   const [cart, setCart] = useState<Map<string, MohavePoint>>(new Map());
@@ -1045,9 +1138,9 @@ export default function DealsMap({ points }: { points: MapPoint[] }) {
   // diğer katmanlar (deal marker'ları vb.) varsayılan SVG renderer'da kalır.
   const mohaveRenderer = useMemo(() => L.canvas({ padding: 0.5 }), []);
 
-  // Lazy fetch: yalnız kullanıcı katmanı ilk kez açtığında (Kapalı → En İyi 750/Tümü)
-  // tetiklenir — effect içinde koşullu setState YOK (lint: set-state-in-effect),
-  // doğrudan toggle handler'ından çağrılır.
+  // Lazy fetch: yalnız kullanıcı katmanlardan biri ilk kez açıldığında tetiklenir
+  // (varsayılan AÇIK olan 💌 Mektup Hedefi ilk mount'ta çağırır) — effect içinde
+  // koşullu setState YOK (lint: set-state-in-effect), doğrudan handler'dan çağrılır.
   const ensureMohaveLoaded = () => {
     if (mohavePoints.length > 0 || mohaveLoading) return;
     setMohaveLoading(true);
@@ -1057,12 +1150,20 @@ export default function DealsMap({ points }: { points: MapPoint[] }) {
       .catch(() => {})
       .finally(() => setMohaveLoading(false));
   };
+  // Varsayılan açık katman (💌 Mektup Hedefi) için ilk mount'ta bir kez yükle.
+  useEffect(() => { if (showMektupHedefi) ensureMohaveLoaded(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const visibleMohave = useMemo(() => {
-    if (mohaveMode === "off") return [];
-    if (mohaveMode === "top750") return mohavePoints.filter((p) => p.top750);
-    return mohavePoints;
-  }, [mohaveMode, mohavePoints]);
+  // Top-750 (mektup hedefi) — kurumsal/balina/kamu ZATEN API'de elenmiş sıralamadan.
+  const top750Mohave = useMemo(
+    () => (showMektupHedefi ? mohavePoints.filter((p) => p.top750) : []),
+    [showMektupHedefi, mohavePoints],
+  );
+  // Havuz (Tümü, 20K) — top-750'de zaten ayrı/parlak çizildiği için burada
+  // ÇİFT ÇİZİLMESİN diye top750 üyeleri hariç tutulur.
+  const havuzMohave = useMemo(
+    () => (showMohaveHavuzu ? mohavePoints.filter((p) => !p.top750) : []),
+    [showMohaveHavuzu, mohavePoints],
+  );
 
   const toggleCart = (p: MohavePoint) => {
     setCart((prev) => {
@@ -1400,53 +1501,47 @@ export default function DealsMap({ points }: { points: MapPoint[] }) {
           <BuyukOyuncularLayer points={boVisible} oyuncular={boData.oyuncular} renderer={boRenderer} />
         )}
 
-        {/* ⭐ MOHAVE OFF-MARKET KATMANI — Canvas renderer (20K nokta SVG'de takılır).
-            Top-750 üyeleri beyaz kenarlı/parlak; kalanı soluk gri/sarı/yeşil skor rengi. */}
-        {visibleMohave.map((p) => (
+        {/* ⭐ MOHAVE HAVUZU (Tümü, 20K) — Canvas renderer (SVG'de takılır). Soluk
+            gri/sarı/yeşil skor rengi. Top-750 üyeleri BURADA YOK (ayrı katmanda,
+            çift çizim olmasın diye). */}
+        {havuzMohave.map((p) => (
           <CircleMarker
             key={"mv" + p.id}
             center={[p.lat, p.lng]}
-            radius={p.top750 ? 5 : 3}
+            radius={3}
             pathOptions={{
               renderer: mohaveRenderer,
-              color: p.top750 ? "#fff" : "rgba(255,255,255,0.35)",
-              weight: p.top750 ? 1.5 : 0.5,
-              fillColor: mohaveScoreColor(p.score),
-              fillOpacity: p.top750 ? 0.95 : 0.5,
+              color: "rgba(255,255,255,0.35)",
+              weight: 0.5,
+              fillColor: p.isCorporate ? "#64748b" : mohaveScoreColor(p.score),
+              fillOpacity: p.isCorporate ? 0.35 : 0.5,
             }}
           >
             <Popup>
-              <div style={{ fontSize: 12, lineHeight: 1.5, minWidth: 195 }}>
-                <div style={{ fontWeight: 700 }}>
-                  {p.top750 && (
-                    <span style={{ background: "#059669", color: "#fff", borderRadius: 3, padding: "1px 5px", marginRight: 5, fontSize: 10 }}>
-                      ⭐ Top-750
-                    </span>
-                  )}
-                  {p.owner || p.apn}
-                </div>
-                <div style={{ color: "#64748b" }}>
-                  {p.region || "bölge yok"} · {p.acres != null ? `${p.acres.toFixed(2)} acre` : "acre yok"} · sahip eyaleti: {p.mailingState || "—"}
-                </div>
-                <div style={{ marginTop: 3 }}>
-                  Land value: <b>{p.landValue != null ? usd(p.landValue) : "—"}</b>
-                </div>
-                <div style={{ marginTop: 3, fontWeight: 700, color: mohaveScoreColor(p.score) }}>
-                  Skor: {p.score}/100
-                </div>
-                <div style={{ fontSize: 10, color: "#94a3b8" }}>
-                  marj {p.breakdown.margin} · boyut {p.breakdown.size} · talep {p.breakdown.demand} · motivasyon {p.breakdown.motivation}
-                </div>
-                <button
-                  onClick={() => toggleCart(p)}
-                  style={{
-                    marginTop: 6, border: "none", borderRadius: 5, padding: "4px 9px", fontSize: 11, fontWeight: 700, cursor: "pointer",
-                    background: cart.has(p.id) ? "#dc2626" : "#7c3aed", color: "#fff",
-                  }}
-                >
-                  {cart.has(p.id) ? "✕ Sepetten çıkar" : "🛒 Kampanyaya Ekle"}
-                </button>
-              </div>
+              <MohavePopupBody p={p} cart={cart} toggleCart={toggleCart} />
+            </Popup>
+          </CircleMarker>
+        ))}
+
+        {/* 💌 MEKTUP HEDEFİ (En İyi 750) — AYRI, belirgin katman (parlak altın,
+            beyaz kalın kenar) — "Havuz"dan (20K, soluk skor rengi) görsel olarak
+            KESİN ayrışsın diye. Kurumsal/balina/kamu buraya ASLA giremez (API'de
+            sıralamaya girmeden elenir — bkz. mohave-map-points route.ts). */}
+        {top750Mohave.map((p) => (
+          <CircleMarker
+            key={"t750" + p.id}
+            center={[p.lat, p.lng]}
+            radius={6}
+            pathOptions={{
+              renderer: mohaveRenderer,
+              color: "#fff",
+              weight: 2,
+              fillColor: "#eab308", // parlak altın — "bizim hedefimiz"
+              fillOpacity: 0.95,
+            }}
+          >
+            <Popup>
+              <MohavePopupBody p={p} cart={cart} toggleCart={toggleCart} />
             </Popup>
           </CircleMarker>
         ))}
@@ -1497,16 +1592,30 @@ export default function DealsMap({ points }: { points: MapPoint[] }) {
         />
         <button
           onClick={() => {
-            setMohaveMode((m) => {
-              const next = m === "off" ? "top750" : m === "top750" ? "all" : "off";
-              if (next !== "off") ensureMohaveLoaded();
+            setShowMektupHedefi((v) => {
+              const next = !v;
+              if (next) ensureMohaveLoaded();
               return next;
             });
           }}
-          title="Mohave off-market lead katmanı: Kapalı → ⭐ En İyi 750 → Tüm lead'ler (20K)"
-          style={toggleBtnStyle(mohaveMode !== "off", "#7c3aed", "#6d28d9")}
+          title="Mektup Hedefi: 'En İyi 750' skorlu parsel — mohave-campaign.ts#buildTop750Campaign ile AYNI seçim, kurumsal/balina/kamu sahipler ELENDİ."
+          style={toggleBtnStyle(showMektupHedefi, "#ca8a04", "#a16207")}
         >
-          ⭐ Mohave lead&apos;ler: {mohaveMode === "off" ? "Kapalı" : mohaveMode === "top750" ? "En İyi 750" : `Tümü (${mohavePoints.length.toLocaleString("en-US")})`}
+          💌 Mektup Hedefi (En İyi 750): {showMektupHedefi ? `Açık (${top750Mohave.length.toLocaleString("en-US")})` : "Kapalı"}
+          {mohaveLoading ? " · ⏳" : ""}
+        </button>
+        <button
+          onClick={() => {
+            setShowMohaveHavuzu((v) => {
+              const next = !v;
+              if (next) ensureMohaveLoaded();
+              return next;
+            });
+          }}
+          title="Mohave Havuzu: işlenmiş 20K off-market lead'in TAMAMI (mektup hedefi 750'nin dışındakiler dahil) — denetim/ayrıntı için."
+          style={toggleBtnStyle(showMohaveHavuzu, "#7c3aed", "#6d28d9")}
+        >
+          ⭐ Mohave Havuzu (Tümü): {showMohaveHavuzu ? `Açık (${mohavePoints.length.toLocaleString("en-US")})` : "Kapalı"}
           {mohaveLoading ? " · ⏳" : ""}
         </button>
         <button

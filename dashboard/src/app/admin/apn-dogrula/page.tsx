@@ -15,7 +15,8 @@
  *     tam county dökümünden üretilir).
  */
 
-import { useState } from "react";
+import { Suspense, useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import dynamic from "next/dynamic";
 import {
   ShieldCheck, Loader2, Search, AlertTriangle, CheckCircle2, XCircle, HelpCircle, MapPin,
@@ -32,6 +33,7 @@ import {
   type ComparisonRow,
   type TrsOzetKaydi,
 } from "@/lib/apn-dogrula";
+import { isPaketTapu, formatPaketAlimAciklama } from "@/lib/paket-tapu";
 
 const ParcelMap = dynamic(() => import("../apn-sorgula/parcel-map"), {
   ssr: false,
@@ -116,6 +118,15 @@ const ASSESSOR_URL = "https://www.mohavecounty.us/ContentPage.aspx?id=112&cid=10
 const RECORDER_URL = "https://www.mohavecounty.us/ContentPage.aspx?id=112&cid=356"; // Recorder public search
 
 export default function ApnDogrulaPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-sm text-slate-400">Yükleniyor…</div>}>
+      <ApnDogrulaInner />
+    </Suspense>
+  );
+}
+
+function ApnDogrulaInner() {
+  const searchParams = useSearchParams();
   const [query, setQuery] = useState("");
   const [loadingOurs, setLoadingOurs] = useState(false);
   const [loadingCounty, setLoadingCounty] = useState(false);
@@ -127,8 +138,13 @@ export default function ApnDogrulaPage() {
   const [feature, setFeature] = useState<Feature | null>(null);
   const [usedQuery, setUsedQuery] = useState<string | null>(null);
 
-  async function onSearch(e?: React.FormEvent) {
+  // overrideQuery: dışarıdan (ör. ?apn=... mount efekti, örnek butonlar) doğrudan
+  // değer geçmek için — `query` state'inin re-render'ını beklemeden (stale closure
+  // riskinden kaçınır: setQuery + hemen ardından onSearch çağrısı aynı event/efekt
+  // içinde olduğunda state henüz güncellenmemiş olabilir).
+  async function onSearch(e?: React.FormEvent, overrideQuery?: string) {
     e?.preventDefault();
+    const q = overrideQuery ?? query;
     setErrorOurs(null);
     setErrorCounty(null);
     setOurData(null);
@@ -136,7 +152,7 @@ export default function ApnDogrulaPage() {
     setFeature(null);
     setUsedQuery(null);
 
-    const k = detectQueryKind(query);
+    const k = detectQueryKind(q);
     if (k === "empty") {
       setErrorOurs("Lütfen bir APN (209-09-019) veya TRS (26N 19W 31) girin.");
       setKind(null);
@@ -147,7 +163,7 @@ export default function ApnDogrulaPage() {
     if (k === "trs") {
       setLoadingOurs(true);
       try {
-        const res = await fetch(`/api/admin/apn-dogrula?trs=${encodeURIComponent(query)}`);
+        const res = await fetch(`/api/admin/apn-dogrula?trs=${encodeURIComponent(q)}`);
         const j = (await res.json()) as TrsApiResponse;
         setTrsData(j);
         if (!j.ozet) setErrorOurs("Bu TRS için önceden hesaplanmış özet bulunamadı (trs-ozet.json'da yok).");
@@ -163,13 +179,13 @@ export default function ApnDogrulaPage() {
     setLoadingOurs(true);
     setLoadingCounty(true);
 
-    const oursPromise = fetch(`/api/admin/apn-dogrula?apn=${encodeURIComponent(query)}`)
+    const oursPromise = fetch(`/api/admin/apn-dogrula?apn=${encodeURIComponent(q)}`)
       .then((res) => res.json() as Promise<OurApiResponse>)
       .then((j) => setOurData(j))
       .catch((err) => setErrorOurs("Bizim veri sorgulanamadı: " + (err instanceof Error ? err.message : String(err))))
       .finally(() => setLoadingOurs(false));
 
-    const candidates = normalizeApnCandidates(query);
+    const candidates = normalizeApnCandidates(q);
     const countyPromise = (async () => {
       const attempts: { field: string; value: string }[] = [];
       for (const v of candidates) attempts.push({ field: "PARCEL", value: v });
@@ -205,13 +221,25 @@ export default function ApnDogrulaPage() {
     await Promise.all([oursPromise, countyPromise]);
   }
 
+  // Dış sayfalardan (ör. harita/lead popup'ı "🔍 APN Doğrula") ?apn=... veya ?trs=...
+  // ile gelindiğinde otomatik sorgula — elle kopyala-yapıştır derdi olmasın.
+  useEffect(() => {
+    const fromApn = searchParams.get("apn");
+    const fromTrs = searchParams.get("trs");
+    const q = fromApn || fromTrs;
+    if (!q) return;
+    setQuery(q);
+    onSearch(undefined, q);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
+
   function onOrnekApn(apn: string) {
     setQuery(apn);
-    setTimeout(() => onSearch(), 0);
+    onSearch(undefined, apn);
   }
   function onOrnekTrs() {
     setQuery(ORNEK_TRS);
-    setTimeout(() => onSearch(), 0);
+    onSearch(undefined, ORNEK_TRS);
   }
 
   const props = (feature?.properties ?? {}) as ParcelProps;
@@ -374,7 +402,14 @@ export default function ApnDogrulaPage() {
                       <tr key={s.apn} className="border-b border-slate-100 last:border-0">
                         <td className="py-1 pr-2 font-mono text-slate-700">{s.apn}</td>
                         <td className="py-1 pr-2 text-slate-700">{s.owner}</td>
-                        <td className="py-1 text-right font-semibold text-slate-900">{usd(s.salep)}</td>
+                        <td className="py-1 text-right font-semibold text-slate-900">
+                          {usd(s.salep)}
+                          {isPaketTapu(s.deedParcelCount) && s.birimFiyatTahmini != null && (
+                            <div className="mt-0.5 text-[10px] font-normal text-amber-700">
+                              {s.deedParcelCount} parsellik paket · birim ~{usd(s.birimFiyatTahmini)}
+                            </div>
+                          )}
+                        </td>
                         <td className="py-1 text-right text-slate-500">{s.saledt.slice(0, 10)}</td>
                       </tr>
                     ))}
@@ -414,6 +449,18 @@ export default function ApnDogrulaPage() {
                         <Row label="Dönüm (acre)" value={ourData.summary.acres != null ? String(ourData.summary.acres) : null} />
                         <Row label="Arazi değeri" value={ourData.summary.landValue != null ? usd(ourData.summary.landValue) : null} />
                       </dl>
+                      {isPaketTapu(ourData.summary.deedParcelCount) &&
+                        ourData.summary.lastSalePrice != null &&
+                        ourData.summary.birimFiyatTahmini != null && (
+                          <div className="mt-2 rounded-md bg-amber-50 px-2.5 py-1.5 text-[11px] text-amber-800">
+                            {formatPaketAlimAciklama(
+                              ourData.summary.lastSalePrice,
+                              ourData.summary.lastSaleDate,
+                              ourData.summary.deedParcelCount as number,
+                              ourData.summary.birimFiyatTahmini,
+                            )}
+                          </div>
+                        )}
                       {ourData.rakipSatis && (
                         <div className="mt-2 text-[11px] text-slate-500">
                           Kayıt tipi: <span className="font-semibold text-slate-700">{ourData.rakipSatis.kayitTipi}</span>

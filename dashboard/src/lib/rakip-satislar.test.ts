@@ -79,6 +79,32 @@ test("computeRakipSatislarOzet: medyan SADECE tamamlanmış satışlardan; taksi
   assert.match(ozet.rozetMetni, /rakip ort\. alış \$8\.9K/);
 });
 
+test("computeRakipSatislarOzet: PAKET TAPU (deedParcelCount>1) — istatistik SALEP değil birimFiyatTahmini kullanır", () => {
+  const paketliData: RakipSatislarData = {
+    generatedAt: "2026-07-13T00:00:00.000Z",
+    source: "test",
+    totalKayit: 1,
+    haritadaGosterilen: 1,
+    atlanan: 0,
+    records: [
+      {
+        // APN 308-22-040 örneğiyle tutarlı: $35.000 toplu tapu, 6 parsel -> $5.833,33 birim.
+        id: "308-22-040", apn: "308-22-040", kayitTipi: "dogrulanmis_satis",
+        lat: 35.5, lng: -114.1, coordSource: "exact",
+        fiyat: 35000, tarih: "2020/10/15", recordingNo: "2020059875", deedType: "WD",
+        karsiTaraf: "SIMPLE FOODS LLC", sirketLlc: "Discount Lots", bolge: "20N 19W 27",
+        acres: 2.31, legal: null, siteDurumu: null,
+        deedParcelCount: 6, birimFiyatTahmini: 5833.33,
+      },
+    ],
+  };
+  const points = buildRakipSatislarLayer(paketliData);
+  const ozet = computeRakipSatislarOzet(points);
+  // $35.000 istatistiğe KATILMAZ — medyan birim fiyat tahminidir.
+  assert.equal(ozet.medyanFiyat, 5833.33);
+  assert.notEqual(ozet.medyanFiyat, 35000);
+});
+
 // ── Koordinat gruplama (etiket çakışması fix'i) ──────────────────────────────
 const pt = (o: Partial<RakipSatisPoint>): RakipSatisPoint => ({
   id: "x", apn: "111-11-111", kayitTipi: "dogrulanmis_satis",

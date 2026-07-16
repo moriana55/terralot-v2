@@ -29,6 +29,15 @@ export interface RakipSatisRecord {
   acres: number | null;
   legal: string | null;
   siteDurumu: string | null;
+  /**
+   * PAKET TAPU (bulk deed) — aynı recordingNo'ya bağlı parsel sayısı (yoksa/
+   * tekil kayıtta 1). > 1 ise `fiyat` bu tapunun TOPLAM tutarıdır, tek parselin
+   * fiyatı DEĞİL — bkz. lib/paket-tapu.ts. Eski (backfill öncesi) veride
+   * alan olmayabilir, bu yüzden optional.
+   */
+  deedParcelCount?: number;
+  /** fiyat / deedParcelCount — paket kayıtlarda parsel-başı tahmini. */
+  birimFiyatTahmini?: number | null;
 }
 
 export interface RakipSatislarData {
@@ -166,20 +175,37 @@ function medyan(values: number[]): number | null {
 const gecerliFiyat = (f: number | null): f is number => f != null && Number.isFinite(f) && f > 0;
 
 /**
+ * PAKET TAPU (bulk deed) düzeltmesi: bir kaydın istatistiklerde (medyan/
+ * ortalama) kullanılacak "etkin" fiyatı. deedParcelCount > 1 ise county'nin
+ * SALEP'i (fiyat) toplu tapu tutarıdır — istatistiğe TOPLAM değil,
+ * birimFiyatTahmini (=fiyat/deedParcelCount) girer. Tekil kayıtlarda (count
+ * yok/1) fiyatın kendisi değişmeden kullanılır. Bkz. lib/paket-tapu.ts.
+ */
+function etkinFiyat(p: RakipSatisRecord): number | null {
+  if (p.deedParcelCount != null && p.deedParcelCount > 1) {
+    return gecerliFiyat(p.birimFiyatTahmini ?? null) ? (p.birimFiyatTahmini as number) : null;
+  }
+  return p.fiyat;
+}
+
+/**
  * Katman açıldığında köşede gösterilen mini özet rozeti — rakamlar JSON'dan hesaplanır.
  * ÖNEMLİ SEMANTİK: medyan SADECE tamamlanmış satış fiyatlarından; taksitli/envanter
  * kayıtlarındaki fiyat LLC'nin KENDİ ALIM kaydıdır (maliyet tabanı) — o AYRI
  * "rakip ort. alış" rakamı olarak raporlanır, satış medyanına KARIŞMAZ.
+ * PAKET TAPU kayıtlarında (deedParcelCount > 1) SALEP yerine birimFiyatTahmini
+ * kullanılır (hem medyan satış hem rakip ort. alış hesabında) — toplu tapu
+ * tutarının tekil parsel istatistiğini yapay şişirmesi engellenir.
  */
 export function computeRakipSatislarOzet(points: RakipSatisPoint[]): RakipSatislarOzet {
   const dogrulanmis = points.filter((p) => p.kayitTipi === "dogrulanmis_satis");
   const taksitli = points.filter((p) => p.kayitTipi === "satis_taksitte");
   const stok = points.filter((p) => p.kayitTipi === "envanter" || p.kayitTipi === "belirsiz");
 
-  const satisFiyatlar = dogrulanmis.map((p) => p.fiyat).filter(gecerliFiyat);
+  const satisFiyatlar = dogrulanmis.map(etkinFiyat).filter(gecerliFiyat);
   const med = medyan(satisFiyatlar);
 
-  const alisFiyatlar = [...taksitli, ...stok].map((p) => p.fiyat).filter(gecerliFiyat);
+  const alisFiyatlar = [...taksitli, ...stok].map(etkinFiyat).filter(gecerliFiyat);
   const ortAlis = alisFiyatlar.length
     ? alisFiyatlar.reduce((s, f) => s + f, 0) / alisFiyatlar.length
     : null;

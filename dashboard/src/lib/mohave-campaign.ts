@@ -1,4 +1,5 @@
 import { rankByOffmarketScore } from "./mohave-score";
+import { isCorporateOrWhaleOwner } from "./whale-owners";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // MOHAVE MEKTUP KAMPANYASI — saf segmentasyon + sahip-dedupe + CSV motoru.
@@ -259,8 +260,19 @@ export interface Top750Result extends CampaignResult {
   regionBreakdown: Record<string, number>;
 }
 
+/**
+ * Top-750 seçimine GİREBİLECEK satırlar: kamu sahipli ve kurumsal/balina sahipli
+ * parseller mektup hedefi değildir (boşa posta). Harita katmanı ile kampanya
+ * motoru aynı havuzu kullansın diye tek yerden döner.
+ */
+export function selectTop750EligibleRows(rows: MohaveRow[]): MohaveRow[] {
+  return rows.filter(
+    (r) => !isGovOwner(r.owner) && !isCorporateOrWhaleOwner(r.owner, r.mailing_address),
+  );
+}
+
 export function buildTop750Campaign(rows: MohaveRow[], n = 750): Top750Result {
-  const sorted = rankByOffmarketScore(rows);
+  const sorted = rankByOffmarketScore(selectTop750EligibleRows(rows));
   const top = sorted.slice(0, Math.max(0, n));
   const campaign = buildCampaign(top, {});
   const avgScore = top.length ? top.reduce((a, r) => a + r.offmarket_score, 0) / top.length : 0;

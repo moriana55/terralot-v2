@@ -14,8 +14,18 @@
 // kuralı (gizli ağlar aynı posta kutusunu paylaşır — owner adları alakasız).
 //
 // Çıktı: dashboard/src/data/buyuk-oyuncular.json — kompakt satır dizileri
-// ([oyuncuIdx, apn, lat, lng, acres, landValue, salep, saledt]) + oyuncu meta.
-// Dashboard bunu lib/buyuk-oyuncular.ts ile açar; runtime scraper bağımlılığı YOK.
+// ([oyuncuIdx, apn, lat, lng, acres, landValue, salep, saledt, deedParcelCount,
+// birimFiyatTahmini]) + oyuncu meta. Dashboard bunu lib/buyuk-oyuncular.ts ile
+// açar; runtime scraper bağımlılığı YOK.
+//
+// PAKET TAPU (bulk deed) DÜZELTMESİ: county aynı RECPTNO'ya (tapu kayıt no)
+// bağlı N parseli varsa, SALEP'i HER parsele TOPLAM olarak yazıyor (örn.
+// SIMPLE FOODS LLC / APN 308-22-040 / RECPTNO 2020059875 / SALEP $35.000 —
+// ama aynı RECPTNO'da 6 parsel var, gerçek birim fiyat ~$5.833). Bu yüzden
+// tam CSV taramasıyla RECPTNO->parsel-sayısı haritası çıkarılır; deedParcelCount
+// (RECPTNO boşsa 1) ve birimFiyatTahmini (=salep/deedParcelCount) hesaplanıp
+// satıra eklenir. Dashboard toplam fiyatı GİZLEMEZ, ama tek parselin fiyatıymış
+// gibi de sunmaz (bkz. lib/paket-tapu.ts).
 //
 // Kullanım: node scraper/buyuk-oyuncular-uret.mjs
 // ─────────────────────────────────────────────────────────────────────────────
@@ -24,6 +34,7 @@ import fs from "node:fs";
 import path from "node:path";
 import readline from "node:readline";
 import { fileURLToPath } from "node:url";
+import { deedParcelCount, unitPriceEstimate } from "./lib/deed-utils.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
@@ -112,17 +123,22 @@ async function main() {
   const rows = [];
   const perOyuncu = OYUNCULAR.map(() => 0);
   let koordinatsiz = 0;
+  // RECPTNO -> parsel sayısı (tam CSV'de, sadece bu döngüde eşleşen oyunculara
+  // ait olması gerekmez — bir RECPTNO'nun kaç satırda geçtiğini bilmek yeterli).
+  const recptnoCounts = new Map();
 
   for await (const line of rl) {
     if (!header) {
       header = parseCsvLine(line.replace(/^﻿/, ""));
-      for (const k of ["OWNER", "MAILING_ADDRESS", "PARCEL", "PARCEL_SIZE", "LANDVALUE", "SALEP", "SALEDT", "LATITUDE", "LONGITUDE"]) {
+      for (const k of ["OWNER", "MAILING_ADDRESS", "PARCEL", "PARCEL_SIZE", "LANDVALUE", "SALEP", "SALEDT", "LATITUDE", "LONGITUDE", "RECPTNO"]) {
         idx[k] = header.indexOf(k);
         if (idx[k] < 0) { console.error(`HATA: CSV kolonu yok: ${k}`); process.exit(1); }
       }
       continue;
     }
     const cols = parseCsvLine(line);
+    const recptno = (cols[idx.RECPTNO] || "").trim();
+    if (recptno) recptnoCounts.set(recptno, (recptnoCounts.get(recptno) || 0) + 1);
     const owner = (cols[idx.OWNER] || "").toUpperCase().trim();
     const addr = (cols[idx.MAILING_ADDRESS] || "").toUpperCase().trim();
     if (!owner && !addr) continue;
@@ -132,7 +148,8 @@ async function main() {
     const lng = Number(cols[idx.LONGITUDE]);
     if (!Number.isFinite(lat) || !Number.isFinite(lng) || lat === 0) { koordinatsiz++; continue; }
     perOyuncu[oi]++;
-    // Kompakt satır: [oyuncuIdx, apn, lat, lng, acres, landValue, salep, saledtYYYY/MM/DD]
+    // Kompakt satır (geçici): [oyuncuIdx, apn, lat, lng, acres, landValue, salep,
+    // saledtYYYY/MM/DD, recptno(HAM — aşağıda deedParcelCount'a çevrilir)].
     rows.push([
       oi,
       cols[idx.PARCEL] || "",
@@ -142,13 +159,24 @@ async function main() {
       num(cols[idx.LANDVALUE]),
       num(cols[idx.SALEP]),
       (cols[idx.SALEDT] || "").slice(0, 10) || null,
+      recptno,
     ]);
+  }
+
+  // İkinci geçiş YOK (CSV tekrar okunmuyor) — recptnoCounts artık tam, satırları
+  // deedParcelCount + birimFiyatTahmini ile tamamla (in-memory, ~5K satır).
+  for (const r of rows) {
+    const recptno = r[8];
+    const salep = r[6];
+    const count = deedParcelCount(recptno, recptnoCounts);
+    r[8] = count;
+    r.push(unitPriceEstimate(salep, count));
   }
 
   const out = {
     generatedAt: new Date().toISOString(),
     source: "Mohave County ParcelQueryLayer/38 hub CSV (OWNER/MAILING_ADDRESS eşleştirme) + scraper/rakip-tapu-diger.json oyuncu tanımları",
-    rowFormat: ["oyuncuIdx", "apn", "lat", "lng", "acres", "landValue", "salep", "saledt"],
+    rowFormat: ["oyuncuIdx", "apn", "lat", "lng", "acres", "landValue", "salep", "saledt", "deedParcelCount", "birimFiyatTahmini"],
     koordinatsizAtlanan: koordinatsiz,
     oyuncular: OYUNCULAR.map((o, i) => ({
       id: o.id, ad: o.ad, kisaAd: o.kisaAd, tip: o.tip, parselSayisi: perOyuncu[i], not: o.not,
