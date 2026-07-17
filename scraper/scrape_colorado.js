@@ -263,6 +263,7 @@ function parseColoradoText(text, county) {
 
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'co-tax-'));
   const allSamples = [];
+  const allRecords = []; // TÜM kayıtlar (dashboard'a yazmak için)
   let grandTotal = 0;
   const perCounty = [];
   const blocked = [];
@@ -303,11 +304,23 @@ function parseColoradoText(text, county) {
     console.log(`  ✓ ${t.county} (${via}): ${records.length} kayıt | ${land.length} real-estate | ${withAcres.length} acreage'lı`);
     perCounty.push({ county: t.county, total: records.length, real_estate: land.length, acreage: withAcres.length });
     grandTotal += records.length;
+    allRecords.push(...records);
     // Land + acreage öncelikli örnekler
     allSamples.push(...withAcres.filter((r) => r.parcel_type === 'real_estate').slice(0, 3));
   }
 
   console.log(`\n📊 TOPLAM: ${grandTotal} kayıt / ${perCounty.length} county taranabildi.`);
+
+  // ── ÇIKTIYI dashboard veri dosyasına yaz (market registry buradan sayıyor) ──
+  const outPath = path.join(__dirname, '..', 'dashboard', 'src', 'data', 'colorado-offmarket.json');
+  fs.writeFileSync(outPath, JSON.stringify({
+    source: 'TAX:CO (county delinquent tax lists)',
+    generatedAt: new Date().toISOString(),
+    count: allRecords.length,
+    perCounty,
+    rows: allRecords,
+  }, null, 2));
+  console.log(`\n💾 ${allRecords.length} kayıt yazıldı → dashboard/src/data/colorado-offmarket.json`);
   if (blocked.length) {
     console.log(`\n🚧 Bloke/erişilemeyen kaynaklar (${blocked.length}):`);
     for (const b of blocked) console.log(`   - ${b.county}: ${b.reason}`);
