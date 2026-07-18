@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { LayoutDashboard, MapPin, MessageSquare, CreditCard, ArrowLeft, BarChart3, Users, CircleDollarSign, Map, Mail, Wallet, Target, Globe, Tv, FileSearch, ChevronLeft, ChevronRight, ChevronDown, Cpu, Brain, TrendingDown, Rocket, Hammer, Calculator, Copy, BellRing, Send, MailPlus, Database, Swords, Radar, Sparkles, ShieldCheck } from "lucide-react";
+import { LayoutDashboard, MapPin, MessageSquare, CreditCard, ArrowLeft, BarChart3, Users, CircleDollarSign, Map, Mail, Wallet, Target, Globe, Tv, FileSearch, ChevronLeft, ChevronRight, ChevronDown, Cpu, Brain, TrendingDown, Rocket, Hammer, Calculator, Copy, BellRing, Send, MailPlus, Database, Swords, Radar, Sparkles, ShieldCheck, Radio } from "lucide-react";
 import { CerberusLogo } from "@/components/DealHoundLogo";
 
 // Ana navigasyon tek operasyon zincirini izler:
@@ -42,6 +42,7 @@ const SECTIONS: { label: string | null; wip?: boolean; items: { href: string; ic
     items: [
       { href: "/admin/apn-sorgula", icon: FileSearch, label: "Parsel İnceleme" },
       { href: "/admin/apn-dogrula", icon: ShieldCheck, label: "APN / County Doğrulama" },
+      { href: "/admin/canli-sorgu", icon: Radio, label: "Canlı County Sorgu" },
       { href: "/admin/off-market-leads", icon: MailPlus, label: "Malik & Outreach" },
     ],
   },
