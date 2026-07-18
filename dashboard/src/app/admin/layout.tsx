@@ -30,6 +30,7 @@ const SECTIONS: { label: string | null; wip?: boolean; items: { href: string; ic
     items: [
       { href: "/admin/markets", icon: Globe, label: "Market Registry" },
       { href: "/admin/mohave", icon: MapPin, label: "Meadview & Golden Valley" },
+      { href: "/admin/luna", icon: MapPin, label: "Luna (NM) Envanteri" },
       { href: "/admin/alinabilir-harita", icon: Map, label: "Fırsat Haritası" },
       { href: "/admin/satilabilir-cekirdek", icon: Target, label: "Doğrulanmış Çekirdek" },
       { href: "/admin/mohave/kampanya", icon: Mail, label: "Mohave Kampanyası" },
