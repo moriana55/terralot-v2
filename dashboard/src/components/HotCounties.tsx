@@ -11,9 +11,15 @@ export function HotCounties() {
   const [counties, setCounties] = useState<County[]>([]);
   const [states, setStates] = useState<State[]>([]);
   const [view, setView] = useState<"county" | "state">("county");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
-    fetch("/api/hot-counties").then((r) => r.json()).then((j) => { setCounties(j.counties || []); setStates(j.states || []); }).catch(() => {});
+    fetch("/api/hot-counties")
+      .then((r) => { if (!r.ok) throw new Error(`API ${r.status}`); return r.json(); })
+      .then((j) => { setCounties(j.counties || []); setStates(j.states || []); setError(false); })
+      .catch(() => setError(true))
+      .finally(() => setLoading(false));
   }, []);
 
   return (
@@ -30,7 +36,7 @@ export function HotCounties() {
       </div>
       <div className="max-h-[420px] overflow-y-auto">
         {view === "county" ? counties.map((c, i) => (
-          <Link key={c.state + c.county} href={`/admin/all-deals?q=${encodeURIComponent(c.county)}`} className="flex items-center gap-3 px-5 py-2.5 border-t transition-colors hover:bg-[var(--surface-low)]" style={{ borderColor: "var(--surface-high)" }}>
+          <Link key={c.state + c.county} href={`/admin/all-deals?county=${encodeURIComponent(c.county)}`} className="flex items-center gap-3 px-5 py-2.5 border-t transition-colors hover:bg-[var(--surface-low)]" style={{ borderColor: "var(--surface-high)" }}>
             <span className="text-xs font-mono w-5 text-center" style={{ color: "var(--muted)" }}>{i + 1}</span>
             <div className="min-w-0 flex-1">
               <p className="font-semibold text-sm truncate flex items-center gap-1.5">
@@ -46,7 +52,7 @@ export function HotCounties() {
             </div>
           </Link>
         )) : states.map((s, i) => (
-          <Link key={s.state} href={`/admin/all-deals`} className="flex items-center gap-3 px-5 py-2.5 border-t transition-colors hover:bg-[var(--surface-low)]" style={{ borderColor: "var(--surface-high)" }}>
+          <Link key={s.state} href={`/admin/all-deals?state=${encodeURIComponent(s.state)}`} className="flex items-center gap-3 px-5 py-2.5 border-t transition-colors hover:bg-[var(--surface-low)]" style={{ borderColor: "var(--surface-high)" }}>
             <span className="text-xs font-mono w-5 text-center" style={{ color: "var(--muted)" }}>{i + 1}</span>
             <div className="min-w-0 flex-1">
               <p className="font-semibold text-sm flex items-center gap-1.5">
@@ -61,7 +67,11 @@ export function HotCounties() {
             </div>
           </Link>
         ))}
-        {counties.length === 0 && <p className="text-center text-sm py-8" style={{ color: "var(--muted)" }}>Yükleniyor…</p>}
+        {loading && <p className="text-center text-sm py-8" style={{ color: "var(--muted)" }}>Yükleniyor…</p>}
+        {!loading && error && <p className="text-center text-sm py-8" style={{ color: "var(--error)" }}>Bölge verileri yüklenemedi.</p>}
+        {!loading && !error && (view === "county" ? counties.length === 0 : states.length === 0) && (
+          <p className="text-center text-sm py-8" style={{ color: "var(--muted)" }}>Bu görünümde bölge bulunamadı.</p>
+        )}
       </div>
     </div>
   );

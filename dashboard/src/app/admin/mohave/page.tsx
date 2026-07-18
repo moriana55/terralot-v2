@@ -38,6 +38,8 @@ for (const r of rows) {
 const avgAcres = rows.length ? rows.reduce((a, r) => a + (r.acres ?? 0), 0) / rows.length : 0;
 const topStates = Object.entries(byState).sort((a, b) => b[1] - a[1]).slice(0, 8);
 const regions = Object.entries(byRegion).sort((a, b) => b[1] - a[1]);
+const meadviewCount = rows.filter((r) => r.region.toLowerCase().includes("meadview")).length;
+const goldenValleyCount = rows.filter((r) => r.region.toLowerCase().includes("golden valley")).length;
 
 // ── Sahibe göre grupla: aynı sahip+adres → tek mektupla toplu teklif hedefi ──
 interface OwnerGroup { owner: string; mail: string; count: number; acres: number; landValue: number; }
@@ -74,8 +76,10 @@ export default function MohavePage() {
       </header>
 
       {/* Özet kartlar — yalnız gerçek parsel verisinden */}
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-6">
         <Stat icon={<Home className="h-4 w-4" />} label="Toplam lot" value={data.count.toLocaleString("en-US")} accent />
+        <Stat icon={<MapPin className="h-4 w-4" />} label="Meadview odağı" value={meadviewCount.toLocaleString("en-US")} accent />
+        <Stat icon={<MapPin className="h-4 w-4" />} label="Golden Valley odağı" value={goldenValleyCount.toLocaleString("en-US")} accent />
         <Stat icon={<MapPin className="h-4 w-4" />} label="Ort. acre" value={`${avgAcres.toFixed(2)} acre`} />
         <Stat icon={<TrendingUp className="h-4 w-4" />} label="Bölge sayısı" value={`${regions.length} bölge`} />
         <Stat icon={<Globe className="h-4 w-4" />} label="Sahip eyaleti" value={`${Object.keys(byState).length} eyalet`} />

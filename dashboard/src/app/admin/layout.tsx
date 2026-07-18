@@ -6,58 +6,69 @@ import { useState } from "react";
 import { LayoutDashboard, MapPin, MessageSquare, CreditCard, ArrowLeft, BarChart3, Users, CircleDollarSign, Map, Mail, Wallet, Target, Globe, Tv, FileSearch, ChevronLeft, ChevronRight, ChevronDown, Cpu, Brain, TrendingDown, Rocket, Hammer, Calculator, Copy, BellRing, Send, MailPlus, Database, Swords, Radar, Sparkles, ShieldCheck } from "lucide-react";
 import { CerberusLogo } from "@/components/DealHoundLogo";
 
-// `wip: true` = mock/uydurma veri içeren gruplar. Müşteri (Ahmet) görünümünde
-// gizli; sadece NEXT_PUBLIC_SHOW_WIP="1" iken (geliştirici) görünür.
+// Ana navigasyon tek operasyon zincirini izler:
+// radar → aktif pazar → satın alma → envanter/satış → sonuç.
+// `wip: true` grubu route'ları silmeden ana operasyondan park eder; yalnızca
+// NEXT_PUBLIC_SHOW_WIP="1" iken geliştirici/Lab görünümünde gösterilir.
 const SECTIONS: { label: string | null; wip?: boolean; items: { href: string; icon: typeof MapPin; label: string }[] }[] = [
   {
     label: null,
     items: [
-      { href: "/admin", icon: LayoutDashboard, label: "Dashboard" },
+      { href: "/admin", icon: LayoutDashboard, label: "Operasyon Özeti" },
+    ],
+  },
+  {
+    label: "1 · Market Radar",
+    items: [
+      { href: "/admin/all-deals", icon: Target, label: "Ulusal Fırsatlar" },
+      { href: "/admin/data-coverage", icon: Database, label: "Veri Kapsamı" },
+      { href: "/admin/pazar-ortusme", icon: Radar, label: "Rakip & Pazar" },
+    ],
+  },
+  {
+    label: "2 · Aktif Pazar · Mohave",
+    items: [
+      { href: "/admin/markets", icon: Globe, label: "Market Registry" },
+      { href: "/admin/mohave", icon: MapPin, label: "Meadview & Golden Valley" },
+      { href: "/admin/alinabilir-harita", icon: Map, label: "Fırsat Haritası" },
+      { href: "/admin/satilabilir-cekirdek", icon: Target, label: "Doğrulanmış Çekirdek" },
+      { href: "/admin/mohave/kampanya", icon: Mail, label: "Mohave Kampanyası" },
+    ],
+  },
+  {
+    label: "3 · Satın Alma",
+    items: [
+      { href: "/admin/apn-sorgula", icon: FileSearch, label: "Parsel İnceleme" },
+      { href: "/admin/apn-dogrula", icon: ShieldCheck, label: "APN / County Doğrulama" },
+      { href: "/admin/off-market-leads", icon: MailPlus, label: "Malik & Outreach" },
+    ],
+  },
+  {
+    label: "4 · Envanter & Satış",
+    items: [
+      { href: "/admin/satis-sayfalari", icon: Globe, label: "Satış Sayfaları" },
+      { href: "/admin/owner-finance", icon: CircleDollarSign, label: "Owner-Finance · Beta" },
+      { href: "/admin/talepler", icon: MessageSquare, label: "Alıcı Talepleri" },
+      { href: "/admin/payments", icon: CreditCard, label: "Tahsilatlar · Beta" },
+    ],
+  },
+  {
+    label: "5 · Raporlar",
+    items: [
+      { href: "/admin/portfoy", icon: BarChart3, label: "Portföy & KPI" },
+    ],
+  },
+  {
+    label: "🧪 Lab · Park Edilenler",
+    wip: true,
+    items: [
       { href: "/admin/sunum", icon: Sparkles, label: "Sunum" },
       { href: "/admin/sistem", icon: Brain, label: "Sistem & Yöntem" },
       { href: "/admin/presentation", icon: Tv, label: "Pitch & Plan" },
-    ],
-  },
-  {
-    label: "✅ Canlı · Gerçek Veri",
-    items: [
-      // Ucuz Boş Arsa = amiral akış girişi (parsel → Değerle → Mektup At →
-      // Owner-Finance ile Sat). Bu CTA'lar SADECE ucuz-arsa/[id]'de olduğu için
-      // sayfa nav'da TUTULUR (2026-06-29 kaldırılmıştı, demo erişimi için geri
-      // eklendi — elle URL yazma derdi olmasın). Gerçek Dealler/Mohave alt
-      // kümeleri Tüm Dealler "Kaynak" filtresinde. Deal Map kaldırıldı: eski
-      // popup judgment'ı "Değer" diye gösteriyordu (Alınabilir Harita doğrusu).
-      { href: "/admin/all-deals", icon: Target, label: "Tüm Dealler (Filtre)" },
-      { href: "/admin/apn-sorgula", icon: FileSearch, label: "APN Sorgula" },
-      { href: "/admin/apn-dogrula", icon: ShieldCheck, label: "APN/TRS Doğrulama (bizim veri vs county)" },
-      { href: "/admin/satilabilir-cekirdek", icon: Target, label: "Satılabilir Çekirdek" },
-      { href: "/admin/ucuz-arsa", icon: MapPin, label: "Ucuz Boş Arsa (Değerle→Mektup→Sat)" },
-      { href: "/admin/alinabilir-harita", icon: Map, label: "Alınabilir Harita" },
-      { href: "/admin/mohave/kampanya", icon: Mail, label: "Mektup Kampanyası (Mohave)" },
-      { href: "/admin/satis-sayfalari", icon: Globe, label: "Satış Sayfaları (/p linkleri)" },
-      { href: "/admin/off-market-leads", icon: MailPlus, label: "Vergi-Borçlu Lead'ler" },
-      { href: "/admin/data-coverage", icon: Database, label: "Veri Kapsama & Kalite" },
-      { href: "/admin/talepler", icon: MessageSquare, label: "Alıcı Talepleri" },
-      { href: "/admin/portfoy", icon: BarChart3, label: "Portföy / KPI" },
       { href: "/admin/scraper", icon: Cpu, label: "Cerberus Botları" },
-    ],
-  },
-  {
-    label: "⚔️ Rakip İstihbaratı",
-    items: [
-      { href: "/admin/pazar-ortusme", icon: Swords, label: "Rakip vs Envanter" },
-      { href: "/admin/rakip-radar", icon: Radar, label: "Rakip Radar (satış takibi)" },
-      { href: "/admin/competitor-radar", icon: Radar, label: "Rakip Satış Radarı (manzara+PropStream)" },
-      { href: "/admin/rakip-defteri", icon: Swords, label: "Rakip Defteri (aldı/sattı/taksit)" },
-    ],
-  },
-  {
-    label: "🚧 Geliştiriliyor",
-    wip: true,
-    items: [
-      // Piyasa İlanları görünür menüden WIP'e alındı (2026-07-06): tek veri
-      // kaynağı ZILLOW% satırları, yani devre dışı bırakılan sahte scraper'ın
-      // kalıntısı — gerçek rakip verisi Rakip Radar / Rakip vs Envanter'de.
+      { href: "/admin/rakip-radar", icon: Radar, label: "Rakip Radar" },
+      { href: "/admin/competitor-radar", icon: Radar, label: "Rakip Satış Radarı" },
+      { href: "/admin/rakip-defteri", icon: Swords, label: "Rakip Defteri" },
       { href: "/admin/market-listings", icon: CircleDollarSign, label: "Piyasa İlanları (eski veri)" },
       { href: "/admin/cerberus", icon: Brain, label: "Cerberus Intel" },
       { href: "/admin/acquisitions", icon: Target, label: "Acquisitions" },
@@ -73,17 +84,9 @@ const SECTIONS: { label: string | null; wip?: boolean; items: { href: string; ic
       { href: "/admin/flip-sim", icon: Calculator, label: "Flip Simülatörü" },
       { href: "/admin/listings", icon: MapPin, label: "Listings" },
       { href: "/admin/leads", icon: MessageSquare, label: "Leads" },
-      { href: "/admin/owner-finance", icon: CircleDollarSign, label: "OF Pazaryeri" },
-      { href: "/admin/payments", icon: CreditCard, label: "Payments" },
       { href: "/admin/analytics", icon: BarChart3, label: "Financials" },
       { href: "/admin/contacts", icon: Users, label: "Contacts" },
       { href: "/admin/mailer", icon: Mail, label: "Direct Mail" },
-    ],
-  },
-  {
-    label: "🔒 Yakında (kilitli)",
-    wip: true,
-    items: [
       { href: "/admin/financing", icon: Wallet, label: "Owner Finance" },
       { href: "/admin/referrals", icon: CircleDollarSign, label: "Referrals" },
     ],

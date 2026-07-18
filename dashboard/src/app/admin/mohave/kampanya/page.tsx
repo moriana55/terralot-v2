@@ -204,7 +204,7 @@ export default function MohaveKampanyaPage() {
         <p className="mt-1 max-w-3xl text-sm" style={{ color: "var(--muted)" }}>
           Segment seç → aynı sahip + aynı posta adresi <strong>tek mektupta birleşir</strong> (dedupe) →
           Lob-uyumlu CSV indir. Kaynak: <Link href="/admin/mohave" className="underline" style={{ color: GREEN }}>Mohave Off-Market envanteri</Link>{" "}
-          ({s ? s.sourceRows.toLocaleString("en-US") : "…"} parsel).
+          ({s ? `${s.sourceRows.toLocaleString("en-US")} parsel` : "parsel sayısı yükleniyor"}).
         </p>
       </header>
 

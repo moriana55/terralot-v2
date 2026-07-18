@@ -10,14 +10,19 @@ import { UpcomingSales } from "./scraper/UpcomingSales";
 import { GrowthCatalysts } from "@/components/GrowthCatalysts";
 import { HotCounties } from "@/components/HotCounties";
 
-interface Stats { total: number; available: number; pending: number; sold: number; totalValue: number; }
 interface Funnel { total: number; evaluable: number; states: number; counties: number; score70: number; struckOff: number; }
 interface Deal { id: string; state: string; county: string; minimum_bid: number | null; judgment_amount: number | null; final_score: number | null; road_access: string | null; }
+interface PortfolioSummary {
+  tracking: {
+    available: boolean; totalTracked: number; capitalDeployed: number;
+    realizedSpread: number; realizedDeals: number; listedValue: number;
+  };
+}
 
 const money = (n: number | null | undefined) => (n == null ? "—" : `$${Math.round(n).toLocaleString()}`);
 
 export default function AdminDashboard() {
-  const [stats, setStats] = useState<Stats | null>(null);
+  const [portfolio, setPortfolio] = useState<PortfolioSummary | null>(null);
   const [funnel, setFunnel] = useState<Funnel | null>(null);
   const [deals, setDeals] = useState<Deal[]>([]);
   const [fresh, setFresh] = useState<Deal[]>([]);
@@ -28,24 +33,15 @@ export default function AdminDashboard() {
     (async () => {
       try {
         const since = new Date(Date.now() - 36 * 3600000).toISOString();
-        const [{ properties: props }, { data: top }, { data: newDeals }, f] = await Promise.all([
-          fetch("/api/admin/property?view=stats").then((r) => r.json()).catch(() => ({ properties: null })),
+        const [portfolioSummary, { data: top }, { data: newDeals }, f] = await Promise.all([
+          fetch("/api/admin/portfolio-summary").then((r) => r.json()).catch(() => null),
           // ZILLOW% hariç: sahte scraper kalıntısı satırlar dashboard vitrinine çıkmasın.
           supabase.from("tax_delinquent_properties").select("id,state,county,minimum_bid,judgment_amount,final_score,road_access").not("source", "like", "ZILLOW%").order("final_score", { ascending: false, nullsFirst: false }).limit(6),
           supabase.from("tax_delinquent_properties").select("id,state,county,minimum_bid,judgment_amount,final_score,road_access").not("source", "like", "ZILLOW%").gt("created_at", since).gte("final_score", 45).order("final_score", { ascending: false, nullsFirst: false }).limit(6),
           fetch("/api/acquisition-stats").then((r) => r.json()).catch(() => null),
         ]);
         if (newDeals) setFresh(newDeals as Deal[]);
-        if (props) {
-          const list = props as Array<{ status?: string; price?: number }>;
-          setStats({
-            total: list.length,
-            available: list.filter((p) => p.status === "AVAILABLE").length,
-            pending: list.filter((p) => p.status === "PENDING").length,
-            sold: list.filter((p) => p.status === "SOLD").length,
-            totalValue: list.reduce((s, p) => s + (p.price || 0), 0),
-          });
-        }
+        if (portfolioSummary) setPortfolio(portfolioSummary as PortfolioSummary);
         if (top) setDeals(top as Deal[]);
         if (f) setFunnel(f);
       } catch (e) {
@@ -75,7 +71,7 @@ export default function AdminDashboard() {
               <p className="text-[11px] mt-0.5" style={{ color: "rgba(244,247,251,0.55)" }}>Cerberus · canlı deal akışı</p>
             </div>
             <Link href="/admin/all-deals" className="hidden sm:inline-flex items-center gap-1.5 text-xs font-semibold px-3.5 py-2 rounded-lg transition-opacity hover:opacity-90" style={{ background: "#8ed1df", color: "#06202b" }}>
-              En iyi deal'ler <ArrowRight className="w-3.5 h-3.5" />
+              En iyi deal&apos;ler <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
 
@@ -108,11 +104,10 @@ export default function AdminDashboard() {
           </div>
           <div className="flex gap-3 overflow-x-auto px-5 py-3">
             {fresh.map((d) => {
-              const disc = d.judgment_amount && d.minimum_bid ? Math.round(((d.judgment_amount - d.minimum_bid) / d.judgment_amount) * 100) : null;
               return (
                 <Link key={d.id} href={`/admin/all-deals?q=${encodeURIComponent(d.county)}`} className="shrink-0 w-44 rounded-lg p-3 border transition-colors hover:bg-[var(--surface-low)]" style={{ borderColor: "var(--surface-high)" }}>
                   <div className="flex items-center gap-2 mb-1"><ScoreBadge score={d.final_score} size={28} /><span className="text-xs font-semibold truncate">{d.county}, {d.state}</span></div>
-                  <p className="text-[11px]" style={{ color: "var(--muted)" }}>{money(d.minimum_bid)}{disc != null ? ` · -${disc}%` : ""}</p>
+                  <p className="text-[11px]" style={{ color: "var(--muted)" }}>Min bid {money(d.minimum_bid)}</p>
                 </Link>
               );
             })}
@@ -123,10 +118,10 @@ export default function AdminDashboard() {
       {/* ── Portfolio stats ── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: "Portföy değeri", value: stats ? money(stats.totalValue) : "—", icon: TrendingUp, c: "var(--grade-a)" },
-          { label: "Satışta", value: stats?.available ?? "—", icon: MapPin, c: "var(--accent-ink)" },
-          { label: "Beklemede", value: stats?.pending ?? "—", icon: Layers, c: "var(--warn)" },
-          { label: "Satıldı", value: stats?.sold ?? "—", icon: CheckCircle2, c: "var(--grade-a)" },
+          { label: "Yatırılan sermaye", value: portfolio?.tracking.available ? money(portfolio.tracking.capitalDeployed) : "Veri yok", icon: TrendingUp, c: "var(--grade-a)" },
+          { label: "Listelenen değer", value: portfolio?.tracking.available ? money(portfolio.tracking.listedValue) : "Veri yok", icon: MapPin, c: "var(--accent-ink)" },
+          { label: "Gerçekleşen spread", value: portfolio?.tracking.available ? money(portfolio.tracking.realizedSpread) : "Veri yok", icon: CheckCircle2, c: "var(--grade-a)" },
+          { label: "Takipteki deal", value: portfolio?.tracking.available ? portfolio.tracking.totalTracked : "Veri yok", icon: Layers, c: "var(--warn)" },
         ].map((s) => (
           <div key={s.label} className="rounded-xl border p-4" style={{ background: "var(--surface)", borderColor: "var(--surface-high)" }}>
             <div className="flex items-center gap-2 mb-2">
@@ -143,7 +138,7 @@ export default function AdminDashboard() {
         <div className="flex items-center justify-between px-5 py-4 border-b" style={{ borderColor: "var(--surface-high)" }}>
           <div className="flex items-center gap-2">
             <Target className="w-4 h-4" style={{ color: "var(--accent-ink)" }} />
-            <h2 className="font-bold text-sm">Günün en iyi deal'leri</h2>
+            <h2 className="font-bold text-sm">Günün en iyi deal&apos;leri</h2>
           </div>
           <Link href="/admin/all-deals" className="text-xs font-semibold inline-flex items-center gap-1" style={{ color: "var(--accent-ink)" }}>
             Tümü <ArrowRight className="w-3 h-3" />
@@ -154,24 +149,17 @@ export default function AdminDashboard() {
         ) : (
           <div>
             {deals.map((d) => {
-              const disc = d.judgment_amount && d.minimum_bid ? Math.round(((d.judgment_amount - d.minimum_bid) / d.judgment_amount) * 100) : null;
               return (
                 <div key={d.id} className="flex items-center gap-4 px-5 py-3 border-t transition-colors hover:bg-[var(--surface-low)]" style={{ borderColor: "var(--surface-high)" }}>
                   <ScoreBadge score={d.final_score} size={38} />
                   <div className="min-w-0 flex-1">
                     <p className="font-semibold text-sm truncate">{d.county}, {d.state}</p>
                     <p className="text-[11px] mt-0.5 flex items-center gap-2 flex-wrap" style={{ color: "var(--muted)" }}>
-                      Teklif <strong style={{ color: "var(--foreground)" }}>{money(d.minimum_bid)}</strong>
-                      · Değer <strong style={{ color: "var(--foreground)" }}>{money(d.judgment_amount)}</strong>
+                      Min bid <strong style={{ color: "var(--foreground)" }}>{money(d.minimum_bid)}</strong>
+                      · Judgment/borç <strong style={{ color: "var(--foreground)" }}>{money(d.judgment_amount)}</strong>
                       {d.road_access === "landlocked" && <span style={{ color: "var(--danger)" }}>· landlocked</span>}
                     </p>
                   </div>
-                  {disc != null && disc > 0 && (
-                    <div className="text-right shrink-0">
-                      <p className="text-base font-extrabold tabular-nums" style={{ color: "var(--grade-a)" }}>-{disc}%</p>
-                      <p className="text-[9px] uppercase tracking-wider" style={{ color: "var(--muted)" }}>indirim</p>
-                    </div>
-                  )}
                 </div>
               );
             })}

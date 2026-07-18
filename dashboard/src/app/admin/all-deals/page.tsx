@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import {
   SlidersHorizontal, RotateCcw, Download, Loader2, MapPin, ExternalLink,
   ChevronLeft, ChevronRight, Search, ShieldCheck, X, MailPlus,
@@ -61,10 +62,19 @@ const SOURCE_COLOR: Record<string, string> = {
 };
 
 export default function AllDealsPage() {
-  const [state, setState] = useState("");
-  const [source, setSource] = useState("");
-  const [county, setCounty] = useState("");
-  const [q, setQ] = useState("");
+  return (
+    <Suspense fallback={<div className="p-8 text-sm" style={{ color: "var(--muted)" }}>Filtreler yükleniyor…</div>}>
+      <AllDealsContent />
+    </Suspense>
+  );
+}
+
+function AllDealsContent() {
+  const searchParams = useSearchParams();
+  const [state, setState] = useState(() => searchParams.get("state") ?? "");
+  const [source, setSource] = useState(() => searchParams.get("source") ?? "");
+  const [county, setCounty] = useState(() => searchParams.get("county") ?? "");
+  const [q, setQ] = useState(() => searchParams.get("q") ?? "");
   const [minAcres, setMinAcres] = useState("");
   const [maxAcres, setMaxAcres] = useState("");
   const [minValue, setMinValue] = useState("");
@@ -148,8 +158,8 @@ export default function AllDealsPage() {
   }, [state, source, county, q, minAcres, maxAcres, minValue, maxValue, minSpread, absentee, onlyComp, mhOnly, gradeFilter, sort, dir, page]);
 
   useEffect(() => {
-    setLoading(true);
     const t = setTimeout(() => {
+      setLoading(true);
       fetch(`/api/admin/all-deals?${qs}`)
         .then((r) => r.json())
         .then((d: ApiResp) => { setData(d); setLoading(false); })
@@ -159,8 +169,10 @@ export default function AllDealsPage() {
   }, [qs]);
 
   // reset to page 1 when any filter (not page) changes
-  useEffect(() => { setPage(1); },
-    [state, source, county, q, minAcres, maxAcres, minValue, maxValue, minSpread, absentee, onlyComp, mhOnly, gradeFilter, sort, dir]);
+  useEffect(() => {
+    const t = setTimeout(() => setPage(1), 0);
+    return () => clearTimeout(t);
+  }, [state, source, county, q, minAcres, maxAcres, minValue, maxValue, minSpread, absentee, onlyComp, mhOnly, gradeFilter, sort, dir]);
 
   const reset = () => {
     setState(""); setSource(""); setCounty(""); setQ("");

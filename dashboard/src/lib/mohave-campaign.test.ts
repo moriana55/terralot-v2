@@ -187,16 +187,17 @@ test("En İyi 750: havuz N'den küçükse hepsi seçilir (crash yok)", () => {
 
 test("En İyi 750: dedupe etkileşimi — aynı sahip birden çok parselle top-750'de olursa mektup < parsel", () => {
   const rows: MohaveRow[] = [
-    // Aynı sahip + adres, 3 parsel — hepsi top-N'e girecek kadar yüksek skorlu (küçük acre, ucuz).
-    scoredRow("1", { owner: "PORTFOLIO LLC", mailing_address: "1 MAIN ST", acres: 1.5, land_value: 100 }),
-    scoredRow("2", { owner: "PORTFOLIO LLC", mailing_address: "1 MAIN ST", acres: 1.5, land_value: 100 }),
-    scoredRow("3", { owner: "PORTFOLIO LLC", mailing_address: "1 MAIN ST", acres: 1.5, land_value: 100 }),
+    // Aynı bireysel sahip + adres, 3 parsel — kurumsal/balina filtresine takılmadan
+    // hepsi top-N'e girecek kadar yüksek skorlu (küçük acre, ucuz).
+    scoredRow("1", { owner: "JANE LANDER", mailing_address: "1 MAIN ST", acres: 1.5, land_value: 100 }),
+    scoredRow("2", { owner: "JANE LANDER", mailing_address: "1 MAIN ST", acres: 1.5, land_value: 100 }),
+    scoredRow("3", { owner: "JANE LANDER", mailing_address: "1 MAIN ST", acres: 1.5, land_value: 100 }),
     scoredRow("4", { owner: "SOLO OWNER", mailing_address: "9 SOLO ST", acres: 1.5, land_value: 100 }),
   ];
   const c = buildTop750Campaign(rows, 4);
   assert.equal(c.consideredParcels, 4);
   assert.equal(c.parcels, 4); // tüm parseller kapsanıyor
-  assert.equal(c.letters.length, 2); // ama PORTFOLIO LLC tek mektupta birleşiyor → 4 parsel, 2 mektup
+  assert.equal(c.letters.length, 2); // ama JANE LANDER tek mektupta birleşiyor → 4 parsel, 2 mektup
 });
 
 test("En İyi 750: adres eksik parsel top-N'e girse bile mektup listesine düşmez, skippedNoAddress'te sayılır", () => {

@@ -15,7 +15,12 @@ export async function GET(req: NextRequest) {
   const s = supabaseAdmin();
   const TABLE = "tax_delinquent_properties";
 
-  const base = () => s.from(TABLE).select("*", { count: "exact", head: true });
+  // Dashboard ve Hot Counties ile aynı evren: eski sahte ZILLOW scraper
+  // kalıntıları hariç, canonical `final_score` alanı üzerinden say.
+  const base = () => s
+    .from(TABLE)
+    .select("*", { count: "exact", head: true })
+    .not("source", "like", "ZILLOW%");
   const count = async (apply?: (q: ReturnType<typeof base>) => unknown) => {
     let q = base();
     if (apply) q = apply(q) as ReturnType<typeof base>;
@@ -25,10 +30,10 @@ export async function GET(req: NextRequest) {
 
   const [total, evaluable, score45, score70, score90, struckOff, withOwner, taxCount] = await Promise.all([
     count(),
-    count((q) => q.not("deal_score", "is", null).gt("deal_score", 0)),
-    count((q) => q.gte("deal_score", 45)),
-    count((q) => q.gte("deal_score", 70)),
-    count((q) => q.gte("deal_score", 90)),
+    count((q) => q.not("final_score", "is", null).gt("final_score", 0)),
+    count((q) => q.gte("final_score", 45)),
+    count((q) => q.gte("final_score", 70)),
+    count((q) => q.gte("final_score", 90)),
     count((q) => q.like("source", "%STRUCK%")),
     count((q) => q.not("owner_name", "is", null)),
     count((q) => q.like("source", "TAX:%")),
@@ -39,7 +44,11 @@ export async function GET(req: NextRequest) {
   const states = new Set<string>();
   let from = 0;
   for (;;) {
-    const { data } = await s.from(TABLE).select("county,state").range(from, from + 999);
+    const { data } = await s
+      .from(TABLE)
+      .select("county,state")
+      .not("source", "like", "ZILLOW%")
+      .range(from, from + 999);
     if (!data || data.length === 0) break;
     for (const r of data) {
       if (r.county) counties.add(`${r.state || ""}/${r.county}`);
