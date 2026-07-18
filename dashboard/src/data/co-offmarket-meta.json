@@ -1,0 +1,25 @@
+{
+  "generatedAt": "2026-07-18T19:31:25.106Z",
+  "note": "CO açık ArcGIS kaynak sayaçları (registry için hafif — dev JSON row dumpları import edilmez)",
+  "sources": {
+    "colorado": {
+      "count": 399,
+      "source": "Colorado Public Parcels (statewide ArcGIS)",
+      "generatedAt": "2026-07-18T17:18:08.371Z",
+      "state": "CO"
+    },
+    "co-costilla": {
+      "count": 31234,
+      "source": "Costilla County ArcGIS (FGDB May Update)",
+      "generatedAt": "2026-07-18T17:35:12.724Z",
+      "state": "CO"
+    },
+    "co-lasanimas": {
+      "count": 1610,
+      "source": "Las Animas County ArcGIS (LasAnimasParcels)",
+      "generatedAt": "2026-07-18T17:34:49.651Z",
+      "state": "CO"
+    }
+  },
+  "coloradoTotal": 33243
+}

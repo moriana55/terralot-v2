@@ -4,9 +4,9 @@
 // 5 EYALET OFF-MARKET HARİTASI — NM · AZ · CO · TX · FL beş hedef eyalette
 // off-market envanterimizi TEK haritada DÜRÜSTÇE gösterir.
 //   AZ · Mohave   → 20.000 lead, ~19.9K'sında GERÇEK lat/lng → gerçek nokta.
-//   NM · Luna     → 157 lead ama koordinat YOK → tek county pini (Deming merkezi).
-//   CO/TX/FL      → 0 kullanılabilir lead → içi boş "hedef" işareti (PropStream bekliyor).
-// Sahte koordinat SERPİLMEZ — koordinatsız veri nokta olarak çizilmez.
+//   NM · Valencia+Luna → ~69.2K lead (açık ArcGIS) ama koordinat YOK → county pini.
+//   CO/TX/FL      → açık ArcGIS'ten ~33.2K/22.8K/49.9K lead yüklü (Supabase offmarket_leads),
+//                   çoğu koordinatsız → county footprint pini. Sahte koordinat SERPİLMEZ.
 // Harita altyapısı: react-leaflet (mevcut deals-map.tsx ile aynı; yeni kütüphane yok).
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -39,10 +39,10 @@ const TARGETS: TargetState[] = [
 type Legend = { color: string; label: string; sub: string; dashed?: boolean; pin?: boolean };
 const LEGEND: Legend[] = [
   { color: "#059669", label: "AZ · Mohave", sub: `${AZ_LEADS.toLocaleString("en-US")} lead · gerçek koordinat` },
-  { color: "#2563eb", label: "NM · Luna", sub: `${NM_LUNA_LEADS} lead · county pini (koordinat yok)`, pin: true },
-  { color: "#dc2626", label: "CO · Costilla", sub: "0 lead · PropStream bekliyor", dashed: true },
-  { color: "#d97706", label: "TX · Horizon", sub: "0 lead · PropStream bekliyor", dashed: true },
-  { color: "#7c3aed", label: "FL · Highlands", sub: "0 lead · PropStream bekliyor", dashed: true },
+  { color: "#2563eb", label: "NM · Valencia+Luna", sub: "~69.2K lead · açık ArcGIS (koordinat yok)", pin: true },
+  { color: "#dc2626", label: "CO · Costilla+Las Animas", sub: "~33.2K lead · açık ArcGIS (county pini)", dashed: true },
+  { color: "#d97706", label: "TX · Hudspeth+Trans-Pecos", sub: "~22.8K lead · CAD ArcGIS (county pini)", dashed: true },
+  { color: "#7c3aed", label: "FL · Charlotte+Highlands", sub: "~49.9K lead · açık ArcGIS (county pini)", dashed: true },
 ];
 
 export default function OffMarketHaritaPage() {
