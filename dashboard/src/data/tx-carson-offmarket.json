@@ -1,0 +1,9 @@
+{
+  "generatedAt": "2026-07-19T03:48:36.053Z",
+  "count": 0,
+  "state": "TX",
+  "county": "Carson",
+  "source": "Carson CAD (ArcGIS FeatureServer)",
+  "filter": "imprv_val=0 AND land_val>0 AND land_val<=20000 AND legal_acreage>=0.3 AND legal_acreage<=40",
+  "rows": []
+}
