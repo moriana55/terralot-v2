@@ -23,6 +23,7 @@ const SECTIONS: { label: string | null; wip?: boolean; items: { href: string; ic
       { href: "/admin/all-deals", icon: Target, label: "Ulusal Fırsatlar" },
       { href: "/admin/data-coverage", icon: Database, label: "Veri Kapsamı" },
       { href: "/admin/pazar-ortusme", icon: Radar, label: "Rakip & Pazar" },
+      { href: "/admin/rakip-istihbarat", icon: Swords, label: "Rakip İstihbaratı" },
     ],
   },
   {
