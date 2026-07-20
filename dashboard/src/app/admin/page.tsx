@@ -28,6 +28,17 @@ export default function AdminDashboard() {
   const [fresh, setFresh] = useState<Deal[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  // TEK GERÇEK KAYNAK — 5 eyalet off-market envanteri (359K). Harita/Ulusal Fırsatlar
+  // ile birebir aynı sayı; vergi-borçlu (28K) AYRI bir kanaldır, karıştırılmaz.
+  const [env, setEnv] = useState<{ total: number; byState: Array<{ state: string; color: string; count: number }> } | null>(null);
+  useEffect(() => {
+    let alive = true;
+    fetch("/api/admin/offmarket-breakdown")
+      .then((r) => r.json())
+      .then((d) => { if (alive && typeof d.total === "number") setEnv(d); })
+      .catch(() => {});
+    return () => { alive = false; };
+  }, []);
 
   useEffect(() => {
     (async () => {
@@ -75,10 +86,37 @@ export default function AdminDashboard() {
             </Link>
           </div>
 
-          {/* funnel inline */}
-          <div className="mt-5 grid grid-cols-2 md:grid-cols-5 gap-px rounded-xl overflow-hidden" style={{ background: "rgba(255,255,255,0.06)" }}>
+          {/* 5 EYALET OFF-MARKET ENVANTERİ — amiral rakam (harita/Ulusal Fırsatlar ile aynı) */}
+          <div className="mt-5 rounded-xl p-4" style={{ background: "rgba(98,227,154,0.08)", border: "1px solid rgba(98,227,154,0.22)" }}>
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-[0.18em]" style={{ color: "#8ff0bb" }}>5 Eyalet · Off-Market Envanteri</p>
+                <p className="mt-0.5 text-3xl font-black font-mono leading-none" style={{ color: "#eafff3" }}>{(env?.total ?? 359542).toLocaleString("en-US")}</p>
+                <p className="text-[10px] mt-1" style={{ color: "rgba(244,247,251,0.5)" }}>owner + posta adresli lead · TX · FL · NM · CO · AZ</p>
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {(env?.byState ?? [
+                  { state: "TX", color: "#d97706", count: 153093 },
+                  { state: "FL", color: "#7c3aed", count: 84044 },
+                  { state: "NM", color: "#2563eb", count: 69162 },
+                  { state: "CO", color: "#dc2626", count: 33243 },
+                  { state: "AZ", color: "#059669", count: 20000 },
+                ]).map((s) => (
+                  <div key={s.state} className="flex items-center gap-1.5 rounded-md px-2 py-1" style={{ background: "rgba(10,20,45,0.5)" }}>
+                    <span className="h-2 w-2 rounded-full" style={{ background: s.color }} />
+                    <span className="text-[11px] font-bold" style={{ color: "#f4f7fb" }}>{s.state}</span>
+                    <span className="text-[11px] font-mono" style={{ color: "rgba(244,247,251,0.6)" }}>{s.count.toLocaleString("en-US")}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* funnel inline — VERGİ-BORÇLU tarama hunisi (off-market'ten AYRI kanal) */}
+          <p className="mt-4 text-[10px] uppercase tracking-[0.16em]" style={{ color: "rgba(244,247,251,0.4)" }}>Vergi-borçlu tarama hunisi · ayrı kanal</p>
+          <div className="mt-1.5 grid grid-cols-2 md:grid-cols-5 gap-px rounded-xl overflow-hidden" style={{ background: "rgba(255,255,255,0.06)" }}>
             {[
-              { label: "Toplam lead", value: funnel?.total, c: "#8ed1df" },
+              { label: "Vergi-borçlu kayıt", value: funnel?.total, c: "#8ed1df" },
               { label: "Değerlenebilir", value: funnel?.evaluable, c: "#7fd6e8" },
               { label: "Sıcak (A+/A)", value: funnel?.score70, c: "#62e39a" },
               { label: "Struck-off", value: funnel?.struckOff, c: "#ffc24d" },

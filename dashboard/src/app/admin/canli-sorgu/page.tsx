@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * CANLI COUNTY SORGU — 195K statik lead DIŞINDA, kullanıcı istediğinde bir
+ * CANLI COUNTY SORGU — 360K statik lead DIŞINDA, kullanıcı istediğinde bir
  * county'nin parsel verisini O AN sorgular. Sonuç doğrudan county ArcGIS'inden
  * gelir (dürüst canlı sorgu); istenirse offmarket_leads'e kaydedilir.
  *
@@ -114,7 +114,7 @@ export default function CanliSorguPage() {
         <div>
           <h1 className="text-xl font-bold" style={{ color: "var(--foreground)" }}>Canlı County Sorgu</h1>
           <p className="text-sm mt-0.5" style={{ color: "var(--muted)" }}>
-            Statik 195K lead dışında — seçili county'nin parsel servisine <b>o an</b> sorgu atar.
+            Statik 360K lead dışında — seçili county'nin parsel servisine <b>o an</b> sorgu atar.
             Sonuç doğrudan county ArcGIS'inden gelir; istediğini offmarket_leads'e kaydet.
           </p>
         </div>

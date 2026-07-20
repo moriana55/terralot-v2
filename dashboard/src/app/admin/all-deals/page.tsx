@@ -102,6 +102,19 @@ function AllDealsContent() {
   const [title, setTitle] = useState<AttomTitle | null>(null);
   const [titleLoading, setTitleLoading] = useState(false);
 
+  // TEK GERÇEK KAYNAK — 5 eyalet toplam off-market envanteri (359K). Bu ekrandaki
+  // "Tüm Dealler" = o envanterin HARİTALANMIŞ & SKORLANMIŞ alt kümesi. Banner ikisini
+  // net ayırır ki harita 153K derken burada 286 görünmesi çelişki gibi durmasın.
+  const [env, setEnv] = useState<{ total: number; byState: Array<{ state: string; label: string; color: string; count: number }> } | null>(null);
+  useEffect(() => {
+    let alive = true;
+    fetch("/api/admin/offmarket-breakdown")
+      .then((r) => r.json())
+      .then((d) => { if (alive && typeof d.total === "number") setEnv(d); })
+      .catch(() => {});
+    return () => { alive = false; };
+  }, []);
+
   const loadAttom = async (d: Deal) => {
     if (d.lat == null || d.lng == null) return;
     setAttom(null); setAttomLoading(true);
@@ -206,19 +219,48 @@ function AllDealsContent() {
 
   return (
     <div className="space-y-5 p-6">
+      {/* 5 EYALET OFF-MARKET ENVANTERİ — tek gerçek kaynak (359K). Bu ekrandaki
+          deal listesi bu envanterin işlenmiş/skorlanmış alt kümesidir. */}
+      <div className="rounded-2xl border p-4" style={{ borderColor: "rgba(5,150,105,0.28)", background: "linear-gradient(180deg, rgba(5,150,105,0.07), rgba(5,150,105,0.02))" }}>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <div className="text-[11px] font-bold uppercase tracking-[0.18em] text-emerald-700">5 Eyalet · Off-Market Envanteri</div>
+            <div className="mt-0.5 flex items-baseline gap-2">
+              <span className="text-3xl font-black tabular-nums text-slate-900">{(env?.total ?? 359542).toLocaleString("en-US")}</span>
+              <span className="text-sm text-slate-500">owner + posta adresli lead</span>
+            </div>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {(env?.byState ?? [
+              { state: "TX", label: "Texas", color: "#d97706", count: 153093 },
+              { state: "FL", label: "Florida", color: "#7c3aed", count: 84044 },
+              { state: "NM", label: "New Mexico", color: "#2563eb", count: 69162 },
+              { state: "CO", label: "Colorado", color: "#dc2626", count: 33243 },
+              { state: "AZ", label: "Arizona", color: "#059669", count: 20000 },
+            ]).map((s) => (
+              <div key={s.state} className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-1.5">
+                <span className="h-2.5 w-2.5 rounded-full" style={{ background: s.color }} />
+                <span className="text-xs font-bold text-slate-800">{s.state}</span>
+                <span className="text-xs font-semibold tabular-nums text-slate-500">{s.count.toLocaleString("en-US")}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
       {/* Header */}
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-emerald-600">
-            <SlidersHorizontal className="h-3.5 w-3.5" /> Birleşik Deal Tarayıcı · PropStream tarzı
+            <SlidersHorizontal className="h-3.5 w-3.5" /> İşlenmiş & Skorlanmış Fırsatlar · PropStream tarzı
           </div>
-          <h1 className="mt-1 text-2xl font-bold text-slate-900">Tüm Dealler</h1>
+          <h1 className="mt-1 text-2xl font-bold text-slate-900">Ulusal Fırsatlar</h1>
           <p className="text-sm text-slate-500">
-            Tüm kaynaklar tek yerde — eyalet eyalet filtrele, 50&apos;şer sayfa.{" "}
+            Envanterin <span className="font-semibold text-slate-700">haritalanmış &amp; comp-değerli</span> alt kümesi — eyalet eyalet filtrele, 50&apos;şer sayfa.{" "}
             {data && (
               <span className="font-semibold text-slate-700">
-                {data.total.toLocaleString()} sonuç
-                {state ? ` · ${state}` : ` · ${data.totalAll.toLocaleString()} toplam`}
+                {data.total.toLocaleString()} işlenmiş fırsat
+                {state ? ` · ${state}` : ` · ${data.totalAll.toLocaleString()} toplam işlenmiş`}
               </span>
             )}
           </p>
