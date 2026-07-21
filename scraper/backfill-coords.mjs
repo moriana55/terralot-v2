@@ -98,12 +98,16 @@ async function queryLayer(layer, apnField, apns) {
 }
 
 async function pageLeads(state, county, afterId) {
-  let q = supa.from("offmarket_leads").select("lead_id, apn, county").eq("state", state).is("lat", null).order("lead_id").limit(PAGE);
-  if (county) q = q.eq("county", county);
-  if (afterId) q = q.gt("lead_id", afterId);
-  const { data, error } = await q;
-  if (error) throw new Error(error.message);
-  return data ?? [];
+  for (let attempt = 0; ; attempt++) {
+    let q = supa.from("offmarket_leads").select("lead_id, apn, county").eq("state", state).is("lat", null).order("lead_id").limit(PAGE);
+    if (county) q = q.eq("county", county);
+    if (afterId) q = q.gt("lead_id", afterId);
+    const { data, error } = await q;
+    if (!error) return data ?? [];
+    if (attempt >= 4) throw new Error(error.message);
+    console.log(`  … sayfa sorgusu hata (${error.message.slice(0, 60)}) — ${attempt + 1}. tekrar`);
+    await sleep(3000 * (attempt + 1));
+  }
 }
 
 async function upsertCoords(rows) {
@@ -117,7 +121,13 @@ async function upsertCoords(rows) {
 async function processGroup(state, county, layer, apnField, fallbackApn) {
   let after = null, pages = 0, matched = 0, missed = 0;
   for (;;) {
-    const leads = await pageLeads(state, county, after);
+    let leads;
+    try {
+      leads = await pageLeads(state, county, after);
+    } catch (e) {
+      console.log(`${state}${county ? "/" + county : ""}: sayfalama kalıcı hata (${e.message.slice(0, 80)}) — grup atlandı, sonraki çalıştırmada devam eder`);
+      break;
+    }
     if (!leads.length) break;
     after = leads[leads.length - 1].lead_id;
     pages++;
