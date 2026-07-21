@@ -164,15 +164,24 @@ for (const [state, conf] of Object.entries(CONF)) {
   if (ONLY_STATE && state !== ONLY_STATE) continue;
   console.log(`\n══ ${state} başlıyor ══`);
   if (conf.countyLayers) {
-    // TX: county bazlı — kayıt defterinde olmayan county'ler atlanır (log'a düşer)
-    const { data: cRows } = await supa.from("offmarket_leads").select("county").eq("state", state).is("lat", null).limit(50000);
-    const counties = [...new Set((cRows ?? []).map((r) => r.county))];
-    for (const county of counties) {
-      const layer = conf.countyLayers[county];
-      if (!layer) { console.log(`${state}/${county}: kayıt defterinde layer yok — atlandı`); continue; }
+    // TX: kayıt defterindeki TÜM county'leri dolaş (DB'de kaydı olmayanlar anında boş döner).
+    // Not: distinct county'yi DB'den çekmek Supabase'in 1000 satır tavanına takılıyordu.
+    for (const [county, layer] of Object.entries(conf.countyLayers)) {
       const r = await processGroup(state, county, layer, conf.apn, conf.fallbackApn);
       grand.matched += r.matched; grand.missed += r.missed;
     }
+    // kayıt defteri dışında kalan county'leri raporla (koordinatsız kalanlar)
+    const leftovers = new Map();
+    let after = null;
+    for (;;) {
+      let q = supa.from("offmarket_leads").select("lead_id, county").eq("state", state).is("lat", null).order("lead_id").limit(1000);
+      if (after) q = q.gt("lead_id", after);
+      const { data } = await q;
+      if (!data?.length) break;
+      after = data[data.length - 1].lead_id;
+      for (const r of data) leftovers.set(r.county, (leftovers.get(r.county) ?? 0) + 1);
+    }
+    for (const [c, n] of [...leftovers].sort((a, b) => b[1] - a[1])) console.log(`${state}/${c}: kayıt defterinde layer yok — ${n} kayıt koordinatsız kaldı`);
   } else {
     // county-özel servis varsa önce onlar, sonra kalan county'ler eyalet katmanından
     for (const [county, o] of Object.entries(conf.countyOverrides ?? {})) {
