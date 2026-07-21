@@ -21,6 +21,7 @@ const STATES: { code: string; label: string; region: string; color: string }[] =
   { code: "CO", label: "Colorado", region: "Costilla + Las Animas", color: "#dc2626" },
   { code: "AZ", label: "Arizona", region: "Mohave", color: "#059669" },
   { code: "AR", label: "Arkansas", region: "Sharp + Izard + Van Buren", color: "#0891b2" },
+  { code: "NC", label: "North Carolina", region: "Brunswick + Rutherford + Northampton", color: "#be185d" },
 ];
 
 function isMissing(msg?: string): boolean {

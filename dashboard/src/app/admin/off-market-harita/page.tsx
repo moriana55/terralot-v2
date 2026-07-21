@@ -27,7 +27,7 @@ const OffMarketMap = dynamic(() => import("./off-market-map"), {
 // TEK GERÇEK KAYNAK: sayılar CANLI /api/admin/offmarket-breakdown'dan gelir
 // (Supabase offmarket_leads head-count). Aşağıdaki değerler yalnız API gelene
 // kadar/başarısız olursa FALLBACK — hepsi 2026-07 doğrulandı, canlı ile birebir.
-const FALLBACK: Record<string, number> = { AZ: 20000, NM: 69162, CO: 33243, TX: 153093, FL: 84044, AR: 0 };
+const FALLBACK: Record<string, number> = { AZ: 20000, NM: 69162, CO: 33243, TX: 153093, FL: 84044, AR: 0, NC: 0 };
 
 // County merkezleri (lat/lng) + href — koordinatsız lead'ler için toplu pin konumu.
 // SAYI buraya API'den enjekte edilir; merkez/renk sabit kalır.
@@ -37,6 +37,7 @@ const CENTROIDS: Record<string, { region: string; lat: number; lng: number; colo
   TX: { region: "Trans-Pecos + statewide", lat: 31.3, lng: -99.5, color: "#d97706" },
   FL: { region: "Charlotte + Highlands + statewide", lat: 28.0, lng: -81.6, color: "#7c3aed" },
   AR: { region: "Sharp + Izard + Van Buren", lat: 35.9, lng: -91.9, color: "#0891b2" },
+  NC: { region: "Brunswick + Rutherford + Northampton", lat: 35.3, lng: -79.2, color: "#be185d" },
 };
 
 export default function OffMarketHaritaPage() {
@@ -62,9 +63,9 @@ export default function OffMarketHaritaPage() {
     return () => { alive = false; };
   }, []);
 
-  const TOTAL_LEADS = (["AZ", "NM", "CO", "TX", "FL", "AR"] as const).reduce((s, k) => s + (counts[k] ?? 0), 0);
+  const TOTAL_LEADS = (["AZ", "NM", "CO", "TX", "FL", "AR", "NC"] as const).reduce((s, k) => s + (counts[k] ?? 0), 0);
   const TX_LEADS = counts.TX ?? 0;
-  const STATE_PINS: StatePin[] = (["NM", "CO", "TX", "FL", "AR"] as const).map((st) => ({
+  const STATE_PINS: StatePin[] = (["NM", "CO", "TX", "FL", "AR", "NC"] as const).map((st) => ({
     state: st,
     region: CENTROIDS[st].region,
     lat: CENTROIDS[st].lat,
@@ -80,6 +81,7 @@ export default function OffMarketHaritaPage() {
     { color: "#dc2626", label: "CO · Costilla+Las Animas", sub: `${(counts.CO ?? 0).toLocaleString("en-US")} lead · county pini`, pin: true },
     { color: "#d97706", label: "TX · Trans-Pecos+statewide", sub: `${(counts.TX ?? 0).toLocaleString("en-US")} lead · county pini`, pin: true },
     { color: "#0891b2", label: "AR · Sharp+Izard+VanBuren", sub: `${(counts.AR ?? 0).toLocaleString("en-US")} lead · county pini`, pin: true },
+    { color: "#be185d", label: "NC · Brunswick+Rutherford+Northampton", sub: `${(counts.NC ?? 0).toLocaleString("en-US")} lead · county pini`, pin: true },
     { color: "#7c3aed", label: "FL · Charlotte+Highlands", sub: `${(counts.FL ?? 0).toLocaleString("en-US")} lead · county pini`, pin: true },
   ];
 
@@ -113,10 +115,10 @@ export default function OffMarketHaritaPage() {
     <div className="space-y-4 p-6" style={{ color: "var(--foreground)" }}>
       <header>
         <div className="mb-2 text-[11px] font-bold uppercase tracking-[0.2em]" style={{ color: "#059669" }}>
-          ✅ 6 Eyalet · Off-Market Footprint
+          ✅ 7 Eyalet · Off-Market Footprint
         </div>
         <h1 className="flex items-center gap-2 text-[26px] font-bold">
-          <MapIcon className="h-6 w-6" style={{ color: "#059669" }} /> 6 Eyalet Off-Market Haritası
+          <MapIcon className="h-6 w-6" style={{ color: "#059669" }} /> 7 Eyalet Off-Market Haritası
         </h1>
         <p className="mt-1 max-w-3xl text-sm" style={{ color: "var(--muted)" }}>
           NM · AZ · CO · TX · FL beş hedef eyalette <strong>{TOTAL_LEADS.toLocaleString("en-US")}</strong> off-market lead.{" "}
