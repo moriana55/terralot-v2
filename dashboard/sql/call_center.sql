@@ -25,5 +25,17 @@ create table if not exists call_logs (
 create index if not exists call_logs_lead_idx on call_logs (lead_id, created_at desc);
 create index if not exists call_logs_callback_idx on call_logs (callback_at) where callback_at is not null;
 
--- 3) RLS: anon erişimi kapalı; yalnızca service-role (API) yazar/okur
+-- 3) Anlaşma boru hattı (5 aşama) — "İlgileniyor" araması otomatik düşer
+create table if not exists pipeline_deals (
+  lead_id text primary key references offmarket_leads (lead_id) on delete cascade,
+  stage text not null default 'ilgileniyor' check (stage in ('ilgileniyor','teklif','pazarlik','sozlesme','tapu')),
+  note text,
+  offer_amount numeric,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+create index if not exists pipeline_deals_stage_idx on pipeline_deals (stage, updated_at desc);
+
+-- 4) RLS: anon erişimi kapalı; yalnızca service-role (API) yazar/okur
 alter table call_logs enable row level security;
+alter table pipeline_deals enable row level security;

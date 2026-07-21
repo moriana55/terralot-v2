@@ -127,6 +127,13 @@ export async function POST(req: NextRequest) {
   if (body.outcome === "dnc") {
     await s.from("offmarket_leads").update({ do_not_call: true }).eq("lead_id", body.lead_id);
   }
+  // "İlgileniyor" → anlaşma boru hattına otomatik düşür (varsa dokunma)
+  if (body.outcome === "interested") {
+    await s.from("pipeline_deals").upsert(
+      { lead_id: body.lead_id, stage: "ilgileniyor", note: body.note?.slice(0, 500) || null },
+      { onConflict: "lead_id", ignoreDuplicates: true },
+    );
+  }
   return NextResponse.json({ ok: true });
 }
 
