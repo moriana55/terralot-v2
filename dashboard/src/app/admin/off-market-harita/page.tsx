@@ -27,7 +27,7 @@ const OffMarketMap = dynamic(() => import("./off-market-map"), {
 // TEK GERÇEK KAYNAK: sayılar CANLI /api/admin/offmarket-breakdown'dan gelir
 // (Supabase offmarket_leads head-count). Aşağıdaki değerler yalnız API gelene
 // kadar/başarısız olursa FALLBACK — hepsi 2026-07 doğrulandı, canlı ile birebir.
-const FALLBACK: Record<string, number> = { AZ: 20000, NM: 69162, CO: 33243, TX: 153093, FL: 84044 };
+const FALLBACK: Record<string, number> = { AZ: 20000, NM: 69162, CO: 33243, TX: 153093, FL: 84044, AR: 0 };
 
 // County merkezleri (lat/lng) + href — koordinatsız lead'ler için toplu pin konumu.
 // SAYI buraya API'den enjekte edilir; merkez/renk sabit kalır.
@@ -36,6 +36,7 @@ const CENTROIDS: Record<string, { region: string; lat: number; lng: number; colo
   CO: { region: "Costilla + Las Animas", lat: 37.28, lng: -104.6, color: "#dc2626" },
   TX: { region: "Trans-Pecos + statewide", lat: 31.3, lng: -99.5, color: "#d97706" },
   FL: { region: "Charlotte + Highlands + statewide", lat: 28.0, lng: -81.6, color: "#7c3aed" },
+  AR: { region: "Sharp + Izard + Van Buren", lat: 35.9, lng: -91.9, color: "#0891b2" },
 };
 
 export default function OffMarketHaritaPage() {
@@ -61,9 +62,9 @@ export default function OffMarketHaritaPage() {
     return () => { alive = false; };
   }, []);
 
-  const TOTAL_LEADS = (["AZ", "NM", "CO", "TX", "FL"] as const).reduce((s, k) => s + (counts[k] ?? 0), 0);
+  const TOTAL_LEADS = (["AZ", "NM", "CO", "TX", "FL", "AR"] as const).reduce((s, k) => s + (counts[k] ?? 0), 0);
   const TX_LEADS = counts.TX ?? 0;
-  const STATE_PINS: StatePin[] = (["NM", "CO", "TX", "FL"] as const).map((st) => ({
+  const STATE_PINS: StatePin[] = (["NM", "CO", "TX", "FL", "AR"] as const).map((st) => ({
     state: st,
     region: CENTROIDS[st].region,
     lat: CENTROIDS[st].lat,
@@ -78,6 +79,7 @@ export default function OffMarketHaritaPage() {
     { color: "#2563eb", label: "NM · Valencia+Luna", sub: `${(counts.NM ?? 0).toLocaleString("en-US")} lead · county pini`, pin: true },
     { color: "#dc2626", label: "CO · Costilla+Las Animas", sub: `${(counts.CO ?? 0).toLocaleString("en-US")} lead · county pini`, pin: true },
     { color: "#d97706", label: "TX · Trans-Pecos+statewide", sub: `${(counts.TX ?? 0).toLocaleString("en-US")} lead · county pini`, pin: true },
+    { color: "#0891b2", label: "AR · Sharp+Izard+VanBuren", sub: `${(counts.AR ?? 0).toLocaleString("en-US")} lead · county pini`, pin: true },
     { color: "#7c3aed", label: "FL · Charlotte+Highlands", sub: `${(counts.FL ?? 0).toLocaleString("en-US")} lead · county pini`, pin: true },
   ];
 

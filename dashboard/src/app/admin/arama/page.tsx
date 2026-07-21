@@ -14,8 +14,8 @@ import {
 } from "lucide-react";
 
 const ACCENT = "#16a34a";
-const STATES = ["AZ", "NM", "CO", "TX", "FL"] as const;
-const TZ: Record<string, string> = { AZ: "America/Phoenix", NM: "America/Denver", CO: "America/Denver", TX: "America/Chicago", FL: "America/New_York" };
+const STATES = ["AZ", "NM", "CO", "TX", "FL", "AR"] as const;
+const TZ: Record<string, string> = { AZ: "America/Phoenix", NM: "America/Denver", CO: "America/Denver", TX: "America/Chicago", FL: "America/New_York", AR: "America/Chicago" };
 
 type Lead = {
   lead_id: string; state: string; county: string; apn: string; owner: string;
