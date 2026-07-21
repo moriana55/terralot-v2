@@ -113,10 +113,10 @@ export default function OffMarketHaritaPage() {
     <div className="space-y-4 p-6" style={{ color: "var(--foreground)" }}>
       <header>
         <div className="mb-2 text-[11px] font-bold uppercase tracking-[0.2em]" style={{ color: "#059669" }}>
-          ✅ 5 Eyalet · Off-Market Footprint
+          ✅ 6 Eyalet · Off-Market Footprint
         </div>
         <h1 className="flex items-center gap-2 text-[26px] font-bold">
-          <MapIcon className="h-6 w-6" style={{ color: "#059669" }} /> 5 Eyalet Off-Market Haritası
+          <MapIcon className="h-6 w-6" style={{ color: "#059669" }} /> 6 Eyalet Off-Market Haritası
         </h1>
         <p className="mt-1 max-w-3xl text-sm" style={{ color: "var(--muted)" }}>
           NM · AZ · CO · TX · FL beş hedef eyalette <strong>{TOTAL_LEADS.toLocaleString("en-US")}</strong> off-market lead.{" "}

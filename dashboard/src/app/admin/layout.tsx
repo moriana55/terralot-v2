@@ -33,7 +33,7 @@ const SECTIONS: { label: string | null; wip?: boolean; items: { href: string; ic
       { href: "/admin/mohave", icon: MapPin, label: "Meadview & Golden Valley" },
       { href: "/admin/luna", icon: MapPin, label: "Luna (NM) Envanteri" },
       { href: "/admin/alinabilir-harita", icon: Map, label: "Fırsat Haritası" },
-      { href: "/admin/off-market-harita", icon: Map, label: "5 Eyalet Haritası" },
+      { href: "/admin/off-market-harita", icon: Map, label: "6 Eyalet Haritası" },
       { href: "/admin/satilabilir-cekirdek", icon: Target, label: "Doğrulanmış Çekirdek" },
       { href: "/admin/mohave/kampanya", icon: Mail, label: "Mohave Kampanyası" },
       { href: "/admin/arama", icon: PhoneCall, label: "Sıcak Arama" },
