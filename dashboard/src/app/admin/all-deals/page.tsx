@@ -6,6 +6,7 @@ import {
   SlidersHorizontal, RotateCcw, Download, Loader2, MapPin, ExternalLink,
   ChevronLeft, ChevronRight, Search, ShieldCheck, X, MailPlus,
 } from "lucide-react";
+import { OFFMARKET_FALLBACK_TOTAL, OFFMARKET_STATES, OFFMARKET_STATE_META } from "@/lib/offmarket-stats";
 
 type Deal = {
   id: string; source: string; sourceLabel: string; state: string; county: string;
@@ -102,7 +103,8 @@ function AllDealsContent() {
   const [title, setTitle] = useState<AttomTitle | null>(null);
   const [titleLoading, setTitleLoading] = useState(false);
 
-  // TEK GERÇEK KAYNAK — 5 eyalet toplam off-market envanteri (359K). Bu ekrandaki
+  // TEK GERÇEK KAYNAK — 7 eyalet toplam off-market envanteri (canlı offmarket-breakdown;
+  // fallback tek dosyadan: lib/offmarket-stats). Bu ekrandaki
   // "Tüm Dealler" = o envanterin HARİTALANMIŞ & SKORLANMIŞ alt kümesi. Banner ikisini
   // net ayırır ki harita 153K derken burada 286 görünmesi çelişki gibi durmasın.
   const [env, setEnv] = useState<{ total: number; byState: Array<{ state: string; label: string; color: string; count: number }> } | null>(null);
@@ -219,25 +221,26 @@ function AllDealsContent() {
 
   return (
     <div className="space-y-5 p-6">
-      {/* 5 EYALET OFF-MARKET ENVANTERİ — tek gerçek kaynak (359K). Bu ekrandaki
-          deal listesi bu envanterin işlenmiş/skorlanmış alt kümesidir. */}
+      {/* 7 EYALET OFF-MARKET ENVANTERİ — tek gerçek kaynak (canlı breakdown; fallback
+          lib/offmarket-stats). Bu ekrandaki deal listesi işlenmiş/skorlanmış alt kümedir. */}
       <div className="rounded-2xl border p-4" style={{ borderColor: "rgba(5,150,105,0.28)", background: "linear-gradient(180deg, rgba(5,150,105,0.07), rgba(5,150,105,0.02))" }}>
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <div className="text-[11px] font-bold uppercase tracking-[0.18em] text-emerald-700">5 Eyalet · Off-Market Envanteri</div>
+            <div className="text-[11px] font-bold uppercase tracking-[0.18em] text-emerald-700">7 Eyalet · Off-Market Envanteri</div>
             <div className="mt-0.5 flex items-baseline gap-2">
-              <span className="text-3xl font-black tabular-nums text-slate-900">{(env?.total ?? 359542).toLocaleString("en-US")}</span>
+              <span className="text-3xl font-black tabular-nums text-slate-900">{(env?.total ?? OFFMARKET_FALLBACK_TOTAL).toLocaleString("en-US")}</span>
               <span className="text-sm text-slate-500">owner + posta adresli lead</span>
             </div>
           </div>
           <div className="flex flex-wrap gap-2">
-            {(env?.byState ?? [
-              { state: "TX", label: "Texas", color: "#d97706", count: 153093 },
-              { state: "FL", label: "Florida", color: "#7c3aed", count: 84044 },
-              { state: "NM", label: "New Mexico", color: "#2563eb", count: 69162 },
-              { state: "CO", label: "Colorado", color: "#dc2626", count: 33243 },
-              { state: "AZ", label: "Arizona", color: "#059669", count: 20000 },
-            ]).map((s) => (
+            {(env?.byState ??
+              OFFMARKET_STATES.map((st) => ({
+                state: st,
+                label: OFFMARKET_STATE_META[st].label,
+                color: OFFMARKET_STATE_META[st].color,
+                count: OFFMARKET_STATE_META[st].fallbackCount,
+              })).sort((a, b) => b.count - a.count)
+            ).map((s) => (
               <div key={s.state} className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-1.5">
                 <span className="h-2.5 w-2.5 rounded-full" style={{ background: s.color }} />
                 <span className="text-xs font-bold text-slate-800">{s.state}</span>

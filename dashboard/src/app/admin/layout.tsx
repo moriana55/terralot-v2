@@ -14,6 +14,7 @@ const SECTIONS: { label: string | null; wip?: boolean; items: { href: string; ic
   {
     label: null,
     items: [
+      { href: "/admin/harita", icon: Map, label: "Ana Harita" },
       { href: "/admin", icon: LayoutDashboard, label: "Operasyon Özeti" },
     ],
   },

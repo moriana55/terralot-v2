@@ -17,7 +17,9 @@ export const dynamic = "force-dynamic";
 //     rengini korur, lejantla birebir.
 //   - Cluster'lar zoom'landıkça GERÇEK tek tek noktalara açılır; hiçbir kayıt
 //     atlanmaz, sahte koordinat üretilmez (dürüstlük kuralı).
-// İstek: GET ?w=&s=&e=&n=&z=   (bbox + zoom) → { features, meta }
+// İstek: GET ?w=&s=&e=&n=&z=[&st=TX]  (bbox + zoom + opsiyonel eyalet filtresi)
+//        → { features, meta }. st verilirse yalnız o eyaletin indeksi taranır
+//        (Ana Harita'nın eyalet filtre çipleri — payload küçülür, sayılar gerçek).
 // ─────────────────────────────────────────────────────────────────────────────
 
 type PtsFile = { generatedAt: string; states: string[]; byState: Record<string, number>; pts: [number, number, number][] };
@@ -82,6 +84,9 @@ export async function GET(req: NextRequest) {
   const e = Math.min(180, num(p.get("e"), 180));
   const n = Math.min(85, num(p.get("n"), 85));
   const z = Math.min(22, Math.max(0, Math.round(num(p.get("z"), 5))));
+  // Opsiyonel eyalet filtresi — yalnız bilinen eyalet kodları (2 harf) kabul edilir.
+  const stRaw = (p.get("st") ?? "").toUpperCase();
+  const stFilter = /^[A-Z]{2}$/.test(stRaw) ? stRaw : null;
 
   // t:"c" = cluster baloncuğu (n = gerçek kayıt sayısı, ez = açılma zoom'u)
   // t:"p" = GERÇEK tek kayıt noktası
@@ -91,6 +96,7 @@ export async function GET(req: NextRequest) {
   > = [];
 
   for (const { state, index } of DATA.perState) {
+    if (stFilter && state !== stFilter) continue;
     for (const f of index.getClusters([w, s, e, n], z)) {
       const [lng, lat] = f.geometry.coordinates;
       const props = f.properties as { cluster?: boolean; cluster_id?: number; point_count?: number };

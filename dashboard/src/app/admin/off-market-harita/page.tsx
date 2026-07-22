@@ -11,10 +11,12 @@
 // Cluster API çökerse county merkezli gerçek sayılı toplu pinlere geri düşülür.
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import dynamic from "next/dynamic";
 import { Loader2, Map as MapIcon } from "lucide-react";
 import type { StatePin } from "./off-market-map";
+import { OFFMARKET_STATES, OFFMARKET_STATE_META } from "@/lib/offmarket-stats";
+import { useOffmarketStats } from "@/lib/useOffmarketStats";
 
 const OffMarketMap = dynamic(() => import("./off-market-map"), {
   ssr: false,
@@ -25,47 +27,15 @@ const OffMarketMap = dynamic(() => import("./off-market-map"), {
   ),
 });
 
-const STATES = ["AZ", "NM", "CO", "TX", "FL", "AR", "NC"] as const;
-
-// TEK GERÇEK KAYNAK: sayılar CANLI /api/admin/offmarket-breakdown'dan gelir
-// (Supabase offmarket_leads head-count). Aşağıdaki değerler yalnız API gelene
-// kadar/başarısız olursa FALLBACK — 2026-07-22 doğrulandı, canlı ile birebir.
-const FALLBACK: Record<string, number> = { AZ: 20000, NM: 69162, CO: 33243, TX: 153093, FL: 84044, AR: 71585, NC: 38148 };
-
-// Eyalet bölge etiketi + rengi + (varsa) envanter linki. Lat/lng yalnız cluster
-// API çökerse kullanılan fallback county pini içindir.
-const STATE_INFO: Record<string, { region: string; lat: number; lng: number; color: string; href?: string }> = {
-  AZ: { region: "Mohave", lat: 35.2, lng: -113.8, color: "#059669" },
-  NM: { region: "Valencia + Luna", lat: 34.55, lng: -106.75, color: "#2563eb", href: "/admin/luna" },
-  CO: { region: "Costilla + Las Animas", lat: 37.28, lng: -104.6, color: "#dc2626" },
-  TX: { region: "Trans-Pecos + statewide", lat: 31.3, lng: -99.5, color: "#d97706" },
-  FL: { region: "Charlotte + Highlands + statewide", lat: 28.0, lng: -81.6, color: "#7c3aed" },
-  AR: { region: "Sharp + Izard + Van Buren", lat: 35.9, lng: -91.9, color: "#0891b2" },
-  NC: { region: "Brunswick + Rutherford + Northampton", lat: 35.3, lng: -79.2, color: "#be185d" },
-};
+// TEK GERÇEK KAYNAK: sayılar CANLI /api/admin/offmarket-breakdown'dan
+// (useOffmarketStats hook'u), fallback tek dosyadan (lib/offmarket-stats).
+// Bu sayfada hardcoded lead sayısı YOKTUR.
+const STATES = OFFMARKET_STATES;
+const STATE_INFO = OFFMARKET_STATE_META;
 
 export default function OffMarketHaritaPage() {
-  const [counts, setCounts] = useState<Record<string, number>>(FALLBACK);
+  const { counts, total: TOTAL_LEADS } = useOffmarketStats();
   const [coordPoints, setCoordPoints] = useState<number | null>(null);
-
-  // TEK GERÇEK KAYNAK — canlı per-eyalet sayıları (bayatlamaz, her ekranla tutarlı).
-  useEffect(() => {
-    let alive = true;
-    fetch("/api/admin/offmarket-breakdown")
-      .then((r) => r.json())
-      .then((d) => {
-        if (!alive || !Array.isArray(d.byState)) return;
-        const next: Record<string, number> = { ...FALLBACK };
-        for (const s of d.byState as Array<{ state: string; count: number }>) {
-          if (typeof s.count === "number") next[s.state] = s.count;
-        }
-        setCounts(next);
-      })
-      .catch(() => { /* fallback sayıları kalır */ });
-    return () => { alive = false; };
-  }, []);
-
-  const TOTAL_LEADS = STATES.reduce((s, k) => s + (counts[k] ?? 0), 0);
   const biggest = STATES.reduce((a, b) => ((counts[a] ?? 0) >= (counts[b] ?? 0) ? a : b));
   const STATE_PINS: StatePin[] = STATES.map((st) => ({
     state: st,
