@@ -1,19 +1,20 @@
 "use client";
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 5 EYALET OFF-MARKET HARİTASI — NM · AZ · CO · TX · FL beş hedef eyalette
-// off-market envanterimizi TEK haritada DÜRÜSTÇE gösterir.
-//   AZ · Mohave   → 20.000 lead, ~19.9K'sında GERÇEK lat/lng → gerçek nokta.
-//   NM/CO/TX/FL   → owner + posta adresli lead (absentee) YÜKLÜ (Supabase offmarket_leads),
-//                   çoğu koordinatsız → county merkezinde GERÇEK SAYILI toplu pin.
-// Sahte parsel koordinatı SERPİLMEZ. Sayılar Supabase offmarket_leads gerçeğidir.
-// Harita altyapısı: react-leaflet (mevcut deals-map.tsx ile aynı; yeni kütüphane yok).
+// 7 EYALET OFF-MARKET HARİTASI — AZ · NM · CO · TX · FL · AR · NC yedi hedef
+// eyaletteki off-market envanterin TAMAMI tek haritada, TEK SİSTEMLE gösterilir.
+//   ~469K koordinatlı lead → sunucu tarafı supercluster (offmarket-map-clusters):
+//   uzak zoom'da eyalet renkli GERÇEK SAYILI cluster baloncukları, yakın zoom'da
+//   HER kayıt tek tek gerçek nokta (örnekleme yok). Nokta tıklanınca canlı
+//   Supabase detayı (owner, acres, land value). OSM ↔ Esri uydu katman anahtarı.
+// Sahte koordinat SERPİLMEZ. Sayılar Supabase offmarket_leads gerçeğidir.
+// Cluster API çökerse county merkezli gerçek sayılı toplu pinlere geri düşülür.
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { Loader2, Map as MapIcon } from "lucide-react";
-import type { OffMarketPoint, StatePin } from "./off-market-map";
+import type { StatePin } from "./off-market-map";
 
 const OffMarketMap = dynamic(() => import("./off-market-map"), {
   ssr: false,
@@ -24,14 +25,17 @@ const OffMarketMap = dynamic(() => import("./off-market-map"), {
   ),
 });
 
+const STATES = ["AZ", "NM", "CO", "TX", "FL", "AR", "NC"] as const;
+
 // TEK GERÇEK KAYNAK: sayılar CANLI /api/admin/offmarket-breakdown'dan gelir
 // (Supabase offmarket_leads head-count). Aşağıdaki değerler yalnız API gelene
-// kadar/başarısız olursa FALLBACK — hepsi 2026-07 doğrulandı, canlı ile birebir.
-const FALLBACK: Record<string, number> = { AZ: 20000, NM: 69162, CO: 33243, TX: 153093, FL: 84044, AR: 0, NC: 0 };
+// kadar/başarısız olursa FALLBACK — 2026-07-22 doğrulandı, canlı ile birebir.
+const FALLBACK: Record<string, number> = { AZ: 20000, NM: 69162, CO: 33243, TX: 153093, FL: 84044, AR: 71585, NC: 38148 };
 
-// County merkezleri (lat/lng) + href — koordinatsız lead'ler için toplu pin konumu.
-// SAYI buraya API'den enjekte edilir; merkez/renk sabit kalır.
-const CENTROIDS: Record<string, { region: string; lat: number; lng: number; color: string; href?: string }> = {
+// Eyalet bölge etiketi + rengi + (varsa) envanter linki. Lat/lng yalnız cluster
+// API çökerse kullanılan fallback county pini içindir.
+const STATE_INFO: Record<string, { region: string; lat: number; lng: number; color: string; href?: string }> = {
+  AZ: { region: "Mohave", lat: 35.2, lng: -113.8, color: "#059669" },
   NM: { region: "Valencia + Luna", lat: 34.55, lng: -106.75, color: "#2563eb", href: "/admin/luna" },
   CO: { region: "Costilla + Las Animas", lat: 37.28, lng: -104.6, color: "#dc2626" },
   TX: { region: "Trans-Pecos + statewide", lat: 31.3, lng: -99.5, color: "#d97706" },
@@ -41,10 +45,8 @@ const CENTROIDS: Record<string, { region: string; lat: number; lng: number; colo
 };
 
 export default function OffMarketHaritaPage() {
-  const [azPoints, setAzPoints] = useState<OffMarketPoint[]>([]);
   const [counts, setCounts] = useState<Record<string, number>>(FALLBACK);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [coordPoints, setCoordPoints] = useState<number | null>(null);
 
   // TEK GERÇEK KAYNAK — canlı per-eyalet sayıları (bayatlamaz, her ekranla tutarlı).
   useEffect(() => {
@@ -63,53 +65,17 @@ export default function OffMarketHaritaPage() {
     return () => { alive = false; };
   }, []);
 
-  const TOTAL_LEADS = (["AZ", "NM", "CO", "TX", "FL", "AR", "NC"] as const).reduce((s, k) => s + (counts[k] ?? 0), 0);
-  const TX_LEADS = counts.TX ?? 0;
-  const STATE_PINS: StatePin[] = (["NM", "CO", "TX", "FL", "AR", "NC"] as const).map((st) => ({
+  const TOTAL_LEADS = STATES.reduce((s, k) => s + (counts[k] ?? 0), 0);
+  const biggest = STATES.reduce((a, b) => ((counts[a] ?? 0) >= (counts[b] ?? 0) ? a : b));
+  const STATE_PINS: StatePin[] = STATES.map((st) => ({
     state: st,
-    region: CENTROIDS[st].region,
-    lat: CENTROIDS[st].lat,
-    lng: CENTROIDS[st].lng,
-    color: CENTROIDS[st].color,
+    region: STATE_INFO[st].region,
+    lat: STATE_INFO[st].lat,
+    lng: STATE_INFO[st].lng,
+    color: STATE_INFO[st].color,
     leads: counts[st] ?? 0,
-    href: CENTROIDS[st].href,
+    href: STATE_INFO[st].href,
   }));
-  type Legend = { color: string; label: string; sub: string; pin?: boolean };
-  const LEGEND: Legend[] = [
-    { color: "#059669", label: "AZ · Mohave", sub: `${(counts.AZ ?? 0).toLocaleString("en-US")} lead · gerçek koordinat (nokta)` },
-    { color: "#2563eb", label: "NM · Valencia+Luna", sub: `${(counts.NM ?? 0).toLocaleString("en-US")} lead · county pini`, pin: true },
-    { color: "#dc2626", label: "CO · Costilla+Las Animas", sub: `${(counts.CO ?? 0).toLocaleString("en-US")} lead · county pini`, pin: true },
-    { color: "#d97706", label: "TX · Trans-Pecos+statewide", sub: `${(counts.TX ?? 0).toLocaleString("en-US")} lead · county pini`, pin: true },
-    { color: "#0891b2", label: "AR · Sharp+Izard+VanBuren", sub: `${(counts.AR ?? 0).toLocaleString("en-US")} lead · county pini`, pin: true },
-    { color: "#be185d", label: "NC · Brunswick+Rutherford+Northampton", sub: `${(counts.NC ?? 0).toLocaleString("en-US")} lead · county pini`, pin: true },
-    { color: "#7c3aed", label: "FL · Charlotte+Highlands", sub: `${(counts.FL ?? 0).toLocaleString("en-US")} lead · county pini`, pin: true },
-  ];
-
-  useEffect(() => {
-    let alive = true;
-    // AZ Mohave gerçek noktaları — mevcut lean API (nokta+popup+skor).
-    fetch("/api/admin/mohave-map-points")
-      .then((r) => r.json())
-      .then((d) => {
-        if (!alive) return;
-        const pts = Array.isArray(d.points)
-          ? (d.points as Array<Record<string, unknown>>).map((p) => ({
-              id: String(p.id),
-              lat: Number(p.lat),
-              lng: Number(p.lng),
-              owner: String(p.owner ?? ""),
-              region: String(p.region ?? ""),
-              acres: p.acres == null ? null : Number(p.acres),
-              landValue: p.landValue == null ? null : Number(p.landValue),
-              score: Number(p.score ?? 0),
-            }))
-          : [];
-        setAzPoints(pts);
-      })
-      .catch(() => { if (alive) setError("AZ nokta katmanı yüklenemedi."); })
-      .finally(() => { if (alive) setLoading(false); });
-    return () => { alive = false; };
-  }, []);
 
   return (
     <div className="space-y-4 p-6" style={{ color: "var(--foreground)" }}>
@@ -121,15 +87,16 @@ export default function OffMarketHaritaPage() {
           <MapIcon className="h-6 w-6" style={{ color: "#059669" }} /> 7 Eyalet Off-Market Haritası
         </h1>
         <p className="mt-1 max-w-3xl text-sm" style={{ color: "var(--muted)" }}>
-          NM · AZ · CO · TX · FL beş hedef eyalette <strong>{TOTAL_LEADS.toLocaleString("en-US")}</strong> off-market lead.{" "}
-          <strong>Dürüstlük kuralı:</strong> koordinatı olan lead gerçek nokta olarak çizilir (AZ);
-          koordinatı olmayan eyaletler county merkezinde <strong>gerçek sayılı</strong> toplu pin olur. Sahte nokta üretilmez.
+          AZ · NM · CO · TX · FL · AR · NC yedi hedef eyalette <strong>{TOTAL_LEADS.toLocaleString("en-US")}</strong>{" "}
+          off-market lead — <strong>tamamı haritada</strong>. Uzak zoom'da eyalet renkli cluster baloncukları
+          (sayılar gerçek kayıt sayısı), yakınlaşınca her kayıt tek tek gerçek koordinatlı nokta olur; noktaya
+          tıklayınca sahip/acre/değer detayı canlı gelir. Sağ üstten uydu görünümüne geçilebilir.
         </p>
       </header>
 
       {/* Özet şerit */}
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        <Stat label="Hedef eyalet" value="5" sub="NM·AZ·CO·TX·FL" accent />
+        <Stat label="Hedef eyalet" value="7" sub="AZ·NM·CO·TX·FL·AR·NC" accent />
         <Stat
           label="Toplam off-market lead"
           value={TOTAL_LEADS.toLocaleString("en-US")}
@@ -138,53 +105,48 @@ export default function OffMarketHaritaPage() {
         />
         <Stat
           label="En büyük pazar"
-          value={TX_LEADS.toLocaleString("en-US")}
-          sub="TX · Trans-Pecos + statewide"
+          value={(counts[biggest] ?? 0).toLocaleString("en-US")}
+          sub={`${biggest} · ${STATE_INFO[biggest].region}`}
         />
         <Stat
           label="Koordinatlı nokta"
-          value={loading ? "…" : azPoints.length.toLocaleString("en-US")}
-          sub="haritada çizilen (AZ Mohave)"
+          value={coordPoints == null ? "…" : coordPoints.toLocaleString("en-US")}
+          sub="haritada çizilen (7 eyalet)"
         />
       </div>
 
       {/* Lejant */}
       <div className="flex flex-wrap gap-3 rounded-xl border p-3" style={{ borderColor: "var(--border)", background: "var(--surface)" }}>
-        {LEGEND.map((l) => (
-          <div key={l.label} className="flex items-center gap-2">
+        {STATES.map((st) => (
+          <div key={st} className="flex items-center gap-2">
             <span
               style={{
                 display: "inline-block",
                 width: 14,
                 height: 14,
-                borderRadius: l.pin ? 4 : "50%",
-                background: l.color,
-                border: l.pin ? `2px solid ${l.color}` : "2px solid #fff",
+                borderRadius: "50%",
+                background: STATE_INFO[st].color,
+                border: "2px solid #fff",
                 boxShadow: "0 0 0 1px rgba(0,0,0,0.1)",
               }}
             />
             <span className="text-xs">
-              <b>{l.label}</b> <span style={{ color: "var(--muted)" }}>— {l.sub}</span>
+              <b>{st} · {STATE_INFO[st].region}</b>{" "}
+              <span style={{ color: "var(--muted)" }}>— {(counts[st] ?? 0).toLocaleString("en-US")} lead</span>
             </span>
           </div>
         ))}
       </div>
 
-      {error && (
-        <div className="rounded-lg p-3 text-sm" style={{ background: "rgba(186,26,26,0.08)", color: "var(--danger)", border: "1px solid rgba(186,26,26,0.2)" }}>
-          {error}
-        </div>
-      )}
-
       {/* Harita */}
       <div className="overflow-hidden rounded-xl border" style={{ borderColor: "var(--border)" }}>
-        <OffMarketMap azPoints={azPoints} statePins={STATE_PINS} />
+        <OffMarketMap statePins={STATE_PINS} onMeta={(m) => setCoordPoints(m.totalPoints)} />
       </div>
 
       <p className="text-xs" style={{ color: "var(--muted)" }}>
-        AZ noktaları <b>/api/admin/mohave-map-points</b> lean katmanından gelir (skor rengi: yeşil ≥80 · sarı ≥60 · gri
-        &lt;60). NM/CO/TX/FL pinleri county merkezine yerleştirilmiş <b>gerçek</b> lead sayılarıdır (owner + posta adresi
-        mevcut); parsel koordinatı geldikçe nokta katmanına dönüşür.
+        Noktalar <b>/api/admin/offmarket-map-clusters</b> katmanından gelir (kaynak: Supabase offmarket_leads,
+        gerçek parsel/centroid koordinatları — sahte nokta üretilmez). Cluster sayıları gerçek kayıt sayısıdır ve
+        zoom'da tek tek noktalara açılır; koordinatı henüz olmayan ~230 kayıt haritada gösterilmez.
       </p>
     </div>
   );
