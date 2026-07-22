@@ -79,6 +79,20 @@ test("installment-friendly eyaletler fallback verir (TX/NM/CO/AZ/FL)", () => {
   }
 });
 
+test("absentee genişleme eyaletleri (TN/GA/OK) → state fallback + dürüst zoning notu", () => {
+  for (const st of ["TN", "GA", "OK"]) {
+    const pb = regionPlaybook({ state: st });
+    assert.equal(pb.matchBasis, "state", `${st} için state fallback bekleniyordu`);
+    assert.ok(CONFIRM.test(pb.zoningNote), `${st} zoningNote teyit taşımıyor`);
+  }
+  // TN = Cumberland Plateau rekreasyon subdivision açısı
+  assert.ok(/Cumberland/i.test(regionPlaybook({ state: "TN" }).salesAngle));
+  // GA = heirs' property / miras title riski dürüstçe uyarılır
+  assert.ok(/heirs|miras/i.test(regionPlaybook({ state: "GA" }).zoningNote));
+  // OK = mineral hakları ayrık uyarısı
+  assert.ok(/mineral/i.test(regionPlaybook({ state: "OK" }).zoningNote));
+});
+
 test("NY → taksitli satış UYARISI (installment önerilmez)", () => {
   const pb = regionPlaybook({ state: "New York" });
   assert.ok(/NY|installment|taksit/i.test(pb.zoningNote + " " + (pb.installmentNote ?? "")));

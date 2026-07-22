@@ -189,10 +189,32 @@ const STATE_ENTRIES: StateEntry[] = [
   stateFallback("NM", "Ucuz çöl/yayla arsa (Luna/Valencia) — off-grid/homestead; taksitli satışa uygun.", ["off-grid", "recreational", "homestead"], "NM kırsalı izin verici olabilir ama subdivision/permit kuralları parsele göre değişir.", "NM owner-finance'a uygun; geri-al süreci için title firmasıyla çalış."),
   stateFallback("CO", "Ucuz yayla/orman arsa (Costilla/Saguache) — rekreasyon/off-grid; taksitli satış.", ["off-grid", "recreational", "camping"], "CO bazı county'lerde (ör. Costilla) kamp/oturma gün sınırı uygular — sıkı olabilir.", "CO owner-finance'a uygun; oturma gün limitlerini alıcıya açıkça bildir."),
   stateFallback("FL", "Platted/ham arsa — mobil/modüler/site-built EV lotu; taksitli satışa uygun.", ["mobile-home", "modular", "site-built", "recreational"], "FL'de RV'de sürekli oturma çoğu county'de yasak; POA/deed-restriction olabilir.", "FL owner-finance'a uygun; deed-restriction'ları sözleşmeye yansıt."),
-  stateFallback("TN", "Ucuz kırsal arsa — owner-finance dostu; rekreasyon/homestead konumuna göre.", ["recreational", "homestead"], "TN county kuralları değişken.", NONJUDICIAL),
+  stateFallback(
+    "TN",
+    "Cumberland Plateau — 60'lar/70'lerin eski rekreasyon subdivision lotları (orman/manzara); ucuz hafta-sonu kaçış + homestead arsası, absentee miras sahiplerinden alım.",
+    ["recreational", "camping", "homestead", "site-built"],
+    "Kırsal TN county'lerinin çoğunda county zoning zayıf/yok AMA eski platted subdivision'larda POA/deed-restriction (min. yapı, RV yasağı) yaşıyor olabilir; plato arazisi dik/kayalık — septik için perk testi şart.",
+    NONJUDICIAL,
+    "medium"
+  ),
   stateFallback("NV", "Ucuz çöl arsa — off-grid potansiyeli; taksitli satışa uygun.", ["off-grid", "recreational"], "NV kırsalı izin verici olabilir; su hakları ve septik kuralları parsele göre değişir.", NONJUDICIAL),
-  stateFallback("OK", "Ucuz kırsal arsa — owner-finance dostu.", ["recreational", "homestead"], "OK county kuralları değişken.", NONJUDICIAL),
+  stateFallback(
+    "OK",
+    "Ucuz kırsal arsa — eyalet-dışı/absentee miras sahipleri yoğun (motive satıcı); homestead/rekreasyon için düşük giriş fiyatı, owner-finance dostu.",
+    ["recreational", "homestead", "off-grid", "agricultural"],
+    "Kırsal OK county'lerinin çoğunda county zoning YOK (metrolar hariç) — kullanım esnek AMA mineral hakları çoğu parselde AYRIK (yüzey ≠ maden) ve yol erişimi/easement doğrulanmalı.",
+    NONJUDICIAL,
+    "medium"
+  ),
   stateFallback("AR", "Ucuz kırsal/orman arsa — owner-finance dostu.", ["recreational", "homestead"], "AR county kuralları değişken.", NONJUDICIAL),
+  stateFallback(
+    "GA",
+    "Güney GA kırsal/orman arsası — heirs' property (bölünmemiş miras arazisi) yoğun; motive absentee mirasçılardan düşük fiyatlı alım, tarım/rekreasyon/ev lotu.",
+    ["recreational", "agricultural", "site-built", "mobile-home"],
+    "⚠ GA'da heirs' property riski GERÇEK: tapu bölünmemişse TÜM mirasçıların imzası (veya quiet title davası) gerekir — title araştırması yapılmadan kapanış vaadi verilmez; tax deed alımlarında 12 aylık redemption (%20 prim) süreci vardır.",
+    "GA owner-finance'a uygun; heirs'/tax-deed kaynaklı parselde title netleşmeden taksitli satış başlatma.",
+    "medium"
+  ),
   stateFallback("WY", "Ucuz açık arazi — off-grid/rekreasyon; taksitli satışa uygun.", ["off-grid", "recreational"], "WY kırsalı izin verici olabilir ama parsel bazında değişir.", NONJUDICIAL),
   // NY — taksitli satış ÖNERİLMEZ (alıcı çıkarma sorunu). Güvenli, uyarılı.
   {

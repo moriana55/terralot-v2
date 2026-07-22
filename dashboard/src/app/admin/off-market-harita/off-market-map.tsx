@@ -19,10 +19,9 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 // Rakip ilanları (kırmızı elmas) — ortak katman; toggle kapalıyken mount edilmez.
 import CompetitorLayer from "@/components/map/CompetitorLayer";
 
-// Eyalet renkleri — lejant/breakdown ile birebir.
-export const STATE_COLORS: Record<string, string> = {
-  AZ: "#059669", NM: "#2563eb", CO: "#dc2626", TX: "#d97706", FL: "#7c3aed", AR: "#0891b2", NC: "#be185d",
-};
+// Eyalet renkleri — lejant/breakdown ile birebir (tek kaynak: lib/offmarket-stats).
+import { OFFMARKET_STATE_COLORS } from "@/lib/offmarket-stats";
+export const STATE_COLORS: Record<string, string> = OFFMARKET_STATE_COLORS;
 
 // Cluster API cevabı.
 type ClusterFeature =

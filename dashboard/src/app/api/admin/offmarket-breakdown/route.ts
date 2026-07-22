@@ -1,28 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
 import { enforceRateLimit, requireGate } from "@/lib/api-guard";
+import { OFFMARKET_STATES, OFFMARKET_STATE_META } from "@/lib/offmarket-stats";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // OFF-MARKET BREAKDOWN — TEK GERÇEK KAYNAK (single source of truth).
-// offmarket_leads tablosunun CANLI head-count'ları: toplam + 5 eyalet kırılımı.
-// Tüm owner-facing ekranlar (Operasyon Özeti · Ulusal Fırsatlar · 5 Eyalet
+// offmarket_leads tablosunun CANLI head-count'ları: toplam + eyalet kırılımı
+// (aktif eyalet listesi lib/offmarket-stats.ts'ten gelir — burada kopya YOK).
+// Tüm owner-facing ekranlar (Operasyon Özeti · Ulusal Fırsatlar · Eyalet
 // Haritası · Portföy) bu uçtan beslenir → rakamlar HER YERDE tutarlı, bayatlamaz.
 // Sadece okur; değerleme/fiyat mantığına dokunmaz. Eksik tabloda çökmez.
 // ─────────────────────────────────────────────────────────────────────────────
 
-// Hedef eyaletler — harita renkleri/etiketleriyle birebir.
-const STATES: { code: string; label: string; region: string; color: string }[] = [
-  { code: "TX", label: "Texas", region: "Trans-Pecos + statewide", color: "#d97706" },
-  { code: "FL", label: "Florida", region: "Charlotte + Highlands + statewide", color: "#7c3aed" },
-  { code: "NM", label: "New Mexico", region: "Valencia + Luna", color: "#2563eb" },
-  { code: "CO", label: "Colorado", region: "Costilla + Las Animas", color: "#dc2626" },
-  { code: "AZ", label: "Arizona", region: "Mohave", color: "#059669" },
-  { code: "AR", label: "Arkansas", region: "Sharp + Izard + Van Buren", color: "#0891b2" },
-  { code: "NC", label: "North Carolina", region: "Brunswick + Rutherford + Northampton", color: "#be185d" },
-];
+// Hedef eyaletler — harita renkleri/etiketleriyle birebir (tek kaynaktan türetilir).
+const STATES = OFFMARKET_STATES.map((code) => {
+  const m = OFFMARKET_STATE_META[code];
+  return { code: m.code as string, label: m.label, region: m.region, color: m.color };
+});
 
 function isMissing(msg?: string): boolean {
   return /schema cache|does not exist|could not find|relation|column/i.test(msg ?? "");

@@ -1,8 +1,8 @@
 "use client";
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 7 EYALET OFF-MARKET HARİTASI — AZ · NM · CO · TX · FL · AR · NC yedi hedef
-// eyaletteki off-market envanterin TAMAMI tek haritada, TEK SİSTEMLE gösterilir.
+// EYALET OFF-MARKET HARİTASI — aktif hedef eyaletlerdeki (lib/offmarket-stats)
+// off-market envanterin TAMAMI tek haritada, TEK SİSTEMLE gösterilir.
 //   ~469K koordinatlı lead → sunucu tarafı supercluster (offmarket-map-clusters):
 //   uzak zoom'da eyalet renkli GERÇEK SAYILI cluster baloncukları, yakın zoom'da
 //   HER kayıt tek tek gerçek nokta (örnekleme yok). Nokta tıklanınca canlı
@@ -52,13 +52,13 @@ export default function OffMarketHaritaPage() {
     <div className="space-y-4 p-6" style={{ color: "var(--foreground)" }}>
       <header>
         <div className="mb-2 text-[11px] font-bold uppercase tracking-[0.2em]" style={{ color: "#059669" }}>
-          ✅ 7 Eyalet · Off-Market Footprint
+          ✅ {STATES.length} Eyalet · Off-Market Footprint
         </div>
         <h1 className="flex items-center gap-2 text-[26px] font-bold">
-          <MapIcon className="h-6 w-6" style={{ color: "#059669" }} /> 7 Eyalet Off-Market Haritası
+          <MapIcon className="h-6 w-6" style={{ color: "#059669" }} /> {STATES.length} Eyalet Off-Market Haritası
         </h1>
         <p className="mt-1 max-w-3xl text-sm" style={{ color: "var(--muted)" }}>
-          AZ · NM · CO · TX · FL · AR · NC yedi hedef eyalette <strong>{TOTAL_LEADS.toLocaleString("en-US")}</strong>{" "}
+          {STATES.join(" · ")} hedef eyaletlerinde <strong>{TOTAL_LEADS.toLocaleString("en-US")}</strong>{" "}
           off-market lead — <strong>tamamı haritada</strong>. Uzak zoom'da eyalet renkli cluster baloncukları
           (sayılar gerçek kayıt sayısı), yakınlaşınca her kayıt tek tek gerçek koordinatlı nokta olur; noktaya
           tıklayınca sahip/acre/değer detayı canlı gelir. Sağ üstten uydu görünümüne geçilebilir.
@@ -67,7 +67,7 @@ export default function OffMarketHaritaPage() {
 
       {/* Özet şerit */}
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        <Stat label="Hedef eyalet" value="7" sub="AZ·NM·CO·TX·FL·AR·NC" accent />
+        <Stat label="Hedef eyalet" value={String(STATES.length)} sub={STATES.join("·")} accent />
         <Stat
           label="Toplam off-market lead"
           value={TOTAL_LEADS.toLocaleString("en-US")}
@@ -82,7 +82,7 @@ export default function OffMarketHaritaPage() {
         <Stat
           label="Koordinatlı nokta"
           value={coordPoints == null ? "…" : coordPoints.toLocaleString("en-US")}
-          sub="haritada çizilen (7 eyalet)"
+          sub="haritada çizilen (tüm eyaletler)"
         />
       </div>
 

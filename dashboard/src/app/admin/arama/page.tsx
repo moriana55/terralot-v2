@@ -12,10 +12,13 @@ import {
   Phone, PhoneOff, PhoneMissed, Voicemail, Flame, ThumbsDown, ShieldOff,
   CalendarClock, Upload, Loader2, Copy, CheckCircle2, AlertTriangle, Clock,
 } from "lucide-react";
+import { OFFMARKET_STATES } from "@/lib/offmarket-stats";
 
 const ACCENT = "#16a34a";
-const STATES = ["AZ", "NM", "CO", "TX", "FL", "AR", "NC"] as const;
-const TZ: Record<string, string> = { AZ: "America/Phoenix", NM: "America/Denver", CO: "America/Denver", TX: "America/Chicago", FL: "America/New_York", AR: "America/Chicago", NC: "America/New_York" };
+// Aktif eyalet listesi — tek kaynak: lib/offmarket-stats.ts (burada kopya yok).
+const STATES = OFFMARKET_STATES;
+// Eyalet çoğunluğunun saat dilimi (TN/OK çoğunluk Central, GA Eastern).
+const TZ: Record<string, string> = { AZ: "America/Phoenix", NM: "America/Denver", CO: "America/Denver", TX: "America/Chicago", FL: "America/New_York", AR: "America/Chicago", NC: "America/New_York", TN: "America/Chicago", GA: "America/New_York", OK: "America/Chicago" };
 
 type Lead = {
   lead_id: string; state: string; county: string; apn: string; owner: string;

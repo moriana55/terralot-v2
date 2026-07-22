@@ -8,7 +8,7 @@
 // Son doğrulama: 2026-07-22 (canlı ile birebir).
 // ─────────────────────────────────────────────────────────────────────────────
 
-export const OFFMARKET_STATES = ["AZ", "NM", "CO", "TX", "FL", "AR", "NC"] as const;
+export const OFFMARKET_STATES = ["AZ", "NM", "CO", "TX", "FL", "AR", "NC", "TN", "GA", "OK"] as const;
 export type OffmarketState = (typeof OFFMARKET_STATES)[number];
 
 export type StateMeta = {
@@ -35,6 +35,9 @@ export const OFFMARKET_STATE_META: Record<OffmarketState, StateMeta> = {
   FL: { code: "FL", label: "Florida",        region: "Charlotte + Highlands + statewide",         color: "#7c3aed", bounds: [-87.6, 24.5, -80.0, 31.0],   lat: 28.0,  lng: -81.6,  fallbackCount: 84044 },
   AR: { code: "AR", label: "Arkansas",       region: "Sharp + Izard + Van Buren",                 color: "#0891b2", bounds: [-94.6, 33.0, -89.6, 36.5],   lat: 35.9,  lng: -91.9,  fallbackCount: 71585 },
   NC: { code: "NC", label: "North Carolina", region: "Brunswick + Rutherford + Northampton",      color: "#be185d", bounds: [-84.3, 33.8, -75.4, 36.6],   lat: 35.3,  lng: -79.2,  fallbackCount: 38148 },
+  TN: { code: "TN", label: "Tennessee",      region: "Cumberland Plateau",                        color: "#ea580c", bounds: [-90.3, 34.98, -81.65, 36.68], lat: 35.9, lng: -85.4,  fallbackCount: 0 },
+  GA: { code: "GA", label: "Georgia",        region: "Clayton + statewide",                       color: "#65a30d", bounds: [-85.6, 30.36, -80.8, 35.0],  lat: 32.65, lng: -83.45, fallbackCount: 11 },
+  OK: { code: "OK", label: "Oklahoma",       region: "Statewide kırsal",                          color: "#4f46e5", bounds: [-103.0, 33.62, -94.43, 37.0], lat: 35.5, lng: -97.5,  fallbackCount: 0 },
 };
 
 /** API gelene kadar kullanılan eyalet → sayı fallback haritası. */
@@ -48,7 +51,7 @@ export const OFFMARKET_FALLBACK_TOTAL = OFFMARKET_STATES.reduce(
   0
 );
 
-/** 7 eyaletin tamamını kapsayan genel bakış bbox'ı. */
+/** Aktif eyaletlerin (10) tamamını kapsayan genel bakış bbox'ı. */
 export const OFFMARKET_OVERVIEW_BOUNDS: [number, number, number, number] = [-115.5, 24.0, -74.5, 41.8];
 
 export const OFFMARKET_STATE_COLORS: Record<string, string> = Object.fromEntries(
