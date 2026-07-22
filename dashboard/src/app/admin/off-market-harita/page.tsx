@@ -36,6 +36,7 @@ const STATE_INFO = OFFMARKET_STATE_META;
 export default function OffMarketHaritaPage() {
   const { counts, total: TOTAL_LEADS } = useOffmarketStats();
   const [coordPoints, setCoordPoints] = useState<number | null>(null);
+  const [showComp, setShowComp] = useState(false); // rakip ilanları (kırmızı elmas)
   const biggest = STATES.reduce((a, b) => ((counts[a] ?? 0) >= (counts[b] ?? 0) ? a : b));
   const STATE_PINS: StatePin[] = STATES.map((st) => ({
     state: st,
@@ -106,11 +107,30 @@ export default function OffMarketHaritaPage() {
             </span>
           </div>
         ))}
+        {/* Rakip ilanları toggle — kırmızı elmas katmanı (Discount Lots · Landio · Rina Land) */}
+        <button
+          onClick={() => setShowComp((v) => !v)}
+          title="Rakip ilanları göster/gizle — gerçek ilan koordinatları (Discount Lots · Landio · Rina Land)"
+          className="ml-auto flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-bold transition-all"
+          style={{
+            borderColor: showComp ? "#dc2626" : "var(--border)",
+            background: showComp ? "rgba(220,38,38,0.12)" : "transparent",
+            color: showComp ? "#b91c1c" : "var(--muted)",
+          }}
+        >
+          <span
+            style={{
+              display: "inline-block", width: 10, height: 10, transform: "rotate(45deg)",
+              background: "#dc2626", border: "1.5px solid #fff", boxShadow: "0 0 0 1px rgba(0,0,0,0.1)",
+            }}
+          />
+          Rakip İlanlar
+        </button>
       </div>
 
       {/* Harita */}
       <div className="overflow-hidden rounded-xl border" style={{ borderColor: "var(--border)" }}>
-        <OffMarketMap statePins={STATE_PINS} onMeta={(m) => setCoordPoints(m.totalPoints)} />
+        <OffMarketMap statePins={STATE_PINS} onMeta={(m) => setCoordPoints(m.totalPoints)} showCompetitors={showComp} />
       </div>
 
       <p className="text-xs" style={{ color: "var(--muted)" }}>

@@ -16,6 +16,8 @@ import { MapContainer, TileLayer, CircleMarker, Marker, Popup, LayersControl, us
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+// Rakip ilanları (kırmızı elmas) — ortak katman; toggle kapalıyken mount edilmez.
+import CompetitorLayer from "@/components/map/CompetitorLayer";
 
 // Eyalet renkleri — lejant/breakdown ile birebir.
 export const STATE_COLORS: Record<string, string> = {
@@ -190,10 +192,13 @@ function ClusterLayer({ onMeta, onError }: { onMeta?: (m: ClusterMeta) => void; 
 export default function OffMarketMap({
   statePins,
   onMeta,
+  showCompetitors = false,
 }: {
   /** Fallback: cluster API çökerse county merkezli gerçek sayılı pinler. */
   statePins: StatePin[];
   onMeta?: (m: ClusterMeta) => void;
+  /** Rakip ilanları katmanı (kırmızı elmas) — kapalıyken hiç yüklenmez. */
+  showCompetitors?: boolean;
 }) {
   const [fallback, setFallback] = useState(false);
   const handleError = useCallback(() => setFallback(true), []);
@@ -219,6 +224,7 @@ export default function OffMarketMap({
       </LayersControl>
 
       {!fallback && <ClusterLayer onMeta={onMeta} onError={handleError} />}
+      {showCompetitors && <CompetitorLayer />}
 
       {/* FALLBACK — cluster API çökerse eski dürüst county pinleri. */}
       {fallback &&

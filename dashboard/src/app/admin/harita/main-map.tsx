@@ -23,10 +23,13 @@ import {
   type OffmarketState,
 } from "@/lib/offmarket-stats";
 import { useOffmarketStats } from "@/lib/useOffmarketStats";
+// Rakip ilanları (kırmızı elmas) — ortak katman; toggle kapalıyken mount edilmez.
+import CompetitorLayer from "@/components/map/CompetitorLayer";
 
 type ClusterFeature =
   | { t: "c"; lat: number; lng: number; n: number; st: string; ez: number }
   | { t: "p"; lat: number; lng: number; st: string };
+
 
 type LeadDetail = {
   lead_id: string; state: string; county: string | null; region: string | null; apn: string | null;
@@ -229,10 +232,12 @@ export default function MainMap({
   satellite,
   stateFilter,
   flyCmd,
+  showCompetitors = false,
 }: {
   satellite: boolean;
   stateFilter: OffmarketState | null;
   flyCmd: { id: number; st: OffmarketState | null };
+  showCompetitors?: boolean;
 }) {
   const [fallback, setFallback] = useState(false);
   const handleError = useCallback(() => setFallback(true), []);
@@ -291,6 +296,8 @@ export default function MainMap({
 
         <FlyController flyCmd={flyCmd} />
         {!fallback && <ClusterLayer stateFilter={stateFilter} satellite={satellite} onError={handleError} />}
+        {/* Rakip ilanları — toggle kapalıyken component hiç mount olmaz (fetch de olmaz). */}
+        {showCompetitors && <CompetitorLayer large={satellite} dark stateFilter={stateFilter} />}
 
         {/* FALLBACK — cluster API çökerse eyalet merkezli dürüst pinler. */}
         {fallback &&

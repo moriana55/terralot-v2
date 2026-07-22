@@ -48,6 +48,7 @@ export default function AnaHaritaPage() {
   const { counts, total } = useOffmarketStats();
   const [selected, setSelected] = useState<OffmarketState | null>(null);
   const [satellite, setSatellite] = useState(false);
+  const [showComp, setShowComp] = useState(false); // rakip ilanları (kırmızı elmas)
   // Çip tıklamasını haritaya iletmek için "komut" state'i (her tıklamada artan id).
   const [flyCmd, setFlyCmd] = useState<{ id: number; st: OffmarketState | null }>({ id: 0, st: null });
 
@@ -61,7 +62,7 @@ export default function AnaHaritaPage() {
     <div className="fixed inset-0 z-[80]" style={{ background: "#0b1220" }}>
       {/* Harita — tam ekran */}
       <div className="absolute inset-0">
-        <MainMap satellite={satellite} stateFilter={selected} flyCmd={flyCmd} />
+        <MainMap satellite={satellite} stateFilter={selected} flyCmd={flyCmd} showCompetitors={showComp} />
       </div>
 
       {/* Üst şeffaf bar */}
@@ -141,9 +142,27 @@ export default function AnaHaritaPage() {
             </div>
           </div>
 
+          {/* Rakip ilanları toggle — kırmızı elmas katmanı */}
+          <button
+            onClick={() => setShowComp((v) => !v)}
+            title="Rakip ilanları göster/gizle (Discount Lots · Landio · Rina Land — gerçek koordinat)"
+            className="ml-auto flex shrink-0 items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-bold transition-all"
+            style={{
+              borderColor: showComp ? "#dc2626" : "rgba(255,255,255,0.16)",
+              background: showComp ? "rgba(220,38,38,0.22)" : "rgba(255,255,255,0.06)",
+              color: showComp ? "#fca5a5" : "#9fb0c8",
+            }}
+          >
+            <span
+              className="inline-block h-2 w-2"
+              style={{ background: "#dc2626", transform: "rotate(45deg)", boxShadow: showComp ? "0 0 6px #dc2626" : "none" }}
+            />
+            Rakip İlanlar
+          </button>
+
           {/* Koyu / Uydu anahtarı */}
           <div
-            className="ml-auto flex shrink-0 items-center rounded-full border p-0.5"
+            className="flex shrink-0 items-center rounded-full border p-0.5"
             style={{ borderColor: "rgba(255,255,255,0.16)", background: "rgba(255,255,255,0.06)" }}
           >
             {([false, true] as const).map((sat) => (
