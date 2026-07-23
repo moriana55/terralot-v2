@@ -65,3 +65,16 @@ npm start
 * 📂 `public/`
   * 📄 `index.html` ➜ Premium light-mode glassmorphic web arayüzümüz.
 * 📄 `zillow_listings.db` ➜ Tüm ilanların, fiyat düşüş geçmişlerinin kaydedildiği SQLite veritabanı.
+
+## Arsa Not Motoru (A+..F) — Operasyon Notu (2026-07-23)
+
+Zincir: `sql/offmarket_grades.sql` (uygulandı) → `grade-offmarket.mjs` (Kademe 1,
+tamamı puanlandı) → `geo-enrich-offmarket.mjs` (Kademe 2, OSM Overpass — top 25K,
+resume edilebilir, `geo-enrich.log`) → **tarama bitince şunu çalıştır:**
+
+    node scraper/grade-offmarket.mjs
+
+Bu ikinci koşu geo-doğrulanan kayıtların B tavanını kaldırır → A+/A vitrini dolar
+(`/admin/arsa-notlari`). İkisi de idempotent, istediğin kadar tekrarlanır.
+Tarama koptuysa: `cd scraper && nohup node geo-enrich-offmarket.mjs >> geo-enrich.log 2>&1 &`
+(kaldığı yerden sürer; hız ~40-180 hücre/dk, ayna yüküne göre değişir).
