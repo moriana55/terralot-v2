@@ -1,0 +1,152 @@
+#!/usr/bin/env node
+// ─────────────────────────────────────────────────────────────────────────────
+// GEO-ZENGİNLEŞTİRME — Kademe-1'den geçen off-market lead'lere OSM Overpass ile
+// GERÇEK mesafe verisi: yol / elektrik hattı / su-göl / kasaba.
+//
+//   node scraper/geo-enrich-offmarket.mjs             # top 25K skorlu kayıt
+//   GEO_TOP=40000 node scraper/geo-enrich-offmarket.mjs
+//
+// • 565K'nın tamamına Overpass ATILMAZ (rate limit) — huni: grade_score'a göre
+//   en iyi GEO_TOP kayıt + koordinatı olanlar.
+// • Nokta dedupe: 0.001° (~110 m) hücre — aynı subdivision'daki komşu parseller
+//   tek Overpass sorgusu paylaşır (sorgu sayısını ~5-10x düşürür).
+// • RESUME EDİLEBİLİR: geo_enriched_at IS NULL filtresi; kesip tekrar başlatmak
+//   kaldığı yerden sürer. Kalıp: scraper/dd-enrich.js (mirror rotasyonu + UA).
+// • Mesafeler Overpass `out center` üzerinden hesaplanır (way merkezi) —
+//   yaklaşık değerdir; kartlarda "~" ile gösterilir, kesinlik iddia edilmez.
+// • dist_*_m: -1 = tarandı, yarıçap içinde yok. Bitince notları tazele:
+//   node scraper/grade-offmarket.mjs
+// ─────────────────────────────────────────────────────────────────────────────
+import pg from "pg";
+import { dbUrl } from "./grade-offmarket.mjs";
+
+const GEO_TOP = parseInt(process.env.GEO_TOP || "25000", 10);
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+const OVERPASS_MIRRORS = [
+  "https://overpass-api.de/api/interpreter",
+  "https://overpass.kumi.systems/api/interpreter",
+  "https://maps.mail.ru/osm/tools/overpass/api/interpreter",
+];
+const UA = "terralot-geo/1.0 (land grading; contact sales@nocturndev.com)";
+const ROAD_RE = /^(motorway|trunk|primary|secondary|tertiary|unclassified|residential|service|track|road|living_street)$/;
+
+// Arama yarıçapları (metre) — grade-core geo bantlarıyla uyumlu.
+const R_ROAD = 1600, R_POWER = 1500, R_WATER = 1500, R_TOWN = 25000;
+
+function haversine(aLat, aLng, bLat, bLng) {
+  const R = 6371000, d2r = Math.PI / 180;
+  const dLat = (bLat - aLat) * d2r, dLng = (bLng - aLng) * d2r;
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(aLat * d2r) * Math.cos(bLat * d2r) * Math.sin(dLng / 2) ** 2;
+  return 2 * R * Math.asin(Math.min(1, Math.sqrt(h)));
+}
+
+function buildQuery(lat, lng) {
+  return `[out:json][timeout:25];(
+    way(around:${R_ROAD},${lat},${lng})["highway"~"^(motorway|trunk|primary|secondary|tertiary|unclassified|residential|service|track|road|living_street)$"];
+    way(around:${R_POWER},${lat},${lng})["power"~"^(line|minor_line)$"];
+    node(around:${R_POWER},${lat},${lng})["power"~"^(tower|pole)$"];
+    way(around:${R_WATER},${lat},${lng})["natural"="water"];
+    way(around:${R_WATER},${lat},${lng})["waterway"~"^(river|stream|canal)$"];
+    node(around:${R_TOWN},${lat},${lng})["place"~"^(town|city|village)$"];
+  );out center 150;`;
+}
+
+// SAF: Overpass cevabı → kategori başına min mesafe (m) veya -1.
+export function parseDistances(json, lat, lng) {
+  const min = { road: Infinity, power: Infinity, water: Infinity, town: Infinity };
+  for (const el of json?.elements ?? []) {
+    const elat = Number(el.center?.lat ?? el.lat);
+    const elng = Number(el.center?.lon ?? el.lon);
+    if (!Number.isFinite(elat) || !Number.isFinite(elng)) continue;
+    const t = el.tags ?? {};
+    const d = haversine(lat, lng, elat, elng);
+    let cat = null;
+    if (typeof t.highway === "string" && ROAD_RE.test(t.highway)) cat = "road";
+    else if (t.power === "line" || t.power === "minor_line" || t.power === "tower" || t.power === "pole") cat = "power";
+    else if (t.natural === "water" || typeof t.waterway === "string") cat = "water";
+    else if (typeof t.place === "string") cat = "town";
+    if (cat && d < min[cat]) min[cat] = d;
+  }
+  const out = {};
+  for (const [k, v] of Object.entries(min)) out[k] = Number.isFinite(v) ? Math.round(v) : -1;
+  return out;
+}
+
+async function overpass(lat, lng) {
+  let lastErr;
+  for (let attempt = 0; attempt < 2; attempt++) {
+    for (const url of OVERPASS_MIRRORS) {
+      try {
+        const res = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded", "User-Agent": UA },
+          body: "data=" + encodeURIComponent(buildQuery(lat, lng)),
+          signal: AbortSignal.timeout(35000),
+        });
+        if (res.status === 429 || res.status === 504) { lastErr = new Error("overpass " + res.status); await sleep(4000); continue; }
+        if (!res.ok) throw new Error("overpass " + res.status);
+        return await res.json();
+      } catch (e) { lastErr = e; await sleep(1500); }
+    }
+  }
+  throw lastErr ?? new Error("overpass yok");
+}
+
+async function main() {
+  const client = new pg.Client({ connectionString: dbUrl() });
+  await client.connect();
+
+  // Huni eşiği: koordinatlı + skorlu en iyi GEO_TOP kaydın skor tabanı.
+  const thr = await client.query(
+    `select grade_score s from offmarket_leads
+     where lat is not null and grade_score is not null
+     order by grade_score desc offset $1 limit 1`, [GEO_TOP]);
+  const minScore = thr.rows[0]?.s ?? 0;
+
+  const pend = await client.query(
+    `select lead_id, lat::float8 lat, lng::float8 lng from offmarket_leads
+     where geo_enriched_at is null and lat is not null and grade_score >= $1
+     order by grade_score desc
+     limit $2`, [minScore, GEO_TOP]); // skorlar ayrık — eşitlik yığılmasına LIMIT koru
+  console.log(`geo kuyruğu: ${pend.rows.length} lead (skor >= ${minScore}, top ~${GEO_TOP})`);
+
+  // 0.001° hücre dedupe — komşu parseller tek sorgu paylaşır.
+  const cells = new Map(); // key → { lat, lng, ids: [] }
+  for (const r of pend.rows) {
+    const key = `${r.lat.toFixed(3)},${r.lng.toFixed(3)}`;
+    if (!cells.has(key)) cells.set(key, { lat: r.lat, lng: r.lng, ids: [] });
+    cells.get(key).ids.push(r.lead_id);
+  }
+  console.log(`hücre sayısı: ${cells.size} (dedupe ${(pend.rows.length / Math.max(1, cells.size)).toFixed(1)}x)`);
+
+  let done = 0, fail = 0;
+  const t0 = Date.now();
+  for (const [key, cell] of cells) {
+    try {
+      const json = await overpass(cell.lat, cell.lng);
+      const d = parseDistances(json, cell.lat, cell.lng);
+      await client.query(
+        `update offmarket_leads set dist_road_m=$1, dist_power_m=$2, dist_water_m=$3,
+           dist_town_m=$4, geo_enriched_at=now() where lead_id = any($5)`,
+        [d.road, d.power, d.water, d.town, cell.ids]
+      );
+      done++;
+    } catch (e) {
+      fail++;
+      if (fail % 25 === 0) console.warn(`\nhata (${fail}): ${key} → ${e.message}`);
+      if (fail > 200 && fail > done) { console.error("\nOverpass sürekli hata veriyor — duraklatıldı (resume güvenli)"); break; }
+    }
+    if (done % 25 === 0) {
+      const rate = done / ((Date.now() - t0) / 60000);
+      process.stdout.write(`\rhücre ${done}/${cells.size} · hata ${fail} · ${rate.toFixed(0)} hücre/dk`);
+    }
+    await sleep(650); // rate-limit saygısı (~90 sorgu/dk, mirror'lara dağılır)
+  }
+  console.log(`\nbitti: ${done} hücre, ${fail} hata. Şimdi: node scraper/grade-offmarket.mjs (notları tazele)`);
+  await client.end();
+}
+
+if (process.argv[1] && process.argv[1].endsWith("geo-enrich-offmarket.mjs")) {
+  main().catch((e) => { console.error(e); process.exit(1); });
+}
