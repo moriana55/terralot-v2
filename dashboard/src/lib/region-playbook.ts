@@ -66,7 +66,7 @@ const AZ_NATIVE_PLANT =
 const FULL: Record<string, string> = {
   alabama: "AL", arizona: "AZ", arkansas: "AR", california: "CA", colorado: "CO",
   florida: "FL", georgia: "GA", idaho: "ID", kentucky: "KY", louisiana: "LA",
-  missouri: "MO", nevada: "NV", "new mexico": "NM", "new york": "NY",
+  michigan: "MI", missouri: "MO", nevada: "NV", "new mexico": "NM", "new york": "NY",
   "north carolina": "NC", ohio: "OH", oklahoma: "OK", oregon: "OR",
   tennessee: "TN", texas: "TX", utah: "UT", wyoming: "WY",
 };
@@ -235,6 +235,14 @@ const STATE_ENTRIES: StateEntry[] = [
     "Lake of the Ozarks (Camden) — göl/rekreasyon subdivision lotları; KC/StL/eyalet-dışı absentee sahipler yoğun, hafta-sonu kaçış + emeklilik arsası olarak satılır.",
     ["recreational", "camping", "site-built", "mobile-home"],
     "⚠ Göl bölgesi lotlarında POA/HOA aidatı ve deed-restriction (min. yapı, mobil ev yasağı) YAYGIN — aidat borcu alıcıya geçebilir. 'Göl erişimi' vaadi verilmez: çoğu lot göl kıyısı DEĞİL, erişim ancak subdivision'ın ortak alanı/rampası varsa vardır; Ameren kıyı şeridi izni ayrı konu. Alıcı POA aidatı + erişimi county ve POA'dan doğrulamalı.",
+    NONJUDICIAL,
+    "medium"
+  ),
+  stateFallback(
+    "MI",
+    "Upper Peninsula — av/rekreasyon parselleri (orman, ATV/kar motoru, geyik avı); eyalet-güneyi (downstate) absentee sahipler yoğun, sezonluk kullanım arsası olarak satılır.",
+    ["recreational", "camping", "homestead"],
+    "⚠ UP'de KAR GERÇEK: yıllık 3-8 metre kar yağar, çoğu arka-yol kışın BAKILMAZ — parsel yılın 4-5 ayı pratikte erişilmez olabilir; 'yıl boyu erişim' vaadi verilmez. Yasal yol erişimi (easement) parsel bazında doğrulanmalı; landlocked av parseli yaygındır.",
     NONJUDICIAL,
     "medium"
   ),

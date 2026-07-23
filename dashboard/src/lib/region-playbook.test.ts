@@ -118,6 +118,15 @@ test("2. dalga: MO → Lake of the Ozarks açısı + POA aidatı/göl erişimi d
   assert.ok(CONFIRM.test(pb.zoningNote));
 });
 
+test("2. dalga: MI → UP av/rekreasyon açısı + kar yükü/mevsimsel erişim dürüst uyarısı", () => {
+  const pb = regionPlaybook({ state: "MI" });
+  assert.equal(pb.matchBasis, "state");
+  assert.ok(/Upper Peninsula|UP/i.test(pb.salesAngle));
+  assert.ok(/kar/i.test(pb.zoningNote), "MI kar yükü uyarısı bekleniyordu");
+  assert.ok(/erişim/i.test(pb.zoningNote));
+  assert.ok(CONFIRM.test(pb.zoningNote));
+});
+
 test("NY → taksitli satış UYARISI (installment önerilmez)", () => {
   const pb = regionPlaybook({ state: "New York" });
   assert.ok(/NY|installment|taksit/i.test(pb.zoningNote + " " + (pb.installmentNote ?? "")));
