@@ -84,9 +84,12 @@ export async function GET(req: NextRequest) {
   const e = Math.min(180, num(p.get("e"), 180));
   const n = Math.min(85, num(p.get("n"), 85));
   const z = Math.min(22, Math.max(0, Math.round(num(p.get("z"), 5))));
-  // Opsiyonel eyalet filtresi — yalnız bilinen eyalet kodları (2 harf) kabul edilir.
-  const stRaw = (p.get("st") ?? "").toUpperCase();
-  const stFilter = /^[A-Z]{2}$/.test(stRaw) ? stRaw : null;
+  // Opsiyonel eyalet filtresi — tek kod veya virgüllü liste (st=TX,FL,AZ).
+  const stCodes = (p.get("st") ?? "")
+    .toUpperCase()
+    .split(",")
+    .filter((c) => /^[A-Z]{2}$/.test(c));
+  const stFilter = stCodes.length ? new Set(stCodes) : null;
 
   // t:"c" = cluster baloncuğu (n = gerçek kayıt sayısı, ez = açılma zoom'u)
   // t:"p" = GERÇEK tek kayıt noktası
@@ -96,7 +99,7 @@ export async function GET(req: NextRequest) {
   > = [];
 
   for (const { state, index } of DATA.perState) {
-    if (stFilter && state !== stFilter) continue;
+    if (stFilter && !stFilter.has(state)) continue;
     for (const f of index.getClusters([w, s, e, n], z)) {
       const [lng, lat] = f.geometry.coordinates;
       const props = f.properties as { cluster?: boolean; cluster_id?: number; point_count?: number };

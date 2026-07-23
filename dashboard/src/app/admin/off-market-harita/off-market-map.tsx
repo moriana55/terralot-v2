@@ -112,7 +112,8 @@ function PointDetailPopup({ lat, lng, st }: { lat: number; lng: number; st: stri
 }
 
 // Cluster/nokta katmanı — pan/zoom'da bbox'ı sunucudan tazeler.
-function ClusterLayer({ onMeta, onError }: { onMeta?: (m: ClusterMeta) => void; onError?: () => void }) {
+// stQuery: virgüllü eyalet filtresi ("TX,FL"); boş = tümü.
+function ClusterLayer({ onMeta, onError, stQuery = "" }: { onMeta?: (m: ClusterMeta) => void; onError?: () => void; stQuery?: string }) {
   const map = useMap();
   const [features, setFeatures] = useState<ClusterFeature[]>([]);
   const abortRef = useRef<AbortController | null>(null);
@@ -129,7 +130,7 @@ function ClusterLayer({ onMeta, onError }: { onMeta?: (m: ClusterMeta) => void; 
     const ac = new AbortController();
     abortRef.current = ac;
     fetch(
-      `/api/admin/offmarket-map-clusters?w=${b.getWest().toFixed(4)}&s=${b.getSouth().toFixed(4)}&e=${b.getEast().toFixed(4)}&n=${b.getNorth().toFixed(4)}&z=${z}`,
+      `/api/admin/offmarket-map-clusters?w=${b.getWest().toFixed(4)}&s=${b.getSouth().toFixed(4)}&e=${b.getEast().toFixed(4)}&n=${b.getNorth().toFixed(4)}&z=${z}${stQuery ? `&st=${stQuery}` : ""}`,
       { signal: ac.signal }
     )
       .then((r) => { if (!r.ok) throw new Error(String(r.status)); return r.json(); })
@@ -145,7 +146,7 @@ function ClusterLayer({ onMeta, onError }: { onMeta?: (m: ClusterMeta) => void; 
         failedRef.current = true;
         onError?.();
       });
-  }, [map, onMeta, onError]);
+  }, [map, onMeta, onError, stQuery]);
 
   const schedule = useCallback(() => {
     if (timerRef.current) clearTimeout(timerRef.current);
@@ -190,19 +191,34 @@ function ClusterLayer({ onMeta, onError }: { onMeta?: (m: ClusterMeta) => void; 
   );
 }
 
+// Lejanttan TEK eyalet seçilince haritayı o eyaletin merkezine uçur.
+function FlyToState({ pin }: { pin: StatePin | null }) {
+  const map = useMap();
+  useEffect(() => {
+    if (pin) map.flyTo([pin.lat, pin.lng], 7, { duration: 0.8 });
+  }, [map, pin]);
+  return null;
+}
+
 export default function OffMarketMap({
   statePins,
   onMeta,
   showCompetitors = false,
+  activeStates = null,
 }: {
   /** Fallback: cluster API çökerse county merkezli gerçek sayılı pinler. */
   statePins: StatePin[];
   onMeta?: (m: ClusterMeta) => void;
   /** Rakip ilanları katmanı (kırmızı elmas) — kapalıyken hiç yüklenmez. */
   showCompetitors?: boolean;
+  /** Lejant filtre çipleri — null/boş = tüm eyaletler. */
+  activeStates?: string[] | null;
 }) {
   const [fallback, setFallback] = useState(false);
   const handleError = useCallback(() => setFallback(true), []);
+  const stQuery = activeStates?.length ? activeStates.join(",") : "";
+  const flyPin =
+    activeStates?.length === 1 ? statePins.find((s) => s.state === activeStates[0]) ?? null : null;
 
   return (
     <MapContainer
@@ -224,12 +240,15 @@ export default function OffMarketMap({
         </LayersControl.BaseLayer>
       </LayersControl>
 
-      {!fallback && <ClusterLayer onMeta={onMeta} onError={handleError} />}
+      {!fallback && <ClusterLayer onMeta={onMeta} onError={handleError} stQuery={stQuery} />}
       {showCompetitors && <CompetitorLayer />}
+      <FlyToState pin={flyPin} />
 
       {/* FALLBACK — cluster API çökerse eski dürüst county pinleri. */}
       {fallback &&
-        statePins.map((s) => (
+        statePins
+          .filter((s) => !activeStates?.length || activeStates.includes(s.state))
+          .map((s) => (
           <Marker
             key={s.state}
             position={[s.lat, s.lng]}

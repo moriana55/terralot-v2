@@ -37,6 +37,10 @@ export default function OffMarketHaritaPage() {
   const { counts, total: TOTAL_LEADS } = useOffmarketStats();
   const [coordPoints, setCoordPoints] = useState<number | null>(null);
   const [showComp, setShowComp] = useState(false); // rakip ilanları (kırmızı elmas)
+  // Lejant filtre çipleri — boş = tüm eyaletler görünür.
+  const [selected, setSelected] = useState<string[]>([]);
+  const toggleState = (st: string) =>
+    setSelected((cur) => (cur.includes(st) ? cur.filter((s) => s !== st) : [...cur, st]));
   const biggest = STATES.reduce((a, b) => ((counts[a] ?? 0) >= (counts[b] ?? 0) ? a : b));
   const STATE_PINS: StatePin[] = STATES.map((st) => ({
     state: st,
@@ -86,27 +90,52 @@ export default function OffMarketHaritaPage() {
         />
       </div>
 
-      {/* Lejant */}
-      <div className="flex flex-wrap gap-3 rounded-xl border p-3" style={{ borderColor: "var(--border)", background: "var(--surface)" }}>
-        {STATES.map((st) => (
-          <div key={st} className="flex items-center gap-2">
-            <span
+      {/* Lejant — çipler tıklanabilir FİLTRE: eyalet seç → haritada yalnız o kalır. */}
+      <div className="flex flex-wrap items-center gap-2 rounded-xl border p-3" style={{ borderColor: "var(--border)", background: "var(--surface)" }}>
+        <button
+          onClick={() => setSelected([])}
+          className="rounded-full border px-3 py-1 text-xs font-bold transition-all"
+          style={{
+            borderColor: selected.length ? "var(--border)" : "#059669",
+            background: selected.length ? "transparent" : "rgba(5,150,105,0.12)",
+            color: selected.length ? "var(--muted)" : "#047857",
+          }}
+        >
+          Tümü
+        </button>
+        {STATES.map((st) => {
+          const active = !selected.length || selected.includes(st);
+          const picked = selected.includes(st);
+          return (
+            <button
+              key={st}
+              onClick={() => toggleState(st)}
+              title={`${STATE_INFO[st].region} — tıkla filtrele, tekrar tıkla kaldır`}
+              className="flex items-center gap-2 rounded-full border px-3 py-1 text-xs transition-all"
               style={{
-                display: "inline-block",
-                width: 14,
-                height: 14,
-                borderRadius: "50%",
-                background: STATE_INFO[st].color,
-                border: "2px solid #fff",
-                boxShadow: "0 0 0 1px rgba(0,0,0,0.1)",
+                borderColor: picked ? STATE_INFO[st].color : "var(--border)",
+                background: picked ? `${STATE_INFO[st].color}1f` : "transparent",
+                opacity: active ? 1 : 0.4,
               }}
-            />
-            <span className="text-xs">
-              <b>{st} · {STATE_INFO[st].region}</b>{" "}
-              <span style={{ color: "var(--muted)" }}>— {(counts[st] ?? 0).toLocaleString("en-US")} lead</span>
-            </span>
-          </div>
-        ))}
+            >
+              <span
+                style={{
+                  display: "inline-block",
+                  width: 12,
+                  height: 12,
+                  borderRadius: "50%",
+                  background: STATE_INFO[st].color,
+                  border: "2px solid #fff",
+                  boxShadow: "0 0 0 1px rgba(0,0,0,0.1)",
+                }}
+              />
+              <span>
+                <b>{st}</b>{" "}
+                <span style={{ color: "var(--muted)" }}>{(counts[st] ?? 0).toLocaleString("en-US")}</span>
+              </span>
+            </button>
+          );
+        })}
         {/* Rakip ilanları toggle — kırmızı elmas katmanı (Discount Lots · Landio · Rina Land) */}
         <button
           onClick={() => setShowComp((v) => !v)}
@@ -130,7 +159,7 @@ export default function OffMarketHaritaPage() {
 
       {/* Harita */}
       <div className="overflow-hidden rounded-xl border" style={{ borderColor: "var(--border)" }}>
-        <OffMarketMap statePins={STATE_PINS} onMeta={(m) => setCoordPoints(m.totalPoints)} showCompetitors={showComp} />
+        <OffMarketMap statePins={STATE_PINS} onMeta={(m) => setCoordPoints(m.totalPoints)} showCompetitors={showComp} activeStates={selected} />
       </div>
 
       <p className="text-xs" style={{ color: "var(--muted)" }}>
