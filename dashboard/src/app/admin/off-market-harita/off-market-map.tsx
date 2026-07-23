@@ -94,7 +94,7 @@ function PointDetailPopup({ lat, lng, st }: { lat: number; lng: number; st: stri
   if (!leads.length) return <div style={{ fontSize: 12 }}>Kayıt bulunamadı.</div>;
   const p = leads[0];
   return (
-    <div style={{ fontSize: 12, lineHeight: 1.5, minWidth: 200 }}>
+    <div style={{ fontSize: 12, lineHeight: 1.5, overflowWrap: "anywhere" }}>
       <div style={{ fontWeight: 700, color }}>{p.state} · {p.county ?? p.region ?? "—"}</div>
       <div style={{ marginTop: 2 }}>Sahip: <b>{p.owner || "—"}</b></div>
       <div style={{ color: "#475569" }}>
@@ -178,7 +178,9 @@ function ClusterLayer({ onMeta, onError }: { onMeta?: (m: ClusterMeta) => void; 
               fillOpacity: 0.65,
             }}
           >
-            <Popup>
+            {/* minWidth=maxWidth: Leaflet genişliği açılışta (loading halinde) kilitliyor;
+                sabit genişlik olmazsa sonradan gelen detay balondan taşıyor. */}
+            <Popup minWidth={240} maxWidth={240}>
               <PointDetailPopup lat={f.lat} lng={f.lng} st={f.st} />
             </Popup>
           </CircleMarker>
