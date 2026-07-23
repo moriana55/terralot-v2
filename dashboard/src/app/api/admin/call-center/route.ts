@@ -16,7 +16,10 @@ const QUEUE_LIMIT = 60;
 const IMPORT_CAP = 500;
 
 const LEAD_COLS =
-  "lead_id, state, county, apn, owner, mailing_city, mailing_state, situs, acres, est_offer, est_retail, est_margin, phone, phone_source, do_not_call";
+  "lead_id, state, county, apn, owner, mailing_city, mailing_state, situs, acres, est_offer, est_retail, est_margin, phone, phone_source, do_not_call, grade, grade_score";
+
+// Not filtresi (arsa not motoru) — yalnız geçerli harfler kabul edilir.
+const VALID_GRADES = new Set(["A+", "A", "B", "C", "D", "F"]);
 
 function normPhone(raw: string): string | null {
   const d = raw.replace(/\D/g, "");
@@ -34,16 +37,21 @@ export async function GET(req: NextRequest) {
   const sp = req.nextUrl.searchParams;
   const state = sp.get("state");
   const onlyPhone = sp.get("only_phone") === "1";
+  // grades=A+,A → kuyruğu not motoruna göre daralt (varsayılanı UI belirler).
+  const grades = (sp.get("grades") ?? "").split(",").map((g) => g.trim()).filter((g) => VALID_GRADES.has(g));
 
   const s = supabaseAdmin();
   let q = s
     .from("offmarket_leads")
     .select(LEAD_COLS)
     .eq("do_not_call", false)
+    // Önce not (A+ en üstte), sonra marj — "önce doğru arsa, sonra marj".
+    .order("grade_score", { ascending: false, nullsFirst: false })
     .order("est_margin", { ascending: false, nullsFirst: false })
     .limit(QUEUE_LIMIT);
   if (state) q = q.eq("state", state);
   if (onlyPhone) q = q.not("phone", "is", null);
+  if (grades.length) q = q.in("grade", grades);
 
   const { data: leads, error } = await q;
 

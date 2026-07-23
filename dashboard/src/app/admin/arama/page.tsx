@@ -13,6 +13,7 @@ import {
   CalendarClock, Upload, Loader2, Copy, CheckCircle2, AlertTriangle, Clock,
 } from "lucide-react";
 import { OFFMARKET_STATES } from "@/lib/offmarket-stats";
+import GradeBadge from "@/components/GradeBadge";
 
 const ACCENT = "#16a34a";
 // Aktif eyalet listesi — tek kaynak: lib/offmarket-stats.ts (burada kopya yok).
@@ -25,7 +26,15 @@ type Lead = {
   mailing_city: string | null; mailing_state: string | null; situs: string | null;
   acres: number | null; est_offer: number | null; est_retail: number | null; est_margin: number | null;
   phone: string | null; phone_source: string | null; do_not_call: boolean;
+  grade?: string | null; grade_score?: number | null;
 };
+
+// Not filtresi ön ayarları — varsayılan A+/A: önce EN satılabilir arsanın sahibi aranır.
+const GRADE_PRESETS: { key: string; label: string }[] = [
+  { key: "A+,A", label: "A+/A (vitrin)" },
+  { key: "A+,A,B", label: "A+ – B" },
+  { key: "", label: "Tüm notlar" },
+];
 type Callback = { lead_id: string; note: string | null; callback_at: string; lead: { owner: string; state: string; county: string; phone: string | null } | null };
 
 const OUTCOME_META: { key: string; label: string; icon: typeof Phone; tone: string }[] = [
@@ -61,6 +70,7 @@ export default function AramaKokpiti() {
   const [phoneTotal, setPhoneTotal] = useState(0);
   const [state, setState] = useState<string>("");
   const [onlyPhone, setOnlyPhone] = useState(true);
+  const [gradeSel, setGradeSel] = useState<string>("A+,A"); // varsayılan: vitrin notları
   const [activeId, setActiveId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState<string | null>(null);
@@ -85,6 +95,7 @@ export default function AramaKokpiti() {
       const qs = new URLSearchParams();
       if (state) qs.set("state", state);
       if (onlyPhone) qs.set("only_phone", "1");
+      if (gradeSel) qs.set("grades", gradeSel);
       const res = await fetch(`/api/admin/call-center?${qs}`);
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "yüklenemedi");
@@ -99,7 +110,7 @@ export default function AramaKokpiti() {
     } finally {
       setLoading(false);
     }
-  }, [state, onlyPhone]);
+  }, [state, onlyPhone, gradeSel]);
 
   useEffect(() => { void load(); }, [load]);
 
@@ -241,6 +252,11 @@ Would you consider an offer of around ${usd(active.est_offer)} if we could close
           <button key={st} style={chip(state === st)} onClick={() => setState(st)}>{st}</button>
         ))}
         <span className="mx-2 h-5 w-px" style={{ background: "var(--outline)" }} />
+        {/* Not filtresi — arsa not motoru (varsayılan A+/A: önce vitrin arsalar) */}
+        {GRADE_PRESETS.map((p) => (
+          <button key={p.key} style={chip(gradeSel === p.key)} onClick={() => setGradeSel(p.key)}>{p.label}</button>
+        ))}
+        <span className="mx-2 h-5 w-px" style={{ background: "var(--outline)" }} />
         <button style={chip(onlyPhone)} onClick={() => setOnlyPhone((v) => !v)}>📞 Sadece numarası olanlar</button>
       </div>
 
@@ -263,7 +279,10 @@ Would you consider an offer of around ${usd(active.est_offer)} if we could close
               return (
                 <button key={l.lead_id} onClick={() => setActiveId(l.lead_id)} className="w-full text-left px-4 py-3 block" style={{ borderBottom: "1px solid var(--outline)", background: on ? `${ACCENT}10` : "transparent", borderLeft: on ? `3px solid ${ACCENT}` : "3px solid transparent" }}>
                   <div className="flex items-center justify-between gap-2">
-                    <b className="text-sm truncate">{l.owner}</b>
+                    <span className="flex items-center gap-1.5 min-w-0">
+                      <GradeBadge grade={l.grade} size="sm" />
+                      <b className="text-sm truncate">{l.owner}</b>
+                    </span>
                     <span className="text-xs font-bold whitespace-nowrap" style={{ color: ACCENT }}>{usd(l.est_margin)} marj</span>
                   </div>
                   <div className="mt-0.5 flex items-center justify-between gap-2 text-xs" style={{ color: "var(--muted)" }}>
@@ -285,7 +304,10 @@ Would you consider an offer of around ${usd(active.est_offer)} if we could close
             <div className="rounded-xl border p-6" style={{ borderColor: "var(--outline)", background: "var(--surface)" }}>
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div>
-                  <h2 className="text-xl font-bold">{active.owner}</h2>
+                  <h2 className="text-xl font-bold flex items-center gap-2">
+                    <GradeBadge grade={active.grade} size="md" title={active.grade_score != null ? `not motoru skoru ${active.grade_score}` : undefined} />
+                    {active.owner}
+                  </h2>
                   <p className="text-sm mt-0.5" style={{ color: "var(--muted)" }}>
                     {active.county} County, {active.state} · APN {active.apn}
                     {active.mailing_city ? ` · posta: ${active.mailing_city}, ${active.mailing_state ?? ""}` : ""}

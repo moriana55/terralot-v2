@@ -33,7 +33,7 @@ export async function GET(req: NextRequest) {
     const s = supabaseAdmin();
     const { data, error } = await s
       .from("offmarket_leads")
-      .select("lead_id, state, county, region, apn, owner, situs, use, acres, land_value, est_offer, est_retail, est_margin, absentee, mailing_city, mailing_state")
+      .select("lead_id, state, county, region, apn, owner, situs, use, acres, land_value, est_offer, est_retail, est_margin, absentee, mailing_city, mailing_state, grade, grade_score")
       .eq("state", st)
       .gte("lat", lat - EPS).lte("lat", lat + EPS)
       .gte("lng", lng - EPS).lte("lng", lng + EPS)

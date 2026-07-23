@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { LayoutDashboard, MapPin, MessageSquare, CreditCard, ArrowLeft, BarChart3, Users, CircleDollarSign, Map, Mail, Wallet, Target, Globe, Tv, FileSearch, ChevronLeft, ChevronRight, ChevronDown, Cpu, Brain, TrendingDown, Rocket, Hammer, Calculator, Copy, BellRing, Send, MailPlus, Database, Swords, Radar, Sparkles, ShieldCheck, Radio, PhoneCall, Handshake } from "lucide-react";
+import { LayoutDashboard, MapPin, MessageSquare, CreditCard, ArrowLeft, BarChart3, Users, CircleDollarSign, Map, Mail, Wallet, Target, Globe, Tv, FileSearch, ChevronLeft, ChevronRight, ChevronDown, Cpu, Brain, TrendingDown, Rocket, Hammer, Calculator, Copy, BellRing, Send, MailPlus, Database, Swords, Radar, Sparkles, ShieldCheck, Radio, PhoneCall, Handshake, Award } from "lucide-react";
 import { CerberusLogo } from "@/components/DealHoundLogo";
 import { OFFMARKET_STATES } from "@/lib/offmarket-stats";
 
@@ -23,6 +23,8 @@ const SECTIONS: { label: string | null; wip?: boolean; items: { href: string; ic
     label: "1 · Market Radar",
     items: [
       { href: "/admin/all-deals", icon: Target, label: "Ulusal Fırsatlar" },
+      // Gerçek veri (offmarket_leads.grade — not motoru): wip DEĞİL, Ahmet görür.
+      { href: "/admin/arsa-notlari", icon: Award, label: "Arsa Notları · A+ Vitrin" },
       { href: "/admin/data-coverage", icon: Database, label: "Veri Kapsamı" },
       { href: "/admin/pazar-ortusme", icon: Radar, label: "Rakip & Pazar" },
       { href: "/admin/rakip-istihbarat", icon: Swords, label: "Rakip İstihbaratı" },

@@ -18,6 +18,8 @@ import "leaflet/dist/leaflet.css";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 // Rakip ilanları (kırmızı elmas) — ortak katman; toggle kapalıyken mount edilmez.
 import CompetitorLayer from "@/components/map/CompetitorLayer";
+// Harf notu rozeti — not motoru (scraper/grade-offmarket.mjs) sonucu popup'ta.
+import GradeBadge from "@/components/GradeBadge";
 
 // Eyalet renkleri — lejant/breakdown ile birebir (tek kaynak: lib/offmarket-stats).
 import { OFFMARKET_STATE_COLORS } from "@/lib/offmarket-stats";
@@ -45,6 +47,7 @@ type LeadDetail = {
   owner: string | null; situs: string | null; use: string | null; acres: number | null;
   land_value: number | null; est_offer: number | null; est_retail: number | null; est_margin: number | null;
   absentee: boolean | null; mailing_city: string | null; mailing_state: string | null;
+  grade: string | null; grade_score: number | null;
 };
 
 const usd = (n: number | null) => (n == null ? "—" : `$${Math.round(n).toLocaleString("en-US")}`);
@@ -95,7 +98,10 @@ function PointDetailPopup({ lat, lng, st }: { lat: number; lng: number; st: stri
   const p = leads[0];
   return (
     <div style={{ fontSize: 12, lineHeight: 1.5, overflowWrap: "anywhere" }}>
-      <div style={{ fontWeight: 700, color }}>{p.state} · {p.county ?? p.region ?? "—"}</div>
+      <div style={{ fontWeight: 700, color, display: "flex", alignItems: "center", gap: 6 }}>
+        <span style={{ flex: 1 }}>{p.state} · {p.county ?? p.region ?? "—"}</span>
+        <GradeBadge grade={p.grade} size="sm" title={p.grade_score != null ? `not motoru skoru ${p.grade_score}` : undefined} />
+      </div>
       <div style={{ marginTop: 2 }}>Sahip: <b>{p.owner || "—"}</b></div>
       <div style={{ color: "#475569" }}>
         {(p.situs || p.region || "—")} · {p.acres != null ? `${p.acres} acre` : "acre —"}
