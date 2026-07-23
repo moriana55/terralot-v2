@@ -1,8 +1,8 @@
 "use client";
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 7 EYALET OFF-MARKET HARİTASI — istemci harita katmanı (react-leaflet).
-// TEK SİSTEM, 7 EYALET: ~469K koordinatlı lead'in TAMAMI sunucu tarafı
+// ÇOK-EYALET OFF-MARKET HARİTASI — istemci harita katmanı (react-leaflet).
+// TEK SİSTEM, TÜM EYALETLER: ~484K koordinatlı lead'in TAMAMI sunucu tarafı
 // supercluster'dan gelir (/api/admin/offmarket-map-clusters).
 //   - Uzak zoom  → eyalet renkli cluster baloncukları (sayılar GERÇEK kayıt sayısı)
 //   - Yakın zoom → her kayıt TEK TEK gerçek nokta (örnekleme/atlama YOK)
@@ -75,7 +75,7 @@ function pinIcon(color: string, label: string) {
   });
 }
 
-// Popup içeriği — tıklanınca canlı Supabase detayı (AZ popup kalitesi, 7 eyalet).
+// Popup içeriği — tıklanınca canlı Supabase detayı (AZ popup kalitesi, tüm eyaletler).
 function PointDetailPopup({ lat, lng, st }: { lat: number; lng: number; st: string }) {
   const [leads, setLeads] = useState<LeadDetail[] | null>(null);
   const [err, setErr] = useState(false);
@@ -118,7 +118,7 @@ function ClusterLayer({ onMeta, onError }: { onMeta?: (m: ClusterMeta) => void; 
   const abortRef = useRef<AbortController | null>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const failedRef = useRef(false);
-  // 469K noktayı SVG değil canvas'a çiz — SVG'de tarayıcı takılır.
+  // Yüzbinlerce noktayı SVG değil canvas'a çiz — SVG'de tarayıcı takılır.
   const renderer = useMemo(() => L.canvas({ padding: 0.5 }), []);
 
   const load = useCallback(() => {

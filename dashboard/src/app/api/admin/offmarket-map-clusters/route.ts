@@ -9,7 +9,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 // ─────────────────────────────────────────────────────────────────────────────
-// OFF-MARKET HARİTA CLUSTER KATMANI — 7 eyaletteki ~469K koordinatlı lead'in
+// OFF-MARKET HARİTA CLUSTER KATMANI — tüm eyaletlerdeki (~484K) koordinatlı lead'in
 // TAMAMI (örnekleme YOK) zoom'a göre cluster'lanarak servis edilir.
 //   - Veri: src/data/offmarket-map-points.json.gz (scraper/export-map-points.mjs
 //     üretir; kaynak Supabase offmarket_leads, 1e-5° hassasiyet).
@@ -27,7 +27,7 @@ type PtsFile = { generatedAt: string; states: string[]; byState: Record<string, 
 const CLUSTER_RADIUS = 60; // px — AZ nokta yoğunluğunda okunur baloncuk
 const CLUSTER_MAX_ZOOM = 14; // bu zoom'dan sonra HER kayıt tek tek nokta
 
-// Modül yüklenince BİR KEZ: gz oku → eyalet başına indeks kur (~469K nokta).
+// Modül yüklenince BİR KEZ: gz oku → eyalet başına indeks kur (yüzbinlerce nokta).
 const DATA = (() => {
   const file = path.join(process.cwd(), "src", "data", "offmarket-map-points.json.gz");
   try {

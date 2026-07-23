@@ -29,7 +29,7 @@ export default function AdminDashboard() {
   const [fresh, setFresh] = useState<Deal[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  // TEK GERÇEK KAYNAK — 7 eyalet off-market envanteri, canlı offmarket-breakdown.
+  // TEK GERÇEK KAYNAK — off-market envanter (tüm eyaletler), canlı offmarket-breakdown.
   // Fallback tek dosyadan (lib/offmarket-stats) gelir; hardcoded sayı YOK.
   // Vergi-borçlu huni AYRI bir kanaldır, karıştırılmaz.
   const [env, setEnv] = useState<{ total: number; byState: Array<{ state: string; color: string; count: number }> } | null>(null);
@@ -96,13 +96,13 @@ export default function AdminDashboard() {
             </Link>
           </div>
 
-          {/* 7 EYALET OFF-MARKET ENVANTERİ — amiral rakam (Ana Harita/Ulusal Fırsatlar ile aynı) */}
+          {/* EYALET OFF-MARKET ENVANTERİ — amiral rakam (Ana Harita/Ulusal Fırsatlar ile aynı) */}
           <div className="mt-5 rounded-xl p-4" style={{ background: "rgba(98,227,154,0.08)", border: "1px solid rgba(98,227,154,0.22)" }}>
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
-                <p className="text-[10px] font-bold uppercase tracking-[0.18em]" style={{ color: "#8ff0bb" }}>7 Eyalet · Off-Market Envanteri</p>
+                <p className="text-[10px] font-bold uppercase tracking-[0.18em]" style={{ color: "#8ff0bb" }}>{OFFMARKET_STATES.length} Eyalet · Off-Market Envanteri</p>
                 <p className="mt-0.5 text-3xl font-black font-mono leading-none" style={{ color: "#eafff3" }}>{envTotal.toLocaleString("en-US")}</p>
-                <p className="text-[10px] mt-1" style={{ color: "rgba(244,247,251,0.5)" }}>owner + posta adresli lead · TX · FL · AR · NM · NC · CO · AZ</p>
+                <p className="text-[10px] mt-1" style={{ color: "rgba(244,247,251,0.5)" }}>owner + posta adresli lead · {OFFMARKET_STATES.join(" · ")}</p>
               </div>
               <div className="flex flex-wrap gap-1.5">
                 {envByState.map((s) => (

@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 // OFF-MARKET NOKTA DETAYI — haritada tek noktaya tıklanınca popup içeriği.
 // Cluster katmanı noktaları lean taşır (lat/lng/state); owner, acres, land
 // value gibi zengin alanlar buradan CANLI Supabase offmarket_leads'ten gelir
-// (AZ Mohave popup'ıyla aynı bilgi kalitesi, 7 eyaletin hepsi için).
+// (AZ Mohave popup'ıyla aynı bilgi kalitesi, tüm eyaletler için).
 // Eşleşme: state + lat/lng ±0.0001° (export 1e-5° hassasiyetle yuvarlar).
 // ─────────────────────────────────────────────────────────────────────────────
 

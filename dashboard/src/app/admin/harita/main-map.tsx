@@ -3,7 +3,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // ANA HARİTA — istemci harita katmanı (react-leaflet, sunum kalitesi).
 //   - Taban: CARTO Dark Matter (token'sız) ↔ Esri World Imagery uydu.
-//   - Noktalar: /api/admin/offmarket-map-clusters — 469K gerçek koordinat,
+//   - Noktalar: /api/admin/offmarket-map-clusters — yüzbinlerce gerçek koordinat,
 //     eyalet renkli rafine cluster baloncukları → zoom'da tekil gerçek nokta.
 //   - Eyalet filtresi: seçili eyalet dışındakiler çizilmez (sayılar gerçek kalır).
 //   - Popup: sunumluk kart — owner / county / acre / değer (teknik alan yok).
@@ -154,7 +154,7 @@ function ClusterLayer({
   const abortRef = useRef<AbortController | null>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const failedRef = useRef(false);
-  // 469K noktayı SVG değil canvas'a çiz — SVG'de tarayıcı takılır.
+  // Yüzbinlerce noktayı SVG değil canvas'a çiz — SVG'de tarayıcı takılır.
   const renderer = useMemo(() => L.canvas({ padding: 0.5 }), []);
 
   const load = useCallback(() => {

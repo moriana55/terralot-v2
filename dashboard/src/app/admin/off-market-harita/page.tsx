@@ -3,7 +3,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // EYALET OFF-MARKET HARİTASI — aktif hedef eyaletlerdeki (lib/offmarket-stats)
 // off-market envanterin TAMAMI tek haritada, TEK SİSTEMLE gösterilir.
-//   ~469K koordinatlı lead → sunucu tarafı supercluster (offmarket-map-clusters):
+//   ~484K koordinatlı lead → sunucu tarafı supercluster (offmarket-map-clusters):
 //   uzak zoom'da eyalet renkli GERÇEK SAYILI cluster baloncukları, yakın zoom'da
 //   HER kayıt tek tek gerçek nokta (örnekleme yok). Nokta tıklanınca canlı
 //   Supabase detayı (owner, acres, land value). OSM ↔ Esri uydu katman anahtarı.

@@ -103,7 +103,7 @@ function AllDealsContent() {
   const [title, setTitle] = useState<AttomTitle | null>(null);
   const [titleLoading, setTitleLoading] = useState(false);
 
-  // TEK GERÇEK KAYNAK — 7 eyalet toplam off-market envanteri (canlı offmarket-breakdown;
+  // TEK GERÇEK KAYNAK — toplam off-market envanteri (tüm eyaletler) (canlı offmarket-breakdown;
   // fallback tek dosyadan: lib/offmarket-stats). Bu ekrandaki
   // "Tüm Dealler" = o envanterin HARİTALANMIŞ & SKORLANMIŞ alt kümesi. Banner ikisini
   // net ayırır ki harita 153K derken burada 286 görünmesi çelişki gibi durmasın.
@@ -221,12 +221,12 @@ function AllDealsContent() {
 
   return (
     <div className="space-y-5 p-6">
-      {/* 7 EYALET OFF-MARKET ENVANTERİ — tek gerçek kaynak (canlı breakdown; fallback
+      {/* EYALET OFF-MARKET ENVANTERİ — tek gerçek kaynak (canlı breakdown; fallback
           lib/offmarket-stats). Bu ekrandaki deal listesi işlenmiş/skorlanmış alt kümedir. */}
       <div className="rounded-2xl border p-4" style={{ borderColor: "rgba(5,150,105,0.28)", background: "linear-gradient(180deg, rgba(5,150,105,0.07), rgba(5,150,105,0.02))" }}>
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <div className="text-[11px] font-bold uppercase tracking-[0.18em] text-emerald-700">7 Eyalet · Off-Market Envanteri</div>
+            <div className="text-[11px] font-bold uppercase tracking-[0.18em] text-emerald-700">{OFFMARKET_STATES.length} Eyalet · Off-Market Envanteri</div>
             <div className="mt-0.5 flex items-baseline gap-2">
               <span className="text-3xl font-black tabular-nums text-slate-900">{(env?.total ?? OFFMARKET_FALLBACK_TOTAL).toLocaleString("en-US")}</span>
               <span className="text-sm text-slate-500">owner + posta adresli lead</span>

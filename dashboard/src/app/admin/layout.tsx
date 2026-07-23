@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { LayoutDashboard, MapPin, MessageSquare, CreditCard, ArrowLeft, BarChart3, Users, CircleDollarSign, Map, Mail, Wallet, Target, Globe, Tv, FileSearch, ChevronLeft, ChevronRight, ChevronDown, Cpu, Brain, TrendingDown, Rocket, Hammer, Calculator, Copy, BellRing, Send, MailPlus, Database, Swords, Radar, Sparkles, ShieldCheck, Radio, PhoneCall, Handshake } from "lucide-react";
 import { CerberusLogo } from "@/components/DealHoundLogo";
+import { OFFMARKET_STATES } from "@/lib/offmarket-stats";
 
 // Ana navigasyon tek operasyon zincirini izler:
 // radar → aktif pazar → satın alma → envanter/satış → sonuç.
@@ -34,7 +35,7 @@ const SECTIONS: { label: string | null; wip?: boolean; items: { href: string; ic
       { href: "/admin/mohave", icon: MapPin, label: "Meadview & Golden Valley" },
       { href: "/admin/luna", icon: MapPin, label: "Luna (NM) Envanteri" },
       { href: "/admin/alinabilir-harita", icon: Map, label: "Fırsat Haritası" },
-      { href: "/admin/off-market-harita", icon: Map, label: "7 Eyalet Haritası" },
+      { href: "/admin/off-market-harita", icon: Map, label: `${OFFMARKET_STATES.length} Eyalet Haritası` },
       { href: "/admin/satilabilir-cekirdek", icon: Target, label: "Doğrulanmış Çekirdek" },
       { href: "/admin/mohave/kampanya", icon: Mail, label: "Mohave Kampanyası" },
       { href: "/admin/arama", icon: PhoneCall, label: "Sıcak Arama" },

@@ -4,7 +4,7 @@
 // ANA HARİTA — /admin/harita — müşteri/yatırımcı sunumu için TAM EKRAN vitrin.
 // Ekranın tamamı harita (admin şablonunun üstüne fixed overlay), üstte ince
 // şeffaf bar: marka + canlı toplam + eyalet filtre çipleri + koyu/uydu anahtarı.
-//   - Noktalar: /api/admin/offmarket-map-clusters (469K gerçek koordinat,
+//   - Noktalar: /api/admin/offmarket-map-clusters (yüzbinlerce gerçek koordinat,
 //     sunucu tarafı supercluster — sahte nokta YOK).
 //   - Sayılar: TEK GERÇEK KAYNAK useOffmarketStats → /api/admin/offmarket-breakdown.
 //   - Çip tıkla → o eyalete uçar + sadece onu gösterir; tekrar tıkla → tümü.
@@ -92,11 +92,11 @@ export default function AnaHaritaPage() {
               <div className="text-[14px] font-extrabold tracking-tight text-white truncate">
                 Terra<span style={{ color: "#8ed1df" }}>Lot</span>
                 <span className="ml-2 hidden sm:inline text-[12px] font-semibold" style={{ color: "#c6d3e6" }}>
-                  7 Eyalet · {total.toLocaleString("en-US")} Off-Market Lead
+                  {OFFMARKET_STATES.length} Eyalet · {total.toLocaleString("en-US")} Off-Market Lead
                 </span>
               </div>
               <div className="sm:hidden text-[11px] font-medium" style={{ color: "#c6d3e6" }}>
-                7 Eyalet · {total.toLocaleString("en-US")} lead
+                {OFFMARKET_STATES.length} Eyalet · {total.toLocaleString("en-US")} lead
               </div>
             </div>
           </div>
