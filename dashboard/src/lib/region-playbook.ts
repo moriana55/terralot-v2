@@ -230,6 +230,14 @@ const STATE_ENTRIES: StateEntry[] = [
     "GA owner-finance'a uygun; heirs'/tax-deed kaynaklı parselde title netleşmeden taksitli satış başlatma.",
     "medium"
   ),
+  stateFallback(
+    "MO",
+    "Lake of the Ozarks (Camden) — göl/rekreasyon subdivision lotları; KC/StL/eyalet-dışı absentee sahipler yoğun, hafta-sonu kaçış + emeklilik arsası olarak satılır.",
+    ["recreational", "camping", "site-built", "mobile-home"],
+    "⚠ Göl bölgesi lotlarında POA/HOA aidatı ve deed-restriction (min. yapı, mobil ev yasağı) YAYGIN — aidat borcu alıcıya geçebilir. 'Göl erişimi' vaadi verilmez: çoğu lot göl kıyısı DEĞİL, erişim ancak subdivision'ın ortak alanı/rampası varsa vardır; Ameren kıyı şeridi izni ayrı konu. Alıcı POA aidatı + erişimi county ve POA'dan doğrulamalı.",
+    NONJUDICIAL,
+    "medium"
+  ),
   stateFallback("WY", "Ucuz açık arazi — off-grid/rekreasyon; taksitli satışa uygun.", ["off-grid", "recreational"], "WY kırsalı izin verici olabilir ama parsel bazında değişir.", NONJUDICIAL),
   // NY — taksitli satış ÖNERİLMEZ (alıcı çıkarma sorunu). Güvenli, uyarılı.
   {

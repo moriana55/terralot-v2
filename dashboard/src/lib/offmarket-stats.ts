@@ -8,7 +8,7 @@
 // Son doğrulama: 2026-07-23 (canlı ile birebir — toplam 483.542).
 // ─────────────────────────────────────────────────────────────────────────────
 
-export const OFFMARKET_STATES = ["AZ", "NM", "CO", "TX", "FL", "AR", "NC", "TN", "GA", "OK", "NV", "OR"] as const;
+export const OFFMARKET_STATES = ["AZ", "NM", "CO", "TX", "FL", "AR", "NC", "TN", "GA", "OK", "NV", "OR", "MO"] as const;
 export type OffmarketState = (typeof OFFMARKET_STATES)[number];
 
 export type StateMeta = {
@@ -40,6 +40,7 @@ export const OFFMARKET_STATE_META: Record<OffmarketState, StateMeta> = {
   OK: { code: "OK", label: "Oklahoma",       region: "Statewide kırsal",                          color: "#4f46e5", bounds: [-103.0, 33.62, -94.43, 37.0], lat: 35.5, lng: -97.5,  fallbackCount: 345 },
   NV: { code: "NV", label: "Nevada",         region: "Nye (Pahrump/Calvada)",                     color: "#a21caf", bounds: [-120.0, 35.0, -114.04, 42.0], lat: 37.0, lng: -116.5, fallbackCount: 30481 },
   OR: { code: "OR", label: "Oregon",         region: "Klamath + Lake (Christmas Valley)",         color: "#166534", bounds: [-124.57, 41.99, -116.46, 46.29], lat: 42.9, lng: -121.0, fallbackCount: 23264 },
+  MO: { code: "MO", label: "Missouri",       region: "Camden (Lake of the Ozarks)",               color: "#92400e", bounds: [-95.77, 35.99, -89.1, 40.61],  lat: 38.03, lng: -92.77, fallbackCount: 10351 },
 };
 
 /** API gelene kadar kullanılan eyalet → sayı fallback haritası. */

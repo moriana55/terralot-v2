@@ -109,6 +109,15 @@ test("2. dalga: OR → Christmas Valley açısı + rüzgar/alkali + land-scam d�
   assert.ok(CONFIRM.test(pb.zoningNote));
 });
 
+test("2. dalga: MO → Lake of the Ozarks açısı + POA aidatı/göl erişimi dürüst uyarısı", () => {
+  const pb = regionPlaybook({ state: "MO" });
+  assert.equal(pb.matchBasis, "state");
+  assert.ok(/Ozark/i.test(pb.salesAngle));
+  assert.ok(/POA|aidat/i.test(pb.zoningNote), "MO POA aidat uyarısı bekleniyordu");
+  assert.ok(/göl erişimi|erişim/i.test(pb.zoningNote));
+  assert.ok(CONFIRM.test(pb.zoningNote));
+});
+
 test("NY → taksitli satış UYARISI (installment önerilmez)", () => {
   const pb = regionPlaybook({ state: "New York" });
   assert.ok(/NY|installment|taksit/i.test(pb.zoningNote + " " + (pb.installmentNote ?? "")));
