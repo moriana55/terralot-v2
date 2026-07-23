@@ -8,7 +8,7 @@
 // Son doğrulama: 2026-07-23 (canlı ile birebir — toplam 483.542).
 // ─────────────────────────────────────────────────────────────────────────────
 
-export const OFFMARKET_STATES = ["AZ", "NM", "CO", "TX", "FL", "AR", "NC", "TN", "GA", "OK"] as const;
+export const OFFMARKET_STATES = ["AZ", "NM", "CO", "TX", "FL", "AR", "NC", "TN", "GA", "OK", "NV"] as const;
 export type OffmarketState = (typeof OFFMARKET_STATES)[number];
 
 export type StateMeta = {
@@ -38,6 +38,7 @@ export const OFFMARKET_STATE_META: Record<OffmarketState, StateMeta> = {
   TN: { code: "TN", label: "Tennessee",      region: "Cumberland Plateau",                        color: "#ea580c", bounds: [-90.3, 34.98, -81.65, 36.68], lat: 35.9, lng: -85.4,  fallbackCount: 3666 },
   GA: { code: "GA", label: "Georgia",        region: "Clayton + statewide",                       color: "#65a30d", bounds: [-85.6, 30.36, -80.8, 35.0],  lat: 32.65, lng: -83.45, fallbackCount: 10256 },
   OK: { code: "OK", label: "Oklahoma",       region: "Statewide kırsal",                          color: "#4f46e5", bounds: [-103.0, 33.62, -94.43, 37.0], lat: 35.5, lng: -97.5,  fallbackCount: 345 },
+  NV: { code: "NV", label: "Nevada",         region: "Nye (Pahrump/Calvada)",                     color: "#a21caf", bounds: [-120.0, 35.0, -114.04, 42.0], lat: 37.0, lng: -116.5, fallbackCount: 30481 },
 };
 
 /** API gelene kadar kullanılan eyalet → sayı fallback haritası. */

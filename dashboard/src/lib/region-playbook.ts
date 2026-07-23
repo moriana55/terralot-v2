@@ -197,7 +197,14 @@ const STATE_ENTRIES: StateEntry[] = [
     NONJUDICIAL,
     "medium"
   ),
-  stateFallback("NV", "Ucuz çöl arsa — off-grid potansiyeli; taksitli satışa uygun.", ["off-grid", "recreational"], "NV kırsalı izin verici olabilir; su hakları ve septik kuralları parsele göre değişir.", NONJUDICIAL),
+  stateFallback(
+    "NV",
+    "Nye County (Pahrump/Calvada) — 60'lar/70'lerin posta-yoluyla-satılmış çöl subdivision lotları; sahiplerin ezici kısmı eyalet-dışı absentee (motive satıcı), off-grid/RV/yatırım için düşük giriş fiyatı.",
+    ["off-grid", "recreational", "camping"],
+    "⚠ NV çölünde SU GERÇEK risk: çoğu lotta kuyu/su hakkı YOK ve Pahrump havzası (Basin 162) aşırı tahsisli — yeni kuyu izni kısıtlı olabilir; su hakkı ayrı satılır, arsayla otomatik gelmez. Calvada tipi lotlarda yol/elektrik de olmayabilir — alıcı su hakkı + kuyu iznini NV Division of Water Resources ve county'den doğrulamalı.",
+    NONJUDICIAL,
+    "medium"
+  ),
   stateFallback(
     "OK",
     "Ucuz kırsal arsa — eyalet-dışı/absentee miras sahipleri yoğun (motive satıcı); homestead/rekreasyon için düşük giriş fiyatı, owner-finance dostu.",

@@ -18,7 +18,7 @@ const ACCENT = "#16a34a";
 // Aktif eyalet listesi — tek kaynak: lib/offmarket-stats.ts (burada kopya yok).
 const STATES = OFFMARKET_STATES;
 // Eyalet çoğunluğunun saat dilimi (TN/OK çoğunluk Central, GA Eastern).
-const TZ: Record<string, string> = { AZ: "America/Phoenix", NM: "America/Denver", CO: "America/Denver", TX: "America/Chicago", FL: "America/New_York", AR: "America/Chicago", NC: "America/New_York", TN: "America/Chicago", GA: "America/New_York", OK: "America/Chicago" };
+const TZ: Record<string, string> = { AZ: "America/Phoenix", NM: "America/Denver", CO: "America/Denver", TX: "America/Chicago", FL: "America/New_York", AR: "America/Chicago", NC: "America/New_York", TN: "America/Chicago", GA: "America/New_York", OK: "America/Chicago", NV: "America/Los_Angeles", OR: "America/Los_Angeles", MO: "America/Chicago", MI: "America/Detroit", SC: "America/New_York" };
 
 type Lead = {
   lead_id: string; state: string; county: string; apn: string; owner: string;

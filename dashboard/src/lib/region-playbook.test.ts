@@ -93,6 +93,14 @@ test("absentee genişleme eyaletleri (TN/GA/OK) → state fallback + dürüst zo
   assert.ok(/mineral/i.test(regionPlaybook({ state: "OK" }).zoningNote));
 });
 
+test("2. dalga: NV → Pahrump/Calvada açısı + su hakkı/kuyu dürüst uyarısı", () => {
+  const pb = regionPlaybook({ state: "NV" });
+  assert.equal(pb.matchBasis, "state");
+  assert.ok(/Pahrump|Calvada/i.test(pb.salesAngle));
+  assert.ok(/su|kuyu/i.test(pb.zoningNote), "NV su hakkı uyarısı bekleniyordu");
+  assert.ok(CONFIRM.test(pb.zoningNote));
+});
+
 test("NY → taksitli satış UYARISI (installment önerilmez)", () => {
   const pb = regionPlaybook({ state: "New York" });
   assert.ok(/NY|installment|taksit/i.test(pb.zoningNote + " " + (pb.installmentNote ?? "")));
