@@ -13,7 +13,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Award, Loader2, AlertTriangle, MapPin, Layers, Filter } from "lucide-react";
 import GradeBadge from "@/components/GradeBadge";
-import { GRADES, GRADE_LABELS, gradeColor, parseFlags, splitFlags } from "@/lib/offmarket-grade";
+import { GRADES, GRADE_LABELS, gradeColor, parseFlags, splitFlags, breakdownTitle } from "@/lib/offmarket-grade";
 import { OFFMARKET_STATE_META } from "@/lib/offmarket-stats";
 
 const ACCENT = "#059669";
@@ -24,7 +24,7 @@ type Card = {
   acres: number | null; land_value: number | null; est_offer: number | null;
   est_retail: number | null; est_margin: number | null; absentee: boolean | null;
   mailing_city: string | null; mailing_state: string | null;
-  grade: string; grade_score: number; grade_flags: unknown;
+  grade: string; grade_score: number; grade_flags: unknown; grade_breakdown?: unknown;
   dist_road_m: number | null; dist_power_m: number | null; dist_water_m: number | null;
   dist_town_m: number | null; geo_enriched_at: string | null; lat: number | null; lng: number | null;
   comp: { n: number; competitors: string[]; medPpa: number | null } | null;
@@ -56,7 +56,8 @@ export default function ArsaNotlari() {
     const by = new Map<string, Record<string, number>>();
     for (const r of data?.matrix ?? []) {
       if (!by.has(r.state)) by.set(r.state, {});
-      by.get(r.state)![r.grade ?? "?"] = (by.get(r.state)![r.grade ?? "?"] ?? 0) + r.n;
+      const key = r.grade ?? "N/A"; // grade null = derecelendirilemedi (F değil)
+      by.get(r.state)![key] = (by.get(r.state)![key] ?? 0) + r.n;
     }
     return [...by.entries()].sort((a, b) => a[0].localeCompare(b[0]));
   }, [data]);
@@ -147,14 +148,14 @@ export default function ArsaNotlari() {
       {/* Eyalet × not matrisi */}
       <div className="mt-6 rounded-xl border overflow-x-auto" style={{ borderColor: "var(--outline)", background: "var(--surface)" }}>
         <div className="px-4 py-3 text-xs font-bold uppercase tracking-wide" style={{ color: "var(--muted)", borderBottom: "1px solid var(--outline)" }}>
-          Eyalet × not dağılımı — dağılım sabit: A+ ≈ %1 · A ≈ %4 · B %15 · C %30 · D %30 · F kalan
+          Eyalet × not dağılımı — county-içi percentile: A+ ≈ %1 · A ≈ %4 · B %15 · C %30 · D %30 · F kalan · N/A = derecelendirilemedi (kamu sahipli / veri geçersiz)
         </div>
         <table className="w-full text-sm" style={{ minWidth: 560 }}>
           <thead>
             <tr style={{ color: "var(--muted)" }}>
               <th className="text-left px-4 py-2 font-bold text-xs">Eyalet</th>
-              {GRADES.map((g) => (
-                <th key={g} className="text-right px-3 py-2 font-bold text-xs" style={{ color: gradeColor(g) }}>{g}</th>
+              {[...GRADES, "N/A"].map((g) => (
+                <th key={g} className="text-right px-3 py-2 font-bold text-xs" title={GRADE_LABELS[g]} style={{ color: gradeColor(g) }}>{g}</th>
               ))}
               <th className="text-right px-4 py-2 font-bold text-xs">Toplam</th>
             </tr>
@@ -169,7 +170,7 @@ export default function ArsaNotlari() {
                     <span style={{ color: meta?.color }}>{st}</span>
                     <span className="ml-2 text-[11px] font-normal" style={{ color: "var(--muted)" }}>{meta?.region ?? ""}</span>
                   </td>
-                  {GRADES.map((gr) => (
+                  {[...GRADES, "N/A"].map((gr) => (
                     <td key={gr} className="text-right px-3 py-2 tabular-nums" style={{ color: g[gr] ? "inherit" : "var(--muted)", fontWeight: gr === "A+" || gr === "A" ? 700 : 400 }}>
                       {g[gr] ? fmt(g[gr]) : "·"}
                     </td>
@@ -211,7 +212,7 @@ export default function ArsaNotlari() {
             return (
               <div key={c.lead_id} className="rounded-xl border p-5 flex flex-col gap-3" style={{ borderColor: c.grade === "A+" ? `${ACCENT}66` : "var(--outline)", background: "var(--surface)" }}>
                 <div className="flex items-start gap-3">
-                  <GradeBadge grade={c.grade} size="lg" title={GRADE_LABELS[c.grade]} />
+                  <GradeBadge grade={c.grade} size="lg" title={breakdownTitle(c.grade_breakdown, c.grade_score) ?? GRADE_LABELS[c.grade]} />
                   <div className="min-w-0">
                     <div className="font-bold truncate">{c.owner ?? "—"}</div>
                     <div className="text-xs" style={{ color: "var(--muted)" }}>
@@ -281,7 +282,8 @@ export default function ArsaNotlari() {
       <p className="mt-5 text-[11px]" style={{ color: "var(--muted)" }}>
         * Net marj = hedef satış − alış teklifi − ~$2.000 sabit gider (kapanış+vergi+outreach). Mesafeler OSM
         Overpass verisinden yaklaşık (~) değerdir. "Değer TAHMİNİ" bayraklı kartlarda county değerlemesi yoktur;
-        rakip $/acre comp'undan tahmin edilmiştir ve satın almadan önce doğrulanmalıdır.
+        rakip $/acre comp'undan tahmin edilmiştir. "Assessed bazlı spread" bayraklı kartlarda county assessor'ın
+        assessed değeri kullanılmıştır — assessed değer piyasa değeri DEĞİLDİR; ikisi de satın almadan önce doğrulanmalıdır.
       </p>
     </div>
   );

@@ -24,6 +24,21 @@
 // Geo mesafeleri (dist_*_m): NULL = taranmadı, -1 = tarandı/bulunamadı.
 // Geo doğrulaması OLMAYAN kayıt B tavanına takılır → A+/A her zaman
 // Overpass ile doğrulanmış parseldir (vitrin güvenilirliği).
+//
+// 2026-07-23 KALİTE REVİZYONU (Yiğit direktifi — süzgeç arama kuyruğunun kalbi):
+//  1. GARBAGE-IN KORUMASI: kamu sahipli / sahibi boş-template / acreage 0 veya
+//     >640ac lead NOT ALMAZ → grade=null + grade_reason (F değil; F "kötü arsa"
+//     demek, bunlar "derecelendirilemez").  checkEligibility()
+//  2. DEĞER GÜVENİ: assessed value piyasa değeri DEĞİLDİR — assessed bazlı
+//     spread her zaman "assessed bazlı" bayraklanır; comp tahmini de öyle.
+//  3. NORMALİZASYON: eşikler county-içi percentile (yeterli örnek yoksa eyalet,
+//     o da yoksa global) — buildScopedThresholds() grade-offmarket.mjs'te.
+//     A+ mutlak taban şartı: bilinen/tahmini net marj < $1K ise A+ olamaz.
+//  4. UÇ DEĞER KIRPMA: <$100 assessed placeholder sayılır (değer yok muamelesi);
+//     $/acre county comp medyanının 10 katını veya mutlak $200K/acre'ı aşan
+//     değer outlier'dır → marj puanı kırpılır + A tavanı (outlier A+ alamaz).
+//  5. AÇIKLANABİLİRLİK: scoreLead breakdown döner {appeal, liquidity, margin,
+//     motivation, risk} — grade_breakdown jsonb'a yazılır, UI kırılımı gösterir.
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const GRADES = ["A+", "A", "B", "C", "D", "F"];
@@ -40,6 +55,27 @@ const GOV_OWNER_RE =
   /\b(UNITED STATES|U S A|USA\b|STATE OF|COUNTY OF|CITY OF|TOWN OF|VILLAGE OF|BUREAU OF LAND|BLM\b|SCHOOL DISTRICT|INDIAN TRIBE|TRIBAL|FOREST SERVICE|DEPT OF|DEPARTMENT OF|HOUSING AUTHORITY|IMPROVEMENT DISTRICT|WATER DISTRICT|POWER DISTRICT|DRAINAGE DISTRICT|LEVEE DISTRICT|HIGHWAY DEPT)\b/;
 export function isGovOwner(owner) {
   return GOV_OWNER_RE.test(String(owner ?? "").toUpperCase());
+}
+
+// ── Garbage-in koruması: not verilemeyecek lead'ler (grade=null + sebep).
+// Template/boş sahip kalıpları — veri kaynağının placeholder'ları.
+const TEMPLATE_OWNER_RE = /^(UNKNOWN( OWNER)?|OWNER UNKNOWN|N\/?A|NULL|NONE|UNDETERMINED|NOT AVAILABLE|TBD|VACANT|SAME|CURRENT OWNER|PROPERTY OWNER)$/;
+export const MAX_GRADABLE_ACRES = 640; // 1 section üstü = veri hatası şüphesi / ayrı iş modeli
+/**
+ * Lead not almaya uygun mu? Dönen: null (uygun) | { reason, flag }.
+ * reason ∈ 'gov_owner' | 'owner_missing' | 'acres_invalid'.
+ * Bunlar F DEĞİL — F "kötü arsa", bunlar "derecelendirilemez" (N/A).
+ */
+export function checkEligibility(lead) {
+  const owner = String(lead.owner ?? "").trim();
+  if (!owner || TEMPLATE_OWNER_RE.test(owner.toUpperCase()))
+    return { reason: "owner_missing", flag: "sahip adı boş/template — mektup/arama yapılamaz" };
+  if (isGovOwner(owner))
+    return { reason: "gov_owner", flag: "kamu/kurum sahipli — satın alınamaz" };
+  const a = lead.acres == null ? null : Number(lead.acres);
+  if (a != null && (!Number.isFinite(a) || a <= 0 || a > MAX_GRADABLE_ACRES))
+    return { reason: "acres_invalid", flag: `acreage geçersiz (${lead.acres}) — 0 veya >${MAX_GRADABLE_ACRES}ac` };
+  return null;
 }
 
 // ── Miras/estate motivasyon kalıpları (satmaya daha yatkın sahip).
@@ -140,27 +176,31 @@ export function geoPoints(geo) {
  *   growth      : Map "ST|COUNTY" → { g5, g1, pop } (county_growth.json)
  *   ownerCluster: Map "OWNER|MAILING" (upper) → parsel sayısı (>=5 olanlar)
  *   taxDelinq   : Set  "ST|APN" ve "ST|OWNER"      (tax_delinquent_properties)
- * Dönen: { score, flags, grade_cap } — grade_cap: "F" | "C" | "B" | null.
+ * Dönen: { score, flags, grade_cap, breakdown, ineligible } —
+ *   grade_cap: "F" | "C" | "B" | "A" | null ("A" = A+ olamaz, outlier/dip marj)
+ *   breakdown: { appeal, liquidity, margin, motivation, risk } puan kırılımı
+ *   ineligible: null | { reason, flag } — garbage-in koruması (grade=null yaz)
  */
 export function scoreLead(lead, ctx) {
   const flags = [];
   let cap = null;
+  const breakdown = { appeal: 0, liquidity: 0, margin: 0, motivation: 0, risk: 0 };
 
-  // 0) Kamu sahipli → doğrudan F, puan hesabı anlamsız.
-  if (isGovOwner(lead.owner)) {
-    return { score: 0, flags: ["kamu/kurum sahipli — satın alınamaz"], grade_cap: "F" };
+  // 0) GARBAGE-IN KORUMASI — not verilemez: grade=null + grade_reason (F değil).
+  const inel = checkEligibility(lead);
+  if (inel) {
+    return { score: null, flags: [inel.flag], grade_cap: null, breakdown: null, ineligible: inel };
   }
 
   const st = String(lead.state ?? "").toUpperCase();
   const county = normCounty(st, lead.county, lead.region);
-  let score = 0;
 
   // 1) CAZİBE ~40 ─ acre (10) + geo (30)
   const ap = acresPoints(lead.acres);
-  score += ap.pts;
+  breakdown.appeal += ap.pts;
   if (ap.flag) flags.push(ap.flag);
   const gp = geoPoints(lead);
-  score += gp.pts;
+  breakdown.appeal += gp.pts;
   flags.push(...gp.flags);
   if (gp.landlocked) cap = "F";
   const geoDone = lead.geo_enriched_at != null || lead.dist_road_m != null;
@@ -172,51 +212,75 @@ export function scoreLead(lead, ctx) {
   // 2) LİKİDİTE ~20 ─ rakip aynı county'de satıyor mu (pazar kanıtı) + büyüme
   const liq = ctx.liquidity?.get(`${st}|${county}`);
   const sliq = ctx.stateLiq?.get(st);
-  if (liq && liq.n >= 3) { score += 14; flags.push(`pazar kanıtlı: rakipler bu county'de ${liq.n} ilan taşıyor`); }
-  else if (liq) { score += 10; flags.push(`rakip bu county'de aktif (${liq.n} ilan)`); }
-  else if (sliq && sliq.n >= 10) { score += 6; flags.push("rakip eyalette aktif, bu county'de ilanı yok"); }
-  else if (sliq && sliq.n >= 3) { score += 4; }
+  if (liq && liq.n >= 3) { breakdown.liquidity += 14; flags.push(`pazar kanıtlı: rakipler bu county'de ${liq.n} ilan taşıyor`); }
+  else if (liq) { breakdown.liquidity += 10; flags.push(`rakip bu county'de aktif (${liq.n} ilan)`); }
+  else if (sliq && sliq.n >= 10) { breakdown.liquidity += 6; flags.push("rakip eyalette aktif, bu county'de ilanı yok"); }
+  else if (sliq && sliq.n >= 3) { breakdown.liquidity += 4; }
   else flags.push("county/eyalette rakip kanıtı yok — pazar belirsiz");
   const gr = ctx.growth?.get(`${st}|${county}`);
   if (gr) {
-    if (gr.g5 >= 0.05) { score += 6; flags.push(`county nüfusu 5 yılda %${Math.round(gr.g5 * 100)} büyüdü`); }
-    else if (gr.g5 >= 0.02) { score += 4; }
-    else if (gr.g5 >= 0) { score += 2; }
+    if (gr.g5 >= 0.05) { breakdown.liquidity += 6; flags.push(`county nüfusu 5 yılda %${Math.round(gr.g5 * 100)} büyüdü`); }
+    else if (gr.g5 >= 0.02) { breakdown.liquidity += 4; }
+    else if (gr.g5 >= 0) { breakdown.liquidity += 2; }
     else flags.push(`county nüfusu düşüyor (%${Math.round(gr.g5 * 100)}/5y)`);
   }
 
-  // 3) MARJ ~15 ─ net = retail − offer − sabit gider; eksik değerde comp tahmini
+  // 3) MARJ ~15 ─ öncelik sırası: est_retail−est_offer → est_margin →
+  //    assessed (land_value, "assessed bazlı" bayraklı) → comp tahmini.
+  //    UÇ DEĞER KIRPMA: <$100 assessed placeholder; $/acre comp medyanının 10
+  //    katı veya $200K/acre üstü outlier → A tavanı (outlier A+ alamaz).
   const retail = num(lead.est_retail);
   const offer = num(lead.est_offer);
   const margin = num(lead.est_margin);
+  const landVal = winsorLandValue(num(lead.land_value));
+  const ppaRef = liq?.medPpa ?? sliq?.medPpa ?? null;
   let net = null;
   let estimated = false;
   if (retail != null && offer != null) net = retail - offer - FIXED_COST;
   else if (margin != null) net = margin - FIXED_COST;
-  else {
-    // MO/SC/OR-Lake/TN/OK: değerleme yok → county (yoksa eyalet) rakip $/acre
-    // comp'undan TAHMİN. Blind teklif ~%35 varsayımıyla net ≈ 0.65×retail − gider.
-    const ppa = liq?.medPpa ?? sliq?.medPpa ?? null;
+  else if (landVal != null) {
+    // ASSESSED BAZLI SPREAD — assessed ≠ piyasa değeri; blind teklif ~%35
+    // varsayımıyla net ≈ 0.65×assessed − gider. Dürüstçe bayraklanır.
+    net = 0.65 * landVal - FIXED_COST;
+    estimated = true;
+    flags.push("assessed bazlı spread — county assessed değeri, piyasa değeri DEĞİL");
     const a = Number(lead.acres);
-    if (ppa != null && Number.isFinite(a) && a > 0) {
-      net = 0.65 * ppa * a - FIXED_COST;
+    if (Number.isFinite(a) && a > 0) {
+      const ppaLead = landVal / a;
+      if (ppaLead > 200000 || (ppaRef != null && ppaLead > 10 * ppaRef)) {
+        net = Math.min(net, 6000); // outlier marj puanını şişiremez
+        cap = capMin(cap, "A");
+        flags.push(`⚠ assessed outlier ($${Math.round(ppaLead).toLocaleString("en-US")}/ac) — kırpıldı, A+ verilmez`);
+      }
+    }
+  } else {
+    // MO/SC/TN/OK: değerleme yok → county (yoksa eyalet) rakip $/acre
+    // comp'undan TAHMİN. Blind teklif ~%35 varsayımıyla net ≈ 0.65×retail − gider.
+    const a = Number(lead.acres);
+    if (ppaRef != null && Number.isFinite(a) && a > 0) {
+      net = 0.65 * ppaRef * a - FIXED_COST;
       estimated = true;
       flags.push("değer TAHMİNİ: rakip $/acre comp'undan (county değerlemesi yok)");
     } else {
-      score += 5; // nötr — notu veri eksikliğiyle çökertme (brief kuralı)
+      breakdown.margin += 5; // nötr — notu veri eksikliğiyle çökertme (brief kuralı)
       flags.push("değer verisi eksik — marj puanı nötr");
     }
   }
   if (net != null) {
-    if (net >= 15000) score += 15;
-    else if (net >= 8000) score += 12;
-    else if (net >= 5000) score += 8;
-    else if (net >= 2500) score += 4;
-    else if (net >= 0) score += 2;
+    if (net >= 15000) breakdown.margin += 15;
+    else if (net >= 8000) breakdown.margin += 12;
+    else if (net >= 5000) breakdown.margin += 8;
+    else if (net >= 2500) breakdown.margin += 4;
+    else if (net >= 0) breakdown.margin += 2;
     else flags.push("net marj negatif görünüyor");
     if (net < 5000 && !estimated) {
       if (cap !== "F") cap = capMin(cap, "C");
       flags.push("net marj $5K altı — C tavanı");
+    }
+    // A+ mutlak taban şartı: net marj (bilinen VEYA tahmini) $1K altıysa A+ olamaz.
+    if (net < 1000) {
+      cap = capMin(cap, "A");
+      flags.push("net marj $1K altı — A+ verilmez (mutlak taban)");
     }
   }
 
@@ -233,19 +297,28 @@ export function scoreLead(lead, ctx) {
     mot += 5;
     flags.push("vergi borçlusu listesiyle eşleşiyor — güçlü motivasyon");
   }
-  score += Math.min(15, mot);
+  breakdown.motivation = Math.min(15, mot);
 
   // 5) KAPANIŞ RİSKİ ~−10 ─ POA/HOA
   const poa = detectPoa({ state: st, county: lead.county, region: lead.region, situs: lead.situs });
   if (poa) {
-    if (poa.level === "strong") { score -= 8; flags.push(`POA/HOA: ${title(poa.name)} — aidat+devir kuralları kapanışı zorlaştırır`); }
-    else { score -= 5; flags.push(`POA riski: bölge ${title(poa.name)} çevresi — parsel bazında aidat doğrulanmalı`); }
+    if (poa.level === "strong") { breakdown.risk -= 8; flags.push(`POA/HOA: ${title(poa.name)} — aidat+devir kuralları kapanışı zorlaştırır`); }
+    else { breakdown.risk -= 5; flags.push(`POA riski: bölge ${title(poa.name)} çevresi — parsel bazında aidat doğrulanmalı`); }
   }
 
-  return { score: Math.max(0, Math.round(score * 10) / 10), flags, grade_cap: cap };
+  const raw = breakdown.appeal + breakdown.liquidity + breakdown.margin + breakdown.motivation + breakdown.risk;
+  const score = Math.max(0, Math.round(raw * 10) / 10);
+  for (const k of Object.keys(breakdown)) breakdown[k] = Math.round(breakdown[k] * 10) / 10;
+  return { score, flags, grade_cap: cap, breakdown, ineligible: null };
 }
 
-const CAP_ORDER = { F: 0, D: 1, C: 2, B: 3 };
+// Uç değer kırpma: <$100 assessed = $0/$1 placeholder → değer yok muamelesi.
+export function winsorLandValue(v) {
+  if (v == null || v < 100) return null;
+  return v;
+}
+
+const CAP_ORDER = { F: 0, D: 1, C: 2, B: 3, A: 4 };
 function capMin(a, b) {
   if (!a) return b;
   if (!b) return a;
@@ -269,6 +342,38 @@ export function gradeThresholds(scores) {
   if (!s.length) return null;
   const at = (q) => s[Math.min(s.length - 1, Math.max(0, Math.ceil(s.length * q) - 1))];
   return { aPlus: at(0.01), a: at(0.05), b: at(0.2), c: at(0.5), d: at(0.8) };
+}
+
+// ── NORMALİZASYON: county-içi percentile eşikleri (NV çöl lotu ile SC
+// Lowcountry parseli aynı mutlak cetvele vurulamaz). Yeterli örnek yoksa
+// eyalet-içi, o da yoksa global eşik kullanılır.
+export const COUNTY_MIN_N = 500;
+export const STATE_MIN_N = 1500;
+/**
+ * items: [{ st, county, score }] (yalnız NOT ALABİLEN lead'ler).
+ * Dönen: { resolve(st, county) → thresholds, countyN, stateN }.
+ */
+export function buildScopedThresholds(items) {
+  const county = new Map(), state = new Map(), all = [];
+  for (const it of items) {
+    all.push(it.score);
+    const ck = `${it.st}|${it.county}`;
+    let c = county.get(ck);
+    if (!c) county.set(ck, (c = []));
+    c.push(it.score);
+    let s = state.get(it.st);
+    if (!s) state.set(it.st, (s = []));
+    s.push(it.score);
+  }
+  const cTh = new Map(), sTh = new Map();
+  for (const [k, arr] of county) if (arr.length >= COUNTY_MIN_N) cTh.set(k, gradeThresholds(arr));
+  for (const [k, arr] of state) if (arr.length >= STATE_MIN_N) sTh.set(k, gradeThresholds(arr));
+  const gTh = gradeThresholds(all);
+  return {
+    resolve: (st, cty) => cTh.get(`${st}|${cty}`) ?? sTh.get(st) ?? gTh,
+    countyN: cTh.size,
+    stateN: sTh.size,
+  };
 }
 
 // Skor + tavan → harf notu.

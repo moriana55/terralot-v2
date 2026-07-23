@@ -78,3 +78,16 @@ Bu ikinci koşu geo-doğrulanan kayıtların B tavanını kaldırır → A+/A vi
 (`/admin/arsa-notlari`). İkisi de idempotent, istediğin kadar tekrarlanır.
 Tarama koptuysa: `cd scraper && nohup node geo-enrich-offmarket.mjs >> geo-enrich.log 2>&1 &`
 (kaldığı yerden sürer; hız ~40-180 hücre/dk, ayna yüküne göre değişir).
+
+### 2026-07-23 kalite revizyonu (garbage-in koruması + county normalizasyonu)
+* **N/A (grade=null + `grade_reason`)**: kamu sahipli / sahip boş-template /
+  acreage 0 veya >640ac lead NOT ALMAZ (F değil, "derecelendirilemez").
+* **Eşikler county-içi percentile** (>=500 örnek; yoksa eyalet >=1500; yoksa global).
+* **`grade_breakdown` jsonb**: cazibe/likidite/marj/motivasyon/risk kırılımı —
+  UI rozet tooltip'i buradan okur.
+* **Assessed bazlı spread**: `land_value` varsa (est_* yoksa) marj assessed'ten
+  hesaplanır ve "assessed ≠ piyasa değeri" olarak bayraklanır; <$100 placeholder
+  ve $/acre outlier'ları kırpılır (outlier A+ alamaz; net<$1K A+ alamaz).
+* **Değer backfill**: `node scraper/backfill-values.mjs` — OR/Lake AGOL 2020
+  MKT_Land dolduruldu (~6.1K); MO/Camden + SC/Colleton'da bedava değer katmanı
+  YOK (log'lanır, uydurulmaz).

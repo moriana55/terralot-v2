@@ -16,10 +16,11 @@ const QUEUE_LIMIT = 60;
 const IMPORT_CAP = 500;
 
 const LEAD_COLS =
-  "lead_id, state, county, apn, owner, mailing_city, mailing_state, situs, acres, est_offer, est_retail, est_margin, phone, phone_source, do_not_call, grade, grade_score";
+  "lead_id, state, county, apn, owner, mailing_city, mailing_state, situs, acres, est_offer, est_retail, est_margin, phone, phone_source, do_not_call, grade, grade_score, grade_breakdown, grade_reason";
 
 // Not filtresi (arsa not motoru) — yalnız geçerli harfler kabul edilir.
-const VALID_GRADES = new Set(["A+", "A", "B", "C", "D", "F"]);
+// "NA" = grade IS NULL (derecelendirilemedi — garbage-in koruması, F değil).
+const VALID_GRADES = new Set(["A+", "A", "B", "C", "D", "F", "NA"]);
 
 function normPhone(raw: string): string | null {
   const d = raw.replace(/\D/g, "");
@@ -51,7 +52,15 @@ export async function GET(req: NextRequest) {
     .limit(QUEUE_LIMIT);
   if (state) q = q.eq("state", state);
   if (onlyPhone) q = q.not("phone", "is", null);
-  if (grades.length) q = q.in("grade", grades);
+  if (grades.length) {
+    const letters = grades.filter((g) => g !== "NA");
+    const wantNA = grades.includes("NA");
+    if (letters.length && wantNA) {
+      // PostgREST or(): harf notları VEYA not verilemeyenler (grade null).
+      q = q.or(`grade.in.(${letters.map((g) => `"${g}"`).join(",")}),grade.is.null`);
+    } else if (wantNA) q = q.is("grade", null);
+    else q = q.in("grade", letters);
+  }
 
   const { data: leads, error } = await q;
 

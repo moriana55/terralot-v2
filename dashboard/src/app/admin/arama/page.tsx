@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { OFFMARKET_STATES } from "@/lib/offmarket-stats";
 import GradeBadge from "@/components/GradeBadge";
+import { breakdownTitle, gradeColor, GRADE_LABELS } from "@/lib/offmarket-grade";
 
 const ACCENT = "#16a34a";
 // Aktif eyalet listesi — tek kaynak: lib/offmarket-stats.ts (burada kopya yok).
@@ -27,14 +28,12 @@ type Lead = {
   acres: number | null; est_offer: number | null; est_retail: number | null; est_margin: number | null;
   phone: string | null; phone_source: string | null; do_not_call: boolean;
   grade?: string | null; grade_score?: number | null;
+  grade_breakdown?: unknown; grade_reason?: string | null;
 };
 
-// Not filtresi ön ayarları — varsayılan A+/A: önce EN satılabilir arsanın sahibi aranır.
-const GRADE_PRESETS: { key: string; label: string }[] = [
-  { key: "A+,A", label: "A+/A (vitrin)" },
-  { key: "A+,A,B", label: "A+ – B" },
-  { key: "", label: "Tüm notlar" },
-];
+// Not filtresi — çoklu seçim (A+..F + N/A). Varsayılan A+/A: önce EN satılabilir
+// arsanın sahibi aranır. "NA" = derecelendirilemedi (kamu sahipli vb. — F değil).
+const GRADE_CHIPS = ["A+", "A", "B", "C", "D", "F", "NA"] as const;
 type Callback = { lead_id: string; note: string | null; callback_at: string; lead: { owner: string; state: string; county: string; phone: string | null } | null };
 
 const OUTCOME_META: { key: string; label: string; icon: typeof Phone; tone: string }[] = [
@@ -252,10 +251,23 @@ Would you consider an offer of around ${usd(active.est_offer)} if we could close
           <button key={st} style={chip(state === st)} onClick={() => setState(st)}>{st}</button>
         ))}
         <span className="mx-2 h-5 w-px" style={{ background: "var(--outline)" }} />
-        {/* Not filtresi — arsa not motoru (varsayılan A+/A: önce vitrin arsalar) */}
-        {GRADE_PRESETS.map((p) => (
-          <button key={p.key} style={chip(gradeSel === p.key)} onClick={() => setGradeSel(p.key)}>{p.label}</button>
-        ))}
+        {/* Not filtresi — çoklu seçim (arsa not motoru; boş seçim = tüm notlar) */}
+        {GRADE_CHIPS.map((g) => {
+          const sel = gradeSel ? gradeSel.split(",") : [];
+          const on = sel.includes(g);
+          const col = g === "NA" ? "#64748b" : gradeColor(g);
+          return (
+            <button
+              key={g}
+              title={GRADE_LABELS[g === "NA" ? "N/A" : g]}
+              onClick={() => setGradeSel((on ? sel.filter((x) => x !== g) : [...sel, g]).join(","))}
+              style={{ ...chip(on), ...(on ? { borderColor: col, color: col, background: `${col}18` } : {}) }}
+            >
+              {g === "NA" ? "N/A" : g}
+            </button>
+          );
+        })}
+        <button style={chip(!gradeSel)} onClick={() => setGradeSel("")}>Tümü</button>
         <span className="mx-2 h-5 w-px" style={{ background: "var(--outline)" }} />
         <button style={chip(onlyPhone)} onClick={() => setOnlyPhone((v) => !v)}>📞 Sadece numarası olanlar</button>
       </div>
@@ -280,7 +292,7 @@ Would you consider an offer of around ${usd(active.est_offer)} if we could close
                 <button key={l.lead_id} onClick={() => setActiveId(l.lead_id)} className="w-full text-left px-4 py-3 block" style={{ borderBottom: "1px solid var(--outline)", background: on ? `${ACCENT}10` : "transparent", borderLeft: on ? `3px solid ${ACCENT}` : "3px solid transparent" }}>
                   <div className="flex items-center justify-between gap-2">
                     <span className="flex items-center gap-1.5 min-w-0">
-                      <GradeBadge grade={l.grade} size="sm" />
+                      <GradeBadge grade={l.grade} size="sm" showNA title={breakdownTitle(l.grade_breakdown, l.grade_score)} />
                       <b className="text-sm truncate">{l.owner}</b>
                     </span>
                     <span className="text-xs font-bold whitespace-nowrap" style={{ color: ACCENT }}>{usd(l.est_margin)} marj</span>
@@ -305,7 +317,7 @@ Would you consider an offer of around ${usd(active.est_offer)} if we could close
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div>
                   <h2 className="text-xl font-bold flex items-center gap-2">
-                    <GradeBadge grade={active.grade} size="md" title={active.grade_score != null ? `not motoru skoru ${active.grade_score}` : undefined} />
+                    <GradeBadge grade={active.grade} size="md" showNA title={breakdownTitle(active.grade_breakdown, active.grade_score)} />
                     {active.owner}
                   </h2>
                   <p className="text-sm mt-0.5" style={{ color: "var(--muted)" }}>

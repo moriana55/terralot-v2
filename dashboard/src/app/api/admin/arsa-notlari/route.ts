@@ -17,7 +17,7 @@ export const dynamic = "force-dynamic";
 // ─────────────────────────────────────────────────────────────────────────────
 
 const CARD_COLS =
-  "lead_id, state, county, region, apn, owner, situs, use, acres, land_value, est_offer, est_retail, est_margin, absentee, mailing_city, mailing_state, grade, grade_score, grade_flags, dist_road_m, dist_power_m, dist_water_m, dist_town_m, geo_enriched_at, lat, lng";
+  "lead_id, state, county, region, apn, owner, situs, use, acres, land_value, est_offer, est_retail, est_margin, absentee, mailing_city, mailing_state, grade, grade_score, grade_flags, grade_breakdown, dist_road_m, dist_power_m, dist_water_m, dist_town_m, geo_enriched_at, lat, lng";
 
 const normC = (c: unknown) =>
   String(c ?? "").toUpperCase().replace(/,\s*[A-Z]{2}$/, "").replace(/\s+COUNTY$/, "").trim();

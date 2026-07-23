@@ -6,6 +6,7 @@ import assert from "node:assert/strict";
 import {
   isGovOwner, isEstateOwner, detectPoa, acresPoints, geoPoints,
   scoreLead, gradeThresholds, assignGrade,
+  checkEligibility, winsorLandValue, buildScopedThresholds, COUNTY_MIN_N,
 } from "../../../scraper/lib/grade-core.mjs";
 import { gradeColor, parseFlags, splitFlags, GRADE_COLORS } from "./offmarket-grade.ts";
 
@@ -67,9 +68,84 @@ test("geoPoints: yol yoksa landlocked, yakın mesafeler puanlar", () => {
   assert.equal(un.landlocked, false);
 });
 
-test("scoreLead: kamu sahibi doğrudan F", () => {
-  const r = scoreLead({ owner: "STATE OF NEVADA", state: "NV" }, CTX);
-  assert.equal(r.grade_cap, "F");
+test("garbage-in: kamu sahibi F DEĞİL — grade=null + reason=gov_owner", () => {
+  const r = scoreLead({ owner: "STATE OF NEVADA", state: "NV", acres: 5 }, CTX);
+  assert.equal(r.score, null);
+  assert.equal(r.ineligible?.reason, "gov_owner");
+});
+
+test("garbage-in: boş/template sahip ve geçersiz acreage elenir (N/A), normal lead elenmez", () => {
+  assert.equal(checkEligibility({ owner: "", acres: 5 })?.reason, "owner_missing");
+  assert.equal(checkEligibility({ owner: "UNKNOWN OWNER", acres: 5 })?.reason, "owner_missing");
+  assert.equal(checkEligibility({ owner: "SMITH JOHN", acres: 0 })?.reason, "acres_invalid");
+  assert.equal(checkEligibility({ owner: "SMITH JOHN", acres: 900 })?.reason, "acres_invalid");
+  assert.equal(checkEligibility({ owner: "SMITH JOHN", acres: 5 }), null);
+  assert.equal(checkEligibility({ owner: "SMITH JOHN", acres: null }), null); // acre bilinmiyor ≠ geçersiz
+});
+
+test("winsorLandValue: $0/$1 placeholder değer yok sayılır", () => {
+  assert.equal(winsorLandValue(0), null);
+  assert.equal(winsorLandValue(1), null);
+  assert.equal(winsorLandValue(99), null);
+  assert.equal(winsorLandValue(3500), 3500);
+  assert.equal(winsorLandValue(null), null);
+});
+
+test("assessed bazlı spread dürüstçe bayraklanır; outlier A+ alamaz", () => {
+  const r = scoreLead(
+    { owner: "SMITH JOHN", state: "AZ", county: "Mohave", acres: 5, land_value: 9000, dist_road_m: 50 },
+    CTX
+  );
+  assert.ok(r.flags.some((f: string) => /assessed bazlı spread/.test(f)));
+  // outlier: 5 ac × comp $4.000/ac medyanına karşı $2M assessed → kırpılır + A tavanı
+  const out = scoreLead(
+    { owner: "SMITH JOHN", state: "AZ", county: "Mohave", acres: 5, land_value: 2000000, dist_road_m: 50 },
+    CTX
+  );
+  assert.equal(out.grade_cap, "A");
+  assert.ok(out.flags.some((f: string) => /outlier/.test(f)));
+  const th = { aPlus: 10, a: 8, b: 6, c: 4, d: 2 };
+  assert.equal(assignGrade(99, th, "A"), "A"); // A tavanı: skor ne olursa olsun A+ yok
+});
+
+test("A+ mutlak taban: net marj $1K altıysa A+ verilmez", () => {
+  const r = scoreLead(
+    { owner: "SMITH JOHN", state: "AZ", county: "Mohave", acres: 5, est_retail: 8500, est_offer: 6000, dist_road_m: 50 },
+    CTX
+  ); // net = 8500-6000-2000 = 500 < 1000
+  assert.ok(r.flags.some((f: string) => /A\+ verilmez/.test(f)));
+  assert.notEqual(r.grade_cap, null);
+});
+
+test("determinizm: aynı girdi aynı skoru/kırılımı verir", () => {
+  const lead = { owner: "SMITH JOHN", state: "AZ", county: "Mohave", acres: 5, est_retail: 20000, est_offer: 5000, absentee: true, dist_road_m: 80 };
+  const a = scoreLead(lead, CTX);
+  const b = scoreLead(lead, CTX);
+  assert.deepEqual(a, b);
+});
+
+test("breakdown: bileşen toplamı skora eşit (açıklanabilirlik)", () => {
+  const r = scoreLead(
+    { owner: "SMITH JOHN", state: "AZ", county: "Mohave", acres: 5, est_retail: 20000, est_offer: 5000, absentee: true, dist_road_m: 80 },
+    CTX
+  );
+  const sum = r.breakdown.appeal + r.breakdown.liquidity + r.breakdown.margin + r.breakdown.motivation + r.breakdown.risk;
+  assert.equal(Math.round(sum * 10) / 10, r.score);
+  assert.ok(r.breakdown.appeal > 0 && r.breakdown.margin > 0);
+});
+
+test("buildScopedThresholds: yeterli örnekli county kendi eşiğini alır, azı fallback", () => {
+  const items = [];
+  for (let i = 0; i < COUNTY_MIN_N; i++) items.push({ st: "AZ", county: "MOHAVE", score: i % 60 });
+  for (let i = 0; i < 50; i++) items.push({ st: "SC", county: "COLLETON", score: 90 + (i % 10) });
+  const sc = buildScopedThresholds(items);
+  assert.equal(sc.countyN, 1); // sadece MOHAVE
+  // COLLETON global fallback'e düşer; MOHAVE kendi (düşük) eşiğinde
+  const thM = sc.resolve("AZ", "MOHAVE");
+  const thC = sc.resolve("SC", "COLLETON");
+  assert.ok(thC.aPlus > thM.aPlus, "farklı kapsam eşikleri ayrışmalı");
+  // county-içi normalizasyon: Mohave'de 59 skor kendi county'sinde A+ bandında
+  assert.equal(assignGrade(59, thM), "A+");
 });
 
 test("scoreLead: geo taranmamış kayıt B tavanına takılır (A+/A yalnız geo-doğrulu)", () => {

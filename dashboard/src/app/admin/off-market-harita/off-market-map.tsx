@@ -100,7 +100,7 @@ function PointDetailPopup({ lat, lng, st }: { lat: number; lng: number; st: stri
     <div style={{ fontSize: 12, lineHeight: 1.5, overflowWrap: "anywhere" }}>
       <div style={{ fontWeight: 700, color, display: "flex", alignItems: "center", gap: 6 }}>
         <span style={{ flex: 1 }}>{p.state} · {p.county ?? p.region ?? "—"}</span>
-        <GradeBadge grade={p.grade} size="sm" title={p.grade_score != null ? `not motoru skoru ${p.grade_score}` : undefined} />
+        <GradeBadge grade={p.grade} size="sm" showNA title={p.grade_score != null ? `not motoru skoru ${p.grade_score}` : undefined} />
       </div>
       <div style={{ marginTop: 2 }}>Sahip: <b>{p.owner || "—"}</b></div>
       <div style={{ color: "#475569" }}>

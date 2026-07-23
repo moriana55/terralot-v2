@@ -41,6 +41,9 @@ export const BUYER_FORBIDDEN_FIELDS = [
   "owner", "ownerState", "absentee", "landValue", "estOffer", "estResale",
   "spread", "score", "marketValue", "comps", "mailSafe", "valBasis",
   "dealGrade", "source", "sourceLabel", "mapUrl",
+  // Off-market not motoru alanları — iç süzgeçtir, müşteri satış sayfasına ASLA sızmaz.
+  "grade", "gradeScore", "gradeFlags", "gradeBreakdown", "gradeReason",
+  "grade_score", "grade_flags", "grade_breakdown", "grade_reason",
   // MH-uygunluk iç sinyaldir (gerekçe metni iç satış dilini içerir) — alıcıya sızmaz.
   "useCode", "mh", "mhReason",
 ] as const;

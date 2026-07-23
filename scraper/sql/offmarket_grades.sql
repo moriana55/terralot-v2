@@ -20,6 +20,18 @@ alter table public.offmarket_leads add column if not exists dist_water_m integer
 alter table public.offmarket_leads add column if not exists dist_town_m integer;
 alter table public.offmarket_leads add column if not exists geo_enriched_at timestamptz;
 
+-- 2026-07-23 kalite revizyonu (Yiğit direktifi):
+-- grade_reason    : derecelendirilemedi sebebi (grade NULL iken) —
+--                   'gov_owner' | 'owner_missing' | 'acres_invalid'. Bu kayıtlar
+--                   F DEĞİL; N/A olarak ayrı tutulur (garbage-in koruması).
+-- grade_breakdown : jsonb {appeal, liquidity, margin, motivation, risk} puan
+--                   kırılımı — her notun NEDEN o not olduğu geri çözülebilir.
+-- land_value_source : backfill edilen assessed değerin kaynağı+yılı (dürüstlük:
+--                   assessed ≠ piyasa değeri; kaynak her zaman söylenir).
+alter table public.offmarket_leads add column if not exists grade_reason text;
+alter table public.offmarket_leads add column if not exists grade_breakdown jsonb;
+alter table public.offmarket_leads add column if not exists land_value_source text;
+
 create index if not exists offmarket_leads_grade_idx on public.offmarket_leads (grade);
 create index if not exists offmarket_leads_grade_score_idx on public.offmarket_leads (grade_score desc nulls last);
 -- Geo kuyruğu: henüz taranmamış, koordinatlı, yüksek skorlu kayıtları hızlı çek.
@@ -35,6 +47,8 @@ create table if not exists public.offmarket_grade_summary (
   state text not null, grade text, n bigint not null, geo_n bigint not null,
   refreshed_at timestamptz not null default now()
 );
+-- grade NULL = N/A (derecelendirilemedi) — kısıt varsa kaldır (idempotent).
+alter table public.offmarket_grade_summary alter column grade drop not null;
 create or replace function public.offmarket_grade_matrix()
 returns table(state text, grade text, n bigint, geo_n bigint)
 language sql stable as $$

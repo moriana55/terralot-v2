@@ -16,7 +16,7 @@ import { readFileSync } from "node:fs";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import pg from "pg";
-import { scoreLead, gradeThresholds, assignGrade } from "./lib/grade-core.mjs";
+import { scoreLead, buildScopedThresholds, assignGrade, normCounty } from "./lib/grade-core.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -116,7 +116,8 @@ async function buildContext(client) {
 
 const COLS = `lead_id, state, county, region, apn, owner, mailing_address, mailing_state,
   situs, acres, land_value, est_offer, est_retail, est_margin, absentee,
-  dist_road_m, dist_power_m, dist_water_m, dist_town_m, geo_enriched_at, grade, grade_score`;
+  dist_road_m, dist_power_m, dist_water_m, dist_town_m, geo_enriched_at,
+  grade, grade_score, grade_reason, (grade_breakdown is not null) as has_breakdown`;
 
 async function main() {
   const client = new pg.Client({ connectionString: dbUrl() });
@@ -124,7 +125,8 @@ async function main() {
   const ctx = await buildContext(client);
 
   // ── Tüm lead'leri keyset sayfalamayla çek + skorla.
-  const results = []; // { id, score, flags, cap, oldGrade, oldScore }
+  // ineligible (garbage-in): grade=null + grade_reason; F verilmez.
+  const results = []; // { id, st, county, score, flags, cap, breakdown, reason, old* }
   let last = "";
   const PAGE = 20000;
   for (;;) {
@@ -134,10 +136,14 @@ async function main() {
     );
     if (!rows.length) break;
     for (const r of rows) {
-      const { score, flags, grade_cap } = scoreLead(r, ctx);
+      const st = String(r.state ?? "").toUpperCase();
+      const { score, flags, grade_cap, breakdown, ineligible } = scoreLead(r, ctx);
       results.push({
-        id: r.lead_id, score, flags, cap: grade_cap,
+        id: r.lead_id, st, county: normCounty(st, r.county, r.region),
+        score, flags, cap: grade_cap, breakdown,
+        reason: ineligible?.reason ?? null,
         oldGrade: r.grade, oldScore: r.grade_score == null ? null : Number(r.grade_score),
+        oldReason: r.grade_reason ?? null, hasBreakdown: r.has_breakdown === true,
       });
     }
     last = rows[rows.length - 1].lead_id;
@@ -145,14 +151,17 @@ async function main() {
   }
   console.log("");
 
-  // ── Percentile eşikleri + not ataması.
-  const th = gradeThresholds(results.map((r) => r.score));
-  console.log("eşikler:", th);
+  // ── NORMALİZASYON: county-içi (yoksa eyalet, yoksa global) percentile eşikleri.
+  const eligible = results.filter((r) => r.reason == null);
+  const scoped = buildScopedThresholds(eligible.map((r) => ({ st: r.st, county: r.county, score: r.score })));
+  console.log(`eşik kapsamı: county=${scoped.countyN} eyalet=${scoped.stateN} (+global fallback) · N/A=${results.length - eligible.length}`);
   const updates = [];
   for (const r of results) {
-    const grade = assignGrade(r.score, th, r.cap);
-    if (r.oldGrade === grade && r.oldScore === r.score) continue; // idempotent atla
-    updates.push({ id: r.id, grade, score: r.score, flags: r.flags });
+    const grade = r.reason != null ? null : assignGrade(r.score, scoped.resolve(r.st, r.county), r.cap);
+    // idempotent atla — breakdown'ı olmayan eski satır atlanmaz (açıklanabilirlik backfill'i)
+    const bdOk = r.reason != null ? true : r.hasBreakdown;
+    if (r.oldGrade === grade && r.oldScore === r.score && r.oldReason === r.reason && bdOk) continue;
+    updates.push({ id: r.id, grade, score: r.score, flags: r.flags, reason: r.reason, breakdown: r.breakdown });
   }
   console.log(`güncellenecek: ${updates.length} / ${results.length}`);
 
@@ -163,13 +172,14 @@ async function main() {
     const vals = [];
     const params = [];
     part.forEach((u, j) => {
-      const o = j * 4;
-      vals.push(`($${o + 1}, $${o + 2}, $${o + 3}::numeric, $${o + 4}::jsonb)`);
-      params.push(u.id, u.grade, u.score, JSON.stringify(u.flags));
+      const o = j * 6;
+      vals.push(`($${o + 1}, $${o + 2}, $${o + 3}::numeric, $${o + 4}::jsonb, $${o + 5}, $${o + 6}::jsonb)`);
+      params.push(u.id, u.grade, u.score, JSON.stringify(u.flags), u.reason, u.breakdown ? JSON.stringify(u.breakdown) : null);
     });
     await client.query(
-      `update offmarket_leads l set grade = v.g, grade_score = v.s, grade_flags = v.f
-       from (values ${vals.join(",")}) as v(id, g, s, f) where l.lead_id = v.id`,
+      `update offmarket_leads l set grade = v.g, grade_score = v.s, grade_flags = v.f,
+         grade_reason = v.r, grade_breakdown = v.b
+       from (values ${vals.join(",")}) as v(id, g, s, f, r, b) where l.lead_id = v.id`,
       params
     );
     process.stdout.write(`\rgüncellendi: ${Math.min(i + B, updates.length)} / ${updates.length}`);
@@ -184,13 +194,13 @@ async function main() {
       from offmarket_leads group by 1,2;
     commit;`);
 
-  // ── Özet: eyalet × not dağılımı.
+  // ── Özet: eyalet × not dağılımı (N/A = grade null, derecelendirilemedi).
   const dist = await client.query("select state, grade, n from offmarket_grade_summary");
-  const grades = ["A+", "A", "B", "C", "D", "F"];
+  const grades = ["A+", "A", "B", "C", "D", "F", "N/A"];
   const byState = new Map();
   for (const r of dist.rows) {
     if (!byState.has(r.state)) byState.set(r.state, {});
-    byState.get(r.state)[r.grade ?? "?"] = Number(r.n);
+    byState.get(r.state)[r.grade ?? "N/A"] = Number(r.n);
   }
   console.log("\nEYALET × NOT DAĞILIMI");
   console.log(["ST", ...grades, "toplam"].map((s) => String(s).padStart(8)).join(""));
