@@ -67,11 +67,41 @@ const TARGETS = [
   {
     state: "MO", county: "Camden",
     // Integrity GIS assessor servisi — tüm parsel katmanlarında değer alanı yok.
-    valueMissing: "Camden_Assessor_Data katmanlarında (7/8/86) assessed value alanı yok",
+    // 2026-07-23 tekrar doğrulandı: services8.integritygis.com/.../Camden_Assessor_Data
+    // MapServer TOKEN İSTİYOR (code 499) — public REST sorgusu yok; MSDIS statewide
+    // parselinde değer yok. → bedava bulk value layer yok.
+    valueMissing: "Camden_Assessor_Data token-gated (499); MSDIS statewide'da değer yok",
   },
   {
     state: "SC", county: "Colleton",
-    valueMissing: "Colleton AGOL parsel katmanlarında (Public_Data*/WebDataLayers/ColletonWebData) değer alanı yok; SCDOT SC_Parcels erişilemedi",
+    // 2026-07-23 tekrar doğrulandı: SC DNR statewide (arcweb.dnr.sc.gov
+    // SC_County_Parcel_Viewers) TR IP'den REDDEDİYOR (ECONNREFUSED); Colleton AGOL
+    // org (m0cnLGKdhwao8WvM) Public_Data/2 parcels alanları PIN/Acreage/adres/owner/
+    // PropertyClass/TaxDistrict → DEĞER ALANI YOK; ColletonWebData da öyle.
+    valueMissing: "SC DNR statewide TR-IP bloklu (ECONNREFUSED); AGOL parsel katmanlarında değer alanı yok; qPublic bulk vermiyor",
+  },
+  {
+    state: "TN", county: "Sullivan",
+    // 2026-07-23: TN statewide AGOL "Tennessee Property Boundaries Public Use"
+    // (services1.arcgis.com/YuVBSS7Y1of2Qud1) alanları PARCEL/OWNER/DEEDAC/GISLINK/
+    // LINK_TPAD; DEĞER YOK (değerler TPAD arkasında, parsel-başı, bulk değil).
+    valueMissing: "TN statewide boundaries AGOL'da değer alanı yok; değer TPAD arkasında (bulk değil)",
+  },
+  {
+    state: "CO", county: "Las Animas",
+    // 2026-07-23: CO statewide composite (gis.colorado.gov Colorado_Public_Parcels)
+    // apprValTot/asedValTot İÇERİR ama Las Animas o composite'te YOK (0 kayıt);
+    // county AGOL (services7.arcgis.com/NWWOCaXnjdetEWUz/LasAnimasParcels/2) yalnız
+    // acreage/owner/adres → DEĞER YOK.
+    valueMissing: "CO statewide composite Las Animas'ı kapsamıyor; county AGOL parselinde değer alanı yok",
+  },
+  {
+    state: "OK", county: "*",
+    // 2026-07-23: OK statewide parcels (OkMaps/OGI) yalnız WMS (görüntüleme), REST
+    // sorgu yok; OU CSA GIS warehouse (Beckham_County_Data vb.) yalnız census/
+    // redistricting katmanları — parsel/değer yok. Pittsburg/Beckham/Atoka/Bryan
+    // (toplam 345 lead) için bedava bulk value layer yok.
+    valueMissing: "OK statewide OGI yalnız WMS; OU CSA warehouse'da parsel/değer yok",
   },
 ];
 
