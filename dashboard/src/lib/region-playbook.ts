@@ -240,9 +240,9 @@ const STATE_ENTRIES: StateEntry[] = [
   ),
   stateFallback(
     "MI",
-    "Upper Peninsula — av/rekreasyon parselleri (orman, ATV/kar motoru, geyik avı); eyalet-güneyi (downstate) absentee sahipler yoğun, sezonluk kullanım arsası olarak satılır.",
+    "Kuzey alt-Michigan göl/rekreasyon kuşağı (Roscommon/Houghton Lake) — 1950-70'lerde Detroit metrosuna satılmış hafta-sonu lotları; downstate absentee sahipler yoğun, kamp/av/hafta-sonu kaçış arsası olarak satılır.",
     ["recreational", "camping", "homestead"],
-    "⚠ UP'de KAR GERÇEK: yıllık 3-8 metre kar yağar, çoğu arka-yol kışın BAKILMAZ — parsel yılın 4-5 ayı pratikte erişilmez olabilir; 'yıl boyu erişim' vaadi verilmez. Yasal yol erişimi (easement) parsel bazında doğrulanmalı; landlocked av parseli yaygındır.",
+    "⚠ MI kuzeyinde KAR GERÇEK: yoğun kar kuşağı, arka-yollar kışın bakılmayabilir — 'yıl boyu erişim' vaadi verilmez. Eski platted subdivision lotları KÜÇÜK olabilir: min. lot büyüklüğü + septik izni (health dept) yapılaşmayı engelleyebilir, 'ev yapılır' vaadi verilmez. 'Göl erişimi' vaadi de verilmez — çoğu lot göl kıyısı DEĞİL. Yasal yol erişimi (easement) parsel bazında doğrulanmalı.",
     NONJUDICIAL,
     "medium"
   ),

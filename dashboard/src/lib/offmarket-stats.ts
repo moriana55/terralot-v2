@@ -5,7 +5,7 @@
 // cevabı gelene kadar / başarısız olursa gösterilir ve SADECE bu dosyada
 // tanımlıdır — başka hiçbir sayfada hardcoded lead sayısı OLMAMALIDIR.
 // Güncelleme: scraper export sonrası buradaki fallback'i canlı ile eşitle.
-// Son doğrulama: 2026-07-23 (canlı ile birebir — toplam 559.499; 2. dalga NV/OR/MO/MI/SC dahil).
+// Son doğrulama: 2026-07-23 (canlı ile birebir — toplam 565.930; 2. dalga NV/OR/MO/MI/SC dahil, 15/15 dolu).
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const OFFMARKET_STATES = ["AZ", "NM", "CO", "TX", "FL", "AR", "NC", "TN", "GA", "OK", "NV", "OR", "MO", "MI", "SC"] as const;
@@ -41,9 +41,9 @@ export const OFFMARKET_STATE_META: Record<OffmarketState, StateMeta> = {
   NV: { code: "NV", label: "Nevada",         region: "Nye (Pahrump/Calvada)",                     color: "#a21caf", bounds: [-120.0, 35.0, -114.04, 42.0], lat: 37.0, lng: -116.5, fallbackCount: 30481 },
   OR: { code: "OR", label: "Oregon",         region: "Klamath + Lake (Christmas Valley)",         color: "#166534", bounds: [-124.57, 41.99, -116.46, 46.29], lat: 42.9, lng: -121.0, fallbackCount: 23264 },
   MO: { code: "MO", label: "Missouri",       region: "Camden (Lake of the Ozarks)",               color: "#92400e", bounds: [-95.77, 35.99, -89.1, 40.61],  lat: 38.03, lng: -92.77, fallbackCount: 10351 },
-  // MI: veri bekleniyor — UP county'leri kapalı sistem (BS&A/FetchGIS), açık ArcGIS
-  // kaynaklarında owner+mailing yok; aktivasyon hazır, lead sayısı 0 (sentetik veri yasak).
-  MI: { code: "MI", label: "Michigan",       region: "Upper Peninsula (veri bekleniyor)",         color: "#0f766e", bounds: [-90.42, 41.69, -82.41, 48.31], lat: 46.3, lng: -87.0,  fallbackCount: 0 },
+  // MI: UP county'leri kapalı sistem (BS&A/FetchGIS) — veri alt Michigan'ın göl/rekreasyon
+  // kuşağından: Roscommon County resmi GIS (GeoParcelMaster AGOL), Houghton Lake lot pazarı.
+  MI: { code: "MI", label: "Michigan",       region: "Roscommon (Houghton Lake)",                 color: "#0f766e", bounds: [-90.42, 41.69, -82.41, 48.31], lat: 44.34, lng: -84.6, fallbackCount: 6431 },
   SC: { code: "SC", label: "South Carolina", region: "Colleton (Lowcountry/ACE Basin)",           color: "#9f1239", bounds: [-83.36, 32.03, -78.54, 35.22], lat: 32.9, lng: -80.67, fallbackCount: 11861 },
 };
 
