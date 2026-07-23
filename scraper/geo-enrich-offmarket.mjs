@@ -23,11 +23,14 @@ import { dbUrl } from "./grade-offmarket.mjs";
 const GEO_TOP = parseInt(process.env.GEO_TOP || "25000", 10);
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
+// Sıra ÖNEMLİ: 2026-07-23 ölçümü — overpass-api.de 504 (aşırı yük),
+// kumi.systems timeout, mail.ru 2.6s'de 200 döndü → mail.ru birincil.
 const OVERPASS_MIRRORS = [
-  "https://overpass-api.de/api/interpreter",
-  "https://overpass.kumi.systems/api/interpreter",
   "https://maps.mail.ru/osm/tools/overpass/api/interpreter",
+  "https://overpass.kumi.systems/api/interpreter",
+  "https://overpass-api.de/api/interpreter",
 ];
+const CONCURRENCY = parseInt(process.env.GEO_CONCURRENCY || "3", 10);
 const UA = "terralot-geo/1.0 (land grading; contact sales@nocturndev.com)";
 const ROAD_RE = /^(motorway|trunk|primary|secondary|tertiary|unclassified|residential|service|track|road|living_street)$/;
 
@@ -82,7 +85,7 @@ async function overpass(lat, lng) {
           method: "POST",
           headers: { "Content-Type": "application/x-www-form-urlencoded", "User-Agent": UA },
           body: "data=" + encodeURIComponent(buildQuery(lat, lng)),
-          signal: AbortSignal.timeout(35000),
+          signal: AbortSignal.timeout(22000),
         });
         if (res.status === 429 || res.status === 504) { lastErr = new Error("overpass " + res.status); await sleep(4000); continue; }
         if (!res.ok) throw new Error("overpass " + res.status);
@@ -120,29 +123,49 @@ async function main() {
   }
   console.log(`hücre sayısı: ${cells.size} (dedupe ${(pend.rows.length / Math.max(1, cells.size)).toFixed(1)}x)`);
 
-  let done = 0, fail = 0;
+  // CONCURRENCY işçi paylaşımlı kuyruk — Overpass fetch'leri paralel, DB
+  // update'leri tek bağlantıda (pg zaten serialize eder, update'ler hızlı).
+  let done = 0, fail = 0, stop = false;
   const t0 = Date.now();
-  for (const [key, cell] of cells) {
-    try {
-      const json = await overpass(cell.lat, cell.lng);
-      const d = parseDistances(json, cell.lat, cell.lng);
-      await client.query(
-        `update offmarket_leads set dist_road_m=$1, dist_power_m=$2, dist_water_m=$3,
-           dist_town_m=$4, geo_enriched_at=now() where lead_id = any($5)`,
-        [d.road, d.power, d.water, d.town, cell.ids]
-      );
-      done++;
-    } catch (e) {
-      fail++;
-      if (fail % 25 === 0) console.warn(`\nhata (${fail}): ${key} → ${e.message}`);
-      if (fail > 200 && fail > done) { console.error("\nOverpass sürekli hata veriyor — duraklatıldı (resume güvenli)"); break; }
-    }
-    if (done % 25 === 0) {
-      const rate = done / ((Date.now() - t0) / 60000);
-      process.stdout.write(`\rhücre ${done}/${cells.size} · hata ${fail} · ${rate.toFixed(0)} hücre/dk`);
-    }
-    await sleep(650); // rate-limit saygısı (~90 sorgu/dk, mirror'lara dağılır)
+  const queue = [...cells.entries()];
+  async function refreshSummary() {
+    await client.query(`begin;
+      delete from offmarket_grade_summary;
+      insert into offmarket_grade_summary(state, grade, n, geo_n)
+        select state, grade, count(*), count(*) filter (where geo_enriched_at is not null)
+        from offmarket_leads group by 1,2;
+      commit;`).catch(() => {});
   }
+  async function worker() {
+    for (;;) {
+      const item = queue.shift();
+      if (!item || stop) return;
+      const [key, cell] = item;
+      try {
+        const json = await overpass(cell.lat, cell.lng);
+        const d = parseDistances(json, cell.lat, cell.lng);
+        await client.query(
+          `update offmarket_leads set dist_road_m=$1, dist_power_m=$2, dist_water_m=$3,
+             dist_town_m=$4, geo_enriched_at=now() where lead_id = any($5)`,
+          [d.road, d.power, d.water, d.town, cell.ids]
+        );
+        done++;
+      } catch (e) {
+        fail++;
+        if (fail % 25 === 0) console.warn(`\nhata (${fail}): ${key} → ${e.message}`);
+        if (fail > 300 && fail > done) { stop = true; console.error("\nOverpass sürekli hata veriyor — duraklatıldı (resume güvenli)"); return; }
+      }
+      if (done % 25 === 0) {
+        const rate = done / ((Date.now() - t0) / 60000);
+        process.stdout.write(`\rhücre ${done}/${cells.size} · hata ${fail} · ${rate.toFixed(0)} hücre/dk\n`);
+      }
+      // UI'ın geo ilerleme sayacı için özet tabloyu ara ara tazele.
+      if (done > 0 && done % 500 === 0) await refreshSummary();
+      await sleep(650); // işçi başına ~1 sorgu/s → toplam ~CONCURRENCY sorgu/s
+    }
+  }
+  await Promise.all(Array.from({ length: CONCURRENCY }, () => worker()));
+  await refreshSummary();
   console.log(`\nbitti: ${done} hücre, ${fail} hata. Şimdi: node scraper/grade-offmarket.mjs (notları tazele)`);
   await client.end();
 }

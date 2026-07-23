@@ -176,8 +176,16 @@ async function main() {
   }
   console.log("");
 
+  // ── Özet tabloyu tazele (UI RPC'si buradan okur — offmarket_grade_matrix).
+  await client.query(`begin;
+    delete from offmarket_grade_summary;
+    insert into offmarket_grade_summary(state, grade, n, geo_n)
+      select state, grade, count(*), count(*) filter (where geo_enriched_at is not null)
+      from offmarket_leads group by 1,2;
+    commit;`);
+
   // ── Özet: eyalet × not dağılımı.
-  const dist = await client.query("select state, grade, count(*) n from offmarket_leads group by 1,2");
+  const dist = await client.query("select state, grade, n from offmarket_grade_summary");
   const grades = ["A+", "A", "B", "C", "D", "F"];
   const byState = new Map();
   for (const r of dist.rows) {

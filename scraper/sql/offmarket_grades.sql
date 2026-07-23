@@ -27,12 +27,16 @@ create index if not exists offmarket_leads_geo_pending_idx
   on public.offmarket_leads (grade_score desc)
   where geo_enriched_at is null and lat is not null;
 
--- Özet RPC — UI'ın eyalet×not matrisi + geo ilerlemesi tek istekte alması için
--- (PostgREST aggregate kapalı). Ek fonksiyon: tabloya dokunmaz, sadece okur.
+-- Özet tablo + RPC — UI'ın eyalet×not matrisi + geo ilerlemesini TEK hızlı
+-- istekte alması için. 565K üstünde canlı GROUP BY, PostgREST'in ~8s statement
+-- timeout'una takılıyor (function-level SET pooler'da işlemedi) → özet,
+-- grade-offmarket.mjs / geo-enrich-offmarket.mjs tarafından tazelenir.
+create table if not exists public.offmarket_grade_summary (
+  state text not null, grade text, n bigint not null, geo_n bigint not null,
+  refreshed_at timestamptz not null default now()
+);
 create or replace function public.offmarket_grade_matrix()
 returns table(state text, grade text, n bigint, geo_n bigint)
 language sql stable as $$
-  select state, grade, count(*)::bigint,
-         count(*) filter (where geo_enriched_at is not null)::bigint
-  from public.offmarket_leads group by 1, 2
+  select state, grade, n, geo_n from public.offmarket_grade_summary
 $$;
