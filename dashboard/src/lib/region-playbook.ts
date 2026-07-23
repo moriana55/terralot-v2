@@ -67,7 +67,7 @@ const FULL: Record<string, string> = {
   alabama: "AL", arizona: "AZ", arkansas: "AR", california: "CA", colorado: "CO",
   florida: "FL", georgia: "GA", idaho: "ID", kentucky: "KY", louisiana: "LA",
   michigan: "MI", missouri: "MO", nevada: "NV", "new mexico": "NM", "new york": "NY",
-  "north carolina": "NC", ohio: "OH", oklahoma: "OK", oregon: "OR",
+  "north carolina": "NC", ohio: "OH", oklahoma: "OK", oregon: "OR", "south carolina": "SC",
   tennessee: "TN", texas: "TX", utah: "UT", wyoming: "WY",
 };
 const ABBR = new Set(Object.values(FULL));
@@ -244,6 +244,14 @@ const STATE_ENTRIES: StateEntry[] = [
     ["recreational", "camping", "homestead"],
     "⚠ UP'de KAR GERÇEK: yıllık 3-8 metre kar yağar, çoğu arka-yol kışın BAKILMAZ — parsel yılın 4-5 ayı pratikte erişilmez olabilir; 'yıl boyu erişim' vaadi verilmez. Yasal yol erişimi (easement) parsel bazında doğrulanmalı; landlocked av parseli yaygındır.",
     NONJUDICIAL,
+    "medium"
+  ),
+  stateFallback(
+    "SC",
+    "Lowcountry (Colleton/ACE Basin) — kırsal+kıyı-yakını lotlar; heirs' property ve eyalet-dışı absentee sahipler yoğun (motive satıcı), Charleston yayılımının kenarında düşük giriş fiyatı.",
+    ["recreational", "agricultural", "site-built", "mobile-home"],
+    "⚠ SC'de heirs' property riski GERÇEK (Lowcountry'de ABD'nin en yoğun bölgelerinden): tapu bölünmemişse TÜM mirasçıların imzası veya mahkeme süreci gerekir — title araştırması yapılmadan kapanış vaadi verilmez. Kıyı-yakını lotlarda wetland/CRZ (kıyı düzenleme) kısıtı yapılaşmayı engelleyebilir — alıcı title + wetland durumunu county ve title firmasından doğrulamalı.",
+    "SC owner-finance'a uygun; heirs' kaynaklı parselde title netleşmeden taksitli satış başlatma.",
     "medium"
   ),
   stateFallback("WY", "Ucuz açık arazi — off-grid/rekreasyon; taksitli satışa uygun.", ["off-grid", "recreational"], "WY kırsalı izin verici olabilir ama parsel bazında değişir.", NONJUDICIAL),

@@ -5,10 +5,10 @@
 // cevabı gelene kadar / başarısız olursa gösterilir ve SADECE bu dosyada
 // tanımlıdır — başka hiçbir sayfada hardcoded lead sayısı OLMAMALIDIR.
 // Güncelleme: scraper export sonrası buradaki fallback'i canlı ile eşitle.
-// Son doğrulama: 2026-07-23 (canlı ile birebir — toplam 483.542).
+// Son doğrulama: 2026-07-23 (canlı ile birebir — toplam 559.499; 2. dalga NV/OR/MO/MI/SC dahil).
 // ─────────────────────────────────────────────────────────────────────────────
 
-export const OFFMARKET_STATES = ["AZ", "NM", "CO", "TX", "FL", "AR", "NC", "TN", "GA", "OK", "NV", "OR", "MO", "MI"] as const;
+export const OFFMARKET_STATES = ["AZ", "NM", "CO", "TX", "FL", "AR", "NC", "TN", "GA", "OK", "NV", "OR", "MO", "MI", "SC"] as const;
 export type OffmarketState = (typeof OFFMARKET_STATES)[number];
 
 export type StateMeta = {
@@ -44,6 +44,7 @@ export const OFFMARKET_STATE_META: Record<OffmarketState, StateMeta> = {
   // MI: veri bekleniyor — UP county'leri kapalı sistem (BS&A/FetchGIS), açık ArcGIS
   // kaynaklarında owner+mailing yok; aktivasyon hazır, lead sayısı 0 (sentetik veri yasak).
   MI: { code: "MI", label: "Michigan",       region: "Upper Peninsula (veri bekleniyor)",         color: "#0f766e", bounds: [-90.42, 41.69, -82.41, 48.31], lat: 46.3, lng: -87.0,  fallbackCount: 0 },
+  SC: { code: "SC", label: "South Carolina", region: "Colleton (Lowcountry/ACE Basin)",           color: "#9f1239", bounds: [-83.36, 32.03, -78.54, 35.22], lat: 32.9, lng: -80.67, fallbackCount: 11861 },
 };
 
 /** API gelene kadar kullanılan eyalet → sayı fallback haritası. */

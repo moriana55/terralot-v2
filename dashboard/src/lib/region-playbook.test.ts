@@ -127,6 +127,15 @@ test("2. dalga: MI → UP av/rekreasyon açısı + kar yükü/mevsimsel erişim 
   assert.ok(CONFIRM.test(pb.zoningNote));
 });
 
+test("2. dalga: SC → Lowcountry açısı + heirs' property title riski dürüst uyarısı", () => {
+  const pb = regionPlaybook({ state: "SC" });
+  assert.equal(pb.matchBasis, "state");
+  assert.ok(/Lowcountry|Colleton/i.test(pb.salesAngle));
+  assert.ok(/heirs|miras/i.test(pb.zoningNote), "SC heirs' property uyarısı bekleniyordu");
+  assert.ok(/title/i.test(pb.zoningNote));
+  assert.ok(CONFIRM.test(pb.zoningNote));
+});
+
 test("NY → taksitli satış UYARISI (installment önerilmez)", () => {
   const pb = regionPlaybook({ state: "New York" });
   assert.ok(/NY|installment|taksit/i.test(pb.zoningNote + " " + (pb.installmentNote ?? "")));
