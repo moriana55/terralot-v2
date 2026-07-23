@@ -8,7 +8,7 @@
 // Son doğrulama: 2026-07-23 (canlı ile birebir — toplam 483.542).
 // ─────────────────────────────────────────────────────────────────────────────
 
-export const OFFMARKET_STATES = ["AZ", "NM", "CO", "TX", "FL", "AR", "NC", "TN", "GA", "OK", "NV"] as const;
+export const OFFMARKET_STATES = ["AZ", "NM", "CO", "TX", "FL", "AR", "NC", "TN", "GA", "OK", "NV", "OR"] as const;
 export type OffmarketState = (typeof OFFMARKET_STATES)[number];
 
 export type StateMeta = {
@@ -39,6 +39,7 @@ export const OFFMARKET_STATE_META: Record<OffmarketState, StateMeta> = {
   GA: { code: "GA", label: "Georgia",        region: "Clayton + statewide",                       color: "#65a30d", bounds: [-85.6, 30.36, -80.8, 35.0],  lat: 32.65, lng: -83.45, fallbackCount: 10256 },
   OK: { code: "OK", label: "Oklahoma",       region: "Statewide kırsal",                          color: "#4f46e5", bounds: [-103.0, 33.62, -94.43, 37.0], lat: 35.5, lng: -97.5,  fallbackCount: 345 },
   NV: { code: "NV", label: "Nevada",         region: "Nye (Pahrump/Calvada)",                     color: "#a21caf", bounds: [-120.0, 35.0, -114.04, 42.0], lat: 37.0, lng: -116.5, fallbackCount: 30481 },
+  OR: { code: "OR", label: "Oregon",         region: "Klamath + Lake (Christmas Valley)",         color: "#166534", bounds: [-124.57, 41.99, -116.46, 46.29], lat: 42.9, lng: -121.0, fallbackCount: 23264 },
 };
 
 /** API gelene kadar kullanılan eyalet → sayı fallback haritası. */
@@ -52,8 +53,8 @@ export const OFFMARKET_FALLBACK_TOTAL = OFFMARKET_STATES.reduce(
   0
 );
 
-/** Aktif eyaletlerin (10) tamamını kapsayan genel bakış bbox'ı. */
-export const OFFMARKET_OVERVIEW_BOUNDS: [number, number, number, number] = [-115.5, 24.0, -74.5, 41.8];
+/** Aktif eyaletlerin tamamını kapsayan genel bakış bbox'ı. */
+export const OFFMARKET_OVERVIEW_BOUNDS: [number, number, number, number] = [-124.7, 24.0, -74.5, 48.4];
 
 export const OFFMARKET_STATE_COLORS: Record<string, string> = Object.fromEntries(
   OFFMARKET_STATES.map((s) => [s, OFFMARKET_STATE_META[s].color])

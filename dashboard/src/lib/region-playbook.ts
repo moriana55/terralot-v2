@@ -215,6 +215,14 @@ const STATE_ENTRIES: StateEntry[] = [
   ),
   stateFallback("AR", "Ucuz kırsal/orman arsa — owner-finance dostu.", ["recreational", "homestead"], "AR county kuralları değişken.", NONJUDICIAL),
   stateFallback(
+    "OR",
+    "Christmas Valley (Lake) + Klamath — 1960'ların posta-yoluyla-satılmış çöl subdivision lotları; absentee sahipler yoğun (motive satıcı), off-grid/rekreasyon için çok düşük giriş fiyatı.",
+    ["off-grid", "recreational", "camping"],
+    "⚠ Christmas Valley'nin land-scam GEÇMİŞİ alıcıya dürüstçe söylenir: bölge rüzgarlı, toprak alkali/tozlu, çoğu lotta su-elektrik-yol yok. Ayrıca Oregon eyalet planlama kuralları (statewide land use) SIKI — kırsal parselde konut izni EFU/zoning'e takılabilir, 'ev yapılır' vaadi verilmez.",
+    "OR owner-finance yapılabilir ama forclosure süreci eyalet kurallarına göre değişir — title firmasıyla çalış; nakit satış öncelik.",
+    "medium"
+  ),
+  stateFallback(
     "GA",
     "Güney GA kırsal/orman arsası — heirs' property (bölünmemiş miras arazisi) yoğun; motive absentee mirasçılardan düşük fiyatlı alım, tarım/rekreasyon/ev lotu.",
     ["recreational", "agricultural", "site-built", "mobile-home"],

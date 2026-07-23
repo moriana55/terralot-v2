@@ -101,6 +101,14 @@ test("2. dalga: NV → Pahrump/Calvada açısı + su hakkı/kuyu dürüst uyarı
   assert.ok(CONFIRM.test(pb.zoningNote));
 });
 
+test("2. dalga: OR → Christmas Valley açısı + rüzgar/alkali + land-scam dürüst uyarısı", () => {
+  const pb = regionPlaybook({ state: "OR" });
+  assert.equal(pb.matchBasis, "state");
+  assert.ok(/Christmas Valley|Klamath/i.test(pb.salesAngle));
+  assert.ok(/rüzgar|alkali|scam/i.test(pb.zoningNote), "OR dürüst risk notu bekleniyordu");
+  assert.ok(CONFIRM.test(pb.zoningNote));
+});
+
 test("NY → taksitli satış UYARISI (installment önerilmez)", () => {
   const pb = regionPlaybook({ state: "New York" });
   assert.ok(/NY|installment|taksit/i.test(pb.zoningNote + " " + (pb.installmentNote ?? "")));
