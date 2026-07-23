@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
- * HARİTA NOKTA EXPORT — offmarket_leads'teki TÜM koordinatlı kayıtları (7 eyalet,
- * ~469K) kompakt bir gz dosyasına yazar. Dashboard'daki
+ * HARİTA NOKTA EXPORT — offmarket_leads'teki TÜM koordinatlı kayıtları (10 eyalet,
+ * ~479K) kompakt bir gz dosyasına yazar. Dashboard'daki
  * /api/admin/offmarket-map-clusters bu dosyayı okuyup supercluster indeksi kurar.
  *
  * Format (gzip'li JSON):
@@ -26,7 +26,7 @@ const g = (k) => (env.match(new RegExp(`^${k}=(.*)$`, "m")) || [])[1]?.replace(/
 const supa = createClient(g("NEXT_PUBLIC_SUPABASE_URL"), g("SUPABASE_SERVICE_ROLE_KEY"), { auth: { persistSession: false } });
 
 const OUT = resolve(HERE, "../dashboard/src/data/offmarket-map-points.json.gz");
-const STATES = ["AZ", "NM", "CO", "TX", "FL", "AR", "NC"];
+const STATES = ["AZ", "NM", "CO", "TX", "FL", "AR", "NC", "GA", "TN", "OK"];
 const PAGE = 1000;
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
