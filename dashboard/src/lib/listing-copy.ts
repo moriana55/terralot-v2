@@ -68,6 +68,29 @@ const USE_PHRASE: Record<AllowedUse, string> = {
 
 const usd = (n: number) => `$${Math.round(n).toLocaleString("en-US")}`;
 
+// ── DETERMINISTIK ÇEŞİTLİLİK ─────────────────────────────────────────────────
+// Aynı parsel → aynı metin (test invariant), ama FARKLI parseller farklı cümle
+// varyantları alır → toplu ilan üretiminde "şablon kokusu" olmaz. Parsel
+// sinyallerinden stabil bir tohum (FNV-1a hash) türetip varyant seçeriz.
+function seedFrom(s: ListingSignals): number {
+  const key = [s.acres ?? "", s.county ?? "", s.state ?? "", s.situs ?? "", s.nearestCity ?? ""].join("|").toLowerCase();
+  let h = 0x811c9dc5;
+  for (let i = 0; i < key.length; i++) {
+    h ^= key.charCodeAt(i);
+    h = Math.imul(h, 0x01000193);
+  }
+  return h >>> 0;
+}
+
+// salt: aynı tohumdan bağımsız slotlar (başlık/açılış/çerçeve korelasyonsuz seçilsin).
+function pick<T>(arr: readonly T[], seed: number, salt: number): T {
+  return arr[((seed ^ (salt * 0x9e3779b1)) >>> 0) % arr.length];
+}
+
+function cap(s: string): string {
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
 function acresStr(acres: number | null | undefined): string | null {
   if (acres == null || !Number.isFinite(acres) || acres <= 0) return null;
   // 0.50, 1.25, 10 Acres … tam sayıysa ondalık gösterme.
@@ -133,29 +156,48 @@ export function buildListingCopy(
   const ac = acresStr(signals.acres);
   const acLead = ac ? `${ac} in ` : "";
   const fin = hasFinance(finance) ? finance : null;
+  const seed = seedFrom(signals);
 
   // ── TITLE ────────────────────────────────────────────────────────────────
+  // Finans-siz başlık son eki çeşitlenir ama HER varyant "Land for Sale" içerir.
+  const SALE_SUFFIX = ["Land for Sale", "Raw Land for Sale", "Vacant Land for Sale"] as const;
   let title: string;
   if (fin && fin.down != null) {
     title = `${acLead}${loc} — Owner Financing, ${usd(fin.down)} Down`;
   } else if (fin && fin.monthly != null) {
     title = `${acLead}${loc} — Owner Financing, ${usd(fin.monthly)}/mo`;
   } else {
-    title = `${acLead}${loc} — Land for Sale`;
+    title = `${acLead}${loc} — ${pick(SALE_SUFFIX, seed, 1)}`;
   }
 
   // ── DESCRIPTION (~100-130 kelime hedef) ───────────────────────────────────
   const sentences: string[] = [];
   const acreWord = ac ? `this ${ac.toLowerCase()} parcel` : "this parcel";
-  sentences.push(
-    `Own a piece of ${loc} with ${acreWord} of raw land${signals.situs ? ` near ${String(signals.situs).split(",")[0].trim()}` : ""}.`,
-  );
+  const near = signals.situs ? ` near ${String(signals.situs).split(",")[0].trim()}` : "";
+  // Açılış cümlesi — 4 varyant, tohumla seçilir (hepsi acreWord + loc + near korur).
+  const OPENERS = [
+    `Own a piece of ${loc} with ${acreWord} of raw land${near}.`,
+    `${cap(acreWord)} of raw land is available in ${loc}${near}.`,
+    `Stake your claim in ${loc}: ${acreWord} of open, raw land${near}.`,
+    `${cap(acreWord)} of undeveloped land sits in ${loc}${near}.`,
+  ] as const;
+  sentences.push(pick(OPENERS, seed, 2));
 
   const up = usesPhrase(pb.allowedUses);
+  const stateSuffix = signals.state ? ` in ${signals.state}` : "";
   if (up) {
-    sentences.push(`It's well suited for ${up} — a low-cost entry into land ownership${signals.state ? ` in ${signals.state}` : ""}.`);
+    const FRAMES = [
+      `It's well suited for ${up} — a low-cost entry into land ownership${stateSuffix}.`,
+      `Great for ${up}, it's an affordable way to own land${stateSuffix}.`,
+      `Whether you're after ${up}, this is a low-cost path into land ownership${stateSuffix}.`,
+    ] as const;
+    sentences.push(pick(FRAMES, seed, 3));
   } else {
-    sentences.push("It's a low-cost entry into land ownership with potential to match your plans.");
+    const FRAMES = [
+      "It's a low-cost entry into land ownership with room to match your plans.",
+      "It's an affordable, blank-canvas parcel ready for whatever you have in mind.",
+    ] as const;
+    sentences.push(pick(FRAMES, seed, 3));
   }
 
   if (signals.nearestRoad && signals.nearestRoad.trim()) {
@@ -183,7 +225,9 @@ export function buildListingCopy(
   if (ac) bullets.push(`${ac} of raw land`);
   bullets.push(`Located in ${loc}`);
   if (signals.marketValue != null && Number.isFinite(signals.marketValue) && signals.marketValue > 0) {
-    bullets.push(`Assessed/market value ~${usd(signals.marketValue)}`);
+    // DÜRÜSTLÜK: bu rakam county assessed değeri — piyasa (market) değeri DEĞİL.
+    // Assessed'ı "market value" diye etiketlemek yanıltıcı olur.
+    bullets.push(`County-assessed value ~${usd(signals.marketValue)} (assessed, not market)`);
   }
   if (up) bullets.push(`Great for ${up}`);
   if (fin && fin.down != null && fin.monthly != null) {

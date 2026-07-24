@@ -71,3 +71,42 @@ test("default (bilinmeyen bölge) → güvenli 'not yet verified' şerhi", () =>
   assert.match(copy.description, /not yet verified/i);
   assert.ok(CONFIRM.test(copy.description));
 });
+
+test("ÇEŞİTLİLİK: farklı parseller farklı açılış cümlesi/başlık son eki alabilir (şablon kokmaz)", () => {
+  const pb = regionPlaybook({ state: "AZ", county: "Mohave" });
+  // Farklı county/acres kombinasyonları → tohum değişir → varyant havuzu gezilir.
+  const inputs = [
+    { acres: 1.25, county: "Mohave", state: "AZ" },
+    { acres: 5, county: "Apache", state: "AZ" },
+    { acres: 0.5, county: "Cochise", state: "AZ" },
+    { acres: 10, county: "Navajo", state: "AZ" },
+    { acres: 2.5, county: "Yavapai", state: "AZ" },
+    { acres: 40, county: "Gila", state: "AZ" },
+  ];
+  const openers = new Set(inputs.map((s) => buildListingCopy(s, pb).description.split(/(?<=\.)\s/)[0]));
+  // En az iki farklı açılış cümlesi görülmeli (deterministik ama tek-kalıp değil).
+  assert.ok(openers.size >= 2, `açılış çeşitliliği yok: ${openers.size}`);
+});
+
+test("ÇEŞİTLİLİK deterministik kalır: aynı parsel iki çağrıda birebir aynı", () => {
+  const pb = regionPlaybook({ state: "AZ", county: "Mohave", region: "Golden Valley" });
+  const s = { acres: 1.25, county: "Mohave", state: "AZ", nearestCity: "Golden Valley", situs: "123 Desert Rd" };
+  assert.deepEqual(buildListingCopy(s, pb), buildListingCopy(s, pb));
+});
+
+test("başlık son eki hangi varyant olursa olsun 'Land for Sale' içerir (finans yokken)", () => {
+  const pb = regionPlaybook({ state: "AZ", county: "Mohave" });
+  for (const county of ["Mohave", "Apache", "Cochise", "Navajo", "Yavapai", "Gila", "Pima", "Pinal"]) {
+    const copy = buildListingCopy({ acres: 3, county, state: "AZ" }, pb);
+    assert.match(copy.title, /Land for Sale/, `başlık 'Land for Sale' içermiyor: ${copy.title}`);
+  }
+});
+
+test("DÜRÜSTLÜK: değer bullet'ı 'assessed, not market' diyerek assessed'ı market gibi göstermez", () => {
+  const pb = regionPlaybook({ state: "AZ", county: "Mohave" });
+  const copy = buildListingCopy({ acres: 2, county: "Mohave", state: "AZ", marketValue: 30000 }, pb);
+  const valueBullet = copy.bullets.find((b) => b.includes("30,000"));
+  assert.ok(valueBullet, "değer bullet'ı yok");
+  assert.match(valueBullet!, /assessed/i);
+  assert.ok(!/^Assessed\/market value/.test(valueBullet!), "assessed hâlâ 'market value' diye etiketleniyor");
+});
