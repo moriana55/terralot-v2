@@ -56,6 +56,7 @@ const SECTIONS: { label: string | null; wip?: boolean; items: { href: string; ic
   {
     label: "4 · Envanter & Satış",
     items: [
+      { href: "/admin/ilan-ureteci", icon: Sparkles, label: "İlan Üreteci" },
       { href: "/admin/satis-sayfalari", icon: Globe, label: "Satış Sayfaları" },
       { href: "/admin/owner-finance", icon: CircleDollarSign, label: "Owner-Finance · Beta" },
       { href: "/admin/talepler", icon: MessageSquare, label: "Alıcı Talepleri" },
