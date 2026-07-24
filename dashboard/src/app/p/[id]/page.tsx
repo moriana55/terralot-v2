@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getDeals } from "@/lib/unified-deals";
 import { toBuyerParcel, type BuyerParcel } from "@/lib/buyer-parcel";
+import { buildBuyerListing, type BuyerListing } from "@/lib/listing-builder";
+import { readPublishedListing } from "@/lib/parcel-listing-store";
 import { esriStaticUrl } from "@/lib/esri-static";
 import ParcelView from "./parcel-view";
 
@@ -67,13 +69,26 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
 
 export default async function PublicParcelPage({ params }: Params) {
   const { id } = await params;
-  const parcel = await getParcel(decodeURIComponent(id));
+  const parcelId = decodeURIComponent(id);
+  const parcel = await getParcel(parcelId);
   if (!parcel) notFound();
+
+  // Zengin ilan içeriği (LANDiO-tarzı açıklama + öne çıkanlar + konum/GIS özeti).
+  // Composer SADECE buyer-safe BuyerParcel alır → iç deal-ekonomisi sızamaz.
+  const listing = buildBuyerListing(parcel);
+
+  // Admin "Yayınla" ile sabitlenmiş bir override varsa onun metnini tercih et
+  // (best-effort; tablo yoksa/hata olursa null → composer metni kalır).
+  const override = await readPublishedListing(parcel.id);
+  const richListing: BuyerListing = override
+    ? { ...listing, title: override.title, description: override.description, bullets: override.bullets }
+    : listing;
 
   return (
     <ParcelView
       parcel={parcel}
       title={parcelTitle(parcel)}
+      listing={richListing}
       contactWhatsApp={process.env.NEXT_PUBLIC_CONTACT_WHATSAPP || ""}
       contactEmail={process.env.NEXT_PUBLIC_CONTACT_EMAIL || ""}
     />

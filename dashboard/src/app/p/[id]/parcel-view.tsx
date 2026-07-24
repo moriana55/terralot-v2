@@ -8,19 +8,21 @@
 import { useMemo, useRef, useState } from "react";
 import {
   CalendarClock, Check, ExternalLink, Landmark, Loader2, MapPin, Mountain,
-  Ruler, Send, Wallet,
+  Ruler, Send, Sparkles, Wallet,
 } from "lucide-react";
 import type { BuyerParcel } from "@/lib/buyer-parcel";
 import { installmentPlan } from "@/lib/buyer-parcel";
+import type { BuyerListing } from "@/lib/listing-builder";
 import { esriStaticUrl, parcelPadMeters } from "@/lib/esri-static";
 
 const usd = (n: number) => "$" + Math.round(n).toLocaleString("en-US");
 
 export default function ParcelView({
-  parcel, title, contactWhatsApp, contactEmail,
+  parcel, title, listing, contactWhatsApp, contactEmail,
 }: {
   parcel: BuyerParcel;
   title: string;
+  listing?: BuyerListing;   // LANDiO-tarzı üretilen zengin ilan içeriği (opsiyonel)
   contactWhatsApp: string; // digits, e.g. "15551234567" — hidden if empty
   contactEmail: string;    // hidden if empty
 }) {
@@ -108,6 +110,34 @@ export default function ParcelView({
       </header>
 
       <main className="mx-auto max-w-3xl px-4 pb-16 sm:px-8">
+        {/* ── ABOUT THIS LAND (generated listing narrative) ── */}
+        {listing && (listing.description || listing.bullets.length > 0) && (
+          <section className="mt-6 rounded-2xl border border-slate-800 bg-slate-900 p-5 sm:p-6">
+            <h2 className="flex items-center gap-2 text-lg font-bold">
+              <Sparkles className="h-5 w-5 text-emerald-400" /> About this land
+            </h2>
+            {listing.description && (
+              <p className="mt-3 text-sm leading-relaxed text-slate-300">{listing.description}</p>
+            )}
+            {listing.bullets.length > 0 && (
+              <ul className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                {listing.bullets.map((b, i) => (
+                  <li key={i} className="flex items-start gap-2 text-sm text-slate-200">
+                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-400" />
+                    <span>{b}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+            {listing.locationSummary && (
+              <p className="mt-4 border-t border-slate-800 pt-4 text-xs leading-relaxed text-slate-400">
+                <span className="font-semibold text-slate-300">Location & terrain: </span>
+                {listing.locationSummary}
+              </p>
+            )}
+          </section>
+        )}
+
         {/* ── INSTALLMENT CALCULATOR ── */}
         {p.price > 0 && (
           <section className="mt-6 rounded-2xl border border-slate-800 bg-slate-900 p-5 sm:p-6">
