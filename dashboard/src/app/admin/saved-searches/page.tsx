@@ -91,7 +91,7 @@ export default function SavedSearchesPage() {
             Kayıtlı Aramalar & Alarmlar
           </h1>
           <p className="text-sm" style={{ color: "var(--muted)" }}>
-            Deal-screener filtre setlerini sakla, çalıştır, yeni eşleşmeleri gör. E-posta/cron teslimatı STUB (Vercel cron + Resend TODO).
+            Deal-screener filtre setlerini sakla, çalıştır, yeni eşleşmeleri gör. Günlük cron tüm aramaları otomatik tarar; e-posta RESEND_API_KEY ayarlıysa gider.
           </p>
         </div>
         <button onClick={() => { setForm(blankForm); setShowForm(true); }}
@@ -200,7 +200,7 @@ export default function SavedSearchesPage() {
       )}
 
       <div className="mt-6 text-[10px] leading-relaxed rounded-lg border border-dashed p-3" style={{ borderColor: "var(--outline)", color: "var(--muted)" }}>
-        <span className="font-semibold" style={{ color: "var(--foreground)" }}>Cron + e-posta TODO:</span> vercel.json&apos;a günlük cron ekle (örn <code>{"{ \"path\": \"/api/saved-searches/run-all\", \"schedule\": \"0 13 * * *\" }"}</code>), her kayıtlı aramayı çalıştırıp <code>newMatches</code>&apos;i Resend (RESEND_API_KEY) ile <code>notify_email</code>&apos;e gönder. Şu an çalıştırma yeni eşleşmeleri sadece UI&apos;da gösterir.
+        <span className="font-semibold" style={{ color: "var(--foreground)" }}>Günlük cron aktif:</span> <code>vercel.json</code> her gün <code>/api/saved-searches/run-all</code>&apos;ı çalıştırır (13:00 UTC) — tüm kayıtlı aramaları tarar, yeni eşleşmeleri hesaplar ve baseline&apos;ı günceller. <span className="font-semibold" style={{ color: "var(--foreground)" }}>E-posta:</span> <code>RESEND_API_KEY</code> ayarlıysa yeni eşleşmesi olan aramalara <code>notify_email</code>&apos;e otomatik gider; key yoksa e-posta sessizce atlanır (yeni eşleşmeler yine UI&apos;da görünür).
       </div>
     </div>
   );

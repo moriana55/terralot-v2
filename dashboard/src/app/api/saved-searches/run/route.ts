@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
 import { enforceRateLimit, requireGate } from "@/lib/api-guard";
+import { type Filters, type LeadRow, rankMatches, sweepLeads } from "@/lib/saved-search";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -15,59 +16,13 @@ export const dynamic = "force-dynamic";
 // current matches AND the NEW matches (ids not present at last run). Persists the
 // new baseline + last_run_at when an `id` is given.
 //
-// filters_json schema (all optional):
-//   { states: ["TX"], srcContains: "tax", minScore: 70, minAcres, maxAcres,
-//     minBid, maxBid, county, hasOwner: true, limit }
+// Filtre + sıralama mantığı lib/saved-search.ts'te (run-all cron ile paylaşılır).
 //
-// EMAIL/CRON DELIVERY — STUB:
-//   This endpoint only COMPUTES new matches. To deliver alerts:
-//   1. Add a Vercel cron in vercel.json:
-//        { "crons": [{ "path": "/api/saved-searches/run-all", "schedule": "0 13 * * *" }] }
-//      (run-all would loop every saved_searches row and call this logic).
-//   2. Wire Resend (RESEND_API_KEY) to email `notify_email` the `newMatches`.
-//   When RESEND_API_KEY is absent we just return the diff so the UI can preview.
+// EMAIL/CRON DELIVERY:
+//   Bu endpoint yeni eşleşmeleri HESAPLAR. Toplu teslimat için günlük Vercel cron
+//   /api/saved-searches/run-all'ı çağırır (vercel.json). RESEND_API_KEY yoksa
+//   e-posta atlanır ama newMatches yine hesaplanır + UI'da gösterilir (degrade).
 // ─────────────────────────────────────────────────────────────────────────────
-
-interface Filters {
-  states?: string[];
-  srcContains?: string;
-  minScore?: number;
-  minAcres?: number;
-  maxAcres?: number;
-  minBid?: number;
-  maxBid?: number;
-  county?: string;
-  hasOwner?: boolean;
-  limit?: number;
-}
-
-interface LeadRow {
-  id: string;
-  state: string | null;
-  county: string | null;
-  source: string | null;
-  acres: number | null;
-  minimum_bid: number | null;
-  final_score: number | null;
-  owner_name: string | null;
-  property_address: string | null;
-  scraped_at: string | null;
-}
-
-const normCounty = (c: string | null) => (c || "").toUpperCase().replace(/ COUNTY$/i, "").trim();
-
-function matches(r: LeadRow, f: Filters): boolean {
-  if (f.states?.length && !(r.state && f.states.map((x) => x.toUpperCase()).includes(r.state.toUpperCase()))) return false;
-  if (f.srcContains && !((r.source || "").toLowerCase().includes(f.srcContains.toLowerCase()))) return false;
-  if (f.county && normCounty(r.county) !== normCounty(f.county)) return false;
-  if (f.minScore != null && (r.final_score ?? 0) < f.minScore) return false;
-  if (f.minAcres != null && (r.acres ?? 0) < f.minAcres) return false;
-  if (f.maxAcres != null && (r.acres ?? Infinity) > f.maxAcres) return false;
-  if (f.minBid != null && (r.minimum_bid ?? 0) < f.minBid) return false;
-  if (f.maxBid != null && (r.minimum_bid ?? Infinity) > f.maxBid) return false;
-  if (f.hasOwner && !(r.owner_name && !/unknown|no owner|county tax/i.test(r.owner_name))) return false;
-  return true;
-}
 
 export async function POST(req: NextRequest) {
   const limited = enforceRateLimit(req, { limit: 30 });
@@ -97,29 +52,11 @@ export async function POST(req: NextRequest) {
     filters = (body.filters_json as Filters) || (body as unknown as Filters) || {};
   }
 
-  // sweep leads
-  const allMatches: LeadRow[] = [];
-  try {
-    let from = 0;
-    for (;;) {
-      const { data, error } = await s
-        .from("tax_delinquent_properties")
-        .select("id,state,county,source,acres,minimum_bid,final_score,owner_name,property_address,scraped_at")
-        .range(from, from + 999);
-      if (error) return NextResponse.json({ matches: [], newMatches: [], reason: "table unavailable" });
-      if (!data || data.length === 0) break;
-      for (const r of data as LeadRow[]) if (matches(r, filters)) allMatches.push(r);
-      if (data.length < 1000) break;
-      from += 1000;
-    }
-  } catch {
-    return NextResponse.json({ matches: [], newMatches: [] });
-  }
+  // sweep leads (shared paginator; graceful when table missing)
+  const { rows, ok } = await sweepLeads(s);
+  if (!ok) return NextResponse.json({ matches: [], newMatches: [], reason: "table unavailable" });
 
-  allMatches.sort((a, b) => (b.final_score ?? 0) - (a.final_score ?? 0));
-  const limit = Math.min(500, filters.limit ?? 200);
-  const capped = allMatches.slice(0, limit);
-  const newMatches = capped.filter((r) => !priorIds.has(r.id));
+  const { total, capped, newMatches } = rankMatches(rows, filters, priorIds);
 
   // persist new baseline when running a stored search
   let delivered = false;
@@ -129,8 +66,8 @@ export async function POST(req: NextRequest) {
         .from("saved_searches")
         .update({
           last_run_at: new Date().toISOString(),
-          last_match_count: allMatches.length,
-          baseline_ids: capped.map((r) => r.id),
+          last_match_count: total,
+          baseline_ids: capped.map((r: LeadRow) => r.id),
           updated_at: new Date().toISOString(),
         })
         .eq("id", searchId);
@@ -144,7 +81,7 @@ export async function POST(req: NextRequest) {
   }
 
   return NextResponse.json({
-    total: allMatches.length,
+    total,
     matches: capped,
     newMatches,
     newCount: newMatches.length,
