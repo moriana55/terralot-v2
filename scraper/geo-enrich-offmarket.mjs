@@ -23,14 +23,18 @@ import { dbUrl } from "./grade-offmarket.mjs";
 const GEO_TOP = parseInt(process.env.GEO_TOP || "25000", 10);
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-// Sıra ÖNEMLİ: 2026-07-23 ölçümü — overpass-api.de 504 (aşırı yük),
-// kumi.systems timeout, mail.ru 2.6s'de 200 döndü → mail.ru birincil.
+// 2026-07-25 ölçümü: mail.ru 0.6s/200, overpass-api.de 0.8s/200 (sabahki 504
+// geçmiş), kumi.systems + private.coffee 25s TIMEOUT, osm.jp 000.
+// kumi LİSTEDEN ÇIKARILDI: ölü aynayı denemek her hatada 25sn yakıyordu —
+// ana ayna 429 verince hız 67→6 hücre/dk'ya bu yüzden çöktü.
+// İki sağlam ayna kaldı; işçiler round-robin ile FARKLI aynadan başlar
+// (yük tek aynaya binmesin → 429 azalır).
 const OVERPASS_MIRRORS = [
   "https://maps.mail.ru/osm/tools/overpass/api/interpreter",
-  "https://overpass.kumi.systems/api/interpreter",
   "https://overpass-api.de/api/interpreter",
 ];
-const CONCURRENCY = parseInt(process.env.GEO_CONCURRENCY || "3", 10);
+// 2 sağlam ayna × ayna başına ~3 işçi = 6. Ayna başına baskı eskisiyle aynı.
+const CONCURRENCY = parseInt(process.env.GEO_CONCURRENCY || "6", 10);
 const UA = "terralot-geo/1.0 (land grading; contact sales@nocturndev.com)";
 const ROAD_RE = /^(motorway|trunk|primary|secondary|tertiary|unclassified|residential|service|track|road|living_street)$/;
 
@@ -76,10 +80,13 @@ export function parseDistances(json, lat, lng) {
   return out;
 }
 
-async function overpass(lat, lng) {
+// wid = işçi no; her işçi farklı aynadan başlar (round-robin yük dağıtımı).
+async function overpass(lat, lng, wid = 0) {
   let lastErr;
+  const off = wid % OVERPASS_MIRRORS.length;
+  const mirrors = [...OVERPASS_MIRRORS.slice(off), ...OVERPASS_MIRRORS.slice(0, off)];
   for (let attempt = 0; attempt < 2; attempt++) {
-    for (const url of OVERPASS_MIRRORS) {
+    for (const url of mirrors) {
       try {
         const res = await fetch(url, {
           method: "POST",
@@ -97,8 +104,16 @@ async function overpass(lat, lng) {
 }
 
 async function main() {
-  const client = new pg.Client({ connectionString: dbUrl() });
-  await client.connect();
+  // Pool (Client değil): saatler süren taramada Supabase bağlantıyı düşürüyor.
+  // Client'ta bu unhandled 'error' → process ölümü demekti; Pool yeniden bağlanır.
+  const client = new pg.Pool({
+    connectionString: dbUrl(),
+    max: 3,
+    keepAlive: true,
+    idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 20000,
+  });
+  client.on("error", (e) => console.warn(`\npg boşta bağlantı hatası (yok sayıldı): ${e.message}`));
 
   // Huni eşiği: koordinatlı + skorlu en iyi GEO_TOP kaydın skor tabanı.
   const thr = await client.query(
@@ -136,19 +151,28 @@ async function main() {
         from offmarket_leads group by 1,2;
       commit;`).catch(() => {});
   }
-  async function worker() {
+  async function worker(wid) {
     for (;;) {
       const item = queue.shift();
       if (!item || stop) return;
       const [key, cell] = item;
       try {
-        const json = await overpass(cell.lat, cell.lng);
+        const json = await overpass(cell.lat, cell.lng, wid);
         const d = parseDistances(json, cell.lat, cell.lng);
-        await client.query(
-          `update offmarket_leads set dist_road_m=$1, dist_power_m=$2, dist_water_m=$3,
-             dist_town_m=$4, geo_enriched_at=now() where lead_id = any($5)`,
-          [d.road, d.power, d.water, d.town, cell.ids]
-        );
+        // Bağlantı koparsa sorguyu 3 kez dene — Overpass sonucu boşa gitmesin.
+        for (let a = 1; ; a++) {
+          try {
+            await client.query(
+              `update offmarket_leads set dist_road_m=$1, dist_power_m=$2, dist_water_m=$3,
+                 dist_town_m=$4, geo_enriched_at=now() where lead_id = any($5)`,
+              [d.road, d.power, d.water, d.town, cell.ids]
+            );
+            break;
+          } catch (e) {
+            if (a >= 3) throw e;
+            await sleep(3000 * a);
+          }
+        }
         done++;
       } catch (e) {
         fail++;
@@ -159,12 +183,15 @@ async function main() {
         const rate = done / ((Date.now() - t0) / 60000);
         process.stdout.write(`\rhücre ${done}/${cells.size} · hata ${fail} · ${rate.toFixed(0)} hücre/dk\n`);
       }
-      // UI'ın geo ilerleme sayacı için özet tabloyu ara ara tazele.
-      if (done > 0 && done % 500 === 0) await refreshSummary();
+      // NOT: özet tablo koşu ORTASINDA tazelenmiyor. refreshSummary() 566K
+      // satırı baştan sona tarayan bir aggregate; 500 hücrede bir çalışınca
+      // diski/RAM'i yiyip Postgres'i devirdi (2026-07-27 kesintisi). Özet
+      // yalnızca koşu bitiminde bir kez yazılır — UI'daki geo sayacı koşu
+      // boyunca sabit kalır, terminaldeki ilerleme çıktısı canlı olandır.
       await sleep(650); // işçi başına ~1 sorgu/s → toplam ~CONCURRENCY sorgu/s
     }
   }
-  await Promise.all(Array.from({ length: CONCURRENCY }, () => worker()));
+  await Promise.all(Array.from({ length: CONCURRENCY }, (_, i) => worker(i)));
   await refreshSummary();
   console.log(`\nbitti: ${done} hücre, ${fail} hata. Şimdi: node scraper/grade-offmarket.mjs (notları tazele)`);
   await client.end();

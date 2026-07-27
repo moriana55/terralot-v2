@@ -23,6 +23,28 @@ step() {
 
 echo "==== Sourcing run ${TS} ====" | tee -a "$LOG"
 
+# .env'i BAŞTA yükle: disk bekçisinin Telegram uyarısı gönderebilmesi için
+# token'lar daha ilk adımda lazım (eskiden sadece koşu sonunda yükleniyordu).
+set -a; [ -f ".env" ] && . "./.env"; set +a
+
+# 0) DİSK BEKÇİSİ — her şeyden önce.
+# 2026-07-27: disk dolunca Postgres salt-okunura düştü, sonra hiç açılamadı ve
+# proje saatlerce yerde kaldı. Tek bir turun iptal olması, veritabanının komple
+# kilitlenmesinden iyidir. Eşik %80 (DISK_WARN_PCT ile değiştirilebilir).
+# Atlamak için: SKIP_DISK_GUARD=1 ./run-all.sh
+if [ "${SKIP_DISK_GUARD:-0}" != "1" ]; then
+  echo "[$(date '+%H:%M:%S')] >>> disk-guard" | tee -a "$LOG"
+  GUARD_OUT="$(node disk-guard.mjs 2>&1)"; GUARD_RC=$?
+  printf '%s\n' "$GUARD_OUT" | tee -a "$LOG"
+  if [ "$GUARD_RC" -eq 0 ]; then
+    :
+  else
+    echo "[$(date '+%H:%M:%S')] ABORT: disk bekçisi turu durdurdu — yukarıya bak." | tee -a "$LOG"
+    echo "Log: $LOG"
+    exit 1
+  fi
+fi
+
 # 1) Zillow land crawl (RapidAPI) -> local SQLite
 [ "${SKIP_ZILLOW:-0}" = "1" ] || step node scraper.js
 
@@ -50,6 +72,11 @@ step node dd-enrich.js
 
 # 4) Competitor retail listings -> Supabase (competitor_listings)
 step node competitor-scraper.js
+
+# 4b) Rakip radar: ham snapshot'ları istihbarata çevir (DOM, fiyat değişimi,
+# kaybolma=satış şüphesi, county emilim oranı) -> competitor_intel.
+# Scraper'ın HEMEN ardından koşmalı: o günkü snapshot'ı da hesaba katsın.
+step node rakip-radar.mjs
 
 echo "==== done ${TS} ====" | tee -a "$LOG"
 echo "Log: $LOG"
