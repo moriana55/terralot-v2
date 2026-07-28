@@ -7,6 +7,10 @@ import {
 import { normalizeRegrid, regridOzellikleri, cacheAnahtari } from "@/lib/county-providers/regrid";
 import { COUNTY_REGISTRY, COUNTY_OPTIONS, REGISTRY_STATES } from "@/lib/county-registry";
 import { mailable } from "@/lib/live-county-types";
+import {
+  HEDEF_EYALETLER, HEDEF_EYALET_KODLARI, HEDEF_SAYISI,
+  TAKSIT_YASAK_EYALETLER, POSTA_ADRESI_OLMAYAN, hedef,
+} from "@/lib/eyalet-hedefleri";
 import type { ArcGisFieldMap, ArcGisSource } from "@/lib/county-providers/types";
 
 // ─── Birleşik adres ayrıştırma ──────────────────────────────────────────────
@@ -256,6 +260,44 @@ test("kayıt defteri: seçenek listesi ve eyalet listesi kayıtla aynı boyutta"
   assert.equal(COUNTY_OPTIONS.length, Object.keys(COUNTY_REGISTRY).length);
   assert.equal(REGISTRY_STATES.length, new Set(COUNTY_OPTIONS.map((o) => o.state)).size);
   assert.deepEqual(REGISTRY_STATES, [...REGISTRY_STATES].sort());
+});
+
+// ─── Hedef 25 eyalet ────────────────────────────────────────────────────────
+
+test("hedef listesi tam 25 eyalet ve kodlar benzersiz", () => {
+  assert.equal(HEDEF_SAYISI, 25);
+  assert.equal(HEDEF_EYALETLER.length, 25);
+  assert.equal(new Set(HEDEF_EYALETLER.map((e) => e.kod)).size, 25);
+});
+
+test("İŞ KURALI: taksitli satış yasak eyaletler (NY) hedefte OLAMAZ", () => {
+  for (const yasak of TAKSIT_YASAK_EYALETLER) {
+    assert.equal(HEDEF_EYALET_KODLARI.includes(yasak), false, `${yasak} hedefte olmamalı`);
+  }
+  for (const e of HEDEF_EYALETLER) {
+    assert.notEqual(e.installment, "yasak", `${e.kod} taksite kapalı, hedefte olmamalı`);
+  }
+});
+
+test("her hedef eyaletin gerekçesi, county'leri ve kaynak notu dolu", () => {
+  for (const e of HEDEF_EYALETLER) {
+    assert.ok(e.gerekce.length > 10, `${e.kod}: gerekçe yok`);
+    assert.ok(e.countyler.length > 0, `${e.kod}: hedef county yok`);
+    assert.ok(e.kaynakNotu.length > 10, `${e.kod}: kaynak notu yok`);
+  }
+});
+
+test("kayıt defterindeki her eyalet hedef listesinde olmalı (başıboş county yok)", () => {
+  for (const s of REGISTRY_STATES) {
+    assert.ok(HEDEF_EYALET_KODLARI.includes(s), `${s} kayıtta var ama hedef listesinde yok`);
+  }
+});
+
+test("posta adresi olmayan eyaletler dürüstçe işaretli", () => {
+  // Bu eyaletlerde ücretsiz kaynak sahibin posta adresini vermiyor → mektup atılamaz.
+  for (const kod of POSTA_ADRESI_OLMAYAN) {
+    assert.equal(hedef(kod)?.veriYolu, "posta-adresi-yok");
+  }
 });
 
 // ─── mailable tanımı ────────────────────────────────────────────────────────
