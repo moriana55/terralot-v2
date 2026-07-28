@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
 import { enforceRateLimit, requireGate } from "@/lib/api-guard";
-import {
-  LIVE_COUNTY_REGISTRY, buildWhere, clientFilter,
-  type LiveCountyResult, type LiveSearch,
-} from "@/lib/live-county";
+import { COUNTY_REGISTRY } from "@/lib/county-registry";
+import { queryCounty, RESULT_CAP, kotaDurumu } from "@/lib/county-providers";
+import type { LiveCountyResult, LiveSearch } from "@/lib/live-county-types";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -18,9 +17,6 @@ export const dynamic = "force-dynamic";
 // ise NET hata döner — sahte satır ÜRETİLMEZ.
 // ─────────────────────────────────────────────────────────────────────────────
 
-const RESULT_CAP = 200;      // interaktif sorgu — tam çekim değil
-const QUERY_TIMEOUT_MS = 20000;
-
 export async function GET(req: NextRequest) {
   const limited = enforceRateLimit(req);
   if (limited) return limited;
@@ -29,7 +25,7 @@ export async function GET(req: NextRequest) {
 
   const { searchParams } = new URL(req.url);
   const countyKey = searchParams.get("county") || "";
-  const entry = LIVE_COUNTY_REGISTRY[countyKey];
+  const entry = COUNTY_REGISTRY[countyKey];
   if (!entry) {
     return NextResponse.json({ error: `Bilinmeyen county: "${countyKey}"` }, { status: 400 });
   }
@@ -42,66 +38,36 @@ export async function GET(req: NextRequest) {
     maxValue: searchParams.get("maxValue") ? Number(searchParams.get("maxValue")) : undefined,
   };
 
-  const where = buildWhere(entry, search);
-  const params = new URLSearchParams({
-    where,
-    outFields: entry.outFields,
-    returnGeometry: "false",
-    orderByFields: entry.orderBy,
-    resultRecordCount: String(RESULT_CAP),
-    f: "json",
-  });
+  // Sağlayıcı zinciri: ücretsiz ArcGIS → Regrid (ülke geneli yedek) → yok.
+  // "veri yok" ile "servis çöktü" AYRI durumlardır; hiçbir koşulda sahte satır üretilmez.
+  const r = await queryCounty(countyKey, entry, search, RESULT_CAP);
 
-  let json: { features?: { attributes: Record<string, unknown> }[]; error?: unknown };
-  try {
-    const res = await fetch(`${entry.endpoint}?${params}`, {
-      signal: AbortSignal.timeout(QUERY_TIMEOUT_MS),
-      headers: { "User-Agent": "Mozilla/5.0 (TerraLot canlı sorgu)" },
-    });
-    if (!res.ok) {
-      return NextResponse.json(
-        { error: `${entry.label} servisi yanıt vermedi (HTTP ${res.status}). Servis geçici olarak engelli/yavaş olabilir.`, where },
-        { status: 502 },
-      );
-    }
-    json = await res.json();
-  } catch (e) {
-    const msg = e instanceof Error && e.name === "TimeoutError"
-      ? `${entry.label} servisi ${QUERY_TIMEOUT_MS / 1000}sn içinde yanıt vermedi (zaman aşımı).`
-      : `${entry.label} servisine ulaşılamadı: ${e instanceof Error ? e.message : "bilinmeyen hata"}`;
-    return NextResponse.json({ error: msg, where }, { status: 502 });
-  }
-
-  if (json.error) {
-    return NextResponse.json(
-      { error: `${entry.label} ArcGIS hatası: ${JSON.stringify(json.error).slice(0, 200)}`, where },
-      { status: 502 },
-    );
-  }
-
-  const feats = json.features ?? [];
-  const rows: LiveCountyResult[] = [];
-  const seen = new Set<string>();
-  for (const f of feats) {
-    const r = entry.normalize(f.attributes);
-    if (!r || !r.apn || seen.has(r.apn)) continue;
-    seen.add(r.apn);
-    rows.push(r);
-  }
-  const filtered = clientFilter(rows, search);
+  // Sert hata → 502, ama gövde yine tam şeffaf (hangi sağlayıcı ne dedi).
+  const sertHata = r.status === "servis-hatasi" || r.status === "yapilandirilmamis";
+  const kimlik = r.status === "kimlik-hatasi" || r.status === "kota-doldu";
 
   return NextResponse.json({
     county: countyKey,
     label: entry.label,
     state: entry.state,
     live: true,
-    fetchedAt: new Date().toISOString(),
-    where,
-    rawCount: feats.length,
-    count: filtered.length,
-    capped: feats.length >= RESULT_CAP,
-    rows: filtered,
-  });
+    fetchedAt: r.fetchedAt,
+    provider: r.provider,
+    status: r.status,
+    where: r.where,
+    rawCount: r.rawCount,
+    count: r.rows.length,
+    capped: r.capped,
+    rows: r.rows,
+    apiCalls: r.apiCalls,
+    regridKota: kotaDurumu(),
+    // Hata durumunda `error` alanı doldurulur — UI zaten bunu okuyor.
+    ...(sertHata || kimlik ? { error: r.message } : r.message ? { notice: r.message } : {}),
+    denemeler: r.attempts.map((a) => ({
+      saglayici: a.provider, durum: a.status, sureMs: a.durationMs,
+      onbellek: a.cached, apiCagri: a.apiCalls, mesaj: a.message ?? null,
+    })),
+  }, { status: sertHata || kimlik ? 502 : 200 });
 }
 
 // ── Kaydet ───────────────────────────────────────────────────────────────────
@@ -124,7 +90,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "geçersiz json" }, { status: 400 });
   }
 
-  const entry = body.countyKey ? LIVE_COUNTY_REGISTRY[body.countyKey] : undefined;
+  const entry = body.countyKey ? COUNTY_REGISTRY[body.countyKey] : undefined;
   if (!entry) return NextResponse.json({ error: "geçersiz countyKey" }, { status: 400 });
   const rows = Array.isArray(body.rows) ? body.rows : [];
   if (rows.length === 0) return NextResponse.json({ error: "kaydedilecek satır yok" }, { status: 400 });

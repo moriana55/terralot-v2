@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { LayoutDashboard, MapPin, MessageSquare, CreditCard, ArrowLeft, BarChart3, Users, CircleDollarSign, Map, Mail, Wallet, Target, Globe, Tv, FileSearch, ChevronLeft, ChevronRight, ChevronDown, Cpu, Brain, TrendingDown, Rocket, Hammer, Calculator, Copy, BellRing, Send, MailPlus, Database, Swords, Radar, Sparkles, ShieldCheck, Radio, PhoneCall, Handshake, Award } from "lucide-react";
+import { LayoutDashboard, MapPin, MessageSquare, CreditCard, ArrowLeft, BarChart3, Users, CircleDollarSign, Map, Mail, Wallet, Target, Globe, Tv, FileSearch, ChevronLeft, ChevronRight, ChevronDown, Cpu, Brain, TrendingDown, Rocket, Hammer, Calculator, Copy, BellRing, Send, MailPlus, Database, Swords, Radar, Sparkles, ShieldCheck, Radio, PhoneCall, Handshake, Award , Compass } from "lucide-react";
 import { CerberusLogo } from "@/components/DealHoundLogo";
 import { OFFMARKET_STATES } from "@/lib/offmarket-stats";
 
@@ -15,30 +15,40 @@ const SECTIONS: { label: string | null; wip?: boolean; items: { href: string; ic
   {
     label: null,
     items: [
-      { href: "/admin/harita", icon: Map, label: "Ana Harita" },
-      { href: "/admin", icon: LayoutDashboard, label: "Operasyon Özeti" },
+      { href: "/admin/harita", icon: Map, label: "⭐ Ana Harita" },
+      { href: "/admin", icon: LayoutDashboard, label: "⭐ Operasyon Özeti" },
     ],
   },
   {
     label: "1 · Market Radar",
     items: [
-      { href: "/admin/all-deals", icon: Target, label: "Ulusal Fırsatlar" },
+      { href: "/admin/all-deals", icon: Target, label: "⭐ Ulusal Fırsatlar" },
+      // Gerçek veri (land_comps tapu satışları + county_valuation + competitor_profile):
+      // wip DEĞİL, Ahmet görür. Tahmin edilen değer yatırım havuzuna girmez (T3/T4 dışarıda).
+      { href: "/admin/istihbarat", icon: Database, label: "⭐ Pazar İstihbaratı" },
+      // Yöntem ekranı: YATIRIM-ELEME-METODU.md'nin canlı sayılarla ekran hali.
+      // Rakamların hiçbiri hard-code değil; /api/admin/istihbarat'tan gelir.
+      { href: "/admin/yontem", icon: Compass, label: "⭐ Yatırım Yöntemi" },
       // Gerçek veri (offmarket_leads.grade — not motoru): wip DEĞİL, Ahmet görür.
-      { href: "/admin/arsa-notlari", icon: Award, label: "Arsa Notları · A+ Vitrin" },
+      { href: "/admin/arsa-notlari", icon: Award, label: "⭐ Arsa Notları · A+ Vitrin" },
+      // Gerçek küratörlü deal tablosu (real-deals.json). Menüde hiç yoktu, sadece
+      // URL ile erişiliyordu — Ahmet'e gösterilecek veri, görünür olmalı.
+      { href: "/admin/real-deals", icon: Target, label: "⭐ Küratörlü Dealler" },
       { href: "/admin/data-coverage", icon: Database, label: "Veri Kapsamı" },
-      { href: "/admin/pazar-ortusme", icon: Radar, label: "Rakip & Pazar" },
-      { href: "/admin/rakip-istihbarat", icon: Swords, label: "Rakip İstihbaratı" },
+      // Gerçek ölçüme dayalı canlı kaynak kapsamı (kayıt defteri × sorgu sonucu):
+      // "nerede varız, nerede yokuz". Mock veri yok → wip DEĞİL.
+      { href: "/admin/eyalet-kapsami", icon: Globe, label: "⭐ Eyalet Kapsamı" },
     ],
   },
   {
     label: "2 · Aktif Pazar · Mohave",
     items: [
       { href: "/admin/markets", icon: Globe, label: "Market Registry" },
-      { href: "/admin/mohave", icon: MapPin, label: "Meadview & Golden Valley" },
+      { href: "/admin/mohave", icon: MapPin, label: "⭐ Meadview & Golden Valley" },
       { href: "/admin/luna", icon: MapPin, label: "Luna (NM) Envanteri" },
       { href: "/admin/alinabilir-harita", icon: Map, label: "Fırsat Haritası" },
-      { href: "/admin/off-market-harita", icon: Map, label: `${OFFMARKET_STATES.length} Eyalet Haritası` },
-      { href: "/admin/satilabilir-cekirdek", icon: Target, label: "Doğrulanmış Çekirdek" },
+      { href: "/admin/off-market-harita", icon: Map, label: `⭐ ${OFFMARKET_STATES.length} Eyalet Haritası` },
+      { href: "/admin/satilabilir-cekirdek", icon: Target, label: "⭐ Doğrulanmış Çekirdek" },
       { href: "/admin/mohave/kampanya", icon: Mail, label: "Mohave Kampanyası" },
       { href: "/admin/arama", icon: PhoneCall, label: "Sıcak Arama" },
       { href: "/admin/anlasma-hatti", icon: Handshake, label: "Anlaşma Hattı" },
@@ -50,14 +60,14 @@ const SECTIONS: { label: string | null; wip?: boolean; items: { href: string; ic
       { href: "/admin/apn-sorgula", icon: FileSearch, label: "Parsel İnceleme" },
       { href: "/admin/apn-dogrula", icon: ShieldCheck, label: "APN / County Doğrulama" },
       { href: "/admin/canli-sorgu", icon: Radio, label: "Canlı County Sorgu" },
-      { href: "/admin/off-market-leads", icon: MailPlus, label: "Malik & Outreach" },
+      { href: "/admin/off-market-leads", icon: MailPlus, label: "⭐ Malik & Outreach" },
     ],
   },
   {
     label: "4 · Envanter & Satış",
     items: [
-      { href: "/admin/ilan-ureteci", icon: Sparkles, label: "İlan Üreteci" },
-      { href: "/admin/satis-sayfalari", icon: Globe, label: "Satış Sayfaları" },
+      { href: "/admin/ilan-ureteci", icon: Sparkles, label: "⭐ İlan Üreteci" },
+      { href: "/admin/satis-sayfalari", icon: Globe, label: "⭐ Satış Sayfaları" },
       { href: "/admin/owner-finance", icon: CircleDollarSign, label: "Owner-Finance · Beta" },
       { href: "/admin/talepler", icon: MessageSquare, label: "Alıcı Talepleri" },
       { href: "/admin/payments", icon: CreditCard, label: "Tahsilatlar · Beta" },
@@ -66,7 +76,7 @@ const SECTIONS: { label: string | null; wip?: boolean; items: { href: string; ic
   {
     label: "5 · Raporlar",
     items: [
-      { href: "/admin/portfoy", icon: BarChart3, label: "Portföy & KPI" },
+      { href: "/admin/portfoy", icon: BarChart3, label: "⭐ Portföy & KPI" },
     ],
   },
   {
@@ -78,6 +88,10 @@ const SECTIONS: { label: string | null; wip?: boolean; items: { href: string; ic
       { href: "/admin/presentation", icon: Tv, label: "Pitch & Plan" },
       { href: "/admin/scraper", icon: Cpu, label: "Cerberus Botları" },
       { href: "/admin/rakip-radar", icon: Radar, label: "Rakip Radar" },
+      // 2026-07-27: yerlerini /admin/istihbarat aldı (gerçek tapu satışı + veriden
+      // keşfedilen rakip haritası). Silinmedi, park edildi.
+      { href: "/admin/pazar-ortusme", icon: Radar, label: "Rakip & Pazar (eski)" },
+      { href: "/admin/rakip-istihbarat", icon: Swords, label: "Rakip İstihbaratı (eski)" },
       { href: "/admin/competitor-radar", icon: Radar, label: "Rakip Satış Radarı" },
       { href: "/admin/rakip-defteri", icon: Swords, label: "Rakip Defteri" },
       { href: "/admin/market-listings", icon: CircleDollarSign, label: "Piyasa İlanları (eski veri)" },
@@ -149,7 +163,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         className="shrink-0 flex flex-col transition-all duration-200 print:hidden"
         style={{ width: collapsed ? 60 : 234, background: "var(--surface)", borderRight: "1px solid var(--surface-high)" }}
       >
-        {/* Header — Cerberus mark + TerraLot */}
+        {/* Header — Cerberus mark + VegaLand */}
         <div className="flex items-center gap-2.5 px-3.5 border-b min-h-[62px]" style={{ borderColor: "var(--surface-high)" }}>
           <Link href="/" className="flex items-center gap-2.5 min-w-0">
             <span className="shrink-0 rounded-lg p-1" style={{ background: "var(--primary)" }}>

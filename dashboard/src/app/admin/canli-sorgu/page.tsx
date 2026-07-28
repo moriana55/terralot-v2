@@ -1,17 +1,118 @@
 "use client";
 
 /**
- * CANLI COUNTY SORGU — 360K statik lead DIŞINDA, kullanıcı istediğinde bir
- * county'nin parsel verisini O AN sorgular. Sonuç doğrudan county ArcGIS'inden
- * gelir (dürüst canlı sorgu); istenirse offmarket_leads'e kaydedilir.
+ * CANLI COUNTY SORGU — statik lead havuzu DIŞINDA, kullanıcı istediğinde bir
+ * county'nin parsel verisini O AN sorgular. Sonuç sağlayıcı zincirinden gelir
+ * (ücretsiz county ArcGIS → Regrid yedeği); istenirse offmarket_leads'e kaydedilir.
  *
- * Sunucu: /api/admin/live-county (GET sorgu, POST kaydet). Endpoint + alan
- * haritası scraper/offmarket-*.mjs'ten alınan gerçek servisler (src/lib/live-county.ts).
+ * Sunucu: /api/admin/live-county (GET sorgu, POST kaydet).
+ * Kaynak tanımları: src/lib/county-registry.ts (sadece veri, kod değil).
  */
 
-import { useState } from "react";
-import { Radio, Loader2, Search, Save, AlertTriangle, MapPin, Building2, CheckCircle2 } from "lucide-react";
+import { useMemo, useState } from "react";
+import { Radio, Loader2, Search, Save, AlertTriangle, MapPin, Building2, CheckCircle2, ChevronDown } from "lucide-react";
 import { LIVE_COUNTY_OPTIONS, type LiveCountyResult } from "@/lib/live-county";
+
+// Durum noktası — hangi county'nin gerçekten veri döndürdüğü seçim anında görünsün.
+const DURUM_RENK: Record<string, string> = {
+  calisiyor: "var(--grade-a)",
+  deneniyor: "var(--muted)",
+  "veri-yok": "var(--muted)",
+  "servis-kapali": "#b91c1c",
+};
+const DURUM_ETIKET: Record<string, string> = {
+  calisiyor: "çalışıyor",
+  deneniyor: "deneniyor",
+  "veri-yok": "veri yok",
+  "servis-kapali": "servis kapalı",
+};
+
+/**
+ * County seçici — native <select> KULLANILMAZ (proje UI kuralı) ve 60+ kayıtla
+ * kullanılamaz hale gelir. Eyalete göre gruplanmış, aranabilir panel.
+ */
+function CountySecici({ deger, onChange }: { deger: string; onChange: (k: string) => void }) {
+  const [acik, setAcik] = useState(false);
+  const [ara, setAra] = useState("");
+  const secili = LIVE_COUNTY_OPTIONS.find((o) => o.key === deger);
+
+  const gruplar = useMemo(() => {
+    const q = ara.trim().toLowerCase();
+    const m = new Map<string, typeof LIVE_COUNTY_OPTIONS>();
+    for (const o of LIVE_COUNTY_OPTIONS) {
+      if (q && !o.label.toLowerCase().includes(q) && !o.state.toLowerCase().includes(q)) continue;
+      const a = m.get(o.state) ?? [];
+      a.push(o);
+      m.set(o.state, a);
+    }
+    return [...m.entries()].sort((a, b) => a[0].localeCompare(b[0]));
+  }, [ara]);
+
+  return (
+    <div className="relative">
+      <button
+        type="button"
+        onClick={() => setAcik((v) => !v)}
+        className="w-full flex items-center justify-between gap-2 rounded-lg border px-3 py-2 text-sm text-left"
+        style={{ borderColor: "var(--outline)", color: "var(--foreground)" }}
+      >
+        <span className="flex items-center gap-2 truncate">
+          {secili && (
+            <span className="w-2 h-2 rounded-full shrink-0"
+              style={{ background: DURUM_RENK[secili.durum] ?? "var(--muted)" }} />
+          )}
+          <span className="truncate">{secili?.label ?? "County seç"}</span>
+        </span>
+        <ChevronDown className="w-4 h-4 shrink-0" style={{ color: "var(--muted)" }} />
+      </button>
+
+      {acik && (
+        <div
+          className="absolute z-20 mt-1 w-full max-h-80 overflow-y-auto rounded-lg shadow-lg"
+          style={{ background: "var(--surface)", border: "1px solid var(--outline)" }}
+        >
+          <div className="p-2 sticky top-0" style={{ background: "var(--surface)" }}>
+            <input
+              autoFocus
+              value={ara}
+              onChange={(e) => setAra(e.target.value)}
+              placeholder="County veya eyalet ara…"
+              className="w-full rounded border px-2 py-1.5 text-sm bg-transparent"
+              style={{ borderColor: "var(--outline)", color: "var(--foreground)" }}
+            />
+          </div>
+          {gruplar.length === 0 && (
+            <div className="px-3 py-3 text-sm" style={{ color: "var(--muted)" }}>Eşleşen county yok.</div>
+          )}
+          {gruplar.map(([state, liste]) => (
+            <div key={state}>
+              <div className="px-3 py-1 text-[11px] font-bold sticky top-[46px]"
+                style={{ color: "var(--muted)", background: "var(--surface-high)" }}>
+                {state}
+              </div>
+              {liste.map((o) => (
+                <button
+                  key={o.key}
+                  type="button"
+                  onClick={() => { onChange(o.key); setAcik(false); setAra(""); }}
+                  className="w-full flex items-center gap-2 px-3 py-1.5 text-sm text-left hover:opacity-80"
+                  style={{ background: o.key === deger ? "var(--surface-high)" : "transparent" }}
+                >
+                  <span className="w-2 h-2 rounded-full shrink-0"
+                    style={{ background: DURUM_RENK[o.durum] ?? "var(--muted)" }} />
+                  <span className="truncate flex-1">{o.county}</span>
+                  <span className="text-[11px] shrink-0" style={{ color: "var(--muted)" }}>
+                    {DURUM_ETIKET[o.durum] ?? o.durum}
+                  </span>
+                </button>
+              ))}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 const ACCENT = "#0891b2";
 
@@ -125,16 +226,10 @@ export default function CanliSorguPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <label className="flex flex-col gap-1.5">
             <span className="text-xs font-semibold uppercase tracking-wide" style={{ color: "var(--muted)" }}>County (canlı kaynak)</span>
-            <select
-              value={countyKey}
-              onChange={(e) => setCountyKey(e.target.value)}
-              className="rounded-lg border px-3 py-2 text-sm bg-transparent"
-              style={{ borderColor: "var(--outline)", color: "var(--foreground)" }}
-            >
-              {LIVE_COUNTY_OPTIONS.map((o) => (
-                <option key={o.key} value={o.key}>{o.label}</option>
-              ))}
-            </select>
+            <CountySecici deger={countyKey} onChange={setCountyKey} />
+            {selected?.not && (
+              <span className="text-[11px]" style={{ color: "var(--muted)" }}>{selected.not}</span>
+            )}
           </label>
 
           <label className="flex flex-col gap-1.5">
