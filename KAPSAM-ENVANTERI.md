@@ -196,13 +196,82 @@ bu betik kırılır — en kritik migrasyon borcu.
 
 ---
 
-## 5. Özet — nerede duruyoruz
+## 5. GENİŞLETME SONRASI — ölçülmüş canlı kapsam
 
-| Soru | Dürüst cevap |
-|---|---|
-| Kaç eyalette **canlı sorgu** yapılabiliyor? | **5 eyalet, 8 çalışan county** (Mohave ölü) |
-| Kaç eyalette **veri var**? | **15 eyalet, 213 county, 565.930 satır** |
-| Kaç lead'e gerçekten **mektup atılabilir**? | **477.699** (%84,4) |
-| Ücretli ülke-geneli yedek var mı? | **Hayır** — Regrid süresi dolmuş, ATTOM yetkisiz |
-| Kaç mektup gönderilmiş? | **0** (`mail_campaign_log` boş) |
-| 25 eyalete en kısa yol? | Mevcut 15 eyaleti canlı registry'ye taşı (10 eyalet bedava kazanç), kalan 10 eyalet için ücretsiz eyalet-geneli parsel servisleri |
+Sağlayıcı katmanı kurulduktan sonra kayıt defteri **63 county / 21 eyalete** çıkarıldı ve
+**hepsine gerçek sorgu atıldı** (`node --import ./test/resolve-alias.mjs scripts/kapsam-olc.mjs`,
+sonuç `dashboard/public/kapsam-olcum.json`).
+
+### Sonuç: 63 county'nin 46'sı veri döndürdü, 16 eyalette canlı kapsam var
+
+| Durum | Sayı | County |
+|---|---:|---|
+| ✅ **Çalışıyor** (mailable kayıt döndü) | **46** | CO ×3, FL ×8, TX ×9, NV ×1, OR ×2, SC ×1, GA ×2, MI ×1, NC ×3, MT ×5, WY ×3, ID ×4, SD ×1, NE ×1, KS ×1, NM ×1 |
+| ⚪ Veri yok (servis çalıştı, filtreye uyan kayıt yok) | 3 | co-pueblo, co-saguache, co-conejos |
+| ❌ Servis kapalı | 2 | fl-polk, mo-camden |
+| ❌ API anahtarı geçersiz (Regrid'e bağımlı) | 12 | nm-luna, az ×4, ar ×3, tn ×1, ok ×3 |
+
+**Ölçülen boş arsa (sayımı dönen county'lerde): 1.177.660 parsel.**
+Örneklenen 25'lik partilerde **mailable oranı %96-100** (KS Douglas hariç, orada
+boş-arsa filtresi kurulamıyor).
+
+### Eyalet bazında canlı kapsam
+| Eyalet | Çalışan/Toplam | Not |
+|---|---|---|
+| TX | 9/9 | BIS ortak şeması — yeni county tek satır |
+| FL | 8/9 | Polk hariç; eyalet geneli katman |
+| MT | 5/5 | ⭐ eyalet geneli tek servis |
+| ID | 4/4 | 3'ü Referer başlığına bağımlı |
+| CO | 3/6 | Pueblo/Saguache kod sorunu, Conejos katmanda yok |
+| WY | 3/3 | county servisleri |
+| NC | 3/3 | ⭐ OneMap eyalet geneli |
+| GA, OR | 2/2 | |
+| NM, NV, SC, MI, SD, NE, KS | 1/1 | |
+| **AZ** | **0/4** | Mohave host'u çöktü, diğerleri Regrid'e bağımlı |
+| **AR, TN, OK** | **0/7** | Ücretsiz kaynakta posta adresi YOK |
+| **MO** | **0/1** | Camden servisi token istiyor |
+
+### Ücretli API tüketimi
+Tüm geliştirme + tam ölçüm boyunca harcanan **Regrid çağrısı: 1** (tek 401).
+Devre kesici sayesinde geçersiz anahtar 12 county'de tekrar tekrar denenmedi;
+ilk denemeden sonra çağrı yapılmadı. ATTOM çağrısı: 0 (doğrulama testleri hariç).
+
+### Ölçüm sırasında bulunan ve düzeltilen gerçek hatalar
+1. **HTTP başlığında Türkçe karakter** → `fetch` "Cannot convert argument to a ByteString"
+   ile patlıyordu; 9 county'nin tamamı yanlışlıkla "servis kapalı" görünüyordu.
+2. **FL eyalet katmanında `LND_VAL` üzerinde sıralama** → 45 sn zaman aşımı.
+   `OBJECTID` (indeksli) sıralamaya geçilince 6 county açıldı.
+3. **NC Northampton'da posta alanları boş** → tam adres `mailadd` içine paketlenmiş;
+   ayrıştırıcı eklendi, 0 mailable → 24/24 mailable oldu.
+4. **Regrid 401 döngüsü** → devre kesici eklendi, 12 boş çağrı 1'e indi.
+
+---
+
+## 6. Özet — nerede duruyoruz
+
+| Soru | Başlangıç (bu iş öncesi) | Şimdi (ölçülmüş) |
+|---|---|---|
+| Canlı sorgu yapılabilen eyalet | **5** (8 county) | **16** (46 county) |
+| Kayıt defterindeki eyalet | 5 | **21** |
+| Hedef listesindeki eyalet | — | **25** (`eyalet-hedefleri.ts`) |
+| Canlı ölçülen boş arsa | ölçülmemişti | **1.177.660 parsel** |
+| DB'deki lead | 565.930 / 15 eyalet / 213 county | değişmedi |
+| Mektup atılabilir DB lead | 477.699 (%84,4) | değişmedi |
+| Ücretli ülke-geneli yedek | ❌ Regrid süresi dolmuş, ATTOM yetkisiz | ❌ aynı — kod hazır, anahtar bekliyor |
+| Gönderilen mektup | 0 | 0 |
+| Yeni county eklemek | elle endpoint + elle `normalize()` (~30 satır kod) | **kayıt defterine 1-15 satır VERİ** |
+
+### 25'e ulaşmak için kalan somut engeller
+1. **MS, AL, KY, WV** — hedef listede var, kayıt defterine henüz girmedi
+   (kaynak araştırması yapıldı, doğrulanmış uç noktalar kayda geçirilmeli). **21 → 25**
+2. **Regrid anahtarı** — AR/TN/OK/AZ (7 county) tamamen buna bağımlı, ücretsiz kaynakta
+   sahibin posta adresi yok. Anahtar yenilenmeden bu 4 eyalette **mektup atılamaz**.
+3. **AZ Mohave** — projenin "aktif pazarı", ArcGIS host'u çöktü. Yeni host veya
+   `az-mohave.opendata.arcgis.com` CSV yoluna geçilmeli.
+4. **MO Camden** — servis token istemeye başladı (HTTP 499).
+5. **FL Polk** — eyalet katmanı bu county için hata veriyor, county-özel servis gerekli.
+6. **CO Pueblo/Saguache** — arazi kullanımı county'ye özel opak kod; kod eşlemesi gerekli.
+7. **KS/NE/SD'nin ucuz county'leri** — halka açık servis YOK (tarandı, bulunamadı);
+   şu an sadece Douglas/Cass/Pennington'dan veri var.
+8. **Scraper otomasyonu ölü** — launchd aynası 29 Haziran'dan beri senkron değil;
+   Temmuz'da yazılan hasatçıların hiçbiri otomatik koşmuyor (§4.3).

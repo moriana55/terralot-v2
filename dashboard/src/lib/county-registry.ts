@@ -286,7 +286,7 @@ const GIRDILER: Girdi[] = [
     }],
   },
   {
-    key: "nm-luna", state: "NM", county: "Luna", hasValue: false, bilinenDurum: "deneniyor",
+    key: "nm-luna", state: "NM", county: "Luna", hasValue: false, bilinenDurum: "servis-kapali",
     not: "Ücretsiz ArcGIS bulunamadı — yalnızca Regrid yedeği tanımlı.",
     sources: [regrid("NM", "Luna")],
   },
@@ -318,9 +318,9 @@ const GIRDILER: Girdi[] = [
       regrid("AZ", "Mohave"),
     ],
   },
-  { key: "az-apache", state: "AZ", county: "Apache", hasValue: false, bilinenDurum: "deneniyor", not: "Ücretsiz ArcGIS bulunamadı.", sources: [regrid("AZ", "Apache")] },
-  { key: "az-navajo", state: "AZ", county: "Navajo", hasValue: false, bilinenDurum: "deneniyor", not: "Ücretsiz ArcGIS bulunamadı.", sources: [regrid("AZ", "Navajo")] },
-  { key: "az-cochise", state: "AZ", county: "Cochise", hasValue: false, bilinenDurum: "deneniyor", not: "Ücretsiz ArcGIS bulunamadı.", sources: [regrid("AZ", "Cochise")] },
+  { key: "az-apache", state: "AZ", county: "Apache", hasValue: false, bilinenDurum: "servis-kapali", not: "Ücretsiz ArcGIS bulunamadı.", sources: [regrid("AZ", "Apache")] },
+  { key: "az-navajo", state: "AZ", county: "Navajo", hasValue: false, bilinenDurum: "servis-kapali", not: "Ücretsiz ArcGIS bulunamadı.", sources: [regrid("AZ", "Navajo")] },
+  { key: "az-cochise", state: "AZ", county: "Cochise", hasValue: false, bilinenDurum: "servis-kapali", not: "Ücretsiz ArcGIS bulunamadı.", sources: [regrid("AZ", "Cochise")] },
 
   // ── FLORIDA ───────────────────────────────────────────────────────────────
   {
@@ -345,29 +345,29 @@ const GIRDILER: Girdi[] = [
       searchFields: { owner: "O_NAME", apn: "STRAP", mailState: "O_STATE", value: "LAND" },
     }],
   },
-  { key: "fl-charlotte", state: "FL", county: "Charlotte", hasValue: true, bilinenDurum: "deneniyor", sources: [flStatewide(18)] },
-  { key: "fl-putnam", state: "FL", county: "Putnam", hasValue: true, bilinenDurum: "deneniyor", sources: [flStatewide(64)] },
-  { key: "fl-highlands", state: "FL", county: "Highlands", hasValue: true, bilinenDurum: "deneniyor", sources: [flStatewide(38)] },
-  { key: "fl-citrus", state: "FL", county: "Citrus", hasValue: true, bilinenDurum: "deneniyor", sources: [flStatewide(19)] },
-  { key: "fl-marion", state: "FL", county: "Marion", hasValue: true, bilinenDurum: "deneniyor", sources: [flStatewide(52)] },
-  { key: "fl-brevard", state: "FL", county: "Brevard", hasValue: true, bilinenDurum: "deneniyor", sources: [flStatewide(15)] },
-  { key: "fl-levy", state: "FL", county: "Levy", hasValue: true, bilinenDurum: "deneniyor", sources: [flStatewide(48)] },
-  { key: "fl-polk", state: "FL", county: "Polk", hasValue: true, bilinenDurum: "deneniyor", sources: [flStatewide(63)] },
+  { key: "fl-charlotte", state: "FL", county: "Charlotte", hasValue: true, bilinenDurum: "calisiyor", sources: [flStatewide(18)] },
+  { key: "fl-putnam", state: "FL", county: "Putnam", hasValue: true, bilinenDurum: "calisiyor", sources: [flStatewide(64)] },
+  { key: "fl-highlands", state: "FL", county: "Highlands", hasValue: true, bilinenDurum: "calisiyor", sources: [flStatewide(38)] },
+  { key: "fl-citrus", state: "FL", county: "Citrus", hasValue: true, bilinenDurum: "calisiyor", sources: [flStatewide(19)] },
+  { key: "fl-marion", state: "FL", county: "Marion", hasValue: true, bilinenDurum: "calisiyor", sources: [flStatewide(52)] },
+  { key: "fl-brevard", state: "FL", county: "Brevard", hasValue: true, bilinenDurum: "calisiyor", sources: [flStatewide(15)] },
+  { key: "fl-levy", state: "FL", county: "Levy", hasValue: true, bilinenDurum: "calisiyor", sources: [flStatewide(48)] },
+  { key: "fl-polk", state: "FL", county: "Polk", hasValue: true, bilinenDurum: "servis-kapali", sources: [flStatewide(63)] },
 
   // ── TEXAS ─────────────────────────────────────────────────────────────────
   { key: "tx-brewster", state: "TX", county: "Brewster", leadIdPrefix: "TX-brewster", hasValue: true, bilinenDurum: "calisiyor", sources: [txBis("6", "rQ0f7V2sPSbAKMbv", "Brewster")] },
   { key: "tx-hudspeth", state: "TX", county: "Hudspeth", leadIdPrefix: "TX-hudspeth", hasValue: true, bilinenDurum: "calisiyor", sources: [txBis("6", "TCoMB3SwAXtBwSdM", "Hudspeth")] },
   { key: "tx-presidio", state: "TX", county: "Presidio", leadIdPrefix: "TX-presidio", hasValue: true, bilinenDurum: "calisiyor", sources: [txBis("3", "olwlVbUZZ1LTljgD", "Presidio")] },
   { key: "tx-terrell", state: "TX", county: "Terrell", leadIdPrefix: "TX-terrell", hasValue: true, bilinenDurum: "calisiyor", sources: [txBis("3", "g3gXc91BCpz3M4tF", "Terrell")] },
-  { key: "tx-liberty", state: "TX", county: "Liberty", leadIdPrefix: "TX-libertytx", hasValue: true, bilinenDurum: "deneniyor", sources: [txBis("3", "LbQai106UcFy2LlR", "Liberty")] },
-  { key: "tx-cherokee", state: "TX", county: "Cherokee", leadIdPrefix: "TX-cherokee", hasValue: true, bilinenDurum: "deneniyor", sources: [txBis("5", "tyTfZP6fpe41IyyO", "Cherokee")] },
-  { key: "tx-harrison", state: "TX", county: "Harrison", leadIdPrefix: "TX-harrison", hasValue: true, bilinenDurum: "deneniyor", sources: [txBis("5", "9EzFuq4pvjRgSIO3", "Harrison")] },
-  { key: "tx-brazoria", state: "TX", county: "Brazoria", leadIdPrefix: "TX-brazoria", hasValue: true, bilinenDurum: "deneniyor", sources: [txBis("6", "j94FvPaik4etwHFk", "Brazoria")] },
-  { key: "tx-cochran", state: "TX", county: "Cochran", leadIdPrefix: "TX-cochran", hasValue: true, bilinenDurum: "deneniyor", sources: [txBis("2", "d7f5jhAosYNYotdL", "Cochran")] },
+  { key: "tx-liberty", state: "TX", county: "Liberty", leadIdPrefix: "TX-libertytx", hasValue: true, bilinenDurum: "calisiyor", sources: [txBis("3", "LbQai106UcFy2LlR", "Liberty")] },
+  { key: "tx-cherokee", state: "TX", county: "Cherokee", leadIdPrefix: "TX-cherokee", hasValue: true, bilinenDurum: "calisiyor", sources: [txBis("5", "tyTfZP6fpe41IyyO", "Cherokee")] },
+  { key: "tx-harrison", state: "TX", county: "Harrison", leadIdPrefix: "TX-harrison", hasValue: true, bilinenDurum: "calisiyor", sources: [txBis("5", "9EzFuq4pvjRgSIO3", "Harrison")] },
+  { key: "tx-brazoria", state: "TX", county: "Brazoria", leadIdPrefix: "TX-brazoria", hasValue: true, bilinenDurum: "calisiyor", sources: [txBis("6", "j94FvPaik4etwHFk", "Brazoria")] },
+  { key: "tx-cochran", state: "TX", county: "Cochran", leadIdPrefix: "TX-cochran", hasValue: true, bilinenDurum: "calisiyor", sources: [txBis("2", "d7f5jhAosYNYotdL", "Cochran")] },
 
   // ── NEVADA ────────────────────────────────────────────────────────────────
   {
-    key: "nv-nye", state: "NV", county: "Nye", hasValue: true, bilinenDurum: "deneniyor",
+    key: "nv-nye", state: "NV", county: "Nye", hasValue: true, bilinenDurum: "calisiyor",
     not: "Posta eyaleti ayrı alan değil — mcity 'CITY, ST' biçiminde.",
     sources: [{
       kind: "arcgis", method: "POST",
@@ -391,7 +391,7 @@ const GIRDILER: Girdi[] = [
 
   // ── OREGON ────────────────────────────────────────────────────────────────
   {
-    key: "or-klamath", state: "OR", county: "Klamath", hasValue: true, bilinenDurum: "deneniyor",
+    key: "or-klamath", state: "OR", county: "Klamath", hasValue: true, bilinenDurum: "calisiyor",
     sources: [{
       kind: "arcgis",
       endpoint: "https://services.arcgis.com/H6Mh1bySxR4oHx6x/arcgis/rest/services/KC_Taxlots/FeatureServer/1/query",
@@ -412,7 +412,7 @@ const GIRDILER: Girdi[] = [
     }],
   },
   {
-    key: "or-lake", state: "OR", county: "Lake", hasValue: false, bilinenDurum: "deneniyor",
+    key: "or-lake", state: "OR", county: "Lake", hasValue: false, bilinenDurum: "calisiyor",
     not: "Değer alanı yok — fiyat ayrı 2020 katmanından backfill ediliyor.",
     sources: [{
       kind: "arcgis",
@@ -435,7 +435,7 @@ const GIRDILER: Girdi[] = [
 
   // ── SOUTH CAROLINA ────────────────────────────────────────────────────────
   {
-    key: "sc-colleton", state: "SC", county: "Colleton", hasValue: false, bilinenDurum: "deneniyor",
+    key: "sc-colleton", state: "SC", county: "Colleton", hasValue: false, bilinenDurum: "calisiyor",
     not: "Değer alanı yok — fiyat filtresi çalışmaz.",
     sources: [{
       kind: "arcgis", method: "POST",
@@ -458,7 +458,7 @@ const GIRDILER: Girdi[] = [
 
   // ── MISSOURI ──────────────────────────────────────────────────────────────
   {
-    key: "mo-camden", state: "MO", county: "Camden", hasValue: false, bilinenDurum: "deneniyor",
+    key: "mo-camden", state: "MO", county: "Camden", hasValue: false, bilinenDurum: "servis-kapali",
     not: "Değer alanı yok (7/8/86 katmanlarının hiçbirinde).",
     sources: [{
       kind: "arcgis", method: "POST",
@@ -481,7 +481,7 @@ const GIRDILER: Girdi[] = [
 
   // ── GEORGIA ───────────────────────────────────────────────────────────────
   {
-    key: "ga-bibb", state: "GA", county: "Bibb", hasValue: true, bilinenDurum: "deneniyor",
+    key: "ga-bibb", state: "GA", county: "Bibb", hasValue: true, bilinenDurum: "calisiyor",
     sources: [{
       kind: "arcgis",
       endpoint: "https://services2.arcgis.com/zPFLSOZ5HzUzzTQb/arcgis/rest/services/Parcel_CAMA2022/FeatureServer/0/query",
@@ -502,7 +502,7 @@ const GIRDILER: Girdi[] = [
     }],
   },
   {
-    key: "ga-chatham", state: "GA", county: "Chatham", hasValue: true, bilinenDurum: "deneniyor",
+    key: "ga-chatham", state: "GA", county: "Chatham", hasValue: true, bilinenDurum: "calisiyor",
     sources: [{
       kind: "arcgis",
       endpoint: "https://pub.sagis.org/arcgis/rest/services/Pictometry/ParcelDigest/MapServer/0/query",
@@ -525,7 +525,7 @@ const GIRDILER: Girdi[] = [
 
   // ── MICHIGAN ──────────────────────────────────────────────────────────────
   {
-    key: "mi-roscommon", state: "MI", county: "Roscommon", hasValue: true, bilinenDurum: "deneniyor",
+    key: "mi-roscommon", state: "MI", county: "Roscommon", hasValue: true, bilinenDurum: "calisiyor",
     sources: [{
       kind: "arcgis", method: "POST",
       endpoint: "https://services3.arcgis.com/rAGekBpQuVeYptc1/arcgis/rest/services/Parcel62923_2/FeatureServer/146/query",
@@ -547,31 +547,31 @@ const GIRDILER: Girdi[] = [
   },
 
   // ── NORTH CAROLINA ────────────────────────────────────────────────────────
-  { key: "nc-brunswick", state: "NC", county: "Brunswick", hasValue: true, bilinenDurum: "deneniyor", sources: [ncOneMap("Brunswick")] },
-  { key: "nc-rutherford", state: "NC", county: "Rutherford", hasValue: true, bilinenDurum: "deneniyor", sources: [ncOneMap("Rutherford")] },
-  { key: "nc-northampton", state: "NC", county: "Northampton", hasValue: true, bilinenDurum: "deneniyor", sources: [ncOneMap("Northampton")] },
+  { key: "nc-brunswick", state: "NC", county: "Brunswick", hasValue: true, bilinenDurum: "calisiyor", sources: [ncOneMap("Brunswick")] },
+  { key: "nc-rutherford", state: "NC", county: "Rutherford", hasValue: true, bilinenDurum: "calisiyor", sources: [ncOneMap("Rutherford")] },
+  { key: "nc-northampton", state: "NC", county: "Northampton", hasValue: true, bilinenDurum: "calisiyor", sources: [ncOneMap("Northampton")] },
 
   // ── ARKANSAS ──────────────────────────────────────────────────────────────
   // ⚠ AR eyalet geneli katmanında POSTA ADRESİ YOK (adrlabel = parselin kendi
   // adresi, sahibin posta adresi değil). Mektup atılamaz → kaynak tanımlanmadı.
-  { key: "ar-sharp", state: "AR", county: "Sharp", hasValue: false, bilinenDurum: "veri-yok", not: "AR eyalet katmanında sahibin POSTA ADRESİ yok — mektup atılamaz. Regrid yedeği anahtar yenilenince denenmeli.", sources: [regrid("AR", "Sharp")] },
-  { key: "ar-izard", state: "AR", county: "Izard", hasValue: false, bilinenDurum: "veri-yok", not: "AR eyalet katmanında posta adresi yok.", sources: [regrid("AR", "Izard")] },
-  { key: "ar-vanburen", state: "AR", county: "Van Buren", hasValue: false, bilinenDurum: "veri-yok", not: "AR eyalet katmanında posta adresi yok.", sources: [regrid("AR", "VanBuren")] },
+  { key: "ar-sharp", state: "AR", county: "Sharp", hasValue: false, bilinenDurum: "servis-kapali", not: "AR eyalet katmanında sahibin POSTA ADRESİ yok — mektup atılamaz. Regrid yedeği anahtar yenilenince denenmeli.", sources: [regrid("AR", "Sharp")] },
+  { key: "ar-izard", state: "AR", county: "Izard", hasValue: false, bilinenDurum: "servis-kapali", not: "AR eyalet katmanında posta adresi yok.", sources: [regrid("AR", "Izard")] },
+  { key: "ar-vanburen", state: "AR", county: "Van Buren", hasValue: false, bilinenDurum: "servis-kapali", not: "AR eyalet katmanında posta adresi yok.", sources: [regrid("AR", "VanBuren")] },
 
   // ── MONTANA ───────────────────────────────────────────────────────────────
   // Eyalet geneli MSDI: 920.897 parsel, 286.441'i "Vacant Land". Tek endpoint.
-  { key: "mt-hill", state: "MT", county: "Hill", hasValue: true, bilinenDurum: "deneniyor", sources: [mtStatewide("Hill")] },
-  { key: "mt-blaine", state: "MT", county: "Blaine", hasValue: true, bilinenDurum: "deneniyor", sources: [mtStatewide("Blaine")] },
-  { key: "mt-phillips", state: "MT", county: "Phillips", hasValue: true, bilinenDurum: "deneniyor", sources: [mtStatewide("Phillips")] },
-  { key: "mt-garfield", state: "MT", county: "Garfield", hasValue: true, bilinenDurum: "deneniyor", sources: [mtStatewide("Garfield")] },
-  { key: "mt-sanders", state: "MT", county: "Sanders", hasValue: true, bilinenDurum: "deneniyor", sources: [mtStatewide("Sanders")] },
+  { key: "mt-hill", state: "MT", county: "Hill", hasValue: true, bilinenDurum: "calisiyor", sources: [mtStatewide("Hill")] },
+  { key: "mt-blaine", state: "MT", county: "Blaine", hasValue: true, bilinenDurum: "calisiyor", sources: [mtStatewide("Blaine")] },
+  { key: "mt-phillips", state: "MT", county: "Phillips", hasValue: true, bilinenDurum: "calisiyor", sources: [mtStatewide("Phillips")] },
+  { key: "mt-garfield", state: "MT", county: "Garfield", hasValue: true, bilinenDurum: "calisiyor", sources: [mtStatewide("Garfield")] },
+  { key: "mt-sanders", state: "MT", county: "Sanders", hasValue: true, bilinenDurum: "calisiyor", sources: [mtStatewide("Sanders")] },
 
   // ── WYOMING ───────────────────────────────────────────────────────────────
   // ⚠ WY eyalet geneli katmanında (373.666 parsel) sahip+posta VAR ama
   // arazi/yapı değeri ve sınıf alanı YOK → boş arsa ayırt edilemiyor.
   // Bu yüzden county servisleri kullanılıyor.
   {
-    key: "wy-carbon", state: "WY", county: "Carbon", hasValue: true, bilinenDurum: "deneniyor",
+    key: "wy-carbon", state: "WY", county: "Carbon", hasValue: true, bilinenDurum: "calisiyor",
     sources: [{
       kind: "arcgis",
       endpoint: "https://services1.arcgis.com/qEJ3hgR2R81AFChw/arcgis/rest/services/Parcels/FeatureServer/0/query",
@@ -593,7 +593,7 @@ const GIRDILER: Girdi[] = [
     }],
   },
   {
-    key: "wy-fremont", state: "WY", county: "Fremont", hasValue: true, bilinenDurum: "deneniyor",
+    key: "wy-fremont", state: "WY", county: "Fremont", hasValue: true, bilinenDurum: "calisiyor",
     sources: [{
       kind: "arcgis",
       endpoint: "https://services8.arcgis.com/rlGvD2ZEQWYJHMZp/arcgis/rest/services/OWNERSHIP_FINAL_2026/FeatureServer/0/query",
@@ -614,7 +614,7 @@ const GIRDILER: Girdi[] = [
     }],
   },
   {
-    key: "wy-lincoln", state: "WY", county: "Lincoln", hasValue: false, bilinenDurum: "deneniyor",
+    key: "wy-lincoln", state: "WY", county: "Lincoln", hasValue: false, bilinenDurum: "calisiyor",
     not: "Değer alanı yok. Posta adresi tek birleşik alanda (MAIL_ADD) — ayrıştırılıyor.",
     sources: [{
       kind: "arcgis",
@@ -638,7 +638,7 @@ const GIRDILER: Girdi[] = [
   // ⚠ Idaho Code §74-120: bu veri ÜÇÜNCÜ TARAFA posta listesi olarak SATILAMAZ.
   // Kendi kampanyamızda kullanım ayrı konudur; liste ticareti YAPILMAMALI.
   {
-    key: "id-owyhee", state: "ID", county: "Owyhee", hasValue: true, bilinenDurum: "deneniyor",
+    key: "id-owyhee", state: "ID", county: "Owyhee", hasValue: true, bilinenDurum: "calisiyor",
     sources: [{
       kind: "arcgis",
       endpoint: "https://services3.arcgis.com/R0j09uv8w0ny0iXP/arcgis/rest/services/Parcels/FeatureServer/0/query",
@@ -659,7 +659,7 @@ const GIRDILER: Girdi[] = [
     }],
   },
   {
-    key: "id-cassia", state: "ID", county: "Cassia", hasValue: true, bilinenDurum: "deneniyor",
+    key: "id-cassia", state: "ID", county: "Cassia", hasValue: true, bilinenDurum: "calisiyor",
     not: "ISTC proxy'si arkasında — Referer başlığı zorunlu.",
     sources: [{
       kind: "arcgis",
@@ -682,7 +682,7 @@ const GIRDILER: Girdi[] = [
     }],
   },
   {
-    key: "id-elmore", state: "ID", county: "Elmore", hasValue: true, bilinenDurum: "deneniyor",
+    key: "id-elmore", state: "ID", county: "Elmore", hasValue: true, bilinenDurum: "calisiyor",
     not: "ISTC proxy'si — Referer zorunlu. Sahip adı `PM_MAIL_NM` (posta adı) alanından.",
     sources: [idIstc(
       "https://utility.arcgis.com/usrsvcs/servers/a5adcc0e0f3942e695f803c28bf9e820/rest/services/Elmore_Parcels_Jan_2_2025/FeatureServer/830/query",
@@ -690,7 +690,7 @@ const GIRDILER: Girdi[] = [
     )],
   },
   {
-    key: "id-lemhi", state: "ID", county: "Lemhi", hasValue: true, bilinenDurum: "deneniyor",
+    key: "id-lemhi", state: "ID", county: "Lemhi", hasValue: true, bilinenDurum: "calisiyor",
     not: "ISTC proxy'si — Referer zorunlu.",
     sources: [idIstc(
       "https://utility.arcgis.com/usrsvcs/servers/3d729df364bc43d3bb2d4da0e9180c6d/rest/services/LemhiParcels_81623/FeatureServer/0/query",
@@ -703,7 +703,7 @@ const GIRDILER: Girdi[] = [
   // katman yayınlanmıyor). Hedeflenen ucuz county'lerin (Harding, Ziebach,
   // Corson, Perkins, Bennett) hiçbirinin halka açık servisi yok.
   {
-    key: "sd-pennington", state: "SD", county: "Pennington", hasValue: true, bilinenDurum: "deneniyor",
+    key: "sd-pennington", state: "SD", county: "Pennington", hasValue: true, bilinenDurum: "calisiyor",
     sources: [{
       kind: "arcgis",
       endpoint: "https://gis.rcgov.org/server/rest/services/OpenData/TaxParcels/FeatureServer/0/query",
@@ -728,7 +728,7 @@ const GIRDILER: Girdi[] = [
   // ⚠ NE eyalet geneli katmanı (1,15M parsel) var ama SAHİP ADI ve POSTA ADRESİ
   // İÇERMİYOR → mektup atılamaz, yalnızca hedefleme için kullanılabilir.
   {
-    key: "ne-cass", state: "NE", county: "Cass", hasValue: true, bilinenDurum: "deneniyor",
+    key: "ne-cass", state: "NE", county: "Cass", hasValue: true, bilinenDurum: "calisiyor",
     sources: [{
       kind: "arcgis",
       endpoint: "https://services3.arcgis.com/oIhWXTph9P1clNT3/arcgis/rest/services/Tax_Parcel/FeatureServer/0/query",
@@ -753,7 +753,7 @@ const GIRDILER: Girdi[] = [
   // ⚠ KS eyalet geneli ORKA servisi CAMA (sahip/değer) verisini REST'te
   // YAYINLAMIYOR — yalnızca KSPID + geometri. Douglas tek doğrulanmış kaynak.
   {
-    key: "ks-douglas", state: "KS", county: "Douglas", hasValue: false, bilinenDurum: "deneniyor",
+    key: "ks-douglas", state: "KS", county: "Douglas", hasValue: false, bilinenDurum: "calisiyor",
     not: "Değer ve arazi-kullanımı alanı YOK — boş arsa ayıklanamıyor, tüm sahipli parseller döner.",
     sources: [{
       kind: "arcgis",
@@ -775,12 +775,12 @@ const GIRDILER: Girdi[] = [
   },
 
   // ── TENNESSEE ─────────────────────────────────────────────────────────────
-  { key: "tn-sullivan", state: "TN", county: "Sullivan", hasValue: false, bilinenDurum: "veri-yok", not: "TN eyalet parsel katmanında sahip adı/posta adresi YOK (sadece GISLINK + geometri).", sources: [regrid("TN", "Sullivan")] },
+  { key: "tn-sullivan", state: "TN", county: "Sullivan", hasValue: false, bilinenDurum: "servis-kapali", not: "TN eyalet parsel katmanında sahip adı/posta adresi YOK (sadece GISLINK + geometri).", sources: [regrid("TN", "Sullivan")] },
 
   // ── OKLAHOMA ──────────────────────────────────────────────────────────────
-  { key: "ok-pittsburg", state: "OK", county: "Pittsburg", hasValue: false, bilinenDurum: "veri-yok", not: "Mevcut OK katmanlarında sahip/posta alanı yok (yalnızca parcel_id + geometri).", sources: [regrid("OK", "Pittsburg")] },
-  { key: "ok-atoka", state: "OK", county: "Atoka", hasValue: false, bilinenDurum: "veri-yok", not: "Sahip/posta alanı yok.", sources: [regrid("OK", "Atoka")] },
-  { key: "ok-beckham", state: "OK", county: "Beckham", hasValue: false, bilinenDurum: "veri-yok", not: "Sahip/posta alanı yok.", sources: [regrid("OK", "Beckham")] },
+  { key: "ok-pittsburg", state: "OK", county: "Pittsburg", hasValue: false, bilinenDurum: "servis-kapali", not: "Mevcut OK katmanlarında sahip/posta alanı yok (yalnızca parcel_id + geometri).", sources: [regrid("OK", "Pittsburg")] },
+  { key: "ok-atoka", state: "OK", county: "Atoka", hasValue: false, bilinenDurum: "servis-kapali", not: "Sahip/posta alanı yok.", sources: [regrid("OK", "Atoka")] },
+  { key: "ok-beckham", state: "OK", county: "Beckham", hasValue: false, bilinenDurum: "servis-kapali", not: "Sahip/posta alanı yok.", sources: [regrid("OK", "Beckham")] },
 ];
 
 export const COUNTY_REGISTRY: Record<string, CountyEntry> = Object.fromEntries(
