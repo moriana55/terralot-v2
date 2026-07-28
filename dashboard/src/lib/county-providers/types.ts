@@ -138,6 +138,12 @@ export interface ArcGisSource {
    * ⚠ SADECE ASCII değer — başlıklar ByteString'dir.
    */
   headers?: Record<string, string>;
+  /**
+   * Bazı servisler `resultRecordCount` kabul etmez ve
+   * `400 "Pagination is not supported"` döner (ör. MS MARIS).
+   * Bu bayrak açıkken tavan sunucuya gönderilmez, sonuç istemcide kırpılır.
+   */
+  noPagination?: boolean;
   /** Sunucudan istenecek alanlar (virgülle). */
   outFields: string;
   /** Sıralama alanı (ör. "land_val ASC"). */

@@ -148,7 +148,7 @@ export const LETTER_TEMPLATES: { id: string; name: string; type: MailType; previ
     id: "tpl1",
     name: "Yellow Letter — Friendly Offer",
     type: "yellow_letter",
-    preview: "Hi {{owner_name}},\n\nI noticed you own a beautiful piece of land in {{county}}, {{state}}. I'm interested in purchasing your property at {{address}}.\n\nI can offer a fair cash price and close quickly. Would you be open to a conversation?\n\n{{mh_note}}\n\nBest regards,\nTerraLot Team",
+    preview: "Hi {{owner_name}},\n\nI noticed you own a beautiful piece of land in {{county}}, {{state}}. I'm interested in purchasing your property at {{address}}.\n\nI can offer a fair cash price and close quickly. Would you be open to a conversation?\n\n{{mh_note}}\n\nBest regards,\nVegaLand Team",
   },
   {
     id: "tpl2",
@@ -160,19 +160,19 @@ export const LETTER_TEMPLATES: { id: string; name: string; type: MailType; previ
     id: "tpl3",
     name: "Formal Offer Letter",
     type: "offer_letter",
-    preview: "Dear {{owner_name}},\n\nRe: Purchase Offer for APN {{apn}}\n\nWe are writing to express our interest in purchasing your property located at {{address}}, {{county}}, {{state}}.\n\nOur offer: ${{offer_amount}}\n\nThis is a cash offer with no contingencies. We can close within 30 days.\n\n{{mh_note}}\n\nSincerely,\nTerraLot Acquisitions",
+    preview: "Dear {{owner_name}},\n\nRe: Purchase Offer for APN {{apn}}\n\nWe are writing to express our interest in purchasing your property located at {{address}}, {{county}}, {{state}}.\n\nOur offer: ${{offer_amount}}\n\nThis is a cash offer with no contingencies. We can close within 30 days.\n\n{{mh_note}}\n\nSincerely,\nVegaLand Acquisitions",
   },
   {
     id: "tpl4",
     name: "Follow-up Letter",
     type: "follow_up",
-    preview: "Hi {{owner_name}},\n\nI reached out a few weeks ago about your property in {{county}}. I wanted to follow up — our offer still stands and we're flexible on terms.\n\nIf you've thought about it, I'd love to chat.\n\n{{mh_note}}\n\nBest,\nTerraLot Team",
+    preview: "Hi {{owner_name}},\n\nI reached out a few weeks ago about your property in {{county}}. I wanted to follow up — our offer still stands and we're flexible on terms.\n\nIf you've thought about it, I'd love to chat.\n\n{{mh_note}}\n\nBest,\nVegaLand Team",
   },
   {
     id: "tpl5",
     name: "Legal Purchase Agreement (All-Cash Offer)",
     type: "offer_letter",
-    preview: "REAL ESTATE PURCHASE CONTRACT (ALL-CASH OFFER)\n\n1. PARTIES: TerraLot Acquisitions LLC (\"Buyer\") agrees to buy, and {{owner_name}} (\"Seller\") agrees to sell the property described below.\n2. PROPERTY DESCRIPTION: Land parcel located in {{county}} County, {{state}}, APN: {{apn}}.\n3. PURCHASE PRICE: Buyer shall pay Seller at closing: ${{offer_amount}} (All-Cash, no financing contingencies).\n4. CLOSING: Closing shall occur within 30 days. Title and escrow fees to be split equally.\n5. CONVEYANCE: Seller warrants marketable title, free of liens, conveyed by General Warranty Deed.\n\nSELLER SIGNATURE: _______________________ DATE: _________\n\nBUYER SIGNATURE: TerraLot Acquisitions Authorized Signatory",
+    preview: "REAL ESTATE PURCHASE CONTRACT (ALL-CASH OFFER)\n\n1. PARTIES: VegaLand Acquisitions LLC (\"Buyer\") agrees to buy, and {{owner_name}} (\"Seller\") agrees to sell the property described below.\n2. PROPERTY DESCRIPTION: Land parcel located in {{county}} County, {{state}}, APN: {{apn}}.\n3. PURCHASE PRICE: Buyer shall pay Seller at closing: ${{offer_amount}} (All-Cash, no financing contingencies).\n4. CLOSING: Closing shall occur within 30 days. Title and escrow fees to be split equally.\n5. CONVEYANCE: Seller warrants marketable title, free of liens, conveyed by General Warranty Deed.\n\nSELLER SIGNATURE: _______________________ DATE: _________\n\nBUYER SIGNATURE: VegaLand Acquisitions Authorized Signatory",
   },
 ];
 

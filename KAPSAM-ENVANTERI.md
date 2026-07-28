@@ -198,34 +198,36 @@ bu betik kırılır — en kritik migrasyon borcu.
 
 ## 5. GENİŞLETME SONRASI — ölçülmüş canlı kapsam
 
-Sağlayıcı katmanı kurulduktan sonra kayıt defteri **63 county / 21 eyalete** çıkarıldı ve
-**hepsine gerçek sorgu atıldı** (`node --import ./test/resolve-alias.mjs scripts/kapsam-olc.mjs`,
-sonuç `dashboard/public/kapsam-olcum.json`).
+Sağlayıcı katmanı kurulduktan sonra kayıt defteri **80 county / 25 eyalete** çıkarıldı ve
+**hepsine gerçek sorgu atıldı** (`npm run kapsam`, sonuç `dashboard/public/kapsam-olcum.json`).
 
-### Sonuç: 63 county'nin 46'sı veri döndürdü, 16 eyalette canlı kapsam var
+### Sonuç: 80 county'nin 63'ü veri döndürdü, 20 eyalette canlı kapsam var
 
 | Durum | Sayı | County |
 |---|---:|---|
-| ✅ **Çalışıyor** (mailable kayıt döndü) | **46** | CO ×3, FL ×8, TX ×9, NV ×1, OR ×2, SC ×1, GA ×2, MI ×1, NC ×3, MT ×5, WY ×3, ID ×4, SD ×1, NE ×1, KS ×1, NM ×1 |
+| ✅ **Çalışıyor** (mailable kayıt döndü) | **63** | TX ×9, FL ×8, MT ×5, MS ×5, WV ×5, AL ×5, ID ×4, CO ×3, WY ×3, NC ×3, GA ×2, OR ×2, KY ×2, NM/NV/SC/MI/SD/NE/KS ×1 |
 | ⚪ Veri yok (servis çalıştı, filtreye uyan kayıt yok) | 3 | co-pueblo, co-saguache, co-conejos |
 | ❌ Servis kapalı | 2 | fl-polk, mo-camden |
 | ❌ API anahtarı geçersiz (Regrid'e bağımlı) | 12 | nm-luna, az ×4, ar ×3, tn ×1, ok ×3 |
 
-**Ölçülen boş arsa (sayımı dönen county'lerde): 1.177.660 parsel.**
-Örneklenen 25'lik partilerde **mailable oranı %96-100** (KS Douglas hariç, orada
+**Ölçülen boş arsa (sayımı dönen county'lerde): 1.322.941 parsel.**
+Örneklenen 25'lik partilerde **mailable oranı %92-100** (KS Douglas hariç — orada
 boş-arsa filtresi kurulamıyor).
 
-### Eyalet bazında canlı kapsam
+### Eyalet bazında canlı kapsam (25 eyaletin tamamı)
 | Eyalet | Çalışan/Toplam | Not |
 |---|---|---|
 | TX | 9/9 | BIS ortak şeması — yeni county tek satır |
 | FL | 8/9 | Polk hariç; eyalet geneli katman |
-| MT | 5/5 | ⭐ eyalet geneli tek servis |
+| MT | 5/5 | ⭐ eyalet geneli tek servis (56 county) |
+| MS | 5/5 | ⭐ eyalet geneli MARIS (82 county, 1,99M parsel) |
+| WV | 5/5 | ⭐ eyalet geneli WVU GIS (1,39M parsel), değer alanı yok |
+| AL | 5/5 | KCS ağı + Greene/Macon kendi şemaları |
 | ID | 4/4 | 3'ü Referer başlığına bağımlı |
 | CO | 3/6 | Pueblo/Saguache kod sorunu, Conejos katmanda yok |
 | WY | 3/3 | county servisleri |
 | NC | 3/3 | ⭐ OneMap eyalet geneli |
-| GA, OR | 2/2 | |
+| GA, OR, KY | 2/2 | KY: yalnız Pulaski + Campbell; Doğu KY'de ArcGIS yok |
 | NM, NV, SC, MI, SD, NE, KS | 1/1 | |
 | **AZ** | **0/4** | Mohave host'u çöktü, diğerleri Regrid'e bağımlı |
 | **AR, TN, OK** | **0/7** | Ücretsiz kaynakta posta adresi YOK |
@@ -244,6 +246,11 @@ ilk denemeden sonra çağrı yapılmadı. ATTOM çağrısı: 0 (doğrulama testl
 3. **NC Northampton'da posta alanları boş** → tam adres `mailadd` içine paketlenmiş;
    ayrıştırıcı eklendi, 0 mailable → 24/24 mailable oldu.
 4. **Regrid 401 döngüsü** → devre kesici eklendi, 12 boş çağrı 1'e indi.
+5. **MS MARIS `resultRecordCount` kabul etmiyor** (`400 "Pagination is not supported"`) →
+   `noPagination` bayrağı eklendi, sonuç istemcide kırpılıyor; 5 MS county'si açıldı.
+6. **AL Greene ve Macon FARKLI şemalarda** (rapor ortak sanıyordu) → canlı servisten
+   şema çekilip iki ayrı üretici yazıldı.
+7. **KY Campbell alan adları farklı** (`PIDN`/`OWNER_NAME_1`…) → canlı şemadan düzeltildi.
 
 ---
 
@@ -251,27 +258,32 @@ ilk denemeden sonra çağrı yapılmadı. ATTOM çağrısı: 0 (doğrulama testl
 
 | Soru | Başlangıç (bu iş öncesi) | Şimdi (ölçülmüş) |
 |---|---|---|
-| Canlı sorgu yapılabilen eyalet | **5** (8 county) | **16** (46 county) |
-| Kayıt defterindeki eyalet | 5 | **21** |
+| Canlı sorgu yapılabilen eyalet | **5** (8 county) | **20** (63 county) |
+| Kayıt defterindeki eyalet | 5 | **25** |
 | Hedef listesindeki eyalet | — | **25** (`eyalet-hedefleri.ts`) |
-| Canlı ölçülen boş arsa | ölçülmemişti | **1.177.660 parsel** |
+| Canlı ölçülen boş arsa | ölçülmemişti | **1.322.941 parsel** |
 | DB'deki lead | 565.930 / 15 eyalet / 213 county | değişmedi |
 | Mektup atılabilir DB lead | 477.699 (%84,4) | değişmedi |
 | Ücretli ülke-geneli yedek | ❌ Regrid süresi dolmuş, ATTOM yetkisiz | ❌ aynı — kod hazır, anahtar bekliyor |
 | Gönderilen mektup | 0 | 0 |
 | Yeni county eklemek | elle endpoint + elle `normalize()` (~30 satır kod) | **kayıt defterine 1-15 satır VERİ** |
 
-### 25'e ulaşmak için kalan somut engeller
-1. **MS, AL, KY, WV** — hedef listede var, kayıt defterine henüz girmedi
-   (kaynak araştırması yapıldı, doğrulanmış uç noktalar kayda geçirilmeli). **21 → 25**
-2. **Regrid anahtarı** — AR/TN/OK/AZ (7 county) tamamen buna bağımlı, ücretsiz kaynakta
+### 25 eyaletin tamamı kayıtta — ama 5'inde henüz VERİ YOK. Kalan engeller:
+1. **Regrid anahtarı** — AR/TN/OK/AZ (7 county) tamamen buna bağımlı, ücretsiz kaynakta
    sahibin posta adresi yok. Anahtar yenilenmeden bu 4 eyalette **mektup atılamaz**.
-3. **AZ Mohave** — projenin "aktif pazarı", ArcGIS host'u çöktü. Yeni host veya
+   (25 eyaletin 20'si veri döndürüyor; veri döndürmeyen 5'i: AZ, AR, TN, OK, MO.)
+2. **AZ Mohave** — projenin "aktif pazarı", ArcGIS host'u çöktü. Yeni host veya
    `az-mohave.opendata.arcgis.com` CSV yoluna geçilmeli.
-4. **MO Camden** — servis token istemeye başladı (HTTP 499).
-5. **FL Polk** — eyalet katmanı bu county için hata veriyor, county-özel servis gerekli.
-6. **CO Pueblo/Saguache** — arazi kullanımı county'ye özel opak kod; kod eşlemesi gerekli.
-7. **KS/NE/SD'nin ucuz county'leri** — halka açık servis YOK (tarandı, bulunamadı);
+3. **MO Camden** — servis token istemeye başladı (HTTP 499). MO'nun tek county'si.
+4. **FL Polk** — eyalet katmanı bu county için hata veriyor, county-özel servis gerekli.
+5. **CO Pueblo/Saguache** — arazi kullanımı county'ye özel opak kod; kod eşlemesi gerekli.
+6. **KS/NE/SD'nin ucuz county'leri** — halka açık servis YOK (tarandı, bulunamadı);
    şu an sadece Douglas/Cass/Pennington'dan veri var.
-8. **Scraper otomasyonu ölü** — launchd aynası 29 Haziran'dan beri senkron değil;
+7. **Doğu KY** (Harlan, Bell, Leslie, Elliott, Wolfe) — hiçbirinde ArcGIS yok, hepsi
+   qPublic/Mapping Solutions'ta. Ancak PVA'dan CSV satın alarak gelir.
+   ⚠ Ayrıca KY sunucuları **Türkiye IP'sinden TCP timeout** veriyor → hasat ABD'den koşmalı.
+8. **AL'in hedeflenen 5 ucuz county'si** (Wilcox, Perry, Lowndes, Choctaw, Clarke)
+   KULLANILAMAZ — Flagship GIS üzerindeler veya sahip alanı %100 boş. Yerlerine
+   Greene/Macon/Cullman/DeKalb/Talladega alındı.
+9. **Scraper otomasyonu ölü** — launchd aynası 29 Haziran'dan beri senkron değil;
    Temmuz'da yazılan hasatçıların hiçbiri otomatik koşmuyor (§4.3).

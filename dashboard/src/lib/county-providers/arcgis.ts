@@ -239,9 +239,11 @@ export async function queryArcGis(
     where,
     outFields: src.outFields,
     returnGeometry: "false",
-    resultRecordCount: String(cap),
     f: "json",
   });
+  // Sayfalamayı desteklemeyen servislere tavan GÖNDERİLMEZ (400 döner);
+  // sonuç aşağıda istemcide kırpılır.
+  if (!src.noPagination) params.set("resultRecordCount", String(cap));
   // ⚠ Sıralama BAZI eyalet geneli katmanlarda (FL statewide) indekssiz alanda
   // yapılırsa sorgu 45sn'yi aşıp zaman aşımına uğruyor. Boş bırakılabilsin diye
   // parametre yalnızca doluysa gönderilir.
@@ -270,7 +272,8 @@ export async function queryArcGis(
     return fail(`${label} ArcGIS hatası: ${JSON.stringify(json.error).slice(0, 200)}`);
   }
 
-  const feats = json.features ?? [];
+  const tumFeats = json.features ?? [];
+  const feats = src.noPagination ? tumFeats.slice(0, cap) : tumFeats;
   const rows: LiveCountyResult[] = [];
   const seen = new Set<string>();
   for (const f of feats) {

@@ -226,11 +226,11 @@ test("En İyi 750: avgScore ve regionBreakdown seçilen top-N'i (dedupe öncesi)
 test("buildLetterBody: 12+ APN kısaltılır (+N more), tek parselde tekil dil", () => {
   const rows = Array.from({ length: 15 }, (_, i) => row({ apn: `APN-${i + 1}` }));
   const c = buildCampaign(rows, {});
-  const body = buildLetterBody(c.letters[0], { company: "TerraLot" });
+  const body = buildLetterBody(c.letters[0], { company: "VegaLand" });
   assert.ok(body.includes("(+3 more)"));
   assert.ok(!body.includes("APN-13,")); // 13. ve sonrası listelenmez
   const single = buildCampaign([row({})], {});
-  const sbody = buildLetterBody(single.letters[0], { company: "TerraLot" });
+  const sbody = buildLetterBody(single.letters[0], { company: "VegaLand" });
   assert.ok(sbody.includes("1 parcel ")); // "parcels" değil
   assert.ok(sbody.includes("your parcel"));
 });

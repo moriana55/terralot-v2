@@ -167,6 +167,126 @@ function idIstc(endpoint: string, referer: string): ArcGisSource {
   };
 }
 
+/**
+ * MISSISSIPPI eyalet geneli MARIS katmanı — 82 county, 1.994.839 parsel.
+ * İki sunucuya bölünmüş: "West" ve "East". Sahip + tam posta + arsa değeri dolu.
+ * ⚠ Boş alanlar NULL değil TEK BOŞLUK (' ') — filtre buna göre.
+ * ⚠ CNTYNAME boşluksuz yazılır (ör. 'PEARLRIVER').
+ */
+function msStatewide(yarim: "West" | "East", countyName: string): ArcGisSource {
+  return {
+    kind: "arcgis",
+    endpoint: `https://gis.mississippi.edu/server/rest/services/Cadastral/MS_${yarim}_Parcels/MapServer/0/query`,
+    // ⚠ Bu servis resultRecordCount kabul etmiyor ("Pagination is not supported").
+    noPagination: true,
+    outFields: "PARNO,OWNNAME,MAILADD1,MAILADD2,MCITY1,MSTATE1,MZIP1,SITEADD,TAXACRES,GISACRES,LANDVAL,IMPVAL1,IMPVAL2,ZONING,CNTYNAME",
+    orderBy: "LANDVAL ASC",
+    baseWhere: `CNTYNAME='${countyName}' AND IMPVAL1=0 AND IMPVAL2=0 AND LANDVAL>0 AND OWNNAME<>' ' AND MAILADD1<>' '`,
+    fields: {
+      apn: ["PARNO"],
+      owner: ["OWNNAME"],
+      mailAddress: ["MAILADD1", "MAILADD2"],
+      mailCity: "MCITY1", mailState: "MSTATE1", mailZip: "MZIP1",
+      situs: ["SITEADD"],
+      use: ["ZONING"], useConst: "VACANT",
+      acres: "TAXACRES",
+      value: "LANDVAL",
+    },
+    searchFields: { owner: "OWNNAME", apn: "PARNO", mailState: "MSTATE1", value: "LANDVAL" },
+  };
+}
+
+/**
+ * WEST VIRGINIA eyalet geneli WVU GIS katmanı — 1.389.855 parsel, %98,8'inde sahip adı.
+ * ⚠ Ayrı şehir/eyalet/zip alanı YOK: `FullOwnerAddress` tek string
+ *   ("612 18TH ST, VIENNA, WV 26105") → birleşik adres ayrıştırıcısı kullanılır.
+ * ⚠ Arazi DEĞERİ yok. Boş arsa sinyali: fiziksel adres boş + Acres_C eşiği.
+ */
+function wvStatewide(countyId: string): ArcGisSource {
+  return {
+    kind: "arcgis",
+    endpoint: "https://services.wvgis.wvu.edu/arcgis/rest/services/Planning_Cadastre/WV_Parcels/MapServer/0/query",
+    outFields: "CleanParcelID,Label,GISPID,FullOwnerName,FullOwnerAddress,FullPhysicalAddress,Acres_C,FullLegalDescription,CountyID",
+    orderBy: "Acres_C DESC",
+    baseWhere: `CountyID='${countyId}' AND FullOwnerName IS NOT NULL AND FullOwnerAddress IS NOT NULL AND FullPhysicalAddress='' AND Acres_C>=0.5`,
+    fields: {
+      apn: ["CleanParcelID", "Label", "GISPID"],
+      owner: ["FullOwnerName"],
+      mailCombined: "FullOwnerAddress",
+      situs: ["FullLegalDescription"],
+      useConst: "VACANT",
+      acres: "Acres_C",
+    },
+    searchFields: { owner: "FullOwnerName", apn: "CleanParcelID" },
+  };
+}
+
+/** ALABAMA "KCS GIS" ağı — onlarca county AYNI şemayı paylaşır. */
+function alKcs(endpoint: string): ArcGisSource {
+  return {
+    kind: "arcgis",
+    endpoint,
+    outFields: "PARCELID,Owner,MailAdd1,MailAdd2,MailCity,MailState,MailZip1,SitusAddName,CalcAcres,CLandValue,CImpValue",
+    orderBy: "CLandValue ASC",
+    baseWhere: "CImpValue=0 AND Owner IS NOT NULL AND Owner<>''",
+    fields: {
+      apn: ["PARCELID"],
+      owner: ["Owner"],
+      mailAddress: ["MailAdd1", "MailAdd2"],
+      mailCity: "MailCity", mailState: "MailState", mailZip: "MailZip1",
+      situs: ["SitusAddName"],
+      useConst: "VACANT",
+      acres: "CalcAcres",
+      value: "CLandValue",
+    },
+    searchFields: { owner: "Owner", apn: "PARCELID", mailState: "MailState", value: "CLandValue" },
+  };
+}
+
+/** ALABAMA Greene — kendi ArcGIS Online şeması (şema canlı servisten doğrulandı). */
+function alGreene(endpoint: string): ArcGisSource {
+  return {
+    kind: "arcgis",
+    endpoint,
+    outFields: "PARCEL_ID,PPIN,ACCOUNTNO,FULLNAME,CONAME,FULLADDRES,CITY,STATE,ZIPCODE,LEGAL,TOTAL_ACRE,LAND_APPR,IMP_APPR",
+    orderBy: "LAND_APPR ASC",
+    baseWhere: "IMP_APPR=0 AND LAND_APPR>0 AND FULLNAME IS NOT NULL AND FULLNAME<>''",
+    fields: {
+      apn: ["PARCEL_ID", "PPIN", "ACCOUNTNO"],
+      owner: ["FULLNAME", "CONAME"],
+      mailAddress: ["FULLADDRES"],
+      mailCity: "CITY", mailState: "STATE", mailZip: "ZIPCODE",
+      situs: ["LEGAL"],
+      useConst: "VACANT",
+      acres: "TOTAL_ACRE",
+      value: "LAND_APPR",
+    },
+    searchFields: { owner: "FULLNAME", apn: "PARCEL_ID", mailState: "STATE", value: "LAND_APPR" },
+  };
+}
+
+/** ALABAMA Macon — Greene'den FARKLI şema (canlı servisten doğrulandı). */
+function alMacon(endpoint: string): ArcGisSource {
+  return {
+    kind: "arcgis",
+    endpoint,
+    outFields: "PARCEL_ID,PPIN,ACCOUNT,OWNERNAME,CONAME,ADDRESS1,ADDRESS2,CITY,STATE,ZIP,SITUS_ADDR,PROPADDR1,TOTAL_AC,LAND_VAL,IMP_VAL",
+    orderBy: "LAND_VAL ASC",
+    baseWhere: "IMP_VAL=0 AND LAND_VAL>0 AND OWNERNAME IS NOT NULL AND OWNERNAME<>''",
+    fields: {
+      apn: ["PARCEL_ID", "PPIN", "ACCOUNT"],
+      owner: ["OWNERNAME", "CONAME"],
+      mailAddress: ["ADDRESS1", "ADDRESS2"],
+      mailCity: "CITY", mailState: "STATE", mailZip: "ZIP",
+      situs: ["SITUS_ADDR", "PROPADDR1"], situsJoin: ", ",
+      useConst: "VACANT",
+      acres: "TOTAL_AC",
+      value: "LAND_VAL",
+    },
+    searchFields: { owner: "OWNERNAME", apn: "PARCEL_ID", mailState: "STATE", value: "LAND_VAL" },
+  };
+}
+
 /** Regrid ülke geneli yedek kaynağı (ücretli — kota + önbellek korumalı). */
 function regrid(state: string, county: string): RegridSource {
   return {
@@ -557,6 +677,85 @@ const GIRDILER: Girdi[] = [
   { key: "ar-sharp", state: "AR", county: "Sharp", hasValue: false, bilinenDurum: "servis-kapali", not: "AR eyalet katmanında sahibin POSTA ADRESİ yok — mektup atılamaz. Regrid yedeği anahtar yenilenince denenmeli.", sources: [regrid("AR", "Sharp")] },
   { key: "ar-izard", state: "AR", county: "Izard", hasValue: false, bilinenDurum: "servis-kapali", not: "AR eyalet katmanında posta adresi yok.", sources: [regrid("AR", "Izard")] },
   { key: "ar-vanburen", state: "AR", county: "Van Buren", hasValue: false, bilinenDurum: "servis-kapali", not: "AR eyalet katmanında posta adresi yok.", sources: [regrid("AR", "VanBuren")] },
+
+  // ── MISSISSIPPI ───────────────────────────────────────────────────────────
+  // ⭐ Eyalet geneli MARIS: 82 county, 1.994.839 parsel, iki sunucuya bölünmüş.
+  // Sahip + tam posta + arsa değeri + acreage hepsi dolu (%96-99 kapsama).
+  // ⚠ Kullanma: Hinds (0 sahip), Hancock %4, Marshall %10, Lauderdale %8.
+  { key: "ms-amite", state: "MS", county: "Amite", hasValue: true, bilinenDurum: "calisiyor", sources: [msStatewide("West", "AMITE")] },
+  { key: "ms-wilkinson", state: "MS", county: "Wilkinson", hasValue: true, bilinenDurum: "calisiyor", sources: [msStatewide("West", "WILKINSON")] },
+  { key: "ms-jefferson", state: "MS", county: "Jefferson", hasValue: true, bilinenDurum: "calisiyor", sources: [msStatewide("West", "JEFFERSON")] },
+  { key: "ms-claiborne", state: "MS", county: "Claiborne", hasValue: true, bilinenDurum: "calisiyor", sources: [msStatewide("West", "CLAIBORNE")] },
+  { key: "ms-kemper", state: "MS", county: "Kemper", hasValue: true, bilinenDurum: "calisiyor", sources: [msStatewide("East", "KEMPER")] },
+
+  // ── WEST VIRGINIA ─────────────────────────────────────────────────────────
+  // ⭐ Eyalet geneli WVU GIS: 1.389.855 parsel. CountyID alfabetik sıra (01-55).
+  // ⚠ Arazi DEĞERİ yok; posta adresi tek birleşik string.
+  { key: "wv-wirt", state: "WV", county: "Wirt", hasValue: false, bilinenDurum: "calisiyor", not: "Değer alanı yok. Posta adresi tek string, ayrıştırılıyor.", sources: [wvStatewide("53")] },
+  { key: "wv-clay", state: "WV", county: "Clay", hasValue: false, bilinenDurum: "calisiyor", not: "Değer alanı yok.", sources: [wvStatewide("08")] },
+  { key: "wv-calhoun", state: "WV", county: "Calhoun", hasValue: false, bilinenDurum: "calisiyor", not: "Değer alanı yok.", sources: [wvStatewide("07")] },
+  { key: "wv-webster", state: "WV", county: "Webster", hasValue: false, bilinenDurum: "calisiyor", not: "Değer alanı yok.", sources: [wvStatewide("51")] },
+  { key: "wv-mcdowell", state: "WV", county: "McDowell", hasValue: false, bilinenDurum: "calisiyor", not: "Değer alanı yok; boş arsa sayısı düşük (~120).", sources: [wvStatewide("24")] },
+
+  // ── ALABAMA ───────────────────────────────────────────────────────────────
+  // ⚠ Eyalet geneli servis YOK. Hedeflenen 5 ucuz county (Wilcox, Perry, Lowndes,
+  // Choctaw, Clarke) KULLANILAMAZ: Flagship GIS üzerindeler veya sahip alanı boş.
+  // Yerlerine doğrulanmış kırsal alternatifler alındı.
+  { key: "al-greene", state: "AL", county: "Greene", hasValue: true, bilinenDurum: "calisiyor", sources: [alGreene("https://services8.arcgis.com/XI1FxP9uZwSBSNV8/arcgis/rest/services/GreeneAL_Service/FeatureServer/5/query")] },
+  { key: "al-macon", state: "AL", county: "Macon", hasValue: true, bilinenDurum: "calisiyor", sources: [alMacon("https://services7.arcgis.com/THz1mnjmEtkl0fFw/arcgis/rest/services/MaconAL_Service/FeatureServer/13/query")] },
+  { key: "al-cullman", state: "AL", county: "Cullman", hasValue: true, bilinenDurum: "calisiyor", sources: [alKcs("https://al25portal.kcsgis.com/al25server/rest/services/Cullman_Public_ISV/MapServer/107/query")] },
+  { key: "al-dekalb", state: "AL", county: "DeKalb", hasValue: true, bilinenDurum: "calisiyor", sources: [alKcs("https://al28portal.kcsgis.com/al28server/rest/services/Dekalb_Public_ISV/MapServer/48/query")] },
+  { key: "al-talladega", state: "AL", county: "Talladega", hasValue: true, bilinenDurum: "calisiyor", sources: [alKcs("https://al61portal.kcsgis.com/al61server/rest/services/Talladega_Public_ISV/MapServer/51/query")] },
+
+  // ── KENTUCKY ──────────────────────────────────────────────────────────────
+  // ⚠ EN ZAYIF EYALET. Eyalet geneli parsel servisi YOK. Hedeflenen Doğu KY
+  // county'lerinin (Harlan, Bell, Leslie, Elliott, Wolfe) HİÇBİRİNDE ArcGIS yok —
+  // hepsi qPublic/Mapping Solutions'ta. Ancak PVA'dan CSV satın alarak gelir.
+  // ⚠ kygisserver.ky.gov ve linkgis TÜRKİYE IP'sinden TCP timeout veriyor →
+  // hasat ABD bölgeli sunucudan koşmalı.
+  {
+    key: "ky-pulaski", state: "KY", county: "Pulaski", hasValue: true, bilinenDurum: "calisiyor",
+    sources: [{
+      kind: "arcgis",
+      endpoint: "https://services5.arcgis.com/cnJiyVVCFyUslPPa/arcgis/rest/services/ParcelUpdate_2026/FeatureServer/2/query",
+      outFields: "parcel_id,owner1,owner2,own_street,own_city,own_state,own_zip,prop_stree,legal_acre,current_la,current_im",
+      orderBy: "current_la ASC",
+      baseWhere: "current_im=0 AND owner1 IS NOT NULL AND owner1<>''",
+      fields: {
+        apn: ["parcel_id"],
+        owner: ["owner1", "owner2"],
+        mailAddress: ["own_street"],
+        mailCity: "own_city", mailState: "own_state", mailZip: "own_zip",
+        situs: ["prop_stree"],
+        useConst: "VACANT",
+        acres: "legal_acre",
+        value: "current_la",
+      },
+      searchFields: { owner: "owner1", apn: "parcel_id", mailState: "own_state", value: "current_la" },
+    }],
+  },
+  {
+    key: "ky-campbell", state: "KY", county: "Campbell", hasValue: false, bilinenDurum: "calisiyor",
+    not: "LinkGIS sunucusu Türkiye IP'sinden erişilemeyebilir — hasat ABD'den koşmalı.",
+    sources: [{
+      kind: "arcgis",
+      endpoint: "https://maps.linkgis.org/server/rest/services/Parcel_QueryOnly/MapServer/0/query",
+      outFields: "PIDN,OWNER_NAME_1,OWNER_NAME_2,OWNER_ADDRESS_1,OWNER_ADDRESS_2,OWNER_CITY,OWNER_STATE,OWNER_ZIP_CODE,LOC_ADD,LOT_ACRE,LAND_USE,LAND_VALUE,IMPROVEMENT_VALUE",
+      orderBy: "LAND_VALUE ASC",
+      baseWhere: "IMPROVEMENT_VALUE=0 AND LAND_VALUE>0 AND OWNER_NAME_1 IS NOT NULL AND OWNER_NAME_1<>''",
+      fields: {
+        apn: ["PIDN"],
+        owner: ["OWNER_NAME_1", "OWNER_NAME_2"],
+        mailAddress: ["OWNER_ADDRESS_1", "OWNER_ADDRESS_2"],
+        mailCity: "OWNER_CITY", mailState: "OWNER_STATE", mailZip: "OWNER_ZIP_CODE",
+        situs: ["LOC_ADD"],
+        use: ["LAND_USE"], useConst: "VACANT",
+        acres: "LOT_ACRE",
+        value: "LAND_VALUE",
+      },
+      searchFields: { owner: "OWNER_NAME_1", apn: "PIDN", mailState: "OWNER_STATE", value: "LAND_VALUE" },
+    }],
+  },
 
   // ── MONTANA ───────────────────────────────────────────────────────────────
   // Eyalet geneli MSDI: 920.897 parsel, 286.441'i "Vacant Land". Tek endpoint.

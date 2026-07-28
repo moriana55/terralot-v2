@@ -51,8 +51,8 @@ yeni TX county eklemek **tek satır**. Bu, 25 eyalet hedefinin en ucuz genişlem
 | **WY** Wyoming | 1.000 | uygun | Carbon, Fremont, Lincoln | county ArcGIS | 3/3 ✅ 11.867 |
 | **NV** Nevada | 1.230 | uygun | Nye | county ArcGIS | ✅ 31.280 |
 | **AR** Arkansas | 2.500 | uygun | Sharp, Izard, Van Buren | ❌ posta adresi yok | Regrid şart |
-| **MS** Mississippi | 2.100 | uygun | Jefferson, Claiborne, Amite, Wilkinson, Kemper | araştırıldı | bkz. §Kalan iş |
-| **WV** West Virginia | 2.200 | uygun | McDowell, Webster, Calhoun, Clay, Wirt | araştırıldı | bkz. §Kalan iş |
+| **MS** Mississippi | 2.100 | uygun | Amite, Wilkinson, Jefferson, Claiborne, Kemper | ⭐ eyalet geneli ArcGIS | 5/5 ✅ 29.736 |
+| **WV** West Virginia | 2.200 | uygun | Wirt, Clay, Calhoun, Webster, McDowell | ⭐ eyalet geneli ArcGIS | 5/5 ✅ 4.960 (değer alanı yok) |
 | **OK** Oklahoma | 2.880 | uygun | Pittsburg, Atoka, Beckham, Bryan | ❌ posta adresi yok | Regrid şart |
 | **MO** Missouri | 3.200 | koşullu | Camden | county ArcGIS | ❌ servis artık token istiyor |
 
@@ -69,10 +69,10 @@ bir değer, posta alanları ayrı ve %100 dolu. Yeni MT county eklemek tek satı
 | **CO** Colorado | 2.290 | uygun | Costilla, Las Animas, Park, Pueblo, Saguache | county + eyalet ArcGIS | 3/5 ✅ · Pueblo/Saguache'de kod sorunu |
 | **ID** Idaho | 4.500 | uygun | Owyhee, Cassia, Elmore, Lemhi | county ArcGIS | 4/4 ✅ 23.972 |
 | **OR** Oregon | 4.800 | uygun | Klamath, Lake | county ArcGIS | 2/2 ✅ 34.655 |
-| **KY** Kentucky | 3.800 | uygun | Harlan, Bell, Leslie, Elliott, Wolfe | araştırıldı | bkz. §Kalan iş |
+| **KY** Kentucky | 3.800 | uygun | Pulaski, Campbell | county ArcGIS | 2/2 ✅ 13.267 · ⚠ Doğu KY'de ArcGIS YOK |
 | **NC** North Carolina | 5.200 | uygun | Brunswick, Rutherford, Northampton | ⭐ eyalet geneli ArcGIS | 3/3 ✅ 97.945 |
 | **SC** South Carolina | 4.800 | uygun | Colleton | county ArcGIS | ✅ 12.456 (değer alanı yok) |
-| **AL** Alabama | 3.200 | uygun | Wilcox, Perry, Lowndes, Choctaw, Clarke | araştırıldı | bkz. §Kalan iş |
+| **AL** Alabama | 3.200 | uygun | Greene, Macon, Cullman, DeKalb, Talladega | county ArcGIS | 5/5 ✅ 97.318 · ⚠ hedeflenen 5 ucuz county kullanılamaz |
 | **GA** Georgia | 4.500 | uygun | Bibb, Chatham | county ArcGIS | 2/2 ✅ 30.144 |
 | **KS** Kansas | 2.400 | uygun | Douglas | county ArcGIS | ✅ 41.695 (değer yok) |
 | **NE** Nebraska | 2.800 | uygun | Cass | county ArcGIS | ✅ 6.687 |
@@ -110,11 +110,14 @@ eyalet geneli tek servis 32 county'yi açıyor. DB'de zaten 84.044 mailable FL l
 | **Ortak şemalı county ailesi** | TX (~155 CAD, BIS şeması) | Yeni county = tek satır. |
 | **County bazlı ArcGIS** | CO, NM, NV, OR, SC, GA, MI, KS, NE, SD, WY, ID | County başına bir kayıt. |
 | **Regrid şart (ücretsizde posta adresi yok)** | AR, TN, OK, AZ | ⚠ Regrid anahtarı ŞU AN GEÇERSİZ. |
-| **Araştırma tamam, kayda geçmeyi bekliyor** | MS, AL, KY, WV | bkz. §Kalan iş |
+| **Eyalet geneli (yeni)** | MS (MARIS, 1,99M parsel), WV (WVU GIS, 1,39M parsel) | Yeni county = tek satır. |
 
 ---
 
-## Kalan iş — 25'e ulaşmak için somut engeller
+## Kalan iş — 25 eyalet kayıtta, 20'si veri döndürüyor
+
+**Ölçüm sonucu (2026-07-28): 80 county / 25 eyalet kayıtlı, 63 county gerçekten veri
+döndürdü, 1.322.941 boş arsa parseli ölçüldü.** Veri döndürmeyen 5 eyalet: AZ, AR, TN, OK, MO.
 
 1. **Regrid aboneliği ölü.** JWT `exp = 2026-07-20`. AR (71.585 satır), TN (3.666),
    OK (345) ve AZ'nin 3 county'si ücretsiz kaynakta posta adresi içermediği için
@@ -128,12 +131,18 @@ eyalet geneli tek servis 32 county'yi açıyor. DB'de zaten 84.044 mailable FL l
    kod olarak veriyor → boş arsa ayıklanamıyor. County-özel kod eşlemesi gerekli.
 6. **FL Marion ve Polk**: eyalet katmanı 45 sn'de yanıt vermiyor. Bu iki county
    için county-özel servis bulunmalı.
-7. **KS/NE/SD'de hedeflenen ucuz county'lerin hiçbirinde halka açık servis yok.**
+7. **Doğu KY'de (Harlan, Bell, Leslie, Elliott, Wolfe) hiç ArcGIS yok** — hepsi
+   qPublic/Mapping Solutions'ta; ancak PVA'dan CSV satın alarak gelir. Ayrıca KY
+   sunucuları Türkiye IP'sinden TCP timeout veriyor → hasat ABD bölgesinden koşmalı.
+8. **AL'in hedeflenen 5 ucuz county'si kullanılamaz** (Wilcox/Perry/Lowndes/Choctaw/Clarke:
+   Flagship GIS'te veya sahip alanı %100 boş) — yerlerine Greene/Macon/Cullman/DeKalb/
+   Talladega alındı.
+9. **KS/NE/SD'de hedeflenen ucuz county'lerin hiçbirinde halka açık servis yok.**
    Barber, Comanche, Elk (KS); Sioux, Cherry, Dundy (NE); Harding, Ziebach,
    Corson (SD) — hepsi tarandı, bulunamadı. Bu eyaletlerde şu an sadece
    büyük/orta county'lerden (Douglas, Cass, Pennington) veri var.
-8. **ID yasal not:** Idaho Code §74-120, parsel verisinin üçüncü tarafa posta
+10. **ID yasal not:** Idaho Code §74-120, parsel verisinin üçüncü tarafa posta
    listesi olarak satılmasını yasaklıyor. Kendi kampanyamızda kullanım ayrı;
    liste ticareti yapılmamalı.
-9. **ID ISTC proxy kırılganlığı:** Cassia/Elmore/Lemhi `Referer` başlığına bağlı.
+11. **ID ISTC proxy kırılganlığı:** Cassia/Elmore/Lemhi `Referer` başlığına bağlı.
    ISTC uygulamayı değiştirirse sessizce ölür — izleme alarmı konmalı.

@@ -157,13 +157,31 @@ test("scoreLead: geo taranmamış kayıt B tavanına takılır (A+/A yalnız geo
   assert.ok(r.flags.some((f: string) => /geo doğrulaması bekliyor/.test(f)));
 });
 
-test("scoreLead: net marj $5K altı (bilinen değer) C tavanı; landlocked F", () => {
+test("scoreLead: mutlak dolar barajı YOK — getiri katı kararı verir; landlocked F", () => {
+  // 2026-07-25 Yiğit direktifi: ucuz-çok-adet modelinde mutlak marj yanlış ölçü.
+  // net = 8000-3000-2000 = 3000 (eski kuralda $5K altı → C). maliyet = 5000,
+  // getiri = 0.6x → artık TAVAN YOK; satılabilirlik (yol) belirleyici.
   const low = scoreLead(
     { owner: "SMITH JOHN", state: "AZ", county: "Mohave", acres: 5, est_retail: 8000, est_offer: 3000, dist_road_m: 50 },
     CTX
   );
-  // net = 8000-3000-2000 = 3000 < 5000 → C tavanı
-  assert.equal(low.grade_cap, "C");
+  assert.equal(low.grade_cap, null);
+
+  // Gerçek Mohave vakası: $900'e al, $5.998'e sat. net = 3098, maliyet = 2900,
+  // getiri = 1.07x → tavan yok + "ucuz-çok-adet" bayrağı.
+  const mohave = scoreLead(
+    { owner: "SMITH JOHN", state: "AZ", county: "Mohave", acres: 5, est_retail: 5998, est_offer: 900, dist_road_m: 95 },
+    CTX
+  );
+  assert.equal(mohave.grade_cap, null);
+  assert.ok(mohave.flags.some((f: string) => /ucuz-çok-adet/.test(f)));
+
+  // Para kazandırmayan parsel hâlâ elenir: net = 3000-2500-2000 < 0 → C tavanı.
+  const losing = scoreLead(
+    { owner: "SMITH JOHN", state: "AZ", county: "Mohave", acres: 5, est_retail: 3000, est_offer: 2500, dist_road_m: 50 },
+    CTX
+  );
+  assert.equal(losing.grade_cap, "C");
   const ll = scoreLead(
     { owner: "SMITH JOHN", state: "AZ", county: "Mohave", acres: 5, est_retail: 90000, est_offer: 3000, dist_road_m: -1 },
     CTX
