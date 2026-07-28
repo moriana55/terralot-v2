@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "node --import ./test/resolve-alias.mjs --test \"src/**/*.test.ts\""
+    "test": "node --import ./test/resolve-alias.mjs --test \"src/**/*.test.ts\"",
+    "kapsam": "node --import ./test/resolve-alias.mjs scripts/kapsam-olc.mjs"
   },
   "dependencies": {
     "@clerk/nextjs": "^7.5.0",

@@ -103,6 +103,39 @@ crontab örneği (her gün 09:00):
 UI notu: Ekran ilk 279 ilanla tohumlandı (2026-07-03). Tarih **birikiyor** — ilk gerçek diff bir sonraki
 snapshot'ta görünür; "çürüyen vs satılan" histogramı DOM ≥ 60 gün ve doğrulanmış satış biriktikçe dolar.
 
+## County Kapsamı — sağlayıcı katmanı
+
+Canlı county sorgusu artık **kaynak-soyutlayan bir sağlayıcı katmanı** üzerinden çalışır.
+Yeni county eklemek KOD yazmayı değil, KAYIT girmeyi gerektirir.
+
+| Dosya | Rol |
+|---|---|
+| `src/lib/county-registry.ts` | **Sadece veri.** Hangi county, hangi kaynak, hangi alan ne demek. |
+| `src/lib/county-providers/arcgis.ts` | Tek generic ArcGIS sorgu + normalize (alan haritasıyla sürülür). |
+| `src/lib/county-providers/regrid.ts` | Ücretli ülke geneli yedek — kota + önbellek + kimlik devre kesici. |
+| `src/lib/county-providers/index.ts` | Sağlayıcı zinciri: ArcGIS → Regrid → yok. |
+| `src/lib/eyalet-hedefleri.ts` | Hedef 25 eyalet, gerekçe ve taksit uygunluğu (makinece okunur). |
+
+**Yeni county eklemek:** `county-registry.ts` içindeki `GIRDILER` dizisine bir kayıt ekle.
+Ortak şemalı aileler için üretici fonksiyonlar var — `txBis()` (TX'in ~155 CAD servisi),
+`flStatewide()`, `coStatewide()`, `ncOneMap()`, `mtStatewide()` — bunlarla county eklemek **tek satır**.
+
+**Kapsam ölçümü** (her county'ye gerçek sorgu atar, `public/kapsam-olcum.json` üretir):
+
+```bash
+npm run kapsam                 # hepsi
+npm run kapsam -- fl-lee mt-hill   # sadece seçilenler (öncekiler korunur)
+```
+
+Sonuç `/admin/eyalet-kapsami` ekranında görünür. **Ölçülmemiş county "ölçülmedi" yazar;
+hiçbir satırda tahmini rakam gösterilmez.** Ayrıntı: `../KAPSAM-ENVANTERI.md`,
+`../HEDEF-25-EYALET.md`.
+
+⚠ **Ücretli API durumu (2026-07-28):** `REGRID_API_TOKEN` süresi dolmuş (JWT exp 2026-07-20),
+`ATTOM_API_KEY` 401 veriyor. Regrid sağlayıcısı doğru yazıldı ama anahtar yenilenene kadar
+`kimlik-hatasi` döner ve **hiçbir satır üretmez** (sahte veri yasak).
+`REGRID_DAILY_CAP` ile günlük çağrı tavanı ayarlanır (varsayılan 50).
+
 ## İlgili Dokümanlar
 - `../AHMET-ARSA-YOL-HARITASI.md` — operasyonel saha kılavuzu + rakip analizi
 - `../TERRALOT-ROADMAP.md` — iş & teknik yol haritası

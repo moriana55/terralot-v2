@@ -1,30 +1,10 @@
 {
-  "olcumZamani": "2026-07-28T19:49:54.016Z",
+  "olcumZamani": "2026-07-28T19:53:18.428Z",
   "countySayisi": 63,
   "eyaletSayisi": 21,
   "calisan": 46,
-  "toplamApiCagri": 1,
+  "toplamApiCagri": 0,
   "sonuclar": [
-    {
-      "key": "co-costilla",
-      "label": "Costilla County, CO",
-      "state": "CO",
-      "county": "Costilla",
-      "saglayici": "arcgis",
-      "kaynakZinciri": "arcgis",
-      "durum": "calisiyor",
-      "apiStatus": "ok",
-      "ornekSatir": 23,
-      "mailable": 23,
-      "mailableOran": 100,
-      "degerVar": true,
-      "toplamParsel": 62087,
-      "toplamHata": null,
-      "sureMs": 889,
-      "mesaj": null,
-      "olcumZamani": "2026-07-28T19:43:21.539Z",
-      "apiCagri": 0
-    },
     {
       "key": "co-lasanimas",
       "label": "Las Animas County, CO",
@@ -1263,6 +1243,26 @@
       "sureMs": 0,
       "mesaj": "[regrid] Regrid anahtarı geçersiz (daha önce 401 alındı) — boşuna çağrı yapılmadı. Anahtar yenilenmeli.",
       "olcumZamani": "2026-07-28T19:49:54.016Z",
+      "apiCagri": 0
+    },
+    {
+      "key": "co-costilla",
+      "label": "Costilla County, CO",
+      "state": "CO",
+      "county": "Costilla",
+      "saglayici": "arcgis",
+      "kaynakZinciri": "arcgis",
+      "durum": "calisiyor",
+      "apiStatus": "ok",
+      "ornekSatir": 23,
+      "mailable": 23,
+      "mailableOran": 100,
+      "degerVar": true,
+      "toplamParsel": 62087,
+      "toplamHata": null,
+      "sureMs": 833,
+      "mesaj": null,
+      "olcumZamani": "2026-07-28T19:53:17.335Z",
       "apiCagri": 0
     }
   ]
