@@ -174,12 +174,12 @@ export default function LandForeverPage() {
     const email = emails[id];
     if (!email) return;
     setInquiredIds(prev => ({ ...prev, [id]: true }));
-    // Lead'i gerçekten kaydet (önceden POST etmiyordu → kayboluyordu)
+    // Lead tek huniye yazılır (parcel_inquiries) — önceden POST etmiyordu → kayboluyordu.
     try {
-      await fetch("/api/inquiries", {
+      await fetch("/api/parcel-inquiries", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ propertyId: id, propertyTitle: "LandForever", name: email.split("@")[0] || "İlgili", email, message: `LandForever ilgi — mülk: ${id}` }),
+        body: JSON.stringify({ parcelId: id, parcelTitle: "LandForever", name: email.split("@")[0] || "İlgili", email, message: `LandForever ilgi — mülk: ${id}`, source: "landforever" }),
       });
     } catch { /* UX'i bloklama */ }
     setTimeout(() => {

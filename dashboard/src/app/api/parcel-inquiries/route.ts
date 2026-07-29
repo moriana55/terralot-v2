@@ -7,9 +7,23 @@ import { pushFallbackInquiry } from "@/lib/parcel-inquiry-store";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-// PUBLIC lead-capture for the buyer-facing /p/[id] parcel page (allowlisted in
-// proxy.ts). POST-only; no read surface here at all — reads happen exclusively
-// through the gated /api/admin/parcel-inquiries route.
+// SİTENİN TEK TALEP HUNİSİ (public write). Buraya yazan formlar:
+//   p-sayfasi        → /p/[id] alıcı sayfası
+//   ilan-detay       → InquiryModal
+//   rezervasyon      → ReserveModal
+//   ana-sayfa-bulten → ana sayfa "New Listing Alerts"
+//   landforever      → /landforever ilan e-postaları
+// POST-only; burada hiç okuma yüzeyi yok — okuma sadece gated
+// /api/admin/parcel-inquiries üzerinden yapılır.
+
+export const SOURCES = [
+  "p-sayfasi",
+  "ilan-detay",
+  "rezervasyon",
+  "ana-sayfa-bulten",
+  "landforever",
+  "eski-inquiry",
+] as const;
 
 const schema = z.object({
   parcelId: z.string().trim().min(1).max(200),
@@ -19,13 +33,17 @@ const schema = z.object({
   email: z.string().trim().email().max(200).optional().or(z.literal("")),
   phone: z.string().trim().max(40).optional(),
   message: z.string().trim().max(2000).optional(),
+  // Hangi formdan geldi — gönderilmezse /p/[id] varsayılır (o form source yollamıyor).
+  source: z.enum(SOURCES).optional(),
   // Honeypot — bots fill every field; humans never see this one.
   website: z.string().max(0).optional(),
 });
 
 export async function POST(req: NextRequest) {
-  // Tight per-IP rate limit: this is an anonymous write endpoint.
-  const limited = enforceRateLimit(req, { limit: 5, windowMs: 60_000 });
+  // Per-IP rate limit: anonim yazma ucu. 5/dk ana sayfa bülteni + aynı IP'den
+  // gelen birden fazla ilan formunu haksız yere kesiyordu; 15/dk hem insanı
+  // rahat bırakır hem form-flood'u durdurur. Honeypot ayrıca korur.
+  const limited = enforceRateLimit(req, { limit: 15, windowMs: 60_000 });
   if (limited) return limited;
 
   let raw: unknown;
@@ -39,6 +57,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid input" }, { status: 400 });
   }
   const { parcelId, parcelTitle, name, email, phone, message } = parsed.data;
+  const source = parsed.data.source ?? "p-sayfasi";
   if (!email && !(phone && phone.trim())) {
     return NextResponse.json({ error: "Provide an email or phone number" }, { status: 400 });
   }
@@ -52,6 +71,7 @@ export async function POST(req: NextRequest) {
     phone: phone || "",
     message: message || "",
     status: "NEW",
+    source,
     created_at: new Date().toISOString(),
   };
 
@@ -71,6 +91,7 @@ export async function POST(req: NextRequest) {
       phone: inquiry.phone || null,
       message: inquiry.message || null,
       status: "NEW",
+      source,
     });
     if (!error) persisted = true;
   } catch {

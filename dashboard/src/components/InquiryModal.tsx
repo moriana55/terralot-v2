@@ -28,10 +28,16 @@ export default function InquiryModal({ property, onClose }: InquiryModalProps) {
     e.preventDefault();
     setStatus("sending");
     try {
-      const res = await fetch("/api/inquiries", {
+      // Tek talep hunisi: /api/parcel-inquiries → parcel_inquiries tablosu.
+      const res = await fetch("/api/parcel-inquiries", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, propertyId: property.id, propertyTitle: property.title }),
+        body: JSON.stringify({
+          ...form,
+          parcelId: property.id,
+          parcelTitle: property.title,
+          source: "ilan-detay",
+        }),
       });
       if (!res.ok) throw new Error();
       setStatus("sent");

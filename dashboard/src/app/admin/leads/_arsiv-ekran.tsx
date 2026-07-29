@@ -1,5 +1,11 @@
 "use client";
 
+// ── ARŞİV — ESKİ "Leads & Inquiries" EKRANI ─────────────────────────────────
+// Bu dosya bir route DEĞİL (adı `page.tsx` olmadığı için Next onu sayfa yapmaz).
+// Talep hunisi `parcel_inquiries` tablosunda birleştirildi; canlı ekran
+// /admin/talepler. Kod referans olsun diye SİLİNMEDİ: eski `Inquiry` tablosunu
+// /api/admin/inquiries üzerinden okur, sıfırdan yazmak gerekirse buradan bakılır.
+
 import { useState, useEffect } from "react";
 import { MessageSquare, Mail, Phone, Clock, Trash2, Loader2, AlertCircle } from "lucide-react";
 

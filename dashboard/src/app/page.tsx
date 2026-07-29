@@ -72,17 +72,18 @@ export default function Home() {
     e.preventDefault();
     if (!email) return;
     setSubmitted(true);
-    // Lead'i kaydet (waitlist ile aynı Inquiry kanalı — admin Alıcı Talepleri'nde görünür)
+    // Lead tek huniye yazılır (parcel_inquiries) — admin "Alıcı Talepleri"nde görünür.
     try {
-      await fetch("/api/inquiries", {
+      await fetch("/api/parcel-inquiries", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          propertyId: "waitlist",
-          propertyTitle: "New Listing Alerts (anasayfa)",
+          parcelId: "waitlist",
+          parcelTitle: "New Listing Alerts (anasayfa)",
           name: email.split("@")[0] || "Subscriber",
           email,
           message: "New listing alerts signup (homepage)",
+          source: "ana-sayfa-bulten",
         }),
       });
     } catch { /* UX'i bloklama */ }

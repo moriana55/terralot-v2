@@ -21,6 +21,10 @@ export interface ParcelInquiry {
   message: string;
   status: string;
   created_at: string;
+  /** Lead'in geldiği form: p-sayfasi | ilan-detay | rezervasyon | ana-sayfa-bulten | landforever | eski-inquiry */
+  source?: string | null;
+  /** Eski `Inquiry` tablosundan taşınan satırın cuid'i (varsa). */
+  legacy_id?: string | null;
   /** true → sadece bellekte (Supabase insert başarısız); admin UI "geçici" gösterir. */
   volatile?: boolean;
 }

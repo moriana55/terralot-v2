@@ -1,36 +1,36 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { supabaseAdmin } from "@/lib/supabase";
-import { enforceRateLimit } from "@/lib/api-guard";
+import { enforceRateLimit, requireGate } from "@/lib/api-guard";
+import { pushFallbackInquiry, fallbackInquiries } from "@/lib/parcel-inquiry-store";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+
+// ── ESKİ UÇ, YENİ HEDEF ──────────────────────────────────────────────────────
+// Bu uç eskiden Supabase `Inquiry` tablosuna yazıyordu. Talep hunisi tek tabloda
+// (`parcel_inquiries`) birleştirildi; uç SİLİNMEDİ ki dışarıdaki eski
+// entegrasyonlar/formlar kırılmasın — sadece hedefi değişti.
+// propertyId → parcel_id, propertyTitle → parcel_title.
+const SOURCES = ["p-sayfasi", "ilan-detay", "rezervasyon", "ana-sayfa-bulten", "landforever"] as const;
 
 const inquirySchema = z.object({
   propertyId: z.string().trim().min(1).max(200),
   propertyTitle: z.string().trim().max(300).optional(),
   name: z.string().trim().min(1).max(100),
-  email: z.string().trim().email().max(200),
+  // E-posta artık zorunlu değil: telefonla gelen lead de kabul edilir (en az biri şart).
+  email: z.string().trim().email().max(200).optional().or(z.literal("")),
   phone: z.string().trim().max(40).optional(),
   message: z.string().trim().max(2000).optional(),
+  source: z.enum(SOURCES).optional(),
+  // Honeypot — botlar her alanı doldurur, insan bunu görmez.
+  website: z.string().max(0).optional(),
 });
-
-const inquiries: Array<{
-  id: string;
-  propertyId: string;
-  propertyTitle: string;
-  name: string;
-  email: string;
-  phone: string;
-  message: string;
-  status: string;
-  createdAt: string;
-}> = [];
 
 export async function POST(req: NextRequest) {
   // Public lead-capture endpoint (no auth by design). Rate-limit per IP so it
-  // can't be used for spam / form-flooding. Tighter than the API default.
-  const limited = enforceRateLimit(req, { limit: 8, windowMs: 60_000 });
+  // can't be used for spam / form-flooding.
+  const limited = enforceRateLimit(req, { limit: 15, windowMs: 60_000 });
   if (limited) return limited;
 
   let raw: unknown;
@@ -44,56 +44,56 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid input" }, { status: 400 });
   }
   const { propertyId, propertyTitle, name, email, phone, message } = parsed.data;
+  const source = parsed.data.source ?? "ilan-detay";
+  if (!email && !(phone && phone.trim())) {
+    return NextResponse.json({ error: "Provide an email or phone number" }, { status: 400 });
+  }
 
   const inquiry = {
     id: crypto.randomUUID(),
-    propertyId,
-    propertyTitle: propertyTitle || "",
+    parcel_id: propertyId,
+    parcel_title: propertyTitle || "",
     name,
-    email,
+    email: email || "",
     phone: phone || "",
     message: message || "",
     status: "NEW",
-    createdAt: new Date().toISOString(),
+    source,
+    created_at: new Date().toISOString(),
   };
 
-  // Prefer durable storage in the Supabase `Inquiry` table (what admin/leads
-  // reads). If Supabase is unconfigured or the insert fails (e.g. the propertyId
-  // isn't in the Property table yet), fall back to the in-memory list so the
-  // public form never breaks. We never surface fake success on a hard error.
+  // Kalıcı yol: Supabase `parcel_inquiries`. Başarısız olursa lead'i bellek-içi
+  // tampona koy (admin ekranı "geçici" etiketiyle gösterir) — form asla sessizce
+  // veri kaybetmesin. Sahte başarı dönmüyoruz: `persisted` alanı gerçeği söyler.
   let persisted = false;
   try {
     const s = supabaseAdmin();
-    const { error } = await s.from("Inquiry").insert({
+    const { error } = await s.from("parcel_inquiries").insert({
       id: inquiry.id,
-      propertyId,
-      name,
-      email,
-      phone: phone || null,
-      message: message || null,
+      parcel_id: inquiry.parcel_id,
+      parcel_title: inquiry.parcel_title || null,
+      name: inquiry.name,
+      email: inquiry.email || null,
+      phone: inquiry.phone || null,
+      message: inquiry.message || null,
       status: "NEW",
+      source,
     });
     if (!error) persisted = true;
   } catch {
     persisted = false;
   }
 
-  if (!persisted) inquiries.push(inquiry);
+  if (!persisted) pushFallbackInquiry(inquiry);
 
   return NextResponse.json({ success: true, id: inquiry.id, persisted });
 }
 
-// The in-memory list only holds inquiries that FAILED to persist to Supabase
-// (a degraded fallback) and can contain submitter PII. It must not be world-
-// readable. Admin reads come from /api/admin/inquiries (gated). The route-level
-// gate (middleware) protects /api/* except this file's POST, but we add an
-// explicit fail-closed check here too rather than leak the buffer.
-import { requireGate } from "@/lib/api-guard";
-
+// Bellek-içi tampon SADECE kalıcılaşamayan (bozuk durum) lead'leri tutar ve PII
+// içerir → herkese açık olamaz. Admin okuması /api/admin/parcel-inquiries'ten
+// yapılır; burada da fail-closed bir gate var.
 export async function GET(req: NextRequest) {
   const unauth = await requireGate(req);
   if (unauth) return unauth;
-  return NextResponse.json(
-    inquiries.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-  );
+  return NextResponse.json(fallbackInquiries());
 }

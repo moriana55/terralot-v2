@@ -11,8 +11,9 @@ interface ReserveModalProps {
 
 type Step = "contact" | "terms" | "pledge" | "success";
 
-// Rezervasyon isteği /api/inquiries'e kalıcı olarak yazılır (admin "Alıcı
-// Talepleri" bunu okur). Eski sürüm /api/checkout'a gidiyordu ama o endpoint
+// Rezervasyon isteği tek talep hunisine (/api/parcel-inquiries → parcel_inquiries)
+// kalıcı yazılır; admin "Alıcı Talepleri" bunu okur. Eski sürüm /api/checkout'a
+// gidiyordu ama o endpoint
 // Stripe gelene kadar PARK halinde ve HİÇBİR ŞEY kaydetmiyordu → müşteri
 // "onaylandı" görüyor, lead kayboluyordu. Ayrıca "15 dakika içinde aranırsınız",
 // "deeds department kontrol ediyor", "%0 faiz" gibi tutulamayacak/yanlış
@@ -52,12 +53,13 @@ export default function ReserveModal({ property, onClose }: ReserveModalProps) {
     setStatus("submitting");
 
     try {
-      const res = await fetch("/api/inquiries", {
+      const res = await fetch("/api/parcel-inquiries", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          propertyId: property.id,
-          propertyTitle: property.title,
+          parcelId: property.id,
+          parcelTitle: property.title,
+          source: "rezervasyon",
           name: form.name,
           email: form.email,
           phone: form.phone,
@@ -285,7 +287,7 @@ export default function ReserveModal({ property, onClose }: ReserveModalProps) {
                 <label className="flex items-start gap-2.5 cursor-pointer">
                   <input type="checkbox" required checked={form.agreeTerms} onChange={e => setForm({ ...form, agreeTerms: e.target.checked })} className="mt-1 accent-[var(--secondary)]" />
                   <span className="text-xs text-[var(--muted)]">
-                    My contact details are accurate and TerraLot may contact me about this parcel.
+                    My contact details are accurate and VegaLand may contact me about this parcel.
                   </span>
                 </label>
               </div>
