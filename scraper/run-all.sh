@@ -99,6 +99,12 @@ step node dd-enrich.js
 # Yazma yalnızca ON CONFLICT DO UPDATE; DB 2 GB tavanını aşarsa kendi durur.
 step node filtreli-hasat.mjs ${HASAT_EYALETLER:-}
 
+# 3d2) BİRİKİMLİ SAYAÇ — bu turda İNCELENEN parsel sayısını kalıcı deftere ekle
+# (dashboard/public/hasat-birikim.json). /admin/eleme-hunisi bu defteri okur.
+# Log döngüsü eski filtreli-hasat loglarını silse de tarih kaybolmaz; aynı log
+# ikinci kez işlenirse toplam ŞİŞMEZ (tekillik anahtarı = dosya adı).
+step node birikim-guncelle.mjs
+
 # 3e) GEO DOĞRULAMA — yeni inen lead'lere OSM Overpass mesafeleri.
 # ⚠ ZORUNLU ADIM: grade-core, geo doğrulaması OLMAYAN kaydı B TAVANINA takar
 # (A+/A yalnız Overpass ile doğrulanmış parsele verilir). Bu adım koşmazsa yeni

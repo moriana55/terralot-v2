@@ -333,6 +333,13 @@ export const MENU: MenuGroup[] = [
         alias: ["yontem", "metod", "method", "kurallar", "sistem", "is modeli", "veri kaynaklari"],
       },
       {
+        href: "/admin/eleme-hunisi",
+        label: "Eleme Hunisi",
+        icon: TrendingDown,
+        hint: "İNCELENEN → UYGUN → mektup atılabilir → A+/A: canlı sayılarla eleme yolu. `?sunum=1` ile yatırımcıya gösterilir",
+        alias: ["huni", "funnel", "eleme", "incelenen parsel", "yatirimci sunumu", "kac parsel tarandi"],
+      },
+      {
         href: "/admin/eyalet-kapsami",
         label: "Eyalet Kapsamı",
         icon: Globe,
