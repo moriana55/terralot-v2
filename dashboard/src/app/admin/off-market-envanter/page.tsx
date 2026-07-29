@@ -6,8 +6,9 @@
 // Eskiden her county'nin kendi ekranı ve kendi statik JSON'u vardı:
 //   /admin/mohave → src/data/mohave-offmarket.json (20.000 satır)
 //   /admin/luna   → src/data/import-propstream-nm-luna.json (157 satır)
-// Artık TEK ekran var; DOĞRUDAN `offmarket_leads` tablosunu okuyor (565.930 satır,
-// 15 eyalet, 206 county). İki eski yol bu ekrana county filtresi seçili olarak
+// Artık TEK ekran var; DOĞRUDAN `offmarket_leads` tablosunu okuyor — satır/eyalet
+// sayısı CANLI sorgudan gelir, buraya sabit rakam yazma (hasat her gün ekliyor).
+// İki eski yol bu ekrana county filtresi seçili olarak
 // yönlendirilir — hiçbir sayfa silinmedi, hiçbir veri kaybolmadı.
 // (Statik JSON'lardaki 345.969 satırın tamamının bu tabloda olduğu
 //  scripts/kayip-veri-avi.mjs ile kanıtlandı.)

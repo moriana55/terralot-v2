@@ -121,7 +121,9 @@ export const MENU: MenuGroup[] = [
         href: "/admin/off-market-envanter",
         label: "Off-Market Envanteri",
         icon: MapPin,
-        hint: "TEK ENVANTER — 15 eyalet, 206 county, 565.930 lead; eyalet/county filtresi + 0-100 skor",
+        // Sayı yazmıyoruz: hasat her gün satır ekliyor, sabit rakam bir günde eskiyor.
+        // Canlı toplam ekranın kendisinde (veri.toplam) gösteriliyor.
+        hint: "TEK ENVANTER — bütün eyalet/county lead'leri tek tabloda; filtre + 0-100 skor",
         alias: [
           "envanter", "off market", "offmarket leads", "mohave", "meadview",
           "golden valley", "arizona", "luna", "new mexico", "propstream", "skor",
