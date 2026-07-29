@@ -37,7 +37,8 @@ step() {
   else
     echo "[$(date '+%H:%M:%S')] HATA: '$*' çıkış kodu $rc (${sn}sn)" | tee -a "$LOG"
     BASARISIZ=$((BASARISIZ + 1))
-    BASARISIZ_ADIMLAR="${BASARISIZ_ADIMLAR:+$BASARISIZ_ADIMLAR, }$1(çıkış $rc)"
+    # $* (tam komut) — $1 kullanılırsa hepsi "node(çıkış 1)" diye görünür.
+    BASARISIZ_ADIMLAR="${BASARISIZ_ADIMLAR:+$BASARISIZ_ADIMLAR, }$* (çıkış $rc)"
   fi
   [ -n "$ADIM_SONUC_DOSYASI" ] && printf '%s\t%s\t%s\n' "$*" "$rc" "$sn" >>"$ADIM_SONUC_DOSYASI"
   return 0

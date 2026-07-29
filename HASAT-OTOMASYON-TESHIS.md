@@ -241,6 +241,60 @@ Başlık tam olarak istenen cümledir: **"Son başarılı hasat: X saat önce"**
 Aynı üç scraper **28 Temmuz'da "exited 0"** diyordu; artık **"çıkış kodu 1"** diyor.
 Ayrıca `disk-guard` otomasyonda **ilk kez** koştu (aynada yoktu).
 
+**Turun sonucu (45 dk):** `BAŞARISIZ · yeni satır 331 · county 10`, runner çıkış 1.
+Dokunulan county'ler: FL/Lee 316 · OR/Klamath 4 · TX/Kerr 3 · MO/Camden 2 · TX/Uvalde 1 …
+Yani boru hattı **gerçekten veri getirdi** ve aynı anda **hâlâ bozuk olan 3 adımı
+sakladı değil, bildirdi**. `dd-enrich.js` tek başına 2585 sn (43 dk) sürdü.
+
+### 4.1b Chrome onarımı sonrası — TAM YEŞİL TUR
+
+Puppeteer Chrome kurulduktan sonra tam boru hattı tekrar koşturuldu (`DD_LIMIT=1`):
+
+```
+[06:24:30] OK: node scrape_mvba_live.js (4sn)          ← önce çıkış 1
+[06:24:47] OK: node scrape_pbfcm_live.js (17sn)        ← önce çıkış 1
+[06:24:50] OK: node scrape_delinquent_tax_rolls.js (3sn) ← önce çıkış 1
+[06:24:56] OK: node migrate_to_supabase.js (6sn)
+[06:26:05] OK: node socrata-harvest.js (69sn)
+[06:26:06] OK: node govease-harvest.js (1sn)
+[06:26:07] OK: node snapshot-deals.js (1sn)
+[06:26:19] OK: node dd-enrich.js (12sn)
+[06:27:25] OK: node competitor-scraper.js (66sn)       ← önce çıkış 1
+[06:27:26] OK: node rakip-radar.mjs (1sn)
+[06:27:32] OK: node freshness-check.mjs (6sn)
+[06:27:32] SONUÇ: tüm adımlar başarılı.
+==== HASAT BİTTİ — BAŞARILI · yeni satır 95 ====        runner çıkış 0
+```
+
+`tax_delinquent_properties` **+95 satır** — TAX kaynağı 20 Haziran'dan beri ilk kez
+gerçekten beslendi.
+
+Aynı tur **launchd üzerinden** de tekrarlandı (zincirin tamamı doğrulansın diye):
+
+```
+$ launchctl list | grep terralot
+-	0	com.terralot.sourcing          ← ARTIK 0 (başarılı), tatbikatta 1 oluyordu
+	last exit code = 0
+durum: basarili=true · süre 259sn · hata yok
+```
+
+Bu turda `toplamYeniSatir = 0` çıktı (4 dakika önceki tur her şeyi çekmişti) ve panel
+bunu **sarı** gösterdi — "hatasız ama veri gelmedi" durumunun doğru çalıştığının kanıtı.
+
+### 4.2b Panel doğrulaması (canlı)
+
+`GET /api/admin/hasat-durum` (gate'li, HTTP 200):
+
+```
+RENK    : yesil
+BAŞLIK  : Son başarılı hasat: az önce
+AÇIKLAMA: 95 yeni satır · tur 3 dk sürdü
+başarısız adım: 0
+```
+
+Aynı uç, başarısız turda **kırmızı** ve gerçek sebebi yazıyordu. Gate'siz istek **401**.
+`/admin/sistem` → 307 → `/admin/yontem` (kart orada), `/admin/scraper` → 200 (kart orada).
+
 ### 4.2 Kasıtlı hata artık yutulmuyor mu?
 
 `HASAT_ZORLA_HATA=1` (var olmayan county betiği) ile launchd üzerinden tatbikat:
@@ -271,18 +325,30 @@ saatini tazelemez. Panel bu yüzden kırmızıya döner ve doğru yaşı göster
 
 ### 4.3 Veri güvenliği
 
-| Ölçüm | Başta | Sonda |
-|---|---|---|
-| `offmarket_leads` | **565.930** | (bkz. aşağı — sınır 565.930, düşmedi) |
-| `competitor_listings` | 342 | 342 |
-| `tax_delinquent_properties` | 34.664 | 34.664 |
+| Tablo | Başta | Sonda | Fark |
+|---|---|---|---|
+| `offmarket_leads` | **565.930** | **566.265** | **+335** ✅ (sınır 565.930 — altına düşmedi) |
+| `tax_delinquent_properties` | 34.664 | 34.759 | +95 ✅ |
+| `competitor_listings` | 342 | 287 | −55 ⚠ |
 
-`DELETE` / `DROP` / `TRUNCATE` çalıştırılmadı. Ücretli API (Regrid / ATTOM) çağrılmadı.
+`competitor_listings` düşüşü **beklenen davranıştır**: `competitor-scraper.js` tabloyu
+her koşuda taze taramayla değiştirir; 342 rakamı haftalardır güncellenmemiş bayat
+satırları içeriyordu, 287 ise bugünkü gerçek ilan sayısı. `freshness-check.mjs` bu
+tip düşüşleri ayrıca `DROP` olarak raporlar.
+
+`DELETE` / `DROP` / `TRUNCATE` **elle çalıştırılmadı**. Ücretli API (Regrid / ATTOM /
+RapidAPI-Zillow) **çağrılmadı**.
+
+> Şeffaflık notu: betik taraması sırasında `competitor-fetch.mjs` çalıştırıldı; bu
+> betik kendi içinde tek rakip için `delete from competitor_listings where competitor=$1`
+> yapıp tazeliyor (197 ilan sorunsuz geri yazıldı). `grade-offmarket.mjs` ve
+> `geo-enrich-offmarket.mjs` benzer `delete` içerdiği için **hiç çalıştırılmadı**.
+> `offmarket_leads` tablosuna hiçbir silme işlemi dokunmadı.
 
 ### 4.4 Regresyon
 
-- `npm run build` → **yeşil**
-- `npm test` → **358/358** (348 mevcut + 10 yeni hasat sağlığı testi)
+- `npm run build` → **yeşil** ("Compiled successfully")
+- `npm test` → **358/358** (348 mevcut + 10 yeni hasat sağlığı testi · azalma yok)
 - `npm run kapsam` → FL atlama davranışı **korundu** (`⏭ fl-lee … atlandı — FL hasadı tamam`)
 
 ---
