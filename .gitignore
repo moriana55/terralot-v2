@@ -11,3 +11,6 @@ build/
 coverage/
 scratch/
 dashboard/scratch/
+
+# Veri yedekleri diskte durur, git deposuna girmez (41MB+ dökümler)
+yedek/2*/
