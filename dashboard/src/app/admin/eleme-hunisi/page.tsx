@@ -37,13 +37,17 @@ const GRI = "#8a8b92"; // yalnızca erişilebilir havuz
 // ── Kural anahtarı → insan dili ─────────────────────────────────────────────
 // Anahtar burada yoksa ham anahtar gösterilir (uydurma etiket üretilmez).
 const KURAL_ADI: Record<string, { ad: string; aciklama: string }> = {
+  // 2026-07-29'a kadar eleme kuralıydı; artık DEĞİL (absentee bir motivasyon
+  // sinyali ve not motorunda zaten puanlanıyordu — çifte uygulanıyordu).
+  // Anahtar burada duruyor çünkü eski turların defter kaydında hâlâ var.
   "absentee-degil": {
-    ad: "Sahibi eyalet içinde oturuyor",
-    aciklama: "Posta eyaleti = parselin eyaleti. Uzaktaki sahip aramıyoruz.",
+    ad: "Sahibi eyalet içinde oturuyor (kural kaldırıldı)",
+    aciklama:
+      "Eski turlarda eleme sebebiydi. 29 Tem 2026'dan beri elemiyor: uzakta oturmak bir motivasyon sinyali, notu etkiliyor ama kapıdan çevirmiyor.",
   },
   "deger-bandi": {
     ad: "Değer bandı dışında",
-    aciklama: "Arazi değeri 300 $ altında ya da 20.000 $ üstünde.",
+    aciklama: "Arazi değeri 300 $ altında ya da 75.000 $ üstünde.",
   },
   "acre-bandi": {
     ad: "Büyüklük bandı dışında",
@@ -419,7 +423,7 @@ function ElemeHunisiIcerik() {
                 {N(is.yazilan)}
               </p>
               <p className="mt-2 text-[13px] leading-snug" style={{ color: "var(--muted)" }}>
-                Altı kuralın altından da geçti — incelenenin {P(is.gecisOrani)}&apos;i.
+                Beş kuralın altından da geçti — incelenenin {P(is.gecisOrani)}&apos;i.
               </p>
             </div>
           </div>
@@ -504,7 +508,7 @@ function ElemeHunisiIcerik() {
           <ul>
             <BarSatiri
               ad="İncelenen parsel"
-              aciklama="Kaynaktan indirildi ve altı kurala tek tek sokuldu."
+              aciklama="Kaynaktan indirildi ve beş kurala tek tek sokuldu."
               deger={is.aday}
               genislik={bar(is.aday, isEnBuyuk)}
               renk={MAVI}

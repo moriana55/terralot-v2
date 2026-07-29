@@ -17,25 +17,46 @@
 //
 // ── SÜZGEÇ (indirme ölçütü) ─────────────────────────────────────────────────
 // "Her şeyi indir" YASAK — AR'deki 71.585 adressiz satır gibi çöp birikmesin.
-// Bir parsel ancak ŞU BEŞİNİ birden geçerse yazılır:
+// Bir parsel ancak ŞU DÖRDÜNÜ birden geçerse yazılır:
 //   1. BOŞ ARSA      → kaynağın kendi `baseWhere`'i (county'ye göre imprv=0 /
 //                      DOR kodu / fiziksel adres boş vb.)
 //   2. MEKTUP ATILIR → owner + mailing_address + mailing_city + mailing_state
 //                      + mailing_zip BEŞİ DE dolu. Biri eksikse İNDİRİLMEZ.
-//   3. ABSENTEE      → posta eyaleti ≠ parselin eyaleti. Bugünkü A/A+ lead'lerin
-//                      %96'sı böyle; oturan sahip mektuba dönmüyor.
-//   4. ACRE BANDI    → 0,25 – 640 acre. Sınırlar UYDURULMADI:
+//                      ⚠ BU KURAL GEVŞEMEZ: AR'de 71.585 adressiz satır var ve
+//                      hiçbirine mektup atılamıyor. Aynı çöp tekrar birikmesin.
+//   3. ACRE BANDI    → 0,25 – 640 acre. Sınırlar UYDURULMADI:
 //                      grade-core.mjs `acresPoints` <0,25'e 0 puan verip
 //                      "mikro parsel — satışı zor" bayrağı basıyor,
 //                      `MAX_GRADABLE_ACRES` = 640 üstünü "derecelendirilemez"
 //                      sayıyor. Süzgeç bu iki eşiği ödünç alır.
-//   5. DEĞER BANDI   → land_value 300 – 20.000 $ (projenin ucuz-lot bandı:
-//                      oregon/michigan/georgia-offmarket.mjs ile aynı).
+//   4. DEĞER BANDI   → land_value 300 – 75.000 $.
 //                      ⚠ Değeri BİLİNMEYEN parsel bu kuralla ELENMEZ — "değeri
 //                      yok" ile "değeri aralık dışı" farklı şeylerdir
 //                      (county-providers/arcgis.ts clientFilter ile aynı ilke).
 // Ayrıca grade-core `checkEligibility` ile kamu/kurum sahipli ve template
 // sahipli ("UNKNOWN OWNER" vb.) parseller elenir — nasılsa not alamazlar.
+// Kamu sahipli kayıt SATIN ALINAMAZ, bu yüzden elenmeye devam eder.
+//
+// ── ABSENTEE ARTIK GEÇİŞ ŞARTI DEĞİL (2026-07-29) ───────────────────────────
+// Eskiden "posta eyaleti ≠ parsel eyaleti" bir ELEME kuralıydı. 28 Tem turunda
+// 295.746 adayın 231.327'sini (%78,2) TEK BAŞINA bu kural eledi. Oysa absentee
+// olmak bir MOTİVASYON SİNYALİ ve grade-core `motivationPoints` içinde ZATEN
+// puan olarak var (satır ~305: "out-of-state sahip" +6). Aynı kuralı bir de
+// kapıda geçiş şartı yapmak çifte uygulamaydı: havuz gereksiz daraldı, sinyali
+// zaten taşıyan skor motoru işini yapamadı.
+// Doğrusu: İÇERİ AL, SKOR SIRALASIN. Absentee bilgisi artık satır bazında
+// hesaplanıp `absentee` kolonuna yazılır (eskiden sabit `true` yazılıyordu —
+// süzgeç zaten elediği için doğruydu, artık değil).
+//
+// ── DEĞER BANDI: TAVAN 20.000 → 75.000 $ (2026-07-29) ───────────────────────
+// 18.734 aday sırf "20 bin doların üstünde" diye eleniyordu. Tavan 75.000 $'a
+// açıldı; ayırt edilebilsin diye bant `value_band` kolonuna yazılır:
+//   ucuz         → 300 ≤ değer ≤ 20.000  (projenin klasik ucuz-lot bandı)
+//   buyuk-bilet  → 20.000 < değer ≤ 75.000
+//   bilinmiyor   → kaynakta değer alanı yok (WV / WY Carbon / MT Sanders)
+// Böylece sonradan "ucuz bant / büyük bilet" diye süzülebilir.
+// NOT: `price_basis` kolonu BAŞKA bir işi tutuyor (eksik-raporu.mjs teklif
+// fiyatının neye dayandığını yazıyor: sabit-2999 / comp) — üstüne yazılmadı.
 //
 // ── GÜVENLİK FRENLERİ ───────────────────────────────────────────────────────
 //   • YAZMA YALNIZCA UPSERT (`ON CONFLICT (lead_id) DO UPDATE`). DELETE/DROP/
@@ -61,10 +82,13 @@ export const HEDEF_EYALETLER = ["MS", "WV", "MT", "NC", "AL", "ID", "WY"];
 
 export const ACRE_MIN = 0.25;   // grade-core acresPoints: altı "satışı zor"
 export const ACRE_MAX = 640;    // grade-core MAX_GRADABLE_ACRES
-export const DEGER_MIN = 300;   // projenin ucuz-lot bandı
-export const DEGER_MAX = 20000;
+export const DEGER_MIN = 300;   // projenin ucuz-lot bandı taban
+export const DEGER_MAX = 75000; // 2026-07-29: 20.000 → 75.000 (büyük bilet dahil)
+export const UCUZ_BANT_MAX = 20000; // eski tavan — artık eleme değil, ETİKET sınırı
 
-const TAVAN_GB = Number(process.env.HASAT_TAVAN_GB || 2);
+const TAVAN_GB = Number(process.env.HASAT_TAVAN_GB || 2.5);
+// FL hasadı bitti — kapsam ölçer de (dashboard/scripts/kapsam-olc.mjs) atlıyor.
+export const ATLANAN_EYALETLER = new Set(["FL"]);
 const TAVAN_BYTE = TAVAN_GB * 1024 ** 3;
 const BOYUT_KONTROL_HER = 25000;
 const SAYFA = 1000;
@@ -77,9 +101,30 @@ const temiz = (v) => String(v ?? "").replace(/\s+/g, " ").trim();
 
 // ── Süzgeç (SAF — testten doğrudan çağrılabilir) ────────────────────────────
 /**
+ * Değer bandı ETİKETİ — eleme değil, sınıflandırma.
+ * Sonradan "ucuz bant / büyük bilet" diye süzülebilsin diye value_band'e yazılır.
+ */
+export function degerBandi(v) {
+  if (v == null || !Number.isFinite(Number(v))) return "bilinmiyor";
+  const n = Number(v);
+  if (n <= UCUZ_BANT_MAX) return "ucuz";
+  return "buyuk-bilet";
+}
+
+/** Posta eyaleti parselin eyaletinden farklıysa sahip uzakta = absentee. */
+export function absenteeMi(r, eyalet) {
+  const ms = temiz(r?.mailing_state).toUpperCase();
+  if (!ms) return false;
+  return ms !== String(eyalet).toUpperCase();
+}
+
+/**
  * Normalize edilmiş bir satır süzgeçten geçiyor mu?
  * Dönen: null (geçti) | { kural, ayrinti } (elendi).
  * Kural adları rapordaki "hangi kural ne kadar eledi" kırılımını üretir.
+ *
+ * ⚠ ABSENTEE BURADA ELEMEZ. Motivasyon sinyali olarak grade-core'da puanlanır;
+ *   kapıda ikinci kez uygulanmaz (bkz. dosya başındaki not).
  */
 export function suzgec(r, eyalet) {
   if (!r) return { kural: "mektup-eksik", ayrinti: "sahip/apn/adres normalize edilemedi" };
@@ -90,9 +135,6 @@ export function suzgec(r, eyalet) {
   const inel = checkEligibility({ owner: r.owner, acres: r.acres });
   if (inel && inel.reason === "gov_owner") return { kural: "kamu-sahipli", ayrinti: inel.flag };
   if (inel && inel.reason === "owner_missing") return { kural: "mektup-eksik", ayrinti: inel.flag };
-  if (String(r.mailing_state).toUpperCase() === String(eyalet).toUpperCase()) {
-    return { kural: "absentee-degil", ayrinti: `posta eyaleti ${r.mailing_state} = parsel eyaleti` };
-  }
   const a = Number(r.acres);
   if (!Number.isFinite(a) || a <= 0) return { kural: "acre-bandi", ayrinti: "acre verisi yok" };
   if (a < ACRE_MIN) return { kural: "acre-bandi", ayrinti: `${a} ac < ${ACRE_MIN}` };
@@ -231,8 +273,16 @@ const KOLONLAR = [
   "lead_id", "state", "county", "region", "apn", "owner",
   "mailing_address", "mailing_city", "mailing_state", "mailing_zip",
   "situs", "use", "acres", "land_value", "absentee", "lat", "lng",
-  "source", "land_value_source", "updated_at",
+  "source", "land_value_source", "value_band", "updated_at",
 ];
+
+/**
+ * `value_band` kolonu yoksa ekler. ALTER … ADD COLUMN IF NOT EXISTS — veri
+ * silmez, mevcut satırlara NULL yazar. (DROP/DELETE/TRUNCATE bu dosyada YOK.)
+ */
+async function semaHazirla(client) {
+  await client.query("alter table offmarket_leads add column if not exists value_band text");
+}
 
 /**
  * UPSERT — `lead_id` çakışmasında GÜNCELLE. Düz INSERT kullanılmaz.
@@ -273,13 +323,29 @@ async function main() {
   const { COUNTY_REGISTRY } = await import(resolve(PROJE, "dashboard/src/lib/county-registry.ts"));
   const { normalizeArcGis } = await import(resolve(PROJE, "dashboard/src/lib/county-providers/arcgis.ts"));
 
+  // --kapsam: kapsam ölçümünde `durum:"calisiyor"` çıkmış TÜM county'ler.
+  // Ölçülmemiş/kimlik hatası veren county'ye boşuna gidilmez; FL atlanır.
+  const kapsamMod = argv.includes("--kapsam");
+  let kapsamKeys = null;
+  if (kapsamMod) {
+    const olcum = JSON.parse(readFileSync(resolve(PROJE, "dashboard/public/kapsam-olcum.json"), "utf8"));
+    kapsamKeys = (olcum.sonuclar ?? [])
+      .filter((s) => s.durum === "calisiyor" && !ATLANAN_EYALETLER.has(s.state))
+      .map((s) => s.key);
+  }
+
   const eyaletler = eyaletArg.length ? eyaletArg : HEDEF_EYALETLER;
   const keys = countyArg
     ? [countyArg]
-    : Object.keys(COUNTY_REGISTRY).filter((k) => eyaletler.includes(COUNTY_REGISTRY[k].state));
+    : kapsamKeys
+      ? kapsamKeys.filter((k) => COUNTY_REGISTRY[k] &&
+          (eyaletArg.length ? eyaletArg.includes(COUNTY_REGISTRY[k].state) : true))
+      : Object.keys(COUNTY_REGISTRY).filter((k) =>
+          eyaletler.includes(COUNTY_REGISTRY[k].state) && !ATLANAN_EYALETLER.has(COUNTY_REGISTRY[k].state));
 
   const client = new pg.Client({ connectionString: dbUrl(), ssl: { rejectUnauthorized: false } });
   await client.connect();
+  await semaHazirla(client);
 
   const taban = await olc(client);
   console.log(`TABAN ÇİZGİSİ: ${taban.satir.toLocaleString("tr-TR")} satır · tablo ${mb(taban.tbl)} · DB ${mb(taban.db)} (tavan ${TAVAN_GB} GB)`);
@@ -348,13 +414,17 @@ async function main() {
             use: r.use || "VACANT",
             acres: r.acres,
             land_value: r.land_value,
-            absentee: true, // süzgeç zaten absentee olmayanı eledi
+            // Absentee artık eleme şartı DEĞİL → satır bazında hesaplanır.
+            // (Eskiden sabit `true` yazılıyordu; süzgeç elediği için doğruydu.)
+            absentee: absenteeMi(r, e.state),
             lat: c ? c[1] : null,
             lng: c ? c[0] : null,
             source: `kayit-defteri:${key}`,
             // Değer alanı olan county'lerde bu bir ASSESSED değerdir, piyasa
             // değeri değil — grade-core bunu bayraklayabilsin diye yazılıyor.
             land_value_source: r.land_value != null ? "county-assessed" : null,
+            // ucuz (≤20K) / buyuk-bilet (20K–75K) / bilinmiyor — sonradan süzmek için.
+            value_band: degerBandi(r.land_value),
             updated_at: new Date().toISOString(),
           });
 

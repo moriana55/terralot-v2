@@ -2,7 +2,10 @@
 // Koşu: node --test scraper/filtreli-hasat.test.mjs
 import test from "node:test";
 import assert from "node:assert/strict";
-import { suzgec, halkaMerkezi, ACRE_MIN, ACRE_MAX, DEGER_MIN, DEGER_MAX } from "./filtreli-hasat.mjs";
+import {
+  suzgec, halkaMerkezi, degerBandi, absenteeMi,
+  ACRE_MIN, ACRE_MAX, DEGER_MIN, DEGER_MAX, UCUZ_BANT_MAX,
+} from "./filtreli-hasat.mjs";
 
 /** Süzgeçten GEÇEN referans satır — testler bunun tek alanını bozar. */
 const saglam = () => ({
@@ -37,16 +40,37 @@ for (const alan of ["owner", "mailing_address", "mailing_city", "mailing_state",
   });
 }
 
-test("posta eyaleti parselin eyaletiyle aynıysa (absentee değil) elenir", () => {
+// 2026-07-29: absentee ARTIK ELEME KURALI DEĞİL. Motivasyon sinyali olarak
+// grade-core'da zaten puanlanıyor; kapıda ikinci kez uygulamak havuzu 231.327
+// aday kadar boşuna daraltıyordu. İçeri alınır, skor sıralar.
+test("posta eyaleti parselin eyaletiyle aynı olsa da ELENMEZ (absentee şart değil)", () => {
   const r = saglam();
   r.mailing_state = "MS";
-  assert.equal(suzgec(r, "MS").kural, "absentee-degil");
+  assert.equal(suzgec(r, "MS"), null);
 });
 
-test("absentee karşılaştırması büyük/küçük harfe duyarsız", () => {
+test("absenteeMi: eyalet içi false, eyalet dışı true, büyük/küçük harfe duyarsız", () => {
+  assert.equal(absenteeMi({ mailing_state: "MS" }, "MS"), false);
+  assert.equal(absenteeMi({ mailing_state: "ms" }, "MS"), false);
+  assert.equal(absenteeMi({ mailing_state: "LA" }, "MS"), true);
+  assert.equal(absenteeMi({ mailing_state: "" }, "MS"), false);
+  assert.equal(absenteeMi(null, "MS"), false);
+});
+
+test("değer bandı ETİKETİ: ucuz / buyuk-bilet / bilinmiyor", () => {
+  assert.equal(degerBandi(DEGER_MIN), "ucuz");
+  assert.equal(degerBandi(UCUZ_BANT_MAX), "ucuz");
+  assert.equal(degerBandi(UCUZ_BANT_MAX + 1), "buyuk-bilet");
+  assert.equal(degerBandi(DEGER_MAX), "buyuk-bilet");
+  assert.equal(degerBandi(null), "bilinmiyor");
+  assert.equal(degerBandi("abc"), "bilinmiyor");
+});
+
+test("20.000 $ üstü ama 75.000 $ altı parsel artık GEÇER (büyük bilet)", () => {
   const r = saglam();
-  r.mailing_state = "ms";
-  assert.equal(suzgec(r, "MS").kural, "absentee-degil");
+  r.land_value = 45000;
+  assert.equal(suzgec(r, "MS"), null);
+  assert.equal(degerBandi(r.land_value), "buyuk-bilet");
 });
 
 test("kamu/kurum sahipli parsel elenir (satın alınamaz)", () => {

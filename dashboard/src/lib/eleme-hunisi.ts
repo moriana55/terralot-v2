@@ -345,7 +345,7 @@ export function huniKur(g: HuniGirdi): { yapilanIs: HuniKademesi[]; havuz: HuniK
     },
     {
       ad: "Uygun parsel",
-      aciklama: "Süzgecin altı kuralından da geçti, kaydedildi",
+      aciklama: "Süzgecin beş kuralından da geçti, kaydedildi",
       deger: g.uygun,
       oran: yuzde(g.uygun, g.incelenen),
       kaynak: g.kaynakHasat,
