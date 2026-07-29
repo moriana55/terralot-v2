@@ -62,13 +62,35 @@ npm run test
 | `NEXT_PUBLIC_SHOW_WIP` | Bkz. aşağı |
 
 ### `NEXT_PUBLIC_SHOW_WIP`
-Admin menüsündeki "🚧 Geliştiriliyor" ve "🔒 Yakında" gruplarının görünürlüğünü kontrol eder.
-Bu gruplar henüz mock/gerçek-olmayan veri içerdiğinden müşteri görünümünde gizlenir.
+Admin menüsündeki **`🧪 Lab · arşiv`** grubunun görünürlüğünü kontrol eder. Bu grup mock/yarım/eski
+veri içeren ya da başka bir sayfayla örtüşen ekranları taşır; müşteri görünümünde gizlenir.
 
-- Set değil (veya `"1"` değil) → **müşteri/prod görünümü**: sadece "Canlı · Gerçek Veri" görünür.
-- `NEXT_PUBLIC_SHOW_WIP=1` → **geliştirici görünümü**: tüm gruplar görünür.
+- Set değil (veya `"1"` değil) → **müşteri/prod görünümü**: sadece iş akışındaki 6 grup görünür.
+- `NEXT_PUBLIC_SHOW_WIP=1` → **geliştirici görünümü**: Lab grubu da görünür.
 
-Kalıcı silme değil; geliştirici flag'i set ederek her şeye erişebilir.
+Kalıcı silme değil — Lab'daki route'lar her zaman çalışır, menü arama kutusu onları
+görünürlükten bağımsız bulur.
+
+## Admin bilgi mimarisi
+
+Menü **tek kaynaktan** beslenir: `src/app/admin/nav.ts` (veri) + `src/app/admin/sidebar.tsx` (görünüm).
+Gruplar sahibin günlük iş akışını izler:
+
+| Grup | Ne zaman açılır |
+|---|---|
+| **1 · Bul** | Arsa tarama: haritalar, A+ vitrin, tüm fırsatlar, canlı county sorgusu |
+| **2 · Değerlendir** | Eleme/underwrite: county skoru, buy-box, inşa edilebilirlik, arbitraj, APN doğrulama |
+| **3 · Sahibe ulaş** | Malik listesi, sıcak arama, mektup kadansı, toplu kampanya, anlaşma hattı |
+| **4 · Sat** | İlan üretimi, satış sayfaları, alıcı talepleri, owner-finance, tahsilat |
+| **5 · Pazar & rakip** | Pazar istihbaratı, rakip radarı/defteri, benzer county, büyüme yolu |
+| **6 · Takip & sistem** | Portföy/KPI, yöntem, kapsam, veri kalitesi, bot filosu, sunum |
+
+`/admin` başlangıç ekranı ("Bugün") bekleyen işi gösterir: vadesi gelen mektup, geri arama,
+cevaplanmamış alıcı talebi, hattaki anlaşma, satışa hazır A+/A parsel. **Her sayaç gerçek bir
+sorgudan gelir**; kaynak kurulu değilse sayı yerine "kurulum gerekli" yazar.
+
+Sayfa sayfa envanter (ne yapıyor · hangi veriyi okuyor · canlı/yarım/ölü · kalsın/arşiv):
+**[`ADMIN-ENVANTER.md`](ADMIN-ENVANTER.md)**
 
 ## Rakip Radar (snapshot + diff + satış doğrulama)
 

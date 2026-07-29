@@ -1,223 +1,280 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { MapPin, Loader2, Target, TrendingUp, Layers, CheckCircle2, ArrowRight } from "lucide-react";
-import Link from "next/link";
-import { supabase } from "@/lib/supabase";
-import { CerberusLogo } from "@/components/DealHoundLogo";
-import { ScoreBadge } from "@/components/ScoreBadge";
-import { UpcomingSales } from "./scraper/UpcomingSales";
-import { GrowthCatalysts } from "@/components/GrowthCatalysts";
-import { HotCounties } from "@/components/HotCounties";
-import { OFFMARKET_FALLBACK_TOTAL, OFFMARKET_STATES, OFFMARKET_STATE_META } from "@/lib/offmarket-stats";
+// ─────────────────────────────────────────────────────────────────────────────
+// BUGÜN — admin başlangıç ekranı.
+//
+// Soru: "bugün ne yapmalıyım?" Cevap: bekleyen işler + iş akışına giden linkler.
+//
+// DÜRÜSTLÜK KURALLARI (bu dosyada ihlal edilmeyecek):
+//   • Her sayı GERÇEK bir sorgudan gelir. Uydurma yüzde, örnek rakam YOK.
+//   • Veri yoksa 0 gösterilir; kaynak KURULMAMIŞSA sayı yerine "kurulum gerekli"
+//     yazılır — 0 ile "bilmiyorum" birbirine karıştırılmaz.
+//   • "Yakında" butonu YOK. Her bağlantı çalışan bir sayfaya gider.
+//
+// Kaynaklar (hepsi mevcut, admin-gated API'ler):
+//   /api/admin/offmarket-breakdown  envanter head-count
+//   /api/admin/arsa-notlari         not motoru hunisi (A+/A)
+//   /api/admin/outreach-tick        vadesi gelen mektup (DRY-RUN, gönderim yok)
+//   /api/admin/call-center          geri arama kuyruğu
+//   /api/admin/parcel-inquiries     cevap bekleyen alıcı talepleri
+//   /api/admin/pipeline             anlaşma hattı
+// ─────────────────────────────────────────────────────────────────────────────
 
-interface Funnel { total: number; evaluable: number; states: number; counties: number; score70: number; struckOff: number; }
-interface Deal { id: string; state: string; county: string; minimum_bid: number | null; judgment_amount: number | null; final_score: number | null; road_access: string | null; }
-interface PortfolioSummary {
-  tracking: {
-    available: boolean; totalTracked: number; capitalDeployed: number;
-    realizedSpread: number; realizedDeals: number; listedValue: number;
-  };
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import {
+  ArrowRight, Loader2, Mail, PhoneCall, MessageSquare, Handshake, Award,
+  Database, Map, Target, Sparkles, Radar, BarChart3, AlertTriangle,
+} from "lucide-react";
+
+/** Bir sayacın üç hâli: yükleniyor · sayı · kaynak kurulu değil. */
+type Sayac =
+  | { durum: "yukleniyor" }
+  | { durum: "hazir"; deger: number }
+  | { durum: "kurulmadi"; not: string };
+
+const bekle: Sayac = { durum: "yukleniyor" };
+
+/** fetch + json; her türlü hatada "kurulmadı" döner (ekran çökmez). */
+async function al<T>(url: string): Promise<T | null> {
+  try {
+    const r = await fetch(url);
+    if (!r.ok) return null;
+    return (await r.json()) as T;
+  } catch {
+    return null;
+  }
 }
 
-const money = (n: number | null | undefined) => (n == null ? "—" : `$${Math.round(n).toLocaleString()}`);
-
-export default function AdminDashboard() {
-  const [portfolio, setPortfolio] = useState<PortfolioSummary | null>(null);
-  const [funnel, setFunnel] = useState<Funnel | null>(null);
-  const [deals, setDeals] = useState<Deal[]>([]);
-  const [fresh, setFresh] = useState<Deal[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  // TEK GERÇEK KAYNAK — off-market envanter (tüm eyaletler), canlı offmarket-breakdown.
-  // Fallback tek dosyadan (lib/offmarket-stats) gelir; hardcoded sayı YOK.
-  // Vergi-borçlu huni AYRI bir kanaldır, karıştırılmaz.
-  const [env, setEnv] = useState<{ total: number; byState: Array<{ state: string; color: string; count: number }> } | null>(null);
-  useEffect(() => {
-    let alive = true;
-    fetch("/api/admin/offmarket-breakdown")
-      .then((r) => r.json())
-      .then((d) => { if (alive && typeof d.total === "number") setEnv(d); })
-      .catch(() => {});
-    return () => { alive = false; };
-  }, []);
-  const envTotal = env?.total ?? OFFMARKET_FALLBACK_TOTAL;
-  const envByState =
-    env?.byState ??
-    OFFMARKET_STATES.map((st) => ({
-      state: st,
-      color: OFFMARKET_STATE_META[st].color,
-      count: OFFMARKET_STATE_META[st].fallbackCount,
-    })).sort((a, b) => b.count - a.count);
+export default function BugunEkrani() {
+  const [envanter, setEnvanter] = useState<Sayac>(bekle);
+  const [aPlus, setAPlus] = useState<Sayac>(bekle);
+  const [mektup, setMektup] = useState<Sayac>(bekle);
+  const [geriArama, setGeriArama] = useState<Sayac>(bekle);
+  const [talep, setTalep] = useState<Sayac>(bekle);
+  const [hat, setHat] = useState<Sayac>(bekle);
+  const [eyaletSayisi, setEyaletSayisi] = useState<number | null>(null);
 
   useEffect(() => {
-    (async () => {
-      try {
-        const since = new Date(Date.now() - 36 * 3600000).toISOString();
-        const [portfolioSummary, { data: top }, { data: newDeals }, f] = await Promise.all([
-          fetch("/api/admin/portfolio-summary").then((r) => r.json()).catch(() => null),
-          // ZILLOW% hariç: sahte scraper kalıntısı satırlar dashboard vitrinine çıkmasın.
-          supabase.from("tax_delinquent_properties").select("id,state,county,minimum_bid,judgment_amount,final_score,road_access").not("source", "like", "ZILLOW%").order("final_score", { ascending: false, nullsFirst: false }).limit(6),
-          supabase.from("tax_delinquent_properties").select("id,state,county,minimum_bid,judgment_amount,final_score,road_access").not("source", "like", "ZILLOW%").gt("created_at", since).gte("final_score", 45).order("final_score", { ascending: false, nullsFirst: false }).limit(6),
-          fetch("/api/acquisition-stats").then((r) => r.json()).catch(() => null),
-        ]);
-        if (newDeals) setFresh(newDeals as Deal[]);
-        if (portfolioSummary) setPortfolio(portfolioSummary as PortfolioSummary);
-        if (top) setDeals(top as Deal[]);
-        if (f) setFunnel(f);
-      } catch (e) {
-        setError(e instanceof Error ? e.message : "Veriler yüklenemedi.");
-      } finally {
-        setLoading(false);
-      }
-    })();
+    let canli = true;
+
+    // Envanter — off-market lead head-count (tek gerçek kaynak).
+    al<{ total: number | null; byState?: unknown[] }>("/api/admin/offmarket-breakdown").then((d) => {
+      if (!canli) return;
+      if (!d || d.total == null) return setEnvanter({ durum: "kurulmadi", not: "offmarket_leads tablosu yok" });
+      setEnvanter({ durum: "hazir", deger: d.total });
+      if (Array.isArray(d.byState)) setEyaletSayisi(d.byState.length);
+    });
+
+    // Not motoru — satışa hazır A+ ve A parsel.
+    al<{ schemaReady?: boolean; funnel?: { aPlus: number; a: number } }>("/api/admin/arsa-notlari").then((d) => {
+      if (!canli) return;
+      if (!d || d.schemaReady === false || !d.funnel)
+        return setAPlus({ durum: "kurulmadi", not: "not motoru şeması kurulmadı (sql/offmarket_grades.sql)" });
+      setAPlus({ durum: "hazir", deger: d.funnel.aPlus + d.funnel.a });
+    });
+
+    // Mektup kadansı — vadesi gelen dokunuş (DRY-RUN: sadece okur, göndermez).
+    al<{ ready?: number; note?: string }>("/api/admin/outreach-tick").then((d) => {
+      if (!canli) return;
+      if (!d || typeof d.ready !== "number")
+        return setMektup({ durum: "kurulmadi", not: "kadans şeması kurulmadı (sql/outreach_cadence.sql)" });
+      setMektup({ durum: "hazir", deger: d.ready });
+    });
+
+    // Arama kokpiti — vadesi gelmiş geri aramalar.
+    al<{ schemaReady?: boolean; callbacks?: unknown[] }>("/api/admin/call-center").then((d) => {
+      if (!canli) return;
+      if (!d || d.schemaReady === false)
+        return setGeriArama({ durum: "kurulmadi", not: "arama şeması kurulmadı (sql/call_center.sql)" });
+      setGeriArama({ durum: "hazir", deger: (d.callbacks ?? []).length });
+    });
+
+    // Alıcı talepleri — henüz dönülmemiş (NEW) olanlar.
+    al<{ rows?: { status: string }[] }>("/api/admin/parcel-inquiries").then((d) => {
+      if (!canli) return;
+      if (!d || !Array.isArray(d.rows)) return setTalep({ durum: "kurulmadi", not: "talep kaynağı okunamadı" });
+      setTalep({ durum: "hazir", deger: d.rows.filter((r) => r.status === "NEW").length });
+    });
+
+    // Anlaşma hattı — tapuya gitmemiş, yani hâlâ hareket bekleyen anlaşmalar.
+    al<{ schemaReady?: boolean; deals?: { stage: string }[] }>("/api/admin/pipeline").then((d) => {
+      if (!canli) return;
+      if (!d || d.schemaReady === false)
+        return setHat({ durum: "kurulmadi", not: "pipeline_deals tablosu yok" });
+      setHat({ durum: "hazir", deger: (d.deals ?? []).filter((x) => x.stage !== "tapu").length });
+    });
+
+    return () => {
+      canli = false;
+    };
   }, []);
+
+  const bugun = new Date().toLocaleDateString("tr-TR", {
+    weekday: "long", day: "numeric", month: "long", year: "numeric",
+  });
+
+  // ── Bugünün iş listesi — her satır bir sayaç + o işin yapıldığı sayfa ──
+  const isler: { sayac: Sayac; etiket: string; bos: string; href: string; icon: typeof Mail }[] = [
+    { sayac: mektup, etiket: "mektup sırası geldi", bos: "Vadesi gelen mektup yok", href: "/admin/outreach", icon: Mail },
+    { sayac: geriArama, etiket: "sahibi geri aranacak", bos: "Bekleyen geri arama yok", href: "/admin/arama", icon: PhoneCall },
+    { sayac: talep, etiket: "alıcı talebi cevap bekliyor", bos: "Cevap bekleyen alıcı talebi yok", href: "/admin/talepler", icon: MessageSquare },
+    { sayac: hat, etiket: "anlaşma hattında hareket bekliyor", bos: "Hatta bekleyen anlaşma yok", href: "/admin/anlasma-hatti", icon: Handshake },
+    { sayac: aPlus, etiket: "A+/A parsel satışa hazır", bos: "Henüz A+/A notlu parsel yok", href: "/admin/arsa-notlari", icon: Award },
+  ];
+
+  const bekleyenIs = isler.filter((i) => i.sayac.durum === "hazir" && i.sayac.deger > 0).length;
 
   return (
-    <div className="p-7 max-w-6xl space-y-6">
-      {error && (
-        <div className="rounded-lg p-3 text-sm" style={{ background: "var(--status-overdue-soft)", color: "var(--danger)", border: "1px solid rgba(186,26,26,0.2)" }}>
-          {error}
+    <div className="p-7 max-w-5xl space-y-7">
+      {/* ── Başlık ── */}
+      <header>
+        <h1 className="text-2xl font-extrabold tracking-tight">Bugün</h1>
+        <p className="text-[13px] mt-1" style={{ color: "var(--muted)" }}>{bugun}</p>
+      </header>
+
+      {/* ── 1) Bugün ne yapılmalı ── */}
+      <section className="rounded-xl border" style={{ background: "var(--surface)", borderColor: "var(--outline)" }}>
+        <div className="flex items-center gap-2 px-5 py-3.5 border-b" style={{ borderColor: "var(--surface-high)" }}>
+          <h2 className="font-bold text-sm">Bekleyen iş</h2>
+          <span className="text-[11px]" style={{ color: "var(--muted)" }}>
+            {bekleyenIs > 0 ? `· ${bekleyenIs} başlıkta iş var` : "· sıradaki adımlar"}
+          </span>
         </div>
-      )}
 
-      {/* ── Cerberus command hero ── */}
-      <div className="relative rounded-2xl overflow-hidden" style={{ background: "linear-gradient(135deg, #102a55 0%, #0a1a3f 62%)", boxShadow: "0 10px 34px rgba(8,18,42,0.4)" }}>
-        <div style={{ height: 2, background: "linear-gradient(90deg, transparent, #8ed1df, #4fb8cf, transparent)" }} />
-        <div className="p-6">
-          <div className="flex items-center gap-3.5">
-            <span className="shrink-0 rounded-xl p-1.5" style={{ background: "rgba(142,209,223,0.1)", border: "1px solid rgba(142,209,223,0.18)" }}><CerberusLogo size={38} /></span>
-            <div className="flex-1">
-              <h1 className="text-xl font-extrabold tracking-tight" style={{ color: "#f4f7fb" }}>Komuta Merkezi</h1>
-              <p className="text-[11px] mt-0.5" style={{ color: "rgba(244,247,251,0.55)" }}>Cerberus · canlı deal akışı</p>
-            </div>
-            <Link href="/admin/all-deals" className="hidden sm:inline-flex items-center gap-1.5 text-xs font-semibold px-3.5 py-2 rounded-lg transition-opacity hover:opacity-90" style={{ background: "#8ed1df", color: "#06202b" }}>
-              En iyi deal&apos;ler <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
-          </div>
+        <ul>
+          {isler.map((is) => {
+            const bosDurum = is.sayac.durum === "hazir" && is.sayac.deger === 0;
+            const kurulmadi = is.sayac.durum === "kurulmadi";
+            return (
+              <li key={is.href} className="border-t first:border-t-0" style={{ borderColor: "var(--surface-high)" }}>
+                <Link
+                  href={is.href}
+                  className="flex items-center gap-4 px-5 py-3.5 transition-colors hover:bg-[var(--surface-low)]"
+                >
+                  <is.icon
+                    className="w-4 h-4 shrink-0"
+                    style={{ color: bosDurum || kurulmadi ? "var(--muted)" : "var(--accent-ink)" }}
+                  />
 
-          {/* EYALET OFF-MARKET ENVANTERİ — amiral rakam (Ana Harita/Ulusal Fırsatlar ile aynı) */}
-          <div className="mt-5 rounded-xl p-4" style={{ background: "rgba(98,227,154,0.08)", border: "1px solid rgba(98,227,154,0.22)" }}>
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div>
-                <p className="text-[10px] font-bold uppercase tracking-[0.18em]" style={{ color: "#8ff0bb" }}>{OFFMARKET_STATES.length} Eyalet · Off-Market Envanteri</p>
-                <p className="mt-0.5 text-3xl font-black font-mono leading-none" style={{ color: "#eafff3" }}>{envTotal.toLocaleString("en-US")}</p>
-                <p className="text-[10px] mt-1" style={{ color: "rgba(244,247,251,0.5)" }}>owner + posta adresli lead · {OFFMARKET_STATES.join(" · ")}</p>
-              </div>
-              <div className="flex flex-wrap gap-1.5">
-                {envByState.map((s) => (
-                  <div key={s.state} className="flex items-center gap-1.5 rounded-md px-2 py-1" style={{ background: "rgba(10,20,45,0.5)" }}>
-                    <span className="h-2 w-2 rounded-full" style={{ background: s.color }} />
-                    <span className="text-[11px] font-bold" style={{ color: "#f4f7fb" }}>{s.state}</span>
-                    <span className="text-[11px] font-mono" style={{ color: "rgba(244,247,251,0.6)" }}>{s.count.toLocaleString("en-US")}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
+                  {/* Sayı — renk yalnızca "iş var" anlamı taşıdığında */}
+                  <span className="w-14 shrink-0 text-right font-mono font-extrabold text-xl leading-none">
+                    {is.sayac.durum === "yukleniyor" && (
+                      <Loader2 className="w-4 h-4 animate-spin inline" style={{ color: "var(--muted)" }} />
+                    )}
+                    {is.sayac.durum === "hazir" && (
+                      <span style={{ color: is.sayac.deger > 0 ? "var(--accent-ink)" : "var(--muted)" }}>
+                        {is.sayac.deger}
+                      </span>
+                    )}
+                    {kurulmadi && <AlertTriangle className="w-4 h-4 inline" style={{ color: "var(--warn)" }} />}
+                  </span>
 
-          {/* funnel inline — VERGİ-BORÇLU tarama hunisi (off-market'ten AYRI kanal) */}
-          <p className="mt-4 text-[10px] uppercase tracking-[0.16em]" style={{ color: "rgba(244,247,251,0.4)" }}>Vergi-borçlu tarama hunisi · ayrı kanal</p>
-          <div className="mt-1.5 grid grid-cols-2 md:grid-cols-5 gap-px rounded-xl overflow-hidden" style={{ background: "rgba(255,255,255,0.06)" }}>
-            {[
-              { label: "Vergi-borçlu kayıt", value: funnel?.total, c: "#8ed1df" },
-              { label: "Değerlenebilir", value: funnel?.evaluable, c: "#7fd6e8" },
-              { label: "Sıcak (A+/A)", value: funnel?.score70, c: "#62e39a" },
-              { label: "Struck-off", value: funnel?.struckOff, c: "#ffc24d" },
-              { label: "County kapsam", value: funnel?.counties, c: "#f4f7fb" },
-            ].map((m) => (
-              <div key={m.label} className="px-4 py-3" style={{ background: "rgba(10,20,45,0.55)" }}>
-                <p className="text-xl font-extrabold font-mono leading-none" style={{ color: m.c }}>{loading ? "—" : (m.value ?? 0).toLocaleString()}</p>
-                <p className="text-[9px] uppercase tracking-wider mt-1.5" style={{ color: "rgba(244,247,251,0.5)" }}>{m.label}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-[13px]" style={{ color: bosDurum ? "var(--muted)" : "var(--foreground)" }}>
+                      {is.sayac.durum === "hazir" && is.sayac.deger === 0 ? is.bos : is.etiket}
+                    </span>
+                    {is.sayac.durum === "kurulmadi" && (
+                      <span className="block text-[11px] mt-0.5" style={{ color: "var(--warn)" }}>
+                        Ölçülemiyor — {is.sayac.not}
+                      </span>
+                    )}
+                  </span>
 
-      {/* ── Sabah brifingi: son 36s yeni bulgular (#2) ── */}
-      {fresh.length > 0 && (
-        <div className="rounded-xl border" style={{ background: "var(--surface)", borderColor: "var(--surface-high)" }}>
-          <div className="flex items-center gap-2 px-5 py-3 border-b" style={{ borderColor: "var(--surface-high)" }}>
-            <span>🌅</span>
-            <h2 className="font-bold text-sm">Sabah Brifingi</h2>
-            <span className="text-[10px]" style={{ color: "var(--muted)" }}>· son 36 saatte düşen yeni fırsatlar</span>
-            <span className="ml-auto text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: "var(--status-paid-soft)", color: "var(--grade-a)" }}>{fresh.length} yeni</span>
-          </div>
-          <div className="flex gap-3 overflow-x-auto px-5 py-3">
-            {fresh.map((d) => {
-              return (
-                <Link key={d.id} href={`/admin/all-deals?q=${encodeURIComponent(d.county)}`} className="shrink-0 w-44 rounded-lg p-3 border transition-colors hover:bg-[var(--surface-low)]" style={{ borderColor: "var(--surface-high)" }}>
-                  <div className="flex items-center gap-2 mb-1"><ScoreBadge score={d.final_score} size={28} /><span className="text-xs font-semibold truncate">{d.county}, {d.state}</span></div>
-                  <p className="text-[11px]" style={{ color: "var(--muted)" }}>Min bid {money(d.minimum_bid)}</p>
+                  <ArrowRight className="w-3.5 h-3.5 shrink-0" style={{ color: "var(--muted)" }} />
                 </Link>
-              );
-            })}
-          </div>
+              </li>
+            );
+          })}
+        </ul>
+      </section>
+
+      {/* ── 2) Envanterin bugünkü hâli ── */}
+      <section>
+        <h2 className="font-bold text-sm mb-3">Envanter</h2>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+          <Kart
+            sayac={envanter}
+            etiket="Off-market lead"
+            altyazi={eyaletSayisi ? `${eyaletSayisi} eyalette` : "owner + posta adresli"}
+            href="/admin/harita"
+            icon={Database}
+          />
+          <Kart sayac={aPlus} etiket="A+/A notlu parsel" altyazi="not motorunun seçtikleri" href="/admin/arsa-notlari" icon={Award} />
+          <Kart sayac={hat} etiket="Hattaki anlaşma" altyazi="tapuya gitmemiş" href="/admin/anlasma-hatti" icon={Handshake} />
+          <Kart sayac={mektup} etiket="Vadesi gelen mektup" altyazi="kadans sırası gelenler" href="/admin/outreach" icon={Mail} />
+          <Kart sayac={talep} etiket="Yeni alıcı talebi" altyazi="henüz dönülmedi" href="/admin/talepler" icon={MessageSquare} />
+          <Kart sayac={geriArama} etiket="Geri arama" altyazi="takvimde bekleyen" href="/admin/arama" icon={PhoneCall} />
         </div>
-      )}
+      </section>
 
-      {/* ── Portfolio stats ── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {[
-          { label: "Yatırılan sermaye", value: portfolio?.tracking.available ? money(portfolio.tracking.capitalDeployed) : "Veri yok", icon: TrendingUp, c: "var(--grade-a)" },
-          { label: "Listelenen değer", value: portfolio?.tracking.available ? money(portfolio.tracking.listedValue) : "Veri yok", icon: MapPin, c: "var(--accent-ink)" },
-          { label: "Gerçekleşen spread", value: portfolio?.tracking.available ? money(portfolio.tracking.realizedSpread) : "Veri yok", icon: CheckCircle2, c: "var(--grade-a)" },
-          { label: "Takipteki deal", value: portfolio?.tracking.available ? portfolio.tracking.totalTracked : "Veri yok", icon: Layers, c: "var(--warn)" },
-        ].map((s) => (
-          <div key={s.label} className="rounded-xl border p-4" style={{ background: "var(--surface)", borderColor: "var(--surface-high)" }}>
-            <div className="flex items-center gap-2 mb-2">
-              <s.icon className="w-4 h-4" style={{ color: s.c }} />
-              <span className="text-xs" style={{ color: "var(--muted)" }}>{s.label}</span>
-            </div>
-            <p className="text-2xl font-extrabold tracking-tight">{s.value}</p>
-          </div>
-        ))}
-      </div>
-
-      {/* ── Top deals ── */}
-      <div className="rounded-xl border" style={{ background: "var(--surface)", borderColor: "var(--surface-high)" }}>
-        <div className="flex items-center justify-between px-5 py-4 border-b" style={{ borderColor: "var(--surface-high)" }}>
-          <div className="flex items-center gap-2">
-            <Target className="w-4 h-4" style={{ color: "var(--accent-ink)" }} />
-            <h2 className="font-bold text-sm">Günün en iyi deal&apos;leri</h2>
-          </div>
-          <Link href="/admin/all-deals" className="text-xs font-semibold inline-flex items-center gap-1" style={{ color: "var(--accent-ink)" }}>
-            Tümü <ArrowRight className="w-3 h-3" />
-          </Link>
+      {/* ── 3) İş akışı — menüdeki 6 adımın kısayolu ── */}
+      <section>
+        <h2 className="font-bold text-sm mb-1">İş akışı</h2>
+        <p className="text-[11px] mb-3" style={{ color: "var(--muted)" }}>
+          Arsa bul → değerlendir → sahibine ulaş → sat → pazarı izle → takip et
+        </p>
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+          {[
+            { n: "1", ad: "Bul", aciklama: "Harita, A+ vitrin, tüm fırsatlar, canlı county sorgusu", href: "/admin/arsa-notlari", icon: Map },
+            { n: "2", ad: "Değerlendir", aciklama: "County eleme, underwrite, inşa edilebilirlik, arbitraj", href: "/admin/deal-screener", icon: Target },
+            { n: "3", ad: "Sahibe ulaş", aciklama: "Malik listesi, sıcak arama, mektup kadansı, kampanya", href: "/admin/off-market-leads", icon: Mail },
+            { n: "4", ad: "Sat", aciklama: "İlan üret, satış sayfaları, alıcı talepleri, tahsilat", href: "/admin/ilan-ureteci", icon: Sparkles },
+            { n: "5", ad: "Pazar & rakip", aciklama: "Pazar istihbaratı, rakip radarı, rakip defteri", href: "/admin/istihbarat", icon: Radar },
+            { n: "6", ad: "Takip & sistem", aciklama: "Portföy, yöntem, kapsam, bot filosu", href: "/admin/portfoy", icon: BarChart3 },
+          ].map((a) => (
+            <Link
+              key={a.href}
+              href={a.href}
+              className="rounded-xl border p-4 transition-colors hover:bg-[var(--surface-low)]"
+              style={{ background: "var(--surface)", borderColor: "var(--outline)" }}
+            >
+              <div className="flex items-center gap-2 mb-1.5">
+                <a.icon className="w-4 h-4" style={{ color: "var(--muted)" }} />
+                <span className="text-[10px] font-bold" style={{ color: "var(--muted)" }}>{a.n}</span>
+                <span className="text-[13px] font-bold">{a.ad}</span>
+              </div>
+              <p className="text-[11px] leading-relaxed" style={{ color: "var(--muted)" }}>{a.aciklama}</p>
+            </Link>
+          ))}
         </div>
-        {loading ? (
-          <div className="flex items-center justify-center gap-2 py-12 text-sm" style={{ color: "var(--muted)" }}><Loader2 className="w-4 h-4 animate-spin" /> Yükleniyor…</div>
-        ) : (
-          <div>
-            {deals.map((d) => {
-              return (
-                <div key={d.id} className="flex items-center gap-4 px-5 py-3 border-t transition-colors hover:bg-[var(--surface-low)]" style={{ borderColor: "var(--surface-high)" }}>
-                  <ScoreBadge score={d.final_score} size={38} />
-                  <div className="min-w-0 flex-1">
-                    <p className="font-semibold text-sm truncate">{d.county}, {d.state}</p>
-                    <p className="text-[11px] mt-0.5 flex items-center gap-2 flex-wrap" style={{ color: "var(--muted)" }}>
-                      Min bid <strong style={{ color: "var(--foreground)" }}>{money(d.minimum_bid)}</strong>
-                      · Judgment/borç <strong style={{ color: "var(--foreground)" }}>{money(d.judgment_amount)}</strong>
-                      {d.road_access === "landlocked" && <span style={{ color: "var(--danger)" }}>· landlocked</span>}
-                    </p>
-                  </div>
-                </div>
-              );
-            })}
-            {deals.length === 0 && <p className="text-center text-sm py-10" style={{ color: "var(--muted)" }}>Henüz deal yok.</p>}
-          </div>
-        )}
-      </div>
-
-      {/* Hot counties + upcoming sales side by side */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <HotCounties />
-        <UpcomingSales max={6} />
-      </div>
-
-      {/* Growth catalysts — megaprojects driving land appreciation */}
-      <GrowthCatalysts />
+      </section>
     </div>
+  );
+}
+
+/** Tek sayaç kartı — yükleniyor / sayı / kurulum gerekli. */
+function Kart({
+  sayac, etiket, altyazi, href, icon: Icon,
+}: {
+  sayac: Sayac; etiket: string; altyazi: string; href: string; icon: typeof Mail;
+}) {
+  return (
+    <Link
+      href={href}
+      className="rounded-xl border p-4 transition-colors hover:bg-[var(--surface-low)]"
+      style={{ background: "var(--surface)", borderColor: "var(--outline)" }}
+    >
+      <div className="flex items-center gap-2 mb-2">
+        <Icon className="w-3.5 h-3.5" style={{ color: "var(--muted)" }} />
+        <span className="text-[11px]" style={{ color: "var(--muted)" }}>{etiket}</span>
+      </div>
+      {sayac.durum === "yukleniyor" && (
+        <Loader2 className="w-4 h-4 animate-spin" style={{ color: "var(--muted)" }} />
+      )}
+      {sayac.durum === "hazir" && (
+        <p className="text-2xl font-extrabold font-mono tracking-tight leading-none">
+          {sayac.deger.toLocaleString("tr-TR")}
+        </p>
+      )}
+      {sayac.durum === "kurulmadi" && (
+        <p className="text-[12px] font-semibold leading-tight" style={{ color: "var(--warn)" }}>
+          Kurulum gerekli
+        </p>
+      )}
+      <p className="text-[10px] mt-1.5" style={{ color: "var(--muted)" }}>
+        {sayac.durum === "kurulmadi" ? sayac.not : altyazi}
+      </p>
+    </Link>
   );
 }
