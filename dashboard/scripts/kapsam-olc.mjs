@@ -28,8 +28,22 @@ const { queryCounty } = await import("../src/lib/county-providers/index.ts");
 const { countArcGis } = await import("../src/lib/county-providers/arcgis.ts");
 const { mailable } = await import("../src/lib/live-county-types.ts");
 
-const SECILI = process.argv.slice(2);
-const keys = SECILI.length ? SECILI : Object.keys(COUNTY_REGISTRY);
+// Hasadı BİTMİŞ eyaletler — ölçüm bunlara dokunmaz. FL 19 Tem'de çekildi
+// (84.044 kayıt, %100 mailable); tekrar yoklamanın faydası yok, boşuna istek.
+// Zorlamak için: `npm run kapsam -- --tumu` ya da county anahtarını elle ver.
+const HASADI_BITEN = new Set(["FL"]);
+const TUMU = process.argv.includes("--tumu");
+
+const SECILI = process.argv.slice(2).filter((a) => !a.startsWith("--"));
+const keys = (SECILI.length ? SECILI : Object.keys(COUNTY_REGISTRY)).filter((k) => {
+  if (SECILI.length || TUMU) return true; // elle istendiyse atlama
+  const e = COUNTY_REGISTRY[k];
+  if (e && HASADI_BITEN.has(e.state)) {
+    console.log(`⏭  ${k.padEnd(16)} atlandı — ${e.state} hasadı tamam, tekrar sorgulanmıyor`);
+    return false;
+  }
+  return true;
+});
 const ORNEK = 25; // her county'den çekilecek örnek satır — küçük tutuldu (maliyet/hız)
 
 const sonuclar = [];
