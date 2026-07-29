@@ -21,6 +21,14 @@ import pg from "pg";
 import { dbUrl } from "./grade-offmarket.mjs";
 
 const GEO_TOP = parseInt(process.env.GEO_TOP || "25000", 10);
+// Yeni hasat edilen eyaletleri öne almak için isteğe bağlı kapsam daraltması.
+// Huni global grade_score'a göre çalışır; geo puanı OLMAYAN yeni satırlar
+// (dist_* boş → cazibeden ~30 puan eksik) global top listesine hiç giremez ve
+// sonsuza dek B tavanında kalırdı. GEO_EYALET=MS,WV,… ile o eyaletlerin
+// kuyruğu ayrıca koşturulur.
+//   GEO_EYALET=MS,WV,MT,NC,AL,ID,WY node scraper/geo-enrich-offmarket.mjs
+const GEO_EYALET = (process.env.GEO_EYALET || "")
+  .split(",").map((s) => s.trim().toUpperCase()).filter(Boolean);
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 // 2026-07-25 ölçümü: mail.ru 0.6s/200, overpass-api.de 0.8s/200 (sabahki 504
@@ -35,6 +43,11 @@ const OVERPASS_MIRRORS = [
 ];
 // 2 sağlam ayna × ayna başına ~3 işçi = 6. Ayna başına baskı eskisiyle aynı.
 const CONCURRENCY = parseInt(process.env.GEO_CONCURRENCY || "6", 10);
+// ⚠ 2026-07-29 ölçümü: SOĞUK sorgu (önbellekte olmayan bölge) mail.ru aynasında
+// ~29 sn sürüyor. Eski sabit 22 sn tavanı bu yüzden SIK SIK zaman aşımı
+// üretiyordu — istek sunucuda tamamlanıyor, biz cevabı beklemeden atıyorduk.
+// Tavan artık ayarlanabilir; yeni eyalet hasadı gibi hep-soğuk turlarda yükselt.
+const FETCH_TIMEOUT = parseInt(process.env.GEO_TIMEOUT || "40000", 10);
 const UA = "terralot-geo/1.0 (land grading; contact sales@nocturndev.com)";
 const ROAD_RE = /^(motorway|trunk|primary|secondary|tertiary|unclassified|residential|service|track|road|living_street)$/;
 
@@ -92,7 +105,7 @@ async function overpass(lat, lng, wid = 0) {
           method: "POST",
           headers: { "Content-Type": "application/x-www-form-urlencoded", "User-Agent": UA },
           body: "data=" + encodeURIComponent(buildQuery(lat, lng)),
-          signal: AbortSignal.timeout(22000),
+          signal: AbortSignal.timeout(FETCH_TIMEOUT),
         });
         if (res.status === 429 || res.status === 504) { lastErr = new Error("overpass " + res.status); await sleep(4000); continue; }
         if (!res.ok) throw new Error("overpass " + res.status);
@@ -116,18 +129,25 @@ async function main() {
   client.on("error", (e) => console.warn(`\npg boşta bağlantı hatası (yok sayıldı): ${e.message}`));
 
   // Huni eşiği: koordinatlı + skorlu en iyi GEO_TOP kaydın skor tabanı.
+  // GEO_EYALET verildiyse huni O EYALETLERİN İÇİNDE kurulur.
+  const eyaletKosul = GEO_EYALET.length ? "and state = any($2)" : "";
   const thr = await client.query(
     `select grade_score s from offmarket_leads
-     where lat is not null and grade_score is not null
-     order by grade_score desc offset $1 limit 1`, [GEO_TOP]);
+     where lat is not null and grade_score is not null ${eyaletKosul}
+     order by grade_score desc offset $1 limit 1`,
+    GEO_EYALET.length ? [GEO_TOP, GEO_EYALET] : [GEO_TOP]);
   const minScore = thr.rows[0]?.s ?? 0;
 
   const pend = await client.query(
     `select lead_id, lat::float8 lat, lng::float8 lng from offmarket_leads
      where geo_enriched_at is null and lat is not null and grade_score >= $1
+       ${GEO_EYALET.length ? "and state = any($3)" : ""}
      order by grade_score desc
-     limit $2`, [minScore, GEO_TOP]); // skorlar ayrık — eşitlik yığılmasına LIMIT koru
-  console.log(`geo kuyruğu: ${pend.rows.length} lead (skor >= ${minScore}, top ~${GEO_TOP})`);
+     limit $2`, // skorlar ayrık — eşitlik yığılmasına LIMIT koru
+    GEO_EYALET.length ? [minScore, GEO_TOP, GEO_EYALET] : [minScore, GEO_TOP]);
+  console.log(
+    `geo kuyruğu: ${pend.rows.length} lead (skor >= ${minScore}, top ~${GEO_TOP}` +
+    `${GEO_EYALET.length ? `, eyalet ${GEO_EYALET.join("/")}` : ""})`);
 
   // 0.001° hücre dedupe — komşu parseller tek sorgu paylaşır.
   const cells = new Map(); // key → { lat, lng, ids: [] }

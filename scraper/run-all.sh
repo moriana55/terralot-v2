@@ -93,6 +93,12 @@ step node snapshot-deals.js
 # 3c) Due-diligence enrichment on top deals (road/flood -> final_score)
 step node dd-enrich.js
 
+# 3d) FİLTRELİ HASAT — kayıt defterindeki hedef eyaletlerden SÜZGEÇTEN geçen
+# boş arsaları offmarket_leads'e UPSERT eder (mektup atılabilir + absentee +
+# acre/değer bandı). Eyalet listesi HASAT_EYALETLER ile daraltılabilir.
+# Yazma yalnızca ON CONFLICT DO UPDATE; DB 2 GB tavanını aşarsa kendi durur.
+step node filtreli-hasat.mjs ${HASAT_EYALETLER:-}
+
 # 4) Competitor retail listings -> Supabase (competitor_listings)
 step node competitor-scraper.js
 
