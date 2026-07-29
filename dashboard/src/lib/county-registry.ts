@@ -200,22 +200,26 @@ function msStatewide(yarim: "West" | "East", countyName: string): ArcGisSource {
  * WEST VIRGINIA eyalet geneli WVU GIS katmanı — 1.389.855 parsel, %98,8'inde sahip adı.
  * ⚠ Ayrı şehir/eyalet/zip alanı YOK: `FullOwnerAddress` tek string
  *   ("612 18TH ST, VIENNA, WV 26105") → birleşik adres ayrıştırıcısı kullanılır.
- * ⚠ Arazi DEĞERİ yok. Boş arsa sinyali: fiziksel adres boş + Acres_C eşiği.
+ * ⚠ Arazi DEĞERİ yok. Boş arsa sinyali: fiziksel adres boş + CALC_ACRE eşiği.
  */
 function wvStatewide(countyId: string): ArcGisSource {
   return {
     kind: "arcgis",
     endpoint: "https://services.wvgis.wvu.edu/arcgis/rest/services/Planning_Cadastre/WV_Parcels/MapServer/0/query",
-    outFields: "CleanParcelID,Label,GISPID,FullOwnerName,FullOwnerAddress,FullPhysicalAddress,Acres_C,FullLegalDescription,CountyID",
-    orderBy: "Acres_C DESC",
-    baseWhere: `CountyID='${countyId}' AND FullOwnerName IS NOT NULL AND FullOwnerAddress IS NOT NULL AND FullPhysicalAddress='' AND Acres_C>=0.5`,
+    // ⚠ 2026-07-29: katmanda acre alanının adı `CALC_ACRE` (Double). Kayıtta
+    // `Acres_C` yazıyordu — sunucu "Failed to execute query" ile 400 dönüyordu,
+    // yani WV county'lerinin HİÇBİRİ gerçekte sorgulanamıyordu. Alan adları
+    // servis metadata'sından doğrulandı.
+    outFields: "CleanParcelID,Label,GISPID,FullOwnerName,FullOwnerAddress,FullPhysicalAddress,CALC_ACRE,FullLegalDescription,CountyID",
+    orderBy: "CALC_ACRE DESC",
+    baseWhere: `CountyID='${countyId}' AND FullOwnerName IS NOT NULL AND FullOwnerAddress IS NOT NULL AND FullPhysicalAddress='' AND CALC_ACRE>=0.5`,
     fields: {
       apn: ["CleanParcelID", "Label", "GISPID"],
       owner: ["FullOwnerName"],
       mailCombined: "FullOwnerAddress",
       situs: ["FullLegalDescription"],
       useConst: "VACANT",
-      acres: "Acres_C",
+      acres: "CALC_ACRE",
     },
     searchFields: { owner: "FullOwnerName", apn: "CleanParcelID" },
   };
