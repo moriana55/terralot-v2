@@ -1,8 +1,48 @@
 # Admin Envanteri — /admin altındaki her sayfa
 
-> Tarih: 2026-07-29 · Kapsam: `src/app/admin/**/page.tsx` (63 üst-düzey sayfa + 4 alt rota + 19 whitepaper cildi)
-> Amaç: "hâlâ çok karışık" şikâyetini kaynağında çözmek. **Hiçbir sayfa silinmedi.**
+> Tarih: 2026-07-29 (TEKLEŞTİRME turu) · **Hiçbir sayfa silinmedi, hiçbir satır silinmedi.**
 > Menü verisi tek yerde: [`src/app/admin/nav.ts`](src/app/admin/nav.ts)
+
+## 2026-07-29 · "Tek olacak her şey" turu — özet
+
+Sahibin direktifi: *"Eski hunileri siktir edeceğiz, bizim tek tablomuz olacak, tek haritamız
+olacak, tek olacak her şey. Ama bak silme veri filan."*
+
+| Ne | Öncesi | Sonrası |
+|---|---|---|
+| Harita ekranı | 4 (`harita`, `off-market-harita`, `deal-map`, `alinabilir-harita`) | **1** — `/admin/harita` + mod seçici |
+| Off-market envanteri | 2 statik-JSON ekranı (`mohave`, `luna`) | **1** — `/admin/off-market-envanter`, doğrudan DB |
+| Talep hunisi | 2 tablo (`Inquiry`, `parcel_inquiries`) | **1** — `parcel_inquiries` |
+| Rakip ekranı | 5 | **1** — `/admin/rakip-radar`, 5 sekme |
+| APN sorgu | 2 | **1** — `/admin/apn-dogrula` |
+| Satış/ilan | 2 | **1** — `/admin/satis-sayfalari` |
+| Sistem anlatısı | 2 | **1** — `/admin/yontem` |
+| County eleme | 2 | **1** — `/admin/acquisitions`, 3 sekme |
+| Günlük menü | 24 sayfa | **18 sayfa** |
+
+**Veri güvenliği (her yazımdan önce):**
+- Tam yedek: `../yedek/2026-07-29/offmarket_leads.ndjson.gz` (565.930 satır) + `-ozet.json`
+- Kayıp veri avı (`scripts/kayip-veri-avi.mjs`): `src/data/*.json` içindeki **345.969** off-market
+  satırının **tamamı** zaten DB'de → **kurtarılacak satır: 0**, 145/145 dosya tam eşleşti.
+- `offmarket_leads`: **565.930 → 565.930** (değişmedi). 15 eyalet korundu.
+- Hiçbir `DELETE` / `DROP` / `TRUNCATE` çalıştırılmadı. `scripts/sql-calistir.mjs` yıkıcı
+  komut içeren SQL dosyasını çalıştırmayı reddeder.
+
+**Veri hijyeni (ADIM 5, yıkıcı değil):** `offmarket_leads.county` alanında AZ satırları county
+yerine bölge adı tutuyordu. **Ham değere dokunulmadı**; yeni `county_normalized` sütunu eklendi
+(`sql/county_normalized.sql`). AZ'nin 6 bölge etiketi → `Mohave`; TX'te yapışık adlar ayrıldı
+(`SanJacinto` → `San Jacinto`). Ekranlar/istatistikler normalize sütunu okur.
+Sonuç: 211 ham `state|county` çifti → **206** gerçek county.
+
+**Skor kaybolmadı:** Mohave'ye özel `offmarket_score` motoru county'den bağımsız hale getirildi
+(`src/lib/offmarket-score.ts`). Mohave'nin bölge-talep katsayıları `COUNTY_BOLGE_TALEBI["AZ|MOHAVE"]`
+tablosunda korunuyor; `mohave-score.ts` ince bir sarmalayıcı oldu, eski çağrı yerleri aynen çalışıyor.
+Luna artık **skor da alıyor** (eskiden hiç yoktu).
+
+**Doğrulama:** 17 emekli route canlı çağrıldı → hepsi **307** + doğru hedef. 22 hedef ekran → **200**.
+`npm run build` yeşil. `npm test` **338 → 348** (10 yeni genelleme testi; hiç test kaybolmadı).
+
+---
 
 ## Nasıl okunur
 
