@@ -20,6 +20,7 @@ import { useSearchParams } from "next/navigation";
 import dynamic from "next/dynamic";
 import {
   ShieldCheck, Loader2, Search, AlertTriangle, CheckCircle2, XCircle, HelpCircle, MapPin,
+  Satellite, Map as MapIcon,
 } from "lucide-react";
 import type { Feature, FeatureCollection } from "geojson";
 import {
@@ -91,6 +92,26 @@ async function queryMohave(field: string, value: string): Promise<FeatureCollect
 }
 
 const usd = (n: number) => "$" + Math.round(n).toLocaleString("en-US");
+
+// ── County kaydının insan-okur alan projeksiyonu (eski /admin/apn-sorgula'dan taşındı) ──
+// Sağ sütunda zaten OWNER / SALEP / SALEDT / PARCEL_SIZE / LANDVALUE satır satır
+// gösteriliyor (uyum kontrolünün beslendiği 5 alan). Aşağıdaki liste bunların
+// DIŞINDA kalan, sahip/adres/kullanım tarafındaki alanları etiketleyerek getirir.
+const HIGHLIGHTS: { keys: string[]; label: string; fmt?: (v: string | number) => string }[] = [
+  { keys: ["PARCEL", "APN", "PARCELNUM"], label: "APN / Parsel" },
+  { keys: ["OWNER"], label: "Sahip" },
+  { keys: ["OWNER_2"], label: "Sahip 2" },
+  { keys: ["SITE_ADDRESS"], label: "Site (situs) adresi" },
+  { keys: ["MAILING_ADDRESS"], label: "Posta adresi" },
+  { keys: ["PARCEL_SIZE"], label: "Dönüm (acre)" },
+  { keys: ["LANDVALUE"], label: "Arazi değeri", fmt: (v) => usd(Number(v)) },
+  { keys: ["FULL_CASH_VALUE"], label: "Tam değer (full cash)", fmt: (v) => usd(Number(v)) },
+  { keys: ["PROPUSE", "USE_CODE"], label: "Kullanım" },
+  { keys: ["LEGAL_DESCRIPTION"], label: "Yasal tanım" },
+];
+
+// Yukarıdaki 5 karşılaştırma satırında zaten görünen alanlar — iki kez basmayalım.
+const KARSILASTIRMADA_GOSTERILEN = new Set(["OWNER", "PARCEL_SIZE", "LANDVALUE", "SALEP", "SALEDT"]);
 
 interface OurApiResponse {
   kind: "apn";
@@ -249,6 +270,11 @@ function ApnDogrulaInner() {
   const countySaledt = pick(props, ["SALEDT"]);
   const countySize = pick(props, ["PARCEL_SIZE"]);
   const countyLandValue = pick(props, ["LANDVALUE"]);
+
+  // Uydu görüntüsü için parselin ağırlık merkezi (eski /admin/apn-sorgula'dan taşındı).
+  const googleUrl = centroid
+    ? `https://www.google.com/maps/search/?api=1&query=${centroid[0]},${centroid[1]}`
+    : null;
 
   const comparison: ComparisonRow[] | null =
     ourData && feature
@@ -514,11 +540,72 @@ function ApnDogrulaInner() {
                     <Row label="Dönüm (PARCEL_SIZE)" value={countySize != null ? String(countySize) : null} />
                     <Row label="Arazi değeri (LANDVALUE)" value={countyLandValue != null ? usd(Number(countyLandValue)) : null} />
                   </dl>
+
+                  {/* Diğer county alanları — etiketli projeksiyon (apn-sorgula'dan taşındı) */}
+                  {(() => {
+                    const ekstra = HIGHLIGHTS.filter(
+                      (h) => !h.keys.some((k) => KARSILASTIRMADA_GOSTERILEN.has(k)),
+                    )
+                      .map((h) => ({ h, v: pick(props, h.keys) }))
+                      .filter((x) => x.v != null);
+                    if (!ekstra.length) return null;
+                    return (
+                      <dl className="mt-2 space-y-1.5 border-t border-slate-100 pt-2">
+                        {ekstra.map(({ h, v }) => (
+                          <Row
+                            key={h.label}
+                            label={h.label}
+                            value={h.fmt ? h.fmt(v as string | number) : String(v)}
+                          />
+                        ))}
+                      </dl>
+                    );
+                  })()}
+
                   {centroid && (
                     <div className="mt-3 overflow-hidden rounded-lg border border-slate-200 bg-slate-100" style={{ height: 220 }}>
                       <ParcelMap feature={feature} center={centroid} />
                     </div>
                   )}
+
+                  {/* Aksiyon butonları (apn-sorgula'dan taşındı) */}
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {googleUrl && (
+                      <a
+                        href={googleUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+                      >
+                        <Satellite className="h-3.5 w-3.5" /> 🛰️ Google&apos;da aç
+                      </a>
+                    )}
+                    <a
+                      href="/admin/alinabilir-harita"
+                      className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+                    >
+                      <MapIcon className="h-3.5 w-3.5" /> 🗺️ Ana haritada gör
+                    </a>
+                  </div>
+
+                  {/* Ham alanlar (dürüstlük: county'den gelen her şey) — apn-sorgula'dan taşındı */}
+                  <details className="mt-3">
+                    <summary className="cursor-pointer text-[11px] font-semibold text-slate-500">
+                      Tüm alanlar (ham GIS kaydı)
+                    </summary>
+                    <div className="mt-2 max-h-52 overflow-auto rounded-lg bg-slate-50 p-2">
+                      <table className="w-full text-[11px]">
+                        <tbody>
+                          {Object.entries(props).map(([k, v]) => (
+                            <tr key={k} className="border-b border-slate-100 last:border-0">
+                              <td className="py-0.5 pr-3 font-mono text-slate-400">{k}</td>
+                              <td className="py-0.5 text-slate-700">{v == null ? "—" : String(v)}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </details>
                 </>
               )}
             </div>
