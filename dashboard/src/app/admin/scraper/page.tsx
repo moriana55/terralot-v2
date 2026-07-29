@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Clock, Terminal, Play, Loader2, CheckCircle2, Building2, Database } from "lucide-react";
 import { DealHoundFleet } from "./DealHoundFleet";
 import { UpcomingSales } from "./UpcomingSales";
+import { HasatSagligiKarti } from "../yontem/HasatSagligi";
 
 export default function ScraperPage() {
   const [running, setRunning] = useState(false);
@@ -31,6 +32,9 @@ export default function ScraperPage() {
 
   return (
     <div className="p-8 max-w-5xl">
+      {/* Otomasyon gerçekten koşuyor mu? — her şeyden önce bu. */}
+      <HasatSagligiKarti />
+
       {/* Cerberus fleet */}
       <DealHoundFleet />
 

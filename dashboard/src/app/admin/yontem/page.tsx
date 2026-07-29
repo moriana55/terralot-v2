@@ -6,6 +6,7 @@ import {
   ArrowRight, Loader2, CheckCircle2, XCircle, Database, Building2,
   Map as MapIcon,
 } from "lucide-react";
+import { HasatSagligiKarti } from "./HasatSagligi";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // YATIRIM YÖNTEMİ — "neye göre alıyoruz?" sorusunun ekrandaki cevabı.
@@ -82,10 +83,17 @@ export default function YontemSayfasi() {
     fetch("/api/admin/all-deals?pageSize=1").then((r) => r.json()).then(setD).catch(() => {});
   }, []);
 
+  // Hasat sağlığı, sayfanın geri kalanı yüklenmese bile GÖRÜNMELİ: istihbarat
+  // ucu patlarsa "sistem sağlıklı mı?" sorusu cevapsız kalmasın.
   if (!v) {
-    return <div className="flex items-center gap-2 p-6 text-sm text-neutral-500">
-      <Loader2 className="h-4 w-4 animate-spin" /> Yükleniyor…
-    </div>;
+    return (
+      <div className="mx-auto max-w-4xl p-6">
+        <HasatSagligiKarti />
+        <div className="flex items-center gap-2 text-sm text-neutral-500">
+          <Loader2 className="h-4 w-4 animate-spin" /> Yükleniyor…
+        </div>
+      </div>
+    );
   }
 
   const ornek = v.teklifler[0] as Record<string, unknown> | undefined;
@@ -100,6 +108,13 @@ export default function YontemSayfasi() {
       <p className="mt-1 text-sm text-neutral-500">
         Hangi arsayı neden alıyoruz. Her adımın gerekçesi ve o adımın elediği miktar.
       </p>
+
+      {/* ── HASAT SAĞLIĞI ──────────────────────────────────────────────────
+          En üstte, çünkü aşağıdaki bütün sayılar hasat gerçekten koştuysa
+          anlamlı. /admin/sistem buraya yönlendiği için sistem sağlığının yeri
+          burası. Kaynak: scraper/.hasat-durum.json (uydurma yok). */}
+      <div className="mt-6" />
+      <HasatSagligiKarti />
 
       {/* ── HUNİ ───────────────────────────────────────────────────────── */}
       <section className="mt-6 rounded-xl border border-neutral-200 bg-white p-5 dark:border-neutral-800 dark:bg-neutral-900">

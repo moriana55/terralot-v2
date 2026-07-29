@@ -1,22 +1,4 @@
 #!/bin/bash
-# ╔═══════════════════════════════════════════════════════════════════════════╗
-# ║  ⚠️  EMEKLİ — 2026-07-29. ARTIK KULLANILMIYOR, ÇALIŞTIRMA.                ║
-# ║                                                                           ║
-# ║  Yerini alan: scraper/hasat-runner.mjs  (launchd doğrudan onu çağırır)     ║
-# ║  Kurulum:     bash scraper/launchd-kur.sh                                  ║
-# ║                                                                           ║
-# ║  NEDEN EMEKLİ: Aşağıdaki "ayna klasör" mimarisi kendi kendini bozuyordu.   ║
-# ║  Aynayı güncelleyen rsync de tam olarak aşmaya çalıştığı TCC engeline      ║
-# ║  takılıyordu; ayna 29 Haziran'da dondu ve Temmuz'da yazılan hiçbir hasat   ║
-# ║  betiği otomasyonda koşmadı. Üstelik hatalar exit 0 ile yutulduğu için     ║
-# ║  panel 3,5 hafta boyunca "başarılı" gösterdi.                             ║
-# ║                                                                           ║
-# ║  GERÇEK ÇÖZÜM: TCC kısıtı ikiliye özgü — Homebrew node launchd altında    ║
-# ║  Desktop'ı okuyabiliyor ve çocuk süreçleri bu izni devralıyor. Ayna        ║
-# ║  gereksiz. Ayrıntı: HASAT-OTOMASYON-TESHIS.md                             ║
-# ║                                                                           ║
-# ║  Dosya SİLİNMEDİ: eski kurulumu anlamak isteyen için referans.             ║
-# ╚═══════════════════════════════════════════════════════════════════════════╝
 # ─────────────────────────────────────────────────────────────────────────────
 # TERRALOT RUNNER — launchd'nin Desktop TCC engelini aşan koşucu.
 #

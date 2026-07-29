@@ -4,6 +4,13 @@ node_modules/
 *.log
 logs/
 *.plist
+# …ama launchd görevinin KANONİK tanımı sürüm kontrolünde kalmalı: kurulu kopya
+# (~/Library/LaunchAgents/) bozulursa tek doğru kaynak burasıdır.
+!com.terralot.sourcing.plist
+
+# Hasat koşusunun anlık durumu (her koşuda yeniden yazılır, commit edilmez)
+.hasat.lock
+.hasat-durum.json
 
 # Scraped data & artifacts — live in the DB / are regenerated, do not commit
 *.zip

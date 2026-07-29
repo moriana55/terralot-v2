@@ -12,13 +12,35 @@ mkdir -p logs
 TS="$(date +%Y%m%d_%H%M%S)"
 LOG="logs/run_${TS}.log"
 
+# Başarısız adım sayacı. Boru hattı bir adım patlasa da DEVAM eder (bir kaynağın
+# ölmesi diğerlerini engellememeli) ama script SONUNDA nonzero döner.
+BASARISIZ=0
+BASARISIZ_ADIMLAR=""
+# hasat-runner.mjs bu dosyayı okuyup panele adım adım durum yazar (opsiyonel).
+ADIM_SONUC_DOSYASI="${ADIM_SONUC_DOSYASI:-}"
+
 step() {
+  local t0 rc sn
+  t0=$SECONDS
   echo "[$(date '+%H:%M:%S')] >>> $*" | tee -a "$LOG"
+  # ÖNEMLİ: çıkış kodunu HEMEN yakala. Eski sürüm `echo "... exited $?"`
+  # yazıyordu; aynı satırdaki $(date ...) komut ikamesi $? değerini ezdiği için
+  # her hata "exited 0" görünüyordu — 3,5 hafta boyunca hatalar böyle yutuldu.
   if "$@" >>"$LOG" 2>&1; then
-    echo "[$(date '+%H:%M:%S')] OK: $*" | tee -a "$LOG"
+    rc=0
   else
-    echo "[$(date '+%H:%M:%S')] WARN: '$*' exited $?" | tee -a "$LOG"
+    rc=$?
   fi
+  sn=$((SECONDS - t0))
+  if [ "$rc" -eq 0 ]; then
+    echo "[$(date '+%H:%M:%S')] OK: $* (${sn}sn)" | tee -a "$LOG"
+  else
+    echo "[$(date '+%H:%M:%S')] HATA: '$*' çıkış kodu $rc (${sn}sn)" | tee -a "$LOG"
+    BASARISIZ=$((BASARISIZ + 1))
+    BASARISIZ_ADIMLAR="${BASARISIZ_ADIMLAR:+$BASARISIZ_ADIMLAR, }$1(çıkış $rc)"
+  fi
+  [ -n "$ADIM_SONUC_DOSYASI" ] && printf '%s\t%s\t%s\n' "$*" "$rc" "$sn" >>"$ADIM_SONUC_DOSYASI"
+  return 0
 }
 
 echo "==== Sourcing run ${TS} ====" | tee -a "$LOG"
@@ -97,3 +119,14 @@ fi
 # kıyaslar; sorun varsa (token varsa) Telegram'a "⚠ STALE/DROP" yollar. Token boşsa
 # stdout'a yazar. Tablo/kolon eksikse o kaynağı atlar, koşuyu DÜŞÜRMEZ.
 step node freshness-check.mjs
+
+# ── ÇIKIŞ KODU ───────────────────────────────────────────────────────────────
+# Adımlar "devam et" mantığıyla koşar ama sonuç GİZLENMEZ: bir tanesi bile
+# patladıysa nonzero döneriz. hasat-runner.mjs bunu görüp durum dosyasına
+# "BAŞARISIZ" yazar, launchd de görevi hatalı sayar.
+if [ "$BASARISIZ" -gt 0 ]; then
+  echo "[$(date '+%H:%M:%S')] SONUÇ: ${BASARISIZ} adım başarısız → ${BASARISIZ_ADIMLAR}" | tee -a "$LOG"
+  exit 1
+fi
+echo "[$(date '+%H:%M:%S')] SONUÇ: tüm adımlar başarılı." | tee -a "$LOG"
+exit 0

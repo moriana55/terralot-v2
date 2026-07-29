@@ -41,16 +41,38 @@ export async function GET(req: NextRequest) {
       s.from("competitor_listings").select("scraped_at").order("scraped_at", { ascending: false, nullsFirst: false }).limit(1),
     ]);
 
-    // Runner status dosyası (launchd koşucusu yazar). Vercel'de/başka makinede
-    // dosya yoktur → null; sağlık o zaman sadece veri tazeliğinden hesaplanır.
+    // Runner durumu. Vercel'de/başka makinede dosya yoktur → null; sağlık o
+    // zaman sadece veri tazeliğinden hesaplanır.
+    //
+    // 2026-07-29: kaynak DEĞİŞTİ. Eskiden ayna klasördeki
+    // ~/Library/Application Support/terralot-runner/status.json okunuyordu;
+    // o ayna artık hiç koşmuyor, yani dosya SONSUZA KADAR "başarılı" yazılı
+    // kalırdı — düzeltmeye çalıştığımız yalanın ta kendisi. Artık gerçek
+    // projedeki scraper/.hasat-durum.json okunur; eski yol yalnızca geriye
+    // dönük yedek olarak denenir.
     let runner: RunnerStatus | null = null;
-    try {
-      const p =
-        process.env.TERRALOT_RUNNER_STATUS ||
-        join(homedir(), "Library", "Application Support", "terralot-runner", "status.json");
-      runner = JSON.parse(readFileSync(p, "utf8")) as RunnerStatus;
-    } catch {
-      runner = null;
+    const adaylar = [
+      process.env.VEGALAND_HASAT_DURUM,
+      join(process.cwd(), "..", "scraper", ".hasat-durum.json"),
+      process.env.VEGALAND_RUNNER_STATUS,
+      join(homedir(), "Library", "Application Support", "terralot-runner", "status.json"),
+    ].filter(Boolean) as string[];
+    for (const p of adaylar) {
+      try {
+        const ham = JSON.parse(readFileSync(p, "utf8"));
+        // Yeni format (.hasat-durum.json) → eski RunnerStatus şekline çevir.
+        runner = ham.sonKosuBaslangic
+          ? {
+              lastRunAt: ham.sonKosuBitis ?? ham.sonKosuBaslangic,
+              lastSuccessAt: ham.sonBasariliKosu ?? null,
+              consecutiveFailures: ham.ustUsteHata ?? 0,
+              lastError: ham.sonHata ?? null,
+            }
+          : (ham as RunnerStatus);
+        break;
+      } catch {
+        /* sıradaki adaya geç */
+      }
     }
     const lastScrapeAt = lastScrape?.[0]?.scraped_at ?? null;
 

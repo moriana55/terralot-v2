@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<!--
+  com.terralot.sourcing — VegaLand günlük veri hasadı (kanonik kopya).
+  KURULU KOPYA: ~/Library/LaunchAgents/com.terralot.sourcing.plist
+  Kurulum:      bash scraper/launchd-kur.sh
+
+  ── 2026-07-29: AYNA KLASÖR KALDIRILDI ─────────────────────────────────────
+  ESKİDEN: /bin/bash "~/Library/Application Support/terralot-runner/run.sh"
+  SORUN:   macOS TCC, launchd'nin başlattığı Apple platform ikililerinin
+           (/bin/bash, ls, cat, rsync) ~/Desktop altını okumasını engelliyor.
+           Bu yüzden scraper'ın bir AYNA kopyası tutuluyor ve her koşumda
+           rsync ile senkronlanması umuluyordu; rsync de aynı TCC engeline
+           takıldığı için ayna 29 Haziran'da DONDU. Temmuz'da yazılan hasat
+           betiklerinin (offmarket-*.mjs, harvest-*.mjs, disk-guard.mjs …)
+           hiçbiri otomasyonda çalışmadı — üstelik run-all.sh her hatayı
+           yutup exit 0 döndüğü için durum her gün "başarılı" görünüyordu.
+
+  ÇÖZÜM:   TCC kısıtı ikiliye özgü. Homebrew node (/opt/homebrew/bin/node)
+           launchd altında Desktop'ı OKUYABİLİYOR (2026-07-29'da ölçüldü) ve
+           başlattığı çocuk süreçler (bash/rsync/node) bu izni DEVRALIYOR.
+           Artık launchd doğrudan node ile gerçek projedeki hasat-runner.mjs'i
+           çalıştırır. Ayna klasöre gerek yok, senkron sorunu yok.
+
+  ProcessType=Background + Nice=10 + LowPriorityIO → tur makineyi boğmaz.
+  hasat-runner.mjs hata varsa 1 döner → launchd görevi de "hatalı" görünür.
+-->
+<dict>
+  <key>Label</key>
+  <string>com.terralot.sourcing</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>/opt/homebrew/bin/node</string>
+    <string>/Users/yigiterturk/Desktop/Aktif Projeler/terralot-v2/scraper/hasat-runner.mjs</string>
+  </array>
+
+  <key>WorkingDirectory</key>
+  <string>/Users/yigiterturk/Desktop/Aktif Projeler/terralot-v2/scraper</string>
+
+  <!-- Günde bir kez, 06:00. Tur ~1 saat sürebilir; üst üste binmeyi
+       hasat-runner.mjs'deki .hasat.lock kilit dosyası engeller. -->
+  <key>StartCalendarInterval</key>
+  <dict>
+    <key>Hour</key><integer>6</integer>
+    <key>Minute</key><integer>0</integer>
+  </dict>
+
+  <!-- launchd'nin yakaladığı ham akışlar. Asıl ZAMAN DAMGALI loglar:
+       scraper/logs/hasat/hasat_<damga>.log  (tam çıktı)
+       scraper/logs/hasat/hasat_<damga>.err.log  (sadece hatalar) -->
+  <key>StandardOutPath</key>
+  <string>/Users/yigiterturk/Desktop/Aktif Projeler/terralot-v2/scraper/logs/hasat/launchd.out.log</string>
+  <key>StandardErrorPath</key>
+  <string>/Users/yigiterturk/Desktop/Aktif Projeler/terralot-v2/scraper/logs/hasat/launchd.err.log</string>
+
+  <key>ProcessType</key>
+  <string>Background</string>
+  <key>Nice</key>
+  <integer>10</integer>
+  <key>LowPriorityIO</key>
+  <true/>
+
+  <key>RunAtLoad</key>
+  <false/>
+</dict>
+</plist>
