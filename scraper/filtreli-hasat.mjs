@@ -411,7 +411,10 @@ async function main() {
 
   const raporDizin = join(HERE, "logs");
   mkdirSync(raporDizin, { recursive: true });
-  const raporYol = join(raporDizin, `filtreli-hasat-${new Date().toISOString().slice(0, 10)}.json`);
+  // Dosya adına ele alınan eyaletler girer — eyalet eyalet koşulduğunda önceki
+  // turun raporu EZİLMESİN (tur yarıda kalırsa ilerleme kaydı kaybolmasın).
+  const etiket = Object.keys(rapor.eyalet).sort().join("-") || "bos";
+  const raporYol = join(raporDizin, `filtreli-hasat-${new Date().toISOString().slice(0, 10)}-${etiket}.json`);
   writeFileSync(raporYol, JSON.stringify(rapor, null, 2));
   console.log(`Rapor: ${raporYol}`);
 
