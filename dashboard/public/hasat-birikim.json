@@ -1,25 +1,7 @@
 {
   "surum": 1,
-  "guncelleme": "2026-07-29T19:15:16.930Z",
+  "guncelleme": "2026-07-29T19:17:30.834Z",
   "turlar": [
-    {
-      "kaynak": "filtreli-hasat-2026-07-29-AL.json",
-      "baslangic": "2026-07-29T17:23:23.015Z",
-      "bitis": "2026-07-29T17:25:08.231Z",
-      "eyaletler": [
-        "AL"
-      ],
-      "aday": 97420,
-      "yazilan": 3254,
-      "elenen": {
-        "absentee-degil": 83000,
-        "deger-bandi": 4572,
-        "acre-bandi": 3092,
-        "mektup-eksik": 1220,
-        "kamu-sahipli": 1957,
-        "mukerrer": 325
-      }
-    },
     {
       "kaynak": "filtreli-hasat-2026-07-29-ID.json",
       "baslangic": "2026-07-29T17:25:15.298Z",
@@ -118,6 +100,23 @@
         "deger-bandi": 12193,
         "mektup-eksik": 1055,
         "mukerrer": 62
+      }
+    },
+    {
+      "kaynak": "filtreli-hasat-2026-07-29-AL.json",
+      "baslangic": "2026-07-29T19:15:18.367Z",
+      "bitis": "2026-07-29T19:17:30.649Z",
+      "eyaletler": [
+        "AL"
+      ],
+      "aday": 97420,
+      "yazilan": 46529,
+      "elenen": {
+        "acre-bandi": 25427,
+        "deger-bandi": 10483,
+        "mektup-eksik": 1214,
+        "kamu-sahipli": 1965,
+        "mukerrer": 11802
       }
     }
   ]
