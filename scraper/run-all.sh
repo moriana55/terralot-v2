@@ -99,6 +99,18 @@ step node dd-enrich.js
 # Yazma yalnızca ON CONFLICT DO UPDATE; DB 2 GB tavanını aşarsa kendi durur.
 step node filtreli-hasat.mjs ${HASAT_EYALETLER:-}
 
+# 3e) GEO DOĞRULAMA — yeni inen lead'lere OSM Overpass mesafeleri.
+# ⚠ ZORUNLU ADIM: grade-core, geo doğrulaması OLMAYAN kaydı B TAVANINA takar
+# (A+/A yalnız Overpass ile doğrulanmış parsele verilir). Bu adım koşmazsa yeni
+# hasat edilen hiçbir satır A/A+ havuzuna GİREMEZ — 29 Tem'e kadar ne bu adım ne
+# de notlandırma boru hattında vardı, yeni veri sessizce B'de kalıyordu.
+# Overpass ücretsiz aynaları ~35 hücre/dk tavanında; bu yüzden tur başına
+# SINIRLI bir dilim (GEO_TOP) işlenir, kuyruk resume edilebilir.
+step env GEO_TOP="${GEO_TOP:-3000}" node geo-enrich-offmarket.mjs
+
+# 3f) NOTLANDIRMA — geo verisi tazelendikten sonra A+..F notlarını yeniden hesapla.
+step node grade-offmarket.mjs
+
 # 4) Competitor retail listings -> Supabase (competitor_listings)
 step node competitor-scraper.js
 
