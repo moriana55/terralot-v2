@@ -63,7 +63,7 @@ export default function Footer() {
 
       <div className="border-t border-slate-200 py-6 text-center">
         <p className="text-xs" style={{ color: "var(--muted)" }}>
-          © {new Date().getFullYear()} TerraLot LLC. All rights reserved.
+          © {new Date().getFullYear()} VegaLand LLC. All rights reserved.
         </p>
       </div>
     </footer>

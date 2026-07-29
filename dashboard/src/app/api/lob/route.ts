@@ -68,7 +68,7 @@ export async function POST(req: NextRequest) {
     if (body.action === "send_letter") {
       return NextResponse.json({
         id: `ltr_${Math.random().toString(36).substring(2, 15)}`,
-        description: body.description || "TerraLot Mock Offer Letter",
+        description: body.description || "VegaLand Mock Offer Letter",
         to: body.to,
         from: body.from,
         url: "https://s3-us-west-2.amazonaws.com/assets.lob.com/letters/ltr_demo.pdf",
@@ -80,7 +80,7 @@ export async function POST(req: NextRequest) {
     if (body.action === "send_postcard") {
       return NextResponse.json({
         id: `psc_${Math.random().toString(36).substring(2, 15)}`,
-        description: body.description || "TerraLot Mock Postcard",
+        description: body.description || "VegaLand Mock Postcard",
         to: body.to,
         from: body.from,
         url: "https://s3-us-west-2.amazonaws.com/assets.lob.com/postcards/psc_demo.pdf",
@@ -111,7 +111,7 @@ export async function POST(req: NextRequest) {
       method: "POST",
       headers: lobAuthHeaders(),
       body: JSON.stringify({
-        description: `TerraLot - ${merge_variables?.county || "Land"} offer`,
+        description: `VegaLand - ${merge_variables?.county || "Land"} offer`,
         to: {
           name: to.name,
           address_line1: to.address_line1,
@@ -120,7 +120,7 @@ export async function POST(req: NextRequest) {
           address_zip: to.zip,
         },
         from: {
-          name: from?.name || "TerraLot Acquisitions",
+          name: from?.name || "VegaLand Acquisitions",
           address_line1: from?.address_line1 || "1234 Main St",
           address_city: from?.city || "Austin",
           address_state: from?.state || "TX",
@@ -140,7 +140,7 @@ export async function POST(req: NextRequest) {
       method: "POST",
       headers: lobAuthHeaders(),
       body: JSON.stringify({
-        description: `TerraLot postcard - ${merge_variables?.county || "Land"}`,
+        description: `VegaLand postcard - ${merge_variables?.county || "Land"}`,
         to: {
           name: to.name,
           address_line1: to.address_line1,
@@ -149,7 +149,7 @@ export async function POST(req: NextRequest) {
           address_zip: to.zip,
         },
         from: {
-          name: from?.name || "TerraLot Acquisitions",
+          name: from?.name || "VegaLand Acquisitions",
           address_line1: from?.address_line1 || "1234 Main St",
           address_city: from?.city || "Austin",
           address_state: from?.state || "TX",

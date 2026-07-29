@@ -525,7 +525,7 @@ export default function KickoffPage() {
 
         {/* Header */}
         <div className="text-center mb-8">
-          <p className="text-[11px] font-bold tracking-widest uppercase mb-3" style={{ color: "#94a3b8" }}>TerraLot · Otomasyon Planı</p>
+          <p className="text-[11px] font-bold tracking-widest uppercase mb-3" style={{ color: "#94a3b8" }}>VegaLand · Otomasyon Planı</p>
           <h1 className="text-3xl font-extrabold tracking-tight mb-3" style={{ color: "#0f172a" }}>{bots.length} Bot & Otomasyon</h1>
           <p className="text-sm" style={{ color: "#64748b" }}>
             Sistem kurulunca veri toplama, analiz, satış ve pazarlama tamamen otomatik çalışır.
@@ -1139,7 +1139,7 @@ export default function KickoffPage() {
         </div>
 
         <p className="text-center text-xs mt-12" style={{ color: "#cbd5e1" }}>
-          TerraLot · {new Date().toLocaleDateString("tr-TR", { month: "long", year: "numeric" })}
+          VegaLand · {new Date().toLocaleDateString("tr-TR", { month: "long", year: "numeric" })}
         </p>
       </div>
     </div>

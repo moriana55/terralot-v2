@@ -116,7 +116,7 @@ export default function DDTablosu() {
       // Geocode via Nominatim (free, no key)
       const geoRes = await fetch(
         `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(addr)}&format=json&limit=1`,
-        { headers: { "user-agent": "TerralotDashboard/1.0" } }
+        { headers: { "user-agent": "VegaLandDashboard/1.0" } }
       );
 
       // Geocode başarısızsa DÜRÜST hata göster — eskiden ID hash'inden uydurma

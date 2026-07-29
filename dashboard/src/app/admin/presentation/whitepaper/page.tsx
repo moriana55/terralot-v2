@@ -5,7 +5,7 @@ import Link from "next/link";
 
 export default function WhitepaperIndexPage() {
   const volumes = [
-    { id: "vol0-executive-summary", label: "Cilt 0: Yönetici Özeti & Yatırımcı Teklifi", desc: "TerraLot iş modelinin 1 sayfalık özeti: Sıfır-maliyetli Gerilla AI otomasyonu (County Bots + Claude API + Node.js) ve düşük bütçeli 'Smoke Test' yatırım planı.", icon: Zap, link: "/admin/presentation/whitepaper/vol0-executive-summary" },
+    { id: "vol0-executive-summary", label: "Cilt 0: Yönetici Özeti & Yatırımcı Teklifi", desc: "VegaLand iş modelinin 1 sayfalık özeti: Sıfır-maliyetli Gerilla AI otomasyonu (County Bots + Claude API + Node.js) ve düşük bütçeli 'Smoke Test' yatırım planı.", icon: Zap, link: "/admin/presentation/whitepaper/vol0-executive-summary" },
     { id: "vol1-operational", label: "Cilt 1: Yol Haritası & Operasyonel İş Planı", desc: "Wyoming LLC kurulum adımları, banka hesap süreçleri, Stripe ödeme amortizasyon entegrasyonu ve 30 günlük takvim.", icon: Landmark, link: "/admin/presentation/whitepaper/vol1-operational" },
     { id: "vol2-states", label: "Cilt 2: 50 Eyalet İmar ve Bölünme Yasaları", desc: "Platting muafiyet sınırları, resmi yasa kodları (NMSA § 47, TX § 232) ve elenen eyaletlerin yasal gerekçeleri.", icon: Compass, link: "/admin/presentation/whitepaper/vol2-states" },
     { id: "vol3-sourcing", label: "Cilt 3: Mektup & Tedarik Algoritmaları", desc: "Vergi borçluları ve absentee listelerinin filtre kriterleri, Lob API gönderim şeması ve satın alma teklif formülleri.", icon: Mail, link: "/admin/presentation/whitepaper/vol3-sourcing" },
@@ -17,7 +17,7 @@ export default function WhitepaperIndexPage() {
     { id: "vol9-risk-logic", label: "Cilt 9: Sorunsuz Eyalet Seçim Kriterleri", desc: "Bölünme yasalarının ötesinde; tahliye kolaylığı, düşük vergiler ve imar esnekliğine dayalı risksiz eyalet mantığı.", icon: ShieldCheck, link: "/admin/presentation/whitepaper/vol9-risk-logic" },
     { id: "vol10-competitors", label: "Cilt 10: Trustee (Yediemin) Aracı Kurumları", desc: "Amerika'da mahkemesiz icra (Non-Judicial Foreclosure) yürüten lisanslı aracı kurumların isimleri, maliyetleri ve 3 adımlı süreç akışı.", icon: ShieldAlert, link: "/admin/presentation/whitepaper/vol11-trustees" },
     { id: "vol11-micro-lots", label: "Cilt 11: Mikro-Arsa & LandZero Vakası", desc: "0.22 dönümlük Florida arazisinin tüm 7 ödeme seçeneği, taksit faiz mühendisliği ve abonelik tarzı satış psikolojisi.", icon: BadgePercent, link: "/admin/presentation/whitepaper/vol12-micro-lots" },
-    { id: "vol12-market-players", label: "Cilt 12: Piyasa Oyuncuları, Rakip Analizi & Eyalet Haritası", desc: "5 rakip firma profili, LANDIO/DiscountLots/TerraLot karşılaştırma tablosu, eyalet uygunluk haritası ve TerraLot'un konumlanması.", icon: Globe, link: "/admin/presentation/whitepaper/vol13-market-players" },
+    { id: "vol12-market-players", label: "Cilt 12: Piyasa Oyuncuları, Rakip Analizi & Eyalet Haritası", desc: "5 rakip firma profili, LANDIO/DiscountLots/VegaLand karşılaştırma tablosu, eyalet uygunluk haritası ve VegaLand'un konumlanması.", icon: Globe, link: "/admin/presentation/whitepaper/vol13-market-players" },
     { id: "vol13-zoning-guide", label: "Cilt 13: Arsa Tipleri & Zoning Rehberi", desc: "AG, RR, R-1, Vacant ve diğer zoning kodlarında ne yapılabilir, ne yapılamaz — 8 kritik imar terimi ve kontrol listesi.", icon: Trees, link: "/admin/presentation/whitepaper/vol14-zoning-guide" },
     { id: "vol14-seo-research", label: "Cilt 14: SEO Analizi & Gerçek Fiyat Araştırma", desc: "Rakiplerin trafik ve SEO zayıflıkları, hedef keyword hacimleri ve ABD'de gerçek arsa satış fiyatlarına ulaşma rehberi.", icon: Search, link: "/admin/presentation/whitepaper/vol15-seo-research" },
     { id: "vol15-outreach", label: "Cilt 15: Arsa Sahibi Erişim Stratejisi", desc: "Skip tracing ile email bulma, 45 günlük Lob+email omnichannel kampanya akışı, hazır şablonlar ve ROI hesabı.", icon: Send, link: "/admin/presentation/whitepaper/vol16-outreach" },
@@ -39,7 +39,7 @@ export default function WhitepaperIndexPage() {
       {/* Main Container */}
       <div className="max-w-4xl mx-auto bg-white border border-slate-200 rounded-3xl p-8 md:p-16 shadow-xl">
         <div className="border-b-4 border-slate-900 pb-8 mb-12">
-          <p className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">TerraLot Yatırım Fizibilite Kitaplığı</p>
+          <p className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">VegaLand Yatırım Fizibilite Kitaplığı</p>
           <h1 className="text-4xl md:text-5xl font-black tracking-tight text-slate-900 leading-tight">
             Yatırımcı Bilgi Raporları ve Yasal Mevzuat Dosyaları
           </h1>
@@ -76,7 +76,7 @@ export default function WhitepaperIndexPage() {
 
         {/* Footer Note */}
         <div className="border-t border-slate-200 pt-8 mt-12 text-center text-xs text-slate-400">
-          <span>TerraLot Land Investment Group LLC &copy; 2026 — Gizli Yatırımcı Belgesidir.</span>
+          <span>VegaLand Land Investment Group LLC &copy; 2026 — Gizli Yatırımcı Belgesidir.</span>
         </div>
       </div>
     </div>

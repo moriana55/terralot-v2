@@ -250,7 +250,7 @@ export async function POST(req: NextRequest) {
           ...(channel === "postcard"
             ? { front: "tmpl_front_placeholder", back: "tmpl_back_placeholder" }
             : { template: "tmpl_letter_placeholder" }),
-          description: `TerraLot ${type} — ${sheet.county || ""}`,
+          description: `VegaLand ${type} — ${sheet.county || ""}`,
         };
         const r = await fetch(`${base}/api/lob`, {
           method: "POST",

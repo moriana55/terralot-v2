@@ -19,7 +19,7 @@ export default function Vol10Page() {
 
       <div ref={reportRef} className="max-w-4xl mx-auto bg-white border border-slate-200 rounded-3xl p-8 md:p-16 shadow-xl print:shadow-none print:border-none print:p-0" style={{ fontFamily: "'Inter', sans-serif" }}>
         <div className="border-b-4 border-slate-900 pb-6 mb-8">
-          <p className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-1">TerraLot Yatırım Kütüphanesi — Cilt 10</p>
+          <p className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-1">VegaLand Yatırım Kütüphanesi — Cilt 10</p>
           <h1 className="text-3xl font-black text-slate-900">Rakip Satış & Piyasa Analizi</h1>
           <p className="text-sm text-slate-600 mt-2">ABD pazarındaki büyük arsa platformlarının eyalet dağılımları ve taksitli satış modelleri</p>
         </div>
@@ -116,7 +116,7 @@ export default function Vol10Page() {
           <div className="space-y-3 pt-4 border-t border-slate-200">
             <h3 className="text-lg font-bold text-slate-900">Platformların Karşılaştırma Tablosu</h3>
             <p className="text-xs text-slate-600">
-              TerraLot modelinin diğer rakiplere göre avantajı; düşük alım fiyatı, hızlı sürüm imkanı ve sıfır riskli yasal eyaletlerde konumlanmasıdır.
+              VegaLand modelinin diğer rakiplere göre avantajı; düşük alım fiyatı, hızlı sürüm imkanı ve sıfır riskli yasal eyaletlerde konumlanmasıdır.
             </p>
             
             <div className="overflow-x-auto">
@@ -126,7 +126,7 @@ export default function Vol10Page() {
                     <th className="p-3">Özellik</th>
                     <th className="p-3">LANDIO</th>
                     <th className="p-3">Discount Lots</th>
-                    <th className="p-3">TerraLot (Biz)</th>
+                    <th className="p-3">VegaLand (Biz)</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-200">
@@ -168,7 +168,7 @@ export default function Vol10Page() {
         </div>
 
         <div className="border-t border-slate-200 pt-8 mt-12 flex justify-between items-center text-xs text-slate-400">
-          <span>TerraLot Land Investment Group LLC</span>
+          <span>VegaLand Land Investment Group LLC</span>
           <span className="font-bold text-slate-800">Cilt 10 Onaylandı — Rakip Analizleri Hazır</span>
         </div>
       </div>

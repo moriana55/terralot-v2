@@ -55,7 +55,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
       title,
       description,
       type: "website",
-      siteName: "TerraLot Land",
+      siteName: "VegaLand Land",
       ...(ogImage ? { images: [{ url: ogImage, width: 1200, height: 630, alt: title }] } : {}),
     },
     twitter: {

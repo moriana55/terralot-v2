@@ -19,7 +19,7 @@ export default function Vol11Page() {
 
       <div ref={reportRef} className="max-w-4xl mx-auto bg-white border border-slate-200 rounded-3xl p-8 md:p-16 shadow-xl print:shadow-none print:border-none print:p-0" style={{ fontFamily: "'Inter', sans-serif" }}>
         <div className="border-b-4 border-slate-900 pb-6 mb-8">
-          <p className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-1">TerraLot Yatırım Kütüphanesi — Cilt 11</p>
+          <p className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-1">VegaLand Yatırım Kütüphanesi — Cilt 11</p>
           <h1 className="text-3xl font-black text-slate-900">Trustee (Yediemin) Aracı Kurumları & Tahliye Hizmetleri</h1>
           <p className="text-sm text-slate-600 mt-2">Amerika'da mahkemesiz icra (Non-Judicial Foreclosure) yürüten lisanslı aracı kurumlar ve maliyetleri</p>
         </div>
@@ -143,7 +143,7 @@ export default function Vol11Page() {
         </div>
 
         <div className="border-t border-slate-200 pt-8 mt-12 flex justify-between items-center text-xs text-slate-400">
-          <span>TerraLot Land Investment Group LLC</span>
+          <span>VegaLand Land Investment Group LLC</span>
           <span className="font-bold text-slate-800">Cilt 11 Onaylandı — Trustee Verileri Hazır</span>
         </div>
       </div>

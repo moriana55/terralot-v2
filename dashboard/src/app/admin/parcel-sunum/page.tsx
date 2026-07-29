@@ -158,7 +158,7 @@ function OnePager() {
         </div>
       </div>
 
-      {/* ── TerraLot başlık ── */}
+      {/* ── VegaLand başlık ── */}
       <header className="flex items-end justify-between border-b-4 border-slate-900 pb-3">
         <div>
           <div className="text-2xl font-extrabold tracking-tight text-slate-900">

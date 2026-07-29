@@ -415,7 +415,7 @@ export default function UpdatesPage() {
       <header className="max-w-3xl mx-auto px-5 pt-12 pb-8 flex items-center justify-between border-b border-stone-200/50 relative z-10">
         <div className="flex flex-col">
           <span className="font-light text-lg tracking-[0.2em] uppercase leading-none text-[#1c1917]">
-            TerraLot<span className="text-emerald-800 font-semibold">Updates</span>
+            VegaLand<span className="text-emerald-800 font-semibold">Updates</span>
           </span>
           <span className="text-[7.5px] font-bold tracking-[0.25em] text-stone-400 uppercase mt-1.5">
             Realtime System & Milestone Registry
@@ -629,7 +629,7 @@ export default function UpdatesPage() {
         )}
 
         <p className="text-center text-[10px] font-bold text-stone-400 uppercase tracking-widest mt-16">
-          TerraLot · {new Date().toLocaleDateString("tr-TR", { month: "long", year: "numeric" })}
+          VegaLand · {new Date().toLocaleDateString("tr-TR", { month: "long", year: "numeric" })}
         </p>
       </div>
 

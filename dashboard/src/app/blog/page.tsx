@@ -8,7 +8,7 @@ export const metadata = {
   title: "Blog — Land Buying Guides & Investment Tips",
   description: "Expert guides on buying land, owner financing, investment strategies, and more.",
   openGraph: {
-    title: "TerraLot Blog — Land Buying Guides & Investment Tips",
+    title: "VegaLand Blog — Land Buying Guides & Investment Tips",
     description: "Expert guides on buying land, owner financing, investment strategies, and more.",
     type: "website",
   },

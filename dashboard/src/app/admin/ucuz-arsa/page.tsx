@@ -8,7 +8,7 @@ import Link from "next/link";
 import { MailPlus, Satellite, Star, ClipboardList } from "lucide-react";
 import CsvButton from "./CsvButton";
 
-export const metadata = { title: "Ucuz Boş Arsa — Terralot" };
+export const metadata = { title: "Ucuz Boş Arsa — VegaLand" };
 const fmt = (n: number | null | undefined) => (n == null ? "—" : `$${Math.round(n).toLocaleString("en-US")}`);
 
 interface Deal {

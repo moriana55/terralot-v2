@@ -10,7 +10,8 @@
 //        ilan taşıyor mu (pazar-var-mı sinyali; fiyat-arbitraj vurgusu DEĞİL)
 //        + county nüfus büyümesi (county_growth.json).
 //   • MARJ               ~15  → net = est_retail − est_offer − $2.000 sabit gider.
-//        Net $5K altı (bilinen değerde) C tavanı. Değer verisi olmayan
+//        Mutlak dolar barajı YOK (2026-07-25): puan = max(mutlak bant, getiri
+//        katı bandı); yalnız net<=0 C tavanı. Değer verisi olmayan
 //        eyaletlerde (MO/SC/OR-Lake/TN/OK) county rakip $/acre comp'undan
 //        TAHMİN — tahmin olduğu bayraklanır, not düşürülmez.
 //   • SATICI MOTİVASYONU ~15  → absentee / out-of-state, aynı sahip+adreste 5+
@@ -33,7 +34,8 @@
 //     spread her zaman "assessed bazlı" bayraklanır; comp tahmini de öyle.
 //  3. NORMALİZASYON: eşikler county-içi percentile (yeterli örnek yoksa eyalet,
 //     o da yoksa global) — buildScopedThresholds() grade-offmarket.mjs'te.
-//     A+ mutlak taban şartı: bilinen/tahmini net marj < $1K ise A+ olamaz.
+//     A+ taban şartı (2026-07-25 revize): net marj < $1K VE getiri katı < 1.0
+//     ise A+ olamaz — ucuz ama yüksek katlı parsel artık A+ olabilir.
 //  4. UÇ DEĞER KIRPMA: <$100 assessed placeholder sayılır (değer yok muamelesi);
 //     $/acre county comp medyanının 10 katını veya mutlak $200K/acre'ı aşan
 //     değer outlier'dır → marj puanı kırpılır + A tavanı (outlier A+ alamaz).
@@ -267,20 +269,33 @@ export function scoreLead(lead, ctx) {
     }
   }
   if (net != null) {
-    if (net >= 15000) breakdown.margin += 15;
-    else if (net >= 8000) breakdown.margin += 12;
-    else if (net >= 5000) breakdown.margin += 8;
-    else if (net >= 2500) breakdown.margin += 4;
-    else if (net >= 0) breakdown.margin += 2;
-    else flags.push("net marj negatif görünüyor");
-    if (net < 5000 && !estimated) {
-      if (cap !== "F") cap = capMin(cap, "C");
-      flags.push("net marj $5K altı — C tavanı");
+    // 2026-07-25 YİĞİT DİREKTİFİ: arsayı mutlak dolar marjı değil SATILABİLİRLİK
+    // belirler (yol erişimi, cazibe) + getiri KATI. $900'e alıp $6.000'e satmak
+    // ucuz-çok-adet modelinde mükemmel bir anlaşmadır; eski "$5K altı → C tavanı"
+    // kuralı Mohave'nin 20K mailable parselinin TAMAMINI C'de kilitliyordu.
+    // roi = net / toplam maliyet (teklif + sabit gider). 1.0 = paranı ikiye katla.
+    const cost = (offer != null ? offer : 0) + FIXED_COST;
+    const roi = cost > 0 ? net / cost : null;
+
+    // Mutlak bant (büyük anlaşma) ile getiri bandının İYİ olanı alınır —
+    // ne pahalı-yüksek marjlı ne de ucuz-yüksek katlı deal cezalandırılsın.
+    const absPts = net >= 15000 ? 15 : net >= 8000 ? 12 : net >= 5000 ? 8 : net >= 2500 ? 4 : net >= 0 ? 2 : 0;
+    const roiPts = roi == null ? 0 : roi >= 2 ? 15 : roi >= 1 ? 12 : roi >= 0.5 ? 8 : roi >= 0.25 ? 4 : roi >= 0 ? 2 : 0;
+    breakdown.margin += Math.max(absPts, roiPts);
+    if (roi != null && roi >= 1 && net < 5000) {
+      flags.push(`ucuz-çok-adet: ${(roi + 1).toFixed(1)}x para (net $${Math.round(net).toLocaleString("en-US")} / maliyet $${Math.round(cost).toLocaleString("en-US")})`);
     }
-    // A+ mutlak taban şartı: net marj (bilinen VEYA tahmini) $1K altıysa A+ olamaz.
-    if (net < 1000) {
+
+    // Tek eleme: para kazandırmıyorsa. Mutlak dolar barajı YOK.
+    if (net <= 0) {
+      if (cap !== "F") cap = capMin(cap, "C");
+      flags.push("net marj sıfır/negatif — C tavanı");
+    }
+    // A+ taban şartı: hem mutlak marj hem getiri katı zayıfsa A+ verilmez.
+    // (net $1K altı AMA getiri katı yüksekse artık A+ olabilir — kasıtlı.)
+    if (net < 1000 && (roi == null || roi < 1)) {
       cap = capMin(cap, "A");
-      flags.push("net marj $1K altı — A+ verilmez (mutlak taban)");
+      flags.push("hem marj hem getiri katı zayıf — A+ verilmez");
     }
   }
 

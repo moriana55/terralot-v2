@@ -44,7 +44,7 @@ export default async function BuyerOverview() {
     <div className="p-8 max-w-4xl">
       <div className="mb-8">
         <h1 className="text-2xl font-bold">
-          {buyer.name ? `Welcome back, ${buyer.name}` : "Your TerraLot Portal"}
+          {buyer.name ? `Welcome back, ${buyer.name}` : "Your VegaLand Portal"}
         </h1>
         <p className="text-sm mt-1" style={{ color: "var(--muted)" }}>
           {buyer.email ? buyer.email : "Track your land, payments, and contracts in one place."}

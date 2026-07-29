@@ -128,7 +128,7 @@ function MailerInner() {
             zip,
           },
           from: {
-            name: "TerraLot Acquisitions",
+            name: "VegaLand Acquisitions",
             address_line1: "1234 Main St",
             city: "Austin",
             state: "TX",
@@ -278,7 +278,7 @@ function MailerInner() {
                       <div>
                         {/* Letterhead */}
                         <div className="border-b border-stone-800 pb-3 mb-4 text-center">
-                          <h2 className="text-sm font-bold uppercase tracking-wider text-stone-800">TERRALOT ACQUISITIONS LLC</h2>
+                          <h2 className="text-sm font-bold uppercase tracking-wider text-stone-800">VEGALAND ACQUISITIONS LLC</h2>
                           <p className="text-[8px] text-stone-500 font-sans uppercase">1234 Main St, Austin, TX 78701 | info@terralot.com</p>
                         </div>
                         

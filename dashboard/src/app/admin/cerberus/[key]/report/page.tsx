@@ -173,7 +173,7 @@ export default function TearSheetPage({ params }: { params: Promise<{ key: strin
             <div className="flex items-center justify-between gap-3 px-6 py-3 border-b" style={{ borderColor: "var(--surface-high)", background: "var(--primary)" }}>
               <div className="flex items-center gap-2 text-white">
                 <Building2 className="w-5 h-5" />
-                <span className="font-extrabold tracking-tight">TerraLot</span>
+                <span className="font-extrabold tracking-tight">VegaLand</span>
                 <span className="text-[10px] uppercase tracking-[0.18em] opacity-70 ml-1">Cerberus Engine</span>
               </div>
               <span className="text-[10px] uppercase tracking-[0.2em] text-white/70">Parsel İstihbarat Raporu</span>
@@ -402,7 +402,7 @@ export default function TearSheetPage({ params }: { params: Promise<{ key: strin
               {meta?.live ? " · anlık analiz (kalıcı kaydedilmedi)" : meta?.stored ? " · kalıcı analizden" : ""}.
             </p>
             <p className="mt-1">
-              TerraLot · Cerberus Engine. Sayılar gerçek kaynaklardan türetilir (buy-box rubric + competitor_listings medyanları + FEMA/USGS/OSM/Census).
+              VegaLand · Cerberus Engine. Sayılar gerçek kaynaklardan türetilir (buy-box rubric + competitor_listings medyanları + FEMA/USGS/OSM/Census).
               Comp veya saha verisi olmayan alanlar &quot;{NOSRC}&quot; ile işaretlenir; uydurma değer üretilmez. Bu rapor yatırım tavsiyesi değildir; edinme öncesi yerinde DD şarttır.
             </p>
           </footer>

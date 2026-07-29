@@ -58,7 +58,7 @@ export default function Vol5Page() {
 
       <div ref={reportRef} className="max-w-4xl mx-auto bg-white border border-slate-200 rounded-3xl p-8 md:p-16 shadow-xl print:shadow-none print:border-none print:p-0" style={{ fontFamily: "'Inter', sans-serif" }}>
         <div className="border-b-4 border-slate-900 pb-6 mb-8">
-          <p className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-1">TerraLot Yatırım Kütüphanesi — Cilt 5</p>
+          <p className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-1">VegaLand Yatırım Kütüphanesi — Cilt 5</p>
           <h1 className="text-3xl font-black text-slate-900">Taksitli Satış ve Tahliye Hukuku</h1>
           <p className="text-sm text-slate-600 mt-2">Contract for Deed güvencesi, mahkemesiz tahliye kanunları ve eyalet bazlı yasal prosedürler</p>
         </div>
@@ -107,7 +107,7 @@ export default function Vol5Page() {
             </div>
             
             <p className="text-xs text-slate-600">
-              TerraLot platformunun bir arsayı satın almadan önce çalıştırdığı, satın alma kararı vermemizi sağlayan 15 kontrol noktası. Bu kontrol noktalarının herhangi birinden geçemeyen arsalar doğrudan sistem tarafından elenir:
+              VegaLand platformunun bir arsayı satın almadan önce çalıştırdığı, satın alma kararı vermemizi sağlayan 15 kontrol noktası. Bu kontrol noktalarının herhangi birinden geçemeyen arsalar doğrudan sistem tarafından elenir:
             </p>
 
             {/* Otomasyon Durumu Açıklaması */}
@@ -152,7 +152,7 @@ export default function Vol5Page() {
 
         </div>
         <div className="border-t border-slate-200 pt-8 mt-12 flex justify-between items-center text-xs text-slate-400">
-          <span>TerraLot Land Investment Group LLC</span>
+          <span>VegaLand Land Investment Group LLC</span>
           <span className="font-bold text-slate-800">Cilt 5 Onaylandı</span>
         </div>
       </div>

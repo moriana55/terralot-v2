@@ -16,7 +16,7 @@ import { scoreAllRows } from "@/lib/mohave-score";
 import { buildTop750Campaign, type MohaveRow } from "@/lib/mohave-campaign";
 import { Map as MapIcon, Send, Sparkles } from "lucide-react";
 
-export const metadata = { title: "Sunum — Mohave Operasyonu — Terralot" };
+export const metadata = { title: "Sunum — Mohave Operasyonu — VegaLand" };
 
 const GREEN = "#16a34a";
 
@@ -70,7 +70,7 @@ export default function SunumPage() {
       {/* ── 1. Başlık ── */}
       <header className="space-y-3 text-center">
         <div className="text-[11px] font-bold uppercase tracking-[0.25em]" style={{ color: GREEN }}>
-          Terralot · Mohave County, AZ
+          VegaLand · Mohave County, AZ
         </div>
         <h1 className="text-[34px] font-extrabold leading-tight md:text-[42px]">
           Mohave Off-Market Operasyonu

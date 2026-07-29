@@ -128,7 +128,7 @@ Is this something you'd be open to discussing?
 
 Best,
 [Your Name]
-TerraLot Land Investment Group`,
+VegaLand Land Investment Group`,
     color: "border-blue-300 bg-blue-50",
   },
   {
@@ -157,7 +157,7 @@ If you ever consider selling your land in [County], I'd love to make you an offe
 
 You can reply here or call/text me anytime.
 
-[Your Name] | TerraLot
+[Your Name] | VegaLand
 [Phone] | terralot.com`,
     color: "border-amber-300 bg-amber-50",
   },
@@ -187,7 +187,7 @@ export default function Vol16Page() {
 
       <div ref={reportRef} className="max-w-5xl mx-auto bg-white border border-slate-200 rounded-3xl p-8 md:p-16 shadow-xl print:shadow-none print:border-none print:p-0" style={{ fontFamily: "'Inter', sans-serif" }}>
         <div className="border-b-4 border-slate-900 pb-6 mb-10">
-          <p className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-1">TerraLot Yatırım Kütüphanesi — Cilt 16</p>
+          <p className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-1">VegaLand Yatırım Kütüphanesi — Cilt 16</p>
           <h1 className="text-3xl font-black text-slate-900">Arsa Sahibi Erişim Stratejisi: Email + Mektup Omnichannel</h1>
           <p className="text-sm text-slate-600 mt-2">Skip tracing ile email bulma, Lob + cold email kombinasyonu, şablon metinler ve yasal uyumluluk</p>
         </div>
@@ -364,7 +364,7 @@ export default function Vol16Page() {
         </div>
 
         <div className="border-t border-slate-200 pt-8 mt-12 flex justify-between items-center text-xs text-slate-400">
-          <span>TerraLot Land Investment Group LLC</span>
+          <span>VegaLand Land Investment Group LLC</span>
           <span className="font-bold text-slate-800">Cilt 16 — Email + Mektup Omnichannel Strateji</span>
         </div>
       </div>

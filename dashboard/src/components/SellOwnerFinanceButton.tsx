@@ -28,7 +28,7 @@ interface Props {
 }
 
 const PRESETS = [
-  { id: "default", label: "TerraLot Std", down_pct: 10, apr: 9.9, term_months: 60 },
+  { id: "default", label: "VegaLand Std", down_pct: 10, apr: 9.9, term_months: 60 },
   { id: "compass", label: "Compass-tarzı", down_pct: 10, apr: 7.9, term_months: 60 },
   { id: "landio", label: "LANDiO-tarzı", down_pct: 15, apr: 6.9, term_months: 84 },
 ];

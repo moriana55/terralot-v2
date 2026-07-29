@@ -19,7 +19,7 @@ export default function Vol9Page() {
 
       <div ref={reportRef} className="max-w-4xl mx-auto bg-white border border-slate-200 rounded-3xl p-8 md:p-16 shadow-xl print:shadow-none print:border-none print:p-0" style={{ fontFamily: "'Inter', sans-serif" }}>
         <div className="border-b-4 border-slate-900 pb-6 mb-8">
-          <p className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-1">TerraLot Yatırım Kütüphanesi — Cilt 9</p>
+          <p className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-1">VegaLand Yatırım Kütüphanesi — Cilt 9</p>
           <h1 className="text-3xl font-black text-slate-900">Sorunsuz Eyalet Seçim Kriterleri & Operasyonel Güvence</h1>
           <p className="text-sm text-slate-600 mt-2">Bölünme yasalarının ötesinde, baş ağrıtmayan kırsal arazi ticareti için 4 katmanlı filtre mantığı</p>
         </div>
@@ -30,7 +30,7 @@ export default function Vol9Page() {
           <div>
             <h4 className="font-bold text-sm text-white">Neden Sadece Bölünme Yasası (Platting) Yetmez?</h4>
             <p className="text-xs text-slate-300 mt-1 leading-relaxed">
-              Bir eyalette arazileri bölüp satabilmek yasal olarak mümkün olsa dahi, o eyaletin <strong>tahliye hukuku, yıllık emlak vergileri ve imar izin esneklikleri</strong> operasyonel sürdürülebilirliğimizi belirler. TerraLot, yatırılan paranın ve operasyonun sıfır sorunla yürümesi için 4 katmanlı filtreleme uygular.
+              Bir eyalette arazileri bölüp satabilmek yasal olarak mümkün olsa dahi, o eyaletin <strong>tahliye hukuku, yıllık emlak vergileri ve imar izin esneklikleri</strong> operasyonel sürdürülebilirliğimizi belirler. VegaLand, yatırılan paranın ve operasyonun sıfır sorunla yürümesi için 4 katmanlı filtreleme uygular.
             </p>
           </div>
         </div>
@@ -75,7 +75,7 @@ export default function Vol9Page() {
               <li><strong>Tapu Lekesi:</strong> Alıcı tapu dairesine şerh koyduğu için mahkeme bitene kadar tapu temizlenemez (Quiet Title davası gerekir).</li>
             </ul>
             <p className="text-red-950 font-bold mt-1">
-              → Sonuç: Colorado, Illinois, Indiana ve Ohio gibi eyaletler "hukuki baş ağrısı" nedeniyle TerraLot portföyünden tamamen elenmiştir.
+              → Sonuç: Colorado, Illinois, Indiana ve Ohio gibi eyaletler "hukuki baş ağrısı" nedeniyle VegaLand portföyünden tamamen elenmiştir.
             </p>
           </div>
         </div>
@@ -160,7 +160,7 @@ export default function Vol9Page() {
                     <th className="p-3">Kriter</th>
                     <th className="p-3">Bizim Pilot Eyaletler (NM, TX, AZ, AR, MO)</th>
                     <th className="p-3">Elenen Eyaletler (CA, NY, IL, FL, NJ)</th>
-                    <th className="p-3">TerraLot Yorumu / Stratejisi</th>
+                    <th className="p-3">VegaLand Yorumu / Stratejisi</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-200">
@@ -202,7 +202,7 @@ export default function Vol9Page() {
         </div>
 
         <div className="border-t border-slate-200 pt-8 mt-12 flex justify-between items-center text-xs text-slate-400">
-          <span>TerraLot Land Investment Group LLC</span>
+          <span>VegaLand Land Investment Group LLC</span>
           <span className="font-bold text-slate-800">Cilt 9 Onaylandı — Eyalet Seçim Mantığı Hazır</span>
         </div>
       </div>

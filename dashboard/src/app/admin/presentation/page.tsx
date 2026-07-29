@@ -284,7 +284,7 @@ export default function PresentationPage() {
                 </div>
                 <div className="p-5 rounded-xl border border-emerald-500/10 bg-emerald-500/5">
                   <h3 className="font-bold text-emerald-400 flex items-center gap-2 mb-3">
-                    <ShieldCheck className="w-4 h-4" /> TerraLot Çözümü
+                    <ShieldCheck className="w-4 h-4" /> VegaLand Çözümü
                   </h3>
                   <ul className="space-y-2 text-xs text-white/70">
                     <li className="flex items-start gap-2">
@@ -769,7 +769,7 @@ export default function PresentationPage() {
 
           {/* Footer Info inside Slide Window */}
           <div className="mt-8 pt-4 border-t border-white/5 flex items-center justify-between text-xs text-white/40">
-            <span>TerraLot Land Installment Sales Platform</span>
+            <span>VegaLand Land Installment Sales Platform</span>
             <div className="flex gap-2">
               <button 
                 disabled={activeSlide === "summary"}

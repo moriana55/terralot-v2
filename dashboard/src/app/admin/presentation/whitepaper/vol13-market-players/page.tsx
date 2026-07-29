@@ -122,7 +122,7 @@ export default function Vol13Page() {
       <div ref={reportRef} className="max-w-5xl mx-auto bg-white border border-slate-200 rounded-3xl p-8 md:p-16 shadow-xl print:shadow-none print:border-none print:p-0" style={{ fontFamily: "'Inter', sans-serif" }}>
         {/* Header */}
         <div className="border-b-4 border-slate-900 pb-6 mb-10">
-          <p className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-1">TerraLot Yatırım Kütüphanesi — Cilt 13</p>
+          <p className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-1">VegaLand Yatırım Kütüphanesi — Cilt 13</p>
           <h1 className="text-3xl font-black text-slate-900">Piyasa Oyuncuları & Eyalet Uygunluk Haritası</h1>
           <p className="text-sm text-slate-600 mt-2">Bu sistemi uygulayan firmalar, kazanç modelleri ve hangi eyaletlerde çalışılabileceği</p>
         </div>
@@ -263,7 +263,7 @@ export default function Vol13Page() {
           {/* Karşılaştırma Tablosu */}
           <div className="space-y-3">
             <h2 className="text-lg font-bold text-slate-900 border-l-4 border-slate-700 pl-3 flex items-center gap-2">
-              <BarChart3 className="w-5 h-5 text-slate-700" /> LANDIO vs Discount Lots vs TerraLot — Hızlı Karşılaştırma
+              <BarChart3 className="w-5 h-5 text-slate-700" /> LANDIO vs Discount Lots vs VegaLand — Hızlı Karşılaştırma
             </h2>
             <div className="overflow-x-auto">
               <table className="w-full text-xs text-left border border-slate-200 rounded-xl overflow-hidden">
@@ -272,7 +272,7 @@ export default function Vol13Page() {
                     <th className="p-3">Özellik</th>
                     <th className="p-3">LANDIO</th>
                     <th className="p-3">Discount Lots</th>
-                    <th className="p-3 text-emerald-400">TerraLot (Biz)</th>
+                    <th className="p-3 text-emerald-400">VegaLand (Biz)</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-200">
@@ -297,13 +297,13 @@ export default function Vol13Page() {
             </div>
           </div>
 
-          {/* TerraLot Konumlanması */}
+          {/* VegaLand Konumlanması */}
           <div className="p-6 bg-slate-900 text-white rounded-2xl space-y-4">
             <h3 className="font-bold text-base flex items-center gap-2">
               <Zap className="w-5 h-5 text-emerald-400" />
-              TerraLot'un Piyasadaki Konumu
+              VegaLand'un Piyasadaki Konumu
             </h3>
-            <p className="text-sm text-slate-300">Mevcut 5 büyük oyuncuya kıyasla TerraLot şu avantajlarla konumlanır:</p>
+            <p className="text-sm text-slate-300">Mevcut 5 büyük oyuncuya kıyasla VegaLand şu avantajlarla konumlanır:</p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
               <div className="bg-white/10 rounded-xl p-4 space-y-1 border border-white/10">
                 <CheckCircle2 className="w-4 h-4 text-emerald-400 mb-1" />
@@ -332,7 +332,7 @@ export default function Vol13Page() {
 
         {/* Footer */}
         <div className="border-t border-slate-200 pt-8 mt-12 flex justify-between items-center text-xs text-slate-400">
-          <span>TerraLot Land Investment Group LLC</span>
+          <span>VegaLand Land Investment Group LLC</span>
           <span className="font-bold text-slate-800">Cilt 13 — Piyasa Oyuncuları & Eyalet Haritası</span>
         </div>
       </div>

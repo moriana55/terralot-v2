@@ -8,7 +8,7 @@ import {
 } from "@/lib/market-registry";
 import { MARKETS } from "@/lib/market-registry-data";
 
-export const metadata = { title: "Aktif Pazarlar — TerraLot" };
+export const metadata = { title: "Aktif Pazarlar — VegaLand" };
 
 const STATUS_STYLE: Record<MarketStatus, { color: string; background: string }> = {
   active: { color: "#166534", background: "#dcfce7" },

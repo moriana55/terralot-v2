@@ -14,7 +14,7 @@ const trafficData = [
     seoStrength: "Çok Güçlü",
     seoColor: "text-red-700",
     weakness: "Dev platform — küçük satıcıların ilanları gömülür. Kullanıcı deneyimi kötü, filtreler karmaşık.",
-    opportunityForTerraLot: "Bu platformlarda ilan vermek trafik kazandırır ama marka bilinirliği oluşturmaz.",
+    opportunityForVegaLand: "Bu platformlarda ilan vermek trafik kazandırır ama marka bilinirliği oluşturmaz.",
     color: "border-red-200 bg-red-50",
   },
   {
@@ -26,7 +26,7 @@ const trafficData = [
     seoStrength: "Orta",
     seoColor: "text-amber-700",
     weakness: "İlan kalitesi düşük, çok az blog/içerik, mobil UX zayıf, backlink profili güçsüz.",
-    opportunityForTerraLot: "Bu kelimelerde LandHub'ı geçmek mümkün. Blog + state guide içerikleri yeterli.",
+    opportunityForVegaLand: "Bu kelimelerde LandHub'ı geçmek mümkün. Blog + state guide içerikleri yeterli.",
     color: "border-amber-200 bg-amber-50",
   },
   {
@@ -38,7 +38,7 @@ const trafficData = [
     seoStrength: "Orta-Güçlü",
     seoColor: "text-amber-700",
     weakness: "Sadece listing sayfası var, blog içerik yok. Eyalet bazlı guide sayfası yok. Teknik SEO ortalama.",
-    opportunityForTerraLot: "Eyalet bazlı kılavuz (buying guide) ve legal explainer içeriklerle organik trafik çalmak mümkün.",
+    opportunityForVegaLand: "Eyalet bazlı kılavuz (buying guide) ve legal explainer içeriklerle organik trafik çalmak mümkün.",
     color: "border-blue-200 bg-blue-50",
   },
   {
@@ -50,7 +50,7 @@ const trafficData = [
     seoStrength: "Zayıf",
     seoColor: "text-emerald-700",
     weakness: "Neredeyse sıfır blog, site hızı düşük, mobil deneyim kötü, backlink profili çok zayıf.",
-    opportunityForTerraLot: "Florida'da LandZero'yu geçmek çok kolay — 10–15 kaliteli içerik yazısı yeterli.",
+    opportunityForVegaLand: "Florida'da LandZero'yu geçmek çok kolay — 10–15 kaliteli içerik yazısı yeterli.",
     color: "border-emerald-200 bg-emerald-50",
   },
   {
@@ -62,17 +62,17 @@ const trafficData = [
     seoStrength: "Zayıf-Orta",
     seoColor: "text-emerald-700",
     weakness: "Trustpilot skoru 2.8/5, çok müşteri şikayeti. Bu marka güvensizliği SEO'ya da yansıyor.",
-    opportunityForTerraLot: "Negatif yorumlar TerraLot için içerik fırsatı — 'güvenilir alternatif' konumlanması.",
+    opportunityForVegaLand: "Negatif yorumlar VegaLand için içerik fırsatı — 'güvenilir alternatif' konumlanması.",
     color: "border-slate-200 bg-slate-50",
   },
 ];
 
 const seoKeywords = [
   { keyword: "land for sale owner financing", volume: "~33K/ay", difficulty: "Yüksek", intent: "Alıcı", note: "Ana hedef kelime. Land.com domine ediyor." },
-  { keyword: "cheap land for sale no credit check", volume: "~8K/ay", difficulty: "Orta", intent: "Alıcı", note: "DiscountLots hedef kitlesi. TerraLot burada kolayca girebilir." },
+  { keyword: "cheap land for sale no credit check", volume: "~8K/ay", difficulty: "Orta", intent: "Alıcı", note: "DiscountLots hedef kitlesi. VegaLand burada kolayca girebilir." },
   { keyword: "owner financed land Texas", volume: "~6K/ay", difficulty: "Orta", intent: "Alıcı", note: "Eyalet bazlı kelimeler kazanmak için en hızlı yol." },
   { keyword: "raw land for sale Tennessee", volume: "~4K/ay", difficulty: "Düşük", intent: "Alıcı", note: "Rakiplerin blog içeriği çok az. Hemen sıralanılabilir." },
-  { keyword: "contract for deed land", volume: "~2.5K/ay", difficulty: "Düşük", intent: "Araştırma", note: "Hiç kimse bu konuyu detaylı yazmamış. TerraLot için büyük fırsat." },
+  { keyword: "contract for deed land", volume: "~2.5K/ay", difficulty: "Düşük", intent: "Araştırma", note: "Hiç kimse bu konuyu detaylı yazmamış. VegaLand için büyük fırsat." },
   { keyword: "how to buy land with owner financing", volume: "~5K/ay", difficulty: "Düşük", intent: "Bilgi", note: "En değerli içerik tipi. Okuyucu alıcıya dönüşür." },
   { keyword: "no restriction land for sale", volume: "~1.8K/ay", difficulty: "Çok Düşük", intent: "Alıcı", note: "Neredeyse rakipsiz. 1 iyi sayfa ile top 3'e girilir." },
   { keyword: "land between the lakes for sale", volume: "~900/ay", difficulty: "Çok Düşük", intent: "Alıcı", note: "Tennessee hedefi. LandZero bu kelimede bile zayıf." },
@@ -170,7 +170,7 @@ export default function Vol15Page() {
       <div ref={reportRef} className="max-w-5xl mx-auto bg-white border border-slate-200 rounded-3xl p-8 md:p-16 shadow-xl print:shadow-none print:border-none print:p-0" style={{ fontFamily: "'Inter', sans-serif" }}>
         {/* Header */}
         <div className="border-b-4 border-slate-900 pb-6 mb-10">
-          <p className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-1">TerraLot Yatırım Kütüphanesi — Cilt 15</p>
+          <p className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-1">VegaLand Yatırım Kütüphanesi — Cilt 15</p>
           <h1 className="text-3xl font-black text-slate-900">SEO Analizi, Rakip Trafik & Gerçek Fiyat Araştırma Rehberi</h1>
           <p className="text-sm text-slate-600 mt-2">Rakiplerin SEO zayıflıkları, internet trafiği ve ABD'de gerçek arsa satış fiyatlarına nereden ulaşılır?</p>
         </div>
@@ -219,8 +219,8 @@ export default function Vol15Page() {
                     <p className="text-slate-700">{t.weakness}</p>
                   </div>
                   <div className="bg-white/60 rounded-xl p-3">
-                    <span className="text-[10px] font-black text-emerald-700 uppercase tracking-wide block mb-1">→ TerraLot Fırsatı</span>
-                    <p className="text-slate-700">{t.opportunityForTerraLot}</p>
+                    <span className="text-[10px] font-black text-emerald-700 uppercase tracking-wide block mb-1">→ VegaLand Fırsatı</span>
+                    <p className="text-slate-700">{t.opportunityForVegaLand}</p>
                   </div>
                 </div>
               </div>
@@ -230,7 +230,7 @@ export default function Vol15Page() {
           {/* Hedef Anahtar Kelimeler */}
           <div className="space-y-4">
             <h2 className="text-lg font-bold text-slate-900 border-l-4 border-blue-600 pl-3 flex items-center gap-2">
-              <Search className="w-5 h-5 text-blue-700" /> TerraLot için Hedef SEO Kelimeleri & Arama Hacimleri
+              <Search className="w-5 h-5 text-blue-700" /> VegaLand için Hedef SEO Kelimeleri & Arama Hacimleri
             </h2>
             <div className="space-y-2">
               <div className="hidden md:grid grid-cols-5 gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 px-3 pb-1 border-b border-slate-200">
@@ -300,14 +300,14 @@ export default function Vol15Page() {
           <div className="p-6 bg-slate-900 text-white rounded-2xl space-y-4">
             <h3 className="font-bold text-base flex items-center gap-2">
               <Zap className="w-5 h-5 text-emerald-400" />
-              TerraLot SEO & Fiyat Araştırma — Hızlı Başlangıç Planı
+              VegaLand SEO & Fiyat Araştırma — Hızlı Başlangıç Planı
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
               {[
                 ["1. Rakip Fiyat Araştırması (Ücretsiz)", "Hedef county'nin assessor sitesine git → APN ile sorgula → rakibin ne zaman, kaça aldığını gör"],
                 ["2. SEO Keyword Analizi (Ücretsiz)", "SimilarWeb → landzero.com, landio.com gir → Organic keywords listesini tara → hangilerinde zayıf?"],
                 ["3. Trafik Kıyaslama", "LandWatch gibi büyük sitelerde 'owner financing land Tennessee' ara → kaç ilan var? Kaç yorum? Kalite nasıl?"],
-                ["4. İçerik Açığı Bul", "Rakiplerin site haritasına bak (site:landzero.com) → Blog var mı? Guide var mı? Yoksa o boşluğu TerraLot doldurur."],
+                ["4. İçerik Açığı Bul", "Rakiplerin site haritasına bak (site:landzero.com) → Blog var mı? Guide var mı? Yoksa o boşluğu VegaLand doldurur."],
                 ["5. Zillow Satış Kanıtı (Ücretsiz)", "Zillow.com → Filtreler: Sold, Land, Hedef Zip Code → Rakiplerin $15K'ya sattığı arsanın aynısını bul."],
                 ["6. Google Trends", "trends.google.com → 'owner financing land' + 'land for sale Tennessee' → Mevsimsellik ve trend yönü"],
               ].map(([title, desc], i) => (
@@ -326,7 +326,7 @@ export default function Vol15Page() {
 
         {/* Footer */}
         <div className="border-t border-slate-200 pt-8 mt-12 flex justify-between items-center text-xs text-slate-400">
-          <span>TerraLot Land Investment Group LLC</span>
+          <span>VegaLand Land Investment Group LLC</span>
           <span className="font-bold text-slate-800">Cilt 15 — SEO Analizi & Gerçek Fiyat Araştırma Rehberi</span>
         </div>
       </div>

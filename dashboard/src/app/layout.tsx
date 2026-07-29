@@ -10,8 +10,8 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: {
-    default: "TerraLot — Affordable Land with Owner Financing",
-    template: "%s | TerraLot",
+    default: "VegaLand — Affordable Land with Owner Financing",
+    template: "%s | VegaLand",
   },
   description: "Own land in America with easy owner financing. No banks, no credit checks — low down payments and fixed monthly payments on vacant land across the US.",
   keywords: ["land for sale", "owner financed land", "cheap land", "vacant land for sale", "buy land monthly payments", "no credit check land"],

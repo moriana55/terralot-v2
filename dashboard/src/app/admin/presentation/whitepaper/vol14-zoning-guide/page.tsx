@@ -28,7 +28,7 @@ const zoningTypes = [
       "Endüstriyel tesis",
       "Konut sitesi / HOA geliştirme",
     ],
-    terraNote: "TerraLot'un en çok çalıştığı tip. NM, TX, WY'daki hedef parseller genellikle A-1 veya AG kodludur.",
+    terraNote: "VegaLand'un en çok çalıştığı tip. NM, TX, WY'daki hedef parseller genellikle A-1 veya AG kodludur.",
     usStates: ["TX", "NM", "TN", "WY", "FL", "KY"],
   },
   {
@@ -79,7 +79,7 @@ const zoningTypes = [
       "Karavan / RV kalıcı ikamet",
       "Modüler veya Tiny Home (çoğu R-1'de reddedilir)",
     ],
-    terraNote: "Şehir parseli. Fiyatı yüksek ama kısıtlamalar çok fazla. TerraLot için genellikle hedef değil.",
+    terraNote: "Şehir parseli. Fiyatı yüksek ama kısıtlamalar çok fazla. VegaLand için genellikle hedef değil.",
     usStates: ["CA", "TX (şehiriçi)", "FL (şehiriçi)", "OR", "WA"],
   },
   {
@@ -103,7 +103,7 @@ const zoningTypes = [
       "Ticari işletme (izinsiz)",
       "Çöp depolaması / hurdalık",
     ],
-    terraNote: "TerraLot'un en cazip segmenti. 'NO Restrictions' diye pazarlanan parseller genellikle bu kategoridedir. Alıcıya maksimum özgürlük vadeder.",
+    terraNote: "VegaLand'un en cazip segmenti. 'NO Restrictions' diye pazarlanan parseller genellikle bu kategoridedir. Alıcıya maksimum özgürlük vadeder.",
     usStates: ["NM", "TX (kırsal)", "WY", "MT", "NV"],
   },
   {
@@ -126,7 +126,7 @@ const zoningTypes = [
       "Tarım / hayvancılık",
       "Ağır sanayi",
     ],
-    terraNote: "TerraLot hedef alanı değil. Ama yol kenarı ticari arsa arbitrajı için alternatif bir kol olabilir.",
+    terraNote: "VegaLand hedef alanı değil. Ama yol kenarı ticari arsa arbitrajı için alternatif bir kol olabilir.",
     usStates: ["TX", "FL", "TN", "GA"],
   },
   {
@@ -181,7 +181,7 @@ export default function Vol14Page() {
       <div ref={reportRef} className="max-w-5xl mx-auto bg-white border border-slate-200 rounded-3xl p-8 md:p-16 shadow-xl print:shadow-none print:border-none print:p-0" style={{ fontFamily: "'Inter', sans-serif" }}>
         {/* Header */}
         <div className="border-b-4 border-slate-900 pb-6 mb-10">
-          <p className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-1">TerraLot Yatırım Kütüphanesi — Cilt 14</p>
+          <p className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-1">VegaLand Yatırım Kütüphanesi — Cilt 14</p>
           <h1 className="text-3xl font-black text-slate-900">Arsa Tipleri & Zoning Rehberi</h1>
           <p className="text-sm text-slate-600 mt-2">Her arsa tipinde ne yapılabilir, ne yapılamaz — alım öncesi kritik imar sözlüğü</p>
         </div>
@@ -263,10 +263,10 @@ export default function Vol14Page() {
                     </div>
                   </div>
 
-                  {/* TerraLot Notu */}
+                  {/* VegaLand Notu */}
                   <div className="bg-slate-900 text-white rounded-xl px-4 py-2.5 text-xs flex items-start gap-2">
                     <Zap className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
-                    <span><strong className="text-emerald-400">TerraLot için:</strong> {z.terraNote}</span>
+                    <span><strong className="text-emerald-400">VegaLand için:</strong> {z.terraNote}</span>
                   </div>
                 </div>
               );
@@ -300,11 +300,11 @@ export default function Vol14Page() {
             </div>
           </div>
 
-          {/* TerraLot Due Diligence Özet */}
+          {/* VegaLand Due Diligence Özet */}
           <div className="p-6 bg-slate-900 text-white rounded-2xl space-y-4">
             <h3 className="font-bold text-base flex items-center gap-2">
               <CheckCircle2 className="w-5 h-5 text-emerald-400" />
-              TerraLot Arsa Alım Zoning Kontrol Listesi
+              VegaLand Arsa Alım Zoning Kontrol Listesi
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
               {[
@@ -332,7 +332,7 @@ export default function Vol14Page() {
 
         {/* Footer */}
         <div className="border-t border-slate-200 pt-8 mt-12 flex justify-between items-center text-xs text-slate-400">
-          <span>TerraLot Land Investment Group LLC</span>
+          <span>VegaLand Land Investment Group LLC</span>
           <span className="font-bold text-slate-800">Cilt 14 — Arsa Tipleri & Zoning Rehberi</span>
         </div>
       </div>

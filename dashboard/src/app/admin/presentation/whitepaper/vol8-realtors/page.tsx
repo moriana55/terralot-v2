@@ -19,7 +19,7 @@ export default function Vol8Page() {
 
       <div ref={reportRef} className="max-w-4xl mx-auto bg-white border border-slate-200 rounded-3xl p-8 md:p-16 shadow-xl print:shadow-none print:border-none print:p-0" style={{ fontFamily: "'Inter', sans-serif" }}>
         <div className="border-b-4 border-slate-900 pb-6 mb-8">
-          <p className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-1">TerraLot Yatırım Kütüphanesi — Cilt 8</p>
+          <p className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-1">VegaLand Yatırım Kütüphanesi — Cilt 8</p>
           <h1 className="text-3xl font-black text-slate-900">B2B Emlakçı & Acente Ortaklığı Modeli</h1>
           <p className="text-sm text-slate-600 mt-2">Lisanslı emlak acenteleri (Realtors) üzerinden para kazanma modelinin en sade, adım adım açıklaması</p>
         </div>
@@ -144,7 +144,7 @@ export default function Vol8Page() {
                   <tr>
                     <th className="p-3">Gelir Kanalı</th>
                     <th className="p-3">Hacim (Yıllık)</th>
-                    <th className="p-3">TerraLot Komisyon/Servis Payı</th>
+                    <th className="p-3">VegaLand Komisyon/Servis Payı</th>
                     <th className="p-3">Tahmini Yıllık Ek Net Kâr</th>
                   </tr>
                 </thead>
@@ -179,7 +179,7 @@ export default function Vol8Page() {
         </div>
 
         <div className="border-t border-slate-200 pt-8 mt-12 flex justify-between items-center text-xs text-slate-400">
-          <span>TerraLot Land Investment Group LLC</span>
+          <span>VegaLand Land Investment Group LLC</span>
           <span className="font-bold text-slate-800">Cilt 8 Onaylandı — B2B Acente Paketi Hazır</span>
         </div>
       </div>

@@ -94,7 +94,7 @@ Public records indicate there may be unpaid property taxes of about ${fmtMoney(
 If you would consider selling, I would like to make you a fair cash offer. There is no obligation. You can reach me at the number / email below.
 
 Sincerely,
-TerraLot — Land Acquisitions
+VegaLand — Land Acquisitions
 Mail to: ${l.ownerAddr}`;
 }
 

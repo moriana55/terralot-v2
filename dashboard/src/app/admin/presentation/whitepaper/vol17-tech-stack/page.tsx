@@ -108,9 +108,9 @@ export default function Vol17TechStackPage() {
 
       <div ref={reportRef} className="max-w-5xl mx-auto bg-white border border-slate-200 rounded-3xl p-8 md:p-16 shadow-xl print:shadow-none print:border-none print:p-0" style={{ fontFamily: "'Inter', sans-serif" }}>
         <div className="border-b-4 border-slate-900 pb-6 mb-10">
-          <p className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-1">TerraLot Yatırım Kütüphanesi — Cilt 16</p>
+          <p className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-1">VegaLand Yatırım Kütüphanesi — Cilt 16</p>
           <h1 className="text-3xl font-black text-slate-900">Tech Stack, API'ler & AI Altyapısı</h1>
-          <p className="text-sm text-slate-600 mt-2">TerraLot'u sıradan bir emlak şirketinden ayıran %100 otonom teknoloji altyapısı.</p>
+          <p className="text-sm text-slate-600 mt-2">VegaLand'u sıradan bir emlak şirketinden ayıran %100 otonom teknoloji altyapısı.</p>
         </div>
 
         <div className="space-y-12 text-sm text-slate-700 leading-relaxed">
@@ -206,7 +206,7 @@ export default function Vol17TechStackPage() {
               <Cloud className="w-5 h-5 text-cyan-400" /> Sunucusuz (Serverless) Çevik Mimari
             </h3>
             <p className="text-slate-300 text-xs leading-relaxed">
-              Bu sistemin en büyük avantajı, sunucu maliyetlerinin sıfıra yakın olmasıdır. Geleneksel emlak firmaları 10 kişilik analist ekipleriyle haftalarca arsa araştırması yaparken; TerraLot sistemi <strong>Next.js + Supabase</strong> mimarisi sayesinde tüm API veri çekme, değerlendirme ve fiyatlama işlemlerini 3 saniyede otonom olarak gerçekleştirir. <br/><br/>
+              Bu sistemin en büyük avantajı, sunucu maliyetlerinin sıfıra yakın olmasıdır. Geleneksel emlak firmaları 10 kişilik analist ekipleriyle haftalarca arsa araştırması yaparken; VegaLand sistemi <strong>Next.js + Supabase</strong> mimarisi sayesinde tüm API veri çekme, değerlendirme ve fiyatlama işlemlerini 3 saniyede otonom olarak gerçekleştirir. <br/><br/>
               <em>"Maliyet hackleme"</em> vizyonumuz sayesinde sadece işleme dönüşen, değer üreten API sorguları için para öderiz.
             </p>
           </div>
@@ -214,7 +214,7 @@ export default function Vol17TechStackPage() {
         </div>
 
         <div className="border-t border-slate-200 pt-8 mt-12 flex justify-between items-center text-xs text-slate-400">
-          <span>TerraLot Land Investment Group LLC</span>
+          <span>VegaLand Land Investment Group LLC</span>
           <span className="font-bold text-slate-800">Cilt 16 — Tech Stack & API Altyapısı</span>
         </div>
       </div>

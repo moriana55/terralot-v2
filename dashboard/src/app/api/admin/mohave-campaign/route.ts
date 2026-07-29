@@ -166,7 +166,7 @@ const sendSchema = z.object({
 
 function fromAddress() {
   return {
-    name: process.env.LOB_FROM_NAME || "TerraLot Acquisitions",
+    name: process.env.LOB_FROM_NAME || "VegaLand Acquisitions",
     address_line1: process.env.LOB_FROM_LINE1 || "1234 Main St",
     address_city: process.env.LOB_FROM_CITY || "Austin",
     address_state: process.env.LOB_FROM_STATE || "TX",
@@ -176,7 +176,7 @@ function fromAddress() {
 
 function letterContact() {
   return {
-    company: process.env.LOB_FROM_NAME || "TerraLot Acquisitions",
+    company: process.env.LOB_FROM_NAME || "VegaLand Acquisitions",
     phone: process.env.CAMPAIGN_CONTACT_PHONE || undefined,
     email: process.env.CAMPAIGN_CONTACT_EMAIL || undefined,
   };
@@ -200,7 +200,7 @@ async function sendOne(l: CampaignLetter, apiKey: string, campaign: string): Pro
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        description: `TerraLot kampanya: ${campaign}`,
+        description: `VegaLand kampanya: ${campaign}`,
         to: {
           name: l.owner.slice(0, 40), // Lob name limiti
           address_line1: l.address,

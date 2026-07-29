@@ -118,7 +118,7 @@ async function roadsWithin(lat: number, lon: number, radius: number) {
 
   const res = await fetch(OVERPASS_URL, {
     method: "POST",
-    headers: { "content-type": "application/x-www-form-urlencoded", "user-agent": "TerralotDD/0.1", accept: "application/json" },
+    headers: { "content-type": "application/x-www-form-urlencoded", "user-agent": "VegaLandDD/0.1", accept: "application/json" },
     body: "data=" + encodeURIComponent(query),
     signal: controller.signal
   });
@@ -176,7 +176,7 @@ async function powerWithin(lat: number, lon: number, radius: number) {
   const id = setTimeout(() => controller.abort(), DD_OVERPASS_TIMEOUT_MS);
   const res = await fetch(OVERPASS_URL, {
     method: "POST",
-    headers: { "content-type": "application/x-www-form-urlencoded", "user-agent": "TerralotDD/0.1", accept: "application/json" },
+    headers: { "content-type": "application/x-www-form-urlencoded", "user-agent": "VegaLandDD/0.1", accept: "application/json" },
     body: "data=" + encodeURIComponent(query),
     signal: controller.signal,
   });

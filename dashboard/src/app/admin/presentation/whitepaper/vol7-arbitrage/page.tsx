@@ -19,7 +19,7 @@ export default function Vol7Page() {
 
       <div ref={reportRef} className="max-w-4xl mx-auto bg-white border border-slate-200 rounded-3xl p-8 md:p-16 shadow-xl print:shadow-none print:border-none print:p-0" style={{ fontFamily: "'Inter', sans-serif" }}>
         <div className="border-b-4 border-slate-900 pb-6 mb-8">
-          <p className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-1">TerraLot Yatırım Kütüphanesi — Cilt 7</p>
+          <p className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-1">VegaLand Yatırım Kütüphanesi — Cilt 7</p>
           <h1 className="text-3xl font-black text-slate-900">Perakende Kâr Marjı & Arbitraj Güvencesi</h1>
           <p className="text-sm text-slate-600 mt-2">3,700$'lık off-market arazinin 16,200$'a perakende satış mantığı, alıcı psikolojisi ve müşteri avatarları</p>
         </div>
@@ -114,7 +114,7 @@ export default function Vol7Page() {
                 </ul>
               </div>
               <div className="p-4 bg-emerald-50/50 rounded-xl border border-emerald-100">
-                <span className="text-xs font-bold text-emerald-800 block mb-1">TerraLot Finansman Kolaylığı</span>
+                <span className="text-xs font-bold text-emerald-800 block mb-1">VegaLand Finansman Kolaylığı</span>
                 <ul className="text-xs space-y-1.5 text-slate-700">
                   <li className="flex items-center gap-1.5 text-emerald-800"><span className="text-emerald-600 font-bold">✓</span> Kredi kontrolü / FICO sorgulaması yok</li>
                   <li className="flex items-center gap-1.5 text-emerald-800"><span className="text-emerald-600 font-bold">✓</span> $499 Peşinat ile aynı gün tapu hakları</li>
@@ -190,7 +190,7 @@ export default function Vol7Page() {
             </div>
 
             <p className="text-xs text-slate-600 bg-slate-50 p-4 rounded-xl border border-slate-200">
-              <strong>Sonuç olarak:</strong> Tıpkı bir süpermarketin tarladan kilosunu 0.50$'a aldığı patatesi yıkayıp, paketleyip, market rafında 3.50$'a satması gibidir. Alıcı tarlaya gitme maliyetini, çamurlu patatesi yıkama zahmetini ve nakliye riskini üstlenmek istemez. TerraLot, arazi sektörünün bu katma değerli "yıkama, paketleme ve finansman" rafıdır.
+              <strong>Sonuç olarak:</strong> Tıpkı bir süpermarketin tarladan kilosunu 0.50$'a aldığı patatesi yıkayıp, paketleyip, market rafında 3.50$'a satması gibidir. Alıcı tarlaya gitme maliyetini, çamurlu patatesi yıkama zahmetini ve nakliye riskini üstlenmek istemez. VegaLand, arazi sektörünün bu katma değerli "yıkama, paketleme ve finansman" rafıdır.
             </p>
           </div>
 
@@ -206,7 +206,7 @@ export default function Vol7Page() {
               <thead>
                 <tr className="bg-slate-900 text-white">
                   <th className="p-3 border border-slate-700">Aşama</th>
-                  <th className="p-3 border border-slate-700">TerraLot Maliyeti / Aksiyonu</th>
+                  <th className="p-3 border border-slate-700">VegaLand Maliyeti / Aksiyonu</th>
                   <th className="p-3 border border-slate-700">Müşteriye Sağlanan Fayda / Değer</th>
                   <th className="p-3 border border-slate-700">Finansal Karşılık</th>
                 </tr>
@@ -236,7 +236,7 @@ export default function Vol7Page() {
         </div>
 
         <div className="border-t border-slate-200 pt-8 mt-12 flex justify-between items-center text-xs text-slate-400">
-          <span>TerraLot Land Investment Group LLC</span>
+          <span>VegaLand Land Investment Group LLC</span>
           <span className="font-bold text-slate-800">Cilt 7 Onaylandı — Arbitraj Paketi Sunuma Hazır</span>
         </div>
       </div>

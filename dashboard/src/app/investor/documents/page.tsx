@@ -10,7 +10,7 @@ const documents = [
   { id: "3", name: "İş Planı & Finansal Model", desc: "5-year projections, unit economics, break-even analysis", category: "Financial", date: "2026-05-01", size: "3.1 MB" },
   { id: "4", name: "Teknoloji & Platform Dokümanı", desc: "Tech stack, architecture, AI features, development roadmap", category: "Technical", date: "2026-05-01", size: "2.8 MB" },
   { id: "5", name: "Ortaklık Teklifi", desc: "Revenue split model, IP ownership, exit strategy, investor protections", category: "Legal", date: "2026-05-01", size: "1.5 MB" },
-  { id: "6", name: "TerraLot Yatırımcı Sunumu", desc: "Executive pitch deck — vision, traction, financials, ask", category: "Presentation", date: "2026-05-15", size: "5.2 MB" },
+  { id: "6", name: "VegaLand Yatırımcı Sunumu", desc: "Executive pitch deck — vision, traction, financials, ask", category: "Presentation", date: "2026-05-15", size: "5.2 MB" },
   { id: "7", name: "Land Subdivision Research", desc: "State-by-state subdivision rules, profitability analysis", category: "Research", date: "2026-05-10", size: "1.9 MB" },
   { id: "8", name: "All States Land Research", desc: "Comprehensive research across all 50 states for land acquisition", category: "Research", date: "2026-05-08", size: "4.1 MB" },
 ];

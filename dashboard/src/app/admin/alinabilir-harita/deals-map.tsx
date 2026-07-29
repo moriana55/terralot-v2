@@ -650,7 +650,7 @@ function MarketingImageModal({ p, onClose }: { p: MapPoint; onClose: () => void 
         ctx.textAlign = "left"; ctx.fillStyle = "#fff"; ctx.font = "bold 25px system-ui, sans-serif";
         ctx.fillText("≈ APPROXIMATE PROPERTY DIMENSION", 24, 36);
         ctx.textAlign = "right"; ctx.fillStyle = "#67e8f9"; ctx.font = "bold 24px system-ui, sans-serif";
-        ctx.fillText("TerraLot", W - 24, 28);
+        ctx.fillText("VegaLand", W - 24, 28);
         ctx.fillStyle = "#cbd5e1"; ctx.font = "11px system-ui, sans-serif";
         ctx.fillText("CERBERUS ENGINE", W - 24, 50);
         // KONUM alt-şeridi (Discount Lots tarzı "yeri direkt göster")

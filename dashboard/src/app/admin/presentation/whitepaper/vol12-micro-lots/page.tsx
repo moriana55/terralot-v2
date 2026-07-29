@@ -112,7 +112,7 @@ export default function Vol12Page() {
       <div ref={reportRef} className="max-w-5xl mx-auto bg-white border border-slate-200 rounded-3xl p-8 md:p-16 shadow-xl print:shadow-none print:border-none print:p-0" style={{ fontFamily: "'Inter', sans-serif" }}>
         {/* Header */}
         <div className="border-b-4 border-slate-900 pb-6 mb-10">
-          <p className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-1">TerraLot Yatırım Kütüphanesi — Cilt 12</p>
+          <p className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-1">VegaLand Yatırım Kütüphanesi — Cilt 12</p>
           <h1 className="text-3xl font-black text-slate-900">Mikro-Arsa Segmenti & LandZero Vaka Analizi</h1>
           <p className="text-sm text-slate-600 mt-2">Rakip LandZero'nun Florida ilanındaki tüm 7 ödeme seçeneğinin matematik ve kâr analizi</p>
         </div>
@@ -248,11 +248,11 @@ export default function Vol12Page() {
             </ul>
           </div>
 
-          {/* TerraLot için çıkarımlar */}
+          {/* VegaLand için çıkarımlar */}
           <div className="p-6 bg-slate-900 text-white rounded-2xl space-y-3">
             <h3 className="font-bold text-base flex items-center gap-2">
               <CheckCircle2 className="w-5 h-5 text-emerald-400" />
-              TerraLot İçin Alınan Dersler
+              VegaLand İçin Alınan Dersler
             </h3>
             <ul className="space-y-2 text-sm text-slate-300">
               <li className="flex items-start gap-2"><span className="text-emerald-400 font-bold mt-0.5">→</span> <span><strong className="text-white">Kademeli APR sistemi uygula:</strong> Vade uzadıkça %1'den %8'e çıkan oran şeması aynı şekilde uygulanabilir.</span></li>
@@ -270,7 +270,7 @@ export default function Vol12Page() {
 
         {/* Footer */}
         <div className="border-t border-slate-200 pt-8 mt-12 flex justify-between items-center text-xs text-slate-400">
-          <span>TerraLot Land Investment Group LLC</span>
+          <span>VegaLand Land Investment Group LLC</span>
           <span className="font-bold text-slate-800">Cilt 12 — LandZero Ödeme Mühendisliği Analizi</span>
         </div>
       </div>

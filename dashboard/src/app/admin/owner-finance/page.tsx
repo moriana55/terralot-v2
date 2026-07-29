@@ -43,7 +43,7 @@ const blankForm = {
 // Sadece form alanlarını (down_pct / apr / term_months) doldurur; aylık ödeme
 // flip-calc.ts amortismanıyla server-side hesaplanır (uydurma rakam yok).
 const PRESETS: { id: string; label: string; sub: string; down_pct: string; apr: string; term_months: string }[] = [
-  { id: "default", label: "TerraLot Std", sub: "%9.9 · %10 peşinat · 60ay", down_pct: "10", apr: "9.9", term_months: "60" },
+  { id: "default", label: "VegaLand Std", sub: "%9.9 · %10 peşinat · 60ay", down_pct: "10", apr: "9.9", term_months: "60" },
   { id: "compass", label: "Compass-tarzı", sub: "%7.9 · %10 peşinat · 60ay", down_pct: "10", apr: "7.9", term_months: "60" },
   { id: "landio", label: "LANDiO-tarzı", sub: "%6.9 · %15 peşinat · 84ay", down_pct: "15", apr: "6.9", term_months: "84" },
   { id: "aggressive", label: "Hızlı kapanış", sub: "%10.9 · %5 peşinat · 48ay", down_pct: "5", apr: "10.9", term_months: "48" },

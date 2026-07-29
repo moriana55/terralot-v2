@@ -32,7 +32,7 @@ export default function PropertyDetail({ params }: { params: Promise<{ id: strin
   // Share: native share sheet varsa onu, yoksa panoya kopyala (buton önceden hiçbir şey yapmıyordu).
   const handleShare = async () => {
     const url = window.location.href;
-    const title = property?.title ?? "TerraLot";
+    const title = property?.title ?? "VegaLand";
     try {
       if (navigator.share) {
         await navigator.share({ title, url });

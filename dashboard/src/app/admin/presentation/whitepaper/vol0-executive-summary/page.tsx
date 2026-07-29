@@ -21,7 +21,7 @@ export default function Vol0Page() {
       <div ref={reportRef} className="max-w-5xl mx-auto bg-white border border-slate-200 rounded-3xl p-8 md:p-16 shadow-xl print:shadow-none print:border-none print:p-0" style={{ fontFamily: "'Inter', sans-serif" }}>
         {/* Header */}
         <div className="border-b-4 border-slate-900 pb-6 mb-10 text-center md:text-left">
-          <p className="text-sm font-bold uppercase tracking-widest text-emerald-600 mb-2">TerraLot Executive Summary</p>
+          <p className="text-sm font-bold uppercase tracking-widest text-emerald-600 mb-2">VegaLand Executive Summary</p>
           <h1 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tight">Yatırımcı Özet Sayfası & İş Teklifi</h1>
           <p className="text-base text-slate-600 mt-4 max-w-3xl">Geleneksel arsa ticaretini %100 yapay zeka otomasyonu ile birleştiren, düşük riskli ve yüksek marjlı "Smoke Test" yatırım teklifi.</p>
         </div>
@@ -32,13 +32,13 @@ export default function Vol0Page() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="space-y-4">
               <h2 className="text-xl font-black text-slate-900 flex items-center gap-2 border-b border-slate-200 pb-2">
-                <Target className="w-6 h-6 text-blue-600" /> TerraLot Modeli Nedir?
+                <Target className="w-6 h-6 text-blue-600" /> VegaLand Modeli Nedir?
               </h2>
               <p>
                 Geleneksel gayrimenkulün aksine, kırsal ham arsa pazarı banka kredisi (mortgage) verilmediği için büyük kurumsalların giremediği bir <strong>"satıcı finansmanı" (Owner Financing)</strong> cennetidir.
               </p>
               <p>
-                TerraLot, ucuz eyaletlerden (TX, NM, TN) vergisi ödenmemiş parselleri doğrudan mektupla (off-market) nakit ucuza kapatır. Ardından, bunu kendi geliştirdiği ödeme platformu (Stripe + SaaS) üzerinden perakende müşterilere <strong>hiçbir kredi skoru sormadan taksitle</strong> çok daha yüksek fiyata satar.
+                VegaLand, ucuz eyaletlerden (TX, NM, TN) vergisi ödenmemiş parselleri doğrudan mektupla (off-market) nakit ucuza kapatır. Ardından, bunu kendi geliştirdiği ödeme platformu (Stripe + SaaS) üzerinden perakende müşterilere <strong>hiçbir kredi skoru sormadan taksitle</strong> çok daha yüksek fiyata satar.
               </p>
             </div>
             
@@ -46,7 +46,7 @@ export default function Vol0Page() {
               <h2 className="text-xl font-black flex items-center gap-2 mb-4 text-emerald-400">
                 <Zap className="w-6 h-6" /> Otomasyon Devrimi (Görsel Fabrikası)
               </h2>
-              <p className="text-slate-300 mb-4">Rakipler arsa sınırlarını elle çizerken, TerraLot sistemi %100 otomatizedir:</p>
+              <p className="text-slate-300 mb-4">Rakipler arsa sınırlarını elle çizerken, VegaLand sistemi %100 otomatizedir:</p>
               <ul className="space-y-3 text-sm">
                 <li className="flex items-start gap-2">
                   <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
@@ -140,7 +140,7 @@ export default function Vol0Page() {
         </div>
 
         <div className="border-t border-slate-200 pt-8 mt-16 flex justify-between items-center text-xs text-slate-400">
-          <span>TerraLot Land Investment Group LLC</span>
+          <span>VegaLand Land Investment Group LLC</span>
           <span className="font-bold text-slate-800">Cilt 0 — Executive Summary</span>
         </div>
       </div>

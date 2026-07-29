@@ -138,7 +138,7 @@ async function sendAlertEmail(to: string, searchName: string, newMatches: LeadRo
       body: JSON.stringify({
         from,
         to,
-        subject: `TerraLot: ${newMatches.length} new match${newMatches.length === 1 ? "" : "es"} — ${searchName}`,
+        subject: `VegaLand: ${newMatches.length} new match${newMatches.length === 1 ? "" : "es"} — ${searchName}`,
         html,
       }),
       signal: controller.signal,

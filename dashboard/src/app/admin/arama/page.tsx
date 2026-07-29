@@ -119,7 +119,7 @@ export default function AramaKokpiti() {
     if (!active) return "";
     return `Hi, may I speak with ${firstName(active.owner)}? ...
 
-My name is [NAME], I'm calling from TerraLot. We buy vacant land in ${active.county} County — and I noticed you own ${active.acres ? `about ${active.acres} acres` : "a parcel"} out there (parcel ${active.apn}).
+My name is [NAME], I'm calling from VegaLand. We buy vacant land in ${active.county} County — and I noticed you own ${active.acres ? `about ${active.acres} acres` : "a parcel"} out there (parcel ${active.apn}).
 
 We pay cash, we cover ALL closing costs, and there are no fees or commissions for you.
 

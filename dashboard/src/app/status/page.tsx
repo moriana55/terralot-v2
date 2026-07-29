@@ -79,7 +79,7 @@ const modules: { emoji: string; title: string; pct: number; items: Item[] }[] = 
   },
   {
     emoji: "🤖",
-    title: "TerraLot OS — AI Analiz Aracı (Ayrı Uygulama)",
+    title: "VegaLand OS — AI Analiz Aracı (Ayrı Uygulama)",
     pct: 75,
     items: [
       { name: "AI Arsa Keşif Motoru", desc: "Vergi borçlu parselleri tarama, kâr marjı + satılabilirlik skoru", status: "done" },
@@ -163,7 +163,7 @@ export default function StatusPage() {
         {/* Header */}
         <div className="text-6xl mb-6">🏜️</div>
         <h1 className="text-4xl font-extrabold tracking-tight mb-3" style={{ color: "#0f172a" }}>
-          TerraLot — Proje Durum Raporu
+          VegaLand — Proje Durum Raporu
         </h1>
         <p className="text-lg mb-2" style={{ color: "#64748b" }}>
           ABD arazi alım-satım platformu · Taksitli satış modeli · AI destekli operasyon
@@ -204,7 +204,7 @@ export default function StatusPage() {
         {/* Section: completed modules */}
         <h2 className="text-2xl font-bold mb-2 flex items-center gap-2" style={{ color: "#0f172a" }}>✅ Bugüne Kadar Yapılanlar</h2>
         <p className="text-sm mb-8" style={{ color: "#64748b" }}>
-          İki ayrı uygulama geliştirildi: <strong>TerraLot Platform</strong> (satış sitesi + admin + yatırımcı paneli) ve <strong>TerraLot OS</strong> (AI arsa analiz aracı).
+          İki ayrı uygulama geliştirildi: <strong>VegaLand Platform</strong> (satış sitesi + admin + yatırımcı paneli) ve <strong>VegaLand OS</strong> (AI arsa analiz aracı).
         </p>
 
         <div className="space-y-8 mb-16">
@@ -308,7 +308,7 @@ export default function StatusPage() {
               {[
                 ["Web platformu", "Next.js 16 + TailwindCSS", "done"],
                 ["Admin + Yatırımcı paneli", "Next.js + Prisma ORM", "done"],
-                ["AI analiz aracı (TerraLot OS)", "React + Vite + Leaflet GIS", "done"],
+                ["AI analiz aracı (VegaLand OS)", "React + Vite + Leaflet GIS", "done"],
                 ["Veritabanı", "PostgreSQL (Neon)", "progress"],
                 ["Kimlik doğrulama", "Clerk (rol bazlı erişim)", "progress"],
                 ["Ödeme", "Stripe (abonelik + taksit)", "blocked"],
@@ -346,7 +346,7 @@ export default function StatusPage() {
 
         {/* Footer */}
         <div className="pt-8 text-center" style={{ borderTop: "1px solid #e2e8f0" }}>
-          <p className="text-sm font-bold mb-1" style={{ color: "#0f172a" }}>TerraLot</p>
+          <p className="text-sm font-bold mb-1" style={{ color: "#0f172a" }}>VegaLand</p>
           <p className="text-xs" style={{ color: "#94a3b8" }}>Democratizing US Land Ownership · Bu rapor canlı veriden otomatik güncellenir</p>
         </div>
 

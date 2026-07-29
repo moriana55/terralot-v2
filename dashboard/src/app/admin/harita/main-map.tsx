@@ -108,7 +108,13 @@ function PointDetailPopup({ lat, lng, st }: { lat: number; lng: number; st: stri
       <Row k="Sahip" v={p.owner || "—"} strong />
       <Row k="Konum" v={p.situs || p.region || "—"} />
       <Row k="Büyüklük" v={p.acres != null ? `${p.acres} acre` : "—"} />
-      <Row k="Arazi değeri" v={usd(p.land_value)} accent={color} />
+      {/* MO/SC county'leri arazi değerini ücretsiz yayınlamıyor (~22K lead).
+          Boş bırakmak "bozuk" gibi duruyordu; eksikliği açıkça söylüyoruz. */}
+      {p.land_value != null ? (
+        <Row k="Arazi değeri" v={usd(p.land_value)} accent={color} />
+      ) : (
+        <Row k="Arazi değeri" v="county yayınlamıyor" />
+      )}
       {p.est_retail != null && <Row k="Hedef satış" v={usd(p.est_retail)} />}
       {leads.length > 1 && (
         <div style={{ marginTop: 5, fontSize: 11, color: "#8b9ab3" }}>Bu noktada {leads.length} kayıt</div>

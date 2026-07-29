@@ -34,7 +34,7 @@ export default function FinancialsPage() {
   return (
     <div className="p-8">
       <h1 className="text-2xl font-bold mb-1">Financial Report</h1>
-      <p className="text-sm mb-6" style={{ color: "var(--muted)" }}>Complete financial breakdown of the TerraLot portfolio</p>
+      <p className="text-sm mb-6" style={{ color: "var(--muted)" }}>Complete financial breakdown of the VegaLand portfolio</p>
 
       <SampleDataBanner note="Aylık grafik kısmen sabit örnek değerler içerir." />
 

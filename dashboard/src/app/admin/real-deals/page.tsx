@@ -13,7 +13,7 @@ import data from "@/data/real-deals.json";
 import { Satellite, ExternalLink, MapPin, TrendingUp } from "lucide-react";
 import CsvButton from "./CsvButton";
 
-export const metadata = { title: "Gerçek Dealler — Terralot" };
+export const metadata = { title: "Gerçek Dealler — VegaLand" };
 
 const fmt = (n: number | null | undefined) =>
   n == null ? "—" : `$${Math.round(n).toLocaleString("en-US")}`;
