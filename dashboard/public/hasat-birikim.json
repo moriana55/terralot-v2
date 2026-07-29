@@ -1,6 +1,6 @@
 {
   "surum": 1,
-  "guncelleme": "2026-07-29T19:48:07.542Z",
+  "guncelleme": "2026-07-29T19:48:24.468Z",
   "turlar": [
     {
       "kaynak": "filtreli-hasat-2026-07-29-MS.json",
@@ -249,6 +249,22 @@
         "deger-bandi": 2013,
         "kamu-sahipli": 645,
         "mukerrer": 4
+      }
+    },
+    {
+      "kaynak": "filtreli-hasat-2026-07-29-SD.json",
+      "baslangic": "2026-07-29T19:48:11.954Z",
+      "bitis": "2026-07-29T19:48:24.306Z",
+      "eyaletler": [
+        "SD"
+      ],
+      "aday": 9365,
+      "yazilan": 3731,
+      "elenen": {
+        "deger-bandi": 3114,
+        "kamu-sahipli": 716,
+        "acre-bandi": 1799,
+        "mukerrer": 5
       }
     }
   ]
