@@ -485,6 +485,11 @@ async function main() {
         doneLead += kayitlar.reduce((s, k) => s + k.ids.length, 0);
       } catch (e) {
         fail++;
+        // Ücretsiz aynada 429/504 sık — düşen süper hücre KAYBEDİLMEZ, kuyruğun
+        // SONUNA atılır (ayna o arada soğur). En fazla 2 kez; sonra bu tura
+        // bırakılır, `geo_enriched_at is null` kaldığı için sonraki tur alır.
+        is.tekrar = (is.tekrar ?? 0) + 1;
+        if (is.tekrar <= 2) queue.push(is);
         if (fail % 10 === 0) console.warn(`\nhata (${fail}): ${JSON.stringify(is.kutu)} → ${e.message}`);
         if (fail > 200 && fail > doneHucre / 4) {
           stop = true;
