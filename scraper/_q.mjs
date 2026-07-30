@@ -1,0 +1,10 @@
+import pg from "pg";
+import { readFileSync } from "node:fs";
+import { dbUrl } from "./grade-offmarket.mjs";
+const c = new pg.Client({ connectionString: dbUrl(), ssl: { rejectUnauthorized: false } });
+await c.connect();
+const a = process.argv.slice(2);
+const sql = a[0] === "-f" ? readFileSync(a[1], "utf8") : a.join(" ");
+const r = await c.query(sql);
+console.log(JSON.stringify(r.rows, null, 1));
+await c.end();

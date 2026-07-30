@@ -4,7 +4,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {
   parseDistances, bbMesafe, kategori, superHucreler, dorteBol, superSorgu,
-  aynaYokla, R_ROAD, R_TOWN, SUPER,
+  aynaYokla, R_ROAD, R_TOWN, SUPER, elMerkez,
 } from "./geo-enrich-offmarket.mjs";
 
 const LAT = 32.5, LNG = -89.5;
@@ -165,4 +165,36 @@ test("aynaYokla: kalıcı bağlantı hatası TEKRAR DENENMEZ (boşa zaman yakıl
   const [r] = await aynaYokla(["u"], { fetchFn: reddet, deneme: 3 });
   assert.equal(r.ok, false);
   assert.equal(cagri, 1);
+});
+
+// ── 2026-07-30 REGRESYON: `out center bb` way'ler için center DÖNDÜRMEZ ──────
+// Gerçek Overpass cevabının şekli: way'de yalnız `bounds` var, `center` YOK.
+// Eski kod bu elemanı atlıyordu → yol/su (OSM'de way) hep -1 → landlocked → F.
+// 2026-07-29 turunda taranan 99.309 parselin %100'ü bu yüzden F oldu.
+test("parseDistances: center OLMAYAN way (gerçek `out center bb` cevabı) atlanmaz", () => {
+  const dy = 500 / DERECE_M;
+  const json = { elements: [
+    { type: "way", tags: { highway: "residential" }, bounds: { minlat: LAT + dy, minlon: LNG, maxlat: LAT + dy, maxlon: LNG } },
+    { type: "way", tags: { waterway: "stream" }, bounds: { minlat: LAT + dy, minlon: LNG, maxlat: LAT + dy, maxlon: LNG } },
+    { type: "way", tags: { power: "line" }, bounds: { minlat: LAT + dy, minlon: LNG, maxlat: LAT + dy, maxlon: LNG } },
+  ] };
+  const d = parseDistances(json, LAT, LNG);
+  assert.ok(Math.abs(d.road - 500) < 20, `road=${d.road} (center'sız way atlanmış olmamalı)`);
+  assert.ok(Math.abs(d.water - 500) < 20, `water=${d.water}`);
+  assert.ok(Math.abs(d.power - 500) < 20, `power=${d.power}`);
+});
+
+test("elMerkez: center → düğüm lat/lon → bbox ortası sırası", () => {
+  assert.deepEqual(elMerkez({ center: { lat: 1, lon: 2 } }), { lat: 1, lng: 2 });
+  assert.deepEqual(elMerkez({ lat: 3, lon: 4 }), { lat: 3, lng: 4 });
+  assert.deepEqual(elMerkez({ bounds: { minlat: 0, minlon: 0, maxlat: 2, maxlon: 4 } }), { lat: 1, lng: 2 });
+  assert.equal(elMerkez({ tags: {} }), null);
+});
+
+// Gerçekten yol yoksa hâlâ -1 dönmeli — düzeltme "her şeye yol buldu" demek değil.
+test("parseDistances: bbox'lı way yarıçap dışındaysa hâlâ -1 (landlocked korunur)", () => {
+  const uzak = (R_ROAD + 800) / DERECE_M;
+  const json = { elements: [{ type: "way", tags: { highway: "track" },
+    bounds: { minlat: LAT + uzak, minlon: LNG, maxlat: LAT + uzak, maxlon: LNG } }] };
+  assert.equal(parseDistances(json, LAT, LNG).road, -1);
 });

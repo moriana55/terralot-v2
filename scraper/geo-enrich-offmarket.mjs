@@ -137,6 +137,31 @@ export function bbMesafe(lat, lng, el) {
   return haversine(lat, lng, cLat, cLng);
 }
 
+/**
+ * Elemanın MERKEZ koordinatı. Sıra: `center` (Overpass `out center`) → düğümün
+ * kendi lat/lon → SINIR KUTUSU ORTASI.
+ *
+ * ⚠ 2026-07-30 KRİTİK DÜZELTME: süper hücre sorgusu `out center bb ...` yazıyor
+ * ama Overpass bu kombinasyonda way'ler için `center` DÖNDÜRMÜYOR — yalnız
+ * `bounds` geliyor. Eski kod `center` yoksa elemanı ATLIYORDU; yol/su/elektrik
+ * hattı OSM'de WAY olduğu için 2026-07-29 turunda taranan 99.309 parselin
+ * TAMAMI "yol yok (-1) + su yok (-1)" damgası yedi ve landlocked kuralıyla
+ * doğrudan F'ye düştü. Doğrulama: 3 örnek parselin 1.600 m'sinde Overpass'a
+ * göre 81 / 273 / 198 yol var.
+ *
+ * Sınır kutusu ortası, Overpass'ın `out center` tanımının BİREBİR aynısıdır
+ * (way'in bbox merkezi) — yani uydurma değil, aynı değerin yerel hesabı.
+ */
+export function elMerkez(el) {
+  const cLat = Number(el?.center?.lat ?? el?.lat);
+  const cLng = Number(el?.center?.lon ?? el?.lon);
+  if (Number.isFinite(cLat) && Number.isFinite(cLng)) return { lat: cLat, lng: cLng };
+  const b = el?.bounds;
+  if (b && Number.isFinite(Number(b.minlat)) && Number.isFinite(Number(b.minlon)))
+    return { lat: (Number(b.minlat) + Number(b.maxlat)) / 2, lng: (Number(b.minlon) + Number(b.maxlon)) / 2 };
+  return null;
+}
+
 /** Elemanın kategorisi — sırası eski parseDistances ile birebir aynı. */
 export function kategori(el) {
   const t = el?.tags ?? {};
@@ -162,10 +187,9 @@ export function parseDistances(json, lat, lng) {
     const cat = kategori(el);
     if (!cat) continue;
     if (bbMesafe(lat, lng, el) > YARICAP[cat]) continue; // yarıçap dışı
-    const elat = Number(el.center?.lat ?? el.lat);
-    const elng = Number(el.center?.lon ?? el.lon);
-    if (!Number.isFinite(elat) || !Number.isFinite(elng)) continue;
-    const d = haversine(lat, lng, elat, elng);
+    const m = elMerkez(el); // center yoksa bbox ortası (bkz. elMerkez notu)
+    if (!m) continue;
+    const d = haversine(lat, lng, m.lat, m.lng);
     if (d < min[cat]) min[cat] = d;
   }
   const out = {};
