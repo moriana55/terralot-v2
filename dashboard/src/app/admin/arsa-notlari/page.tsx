@@ -13,6 +13,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Award, Loader2, AlertTriangle, MapPin, Layers, Filter } from "lucide-react";
 import GradeBadge from "@/components/GradeBadge";
+import NotKalibrasyon from "@/components/NotKalibrasyon";
 import { GRADES, GRADE_LABELS, gradeColor, parseFlags, splitFlags, breakdownTitle } from "@/lib/offmarket-grade";
 import { OFFMARKET_STATE_META } from "@/lib/offmarket-stats";
 
@@ -182,6 +183,9 @@ export default function ArsaNotlari() {
           </tbody>
         </table>
       </div>
+
+      {/* Kalibrasyon kanıtı — notun gerçekleşmiş satışlarla sınanması */}
+      <NotKalibrasyon />
 
       {/* Vitrin kartları */}
       <div className="mt-8 flex flex-wrap items-center justify-between gap-3">
