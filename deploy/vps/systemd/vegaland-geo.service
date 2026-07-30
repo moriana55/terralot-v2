@@ -1,0 +1,50 @@
+[Unit]
+# VegaLand — SÜREKLİ GEO DOĞRULAMA TURU
+# Mac'te bu iş `geo-turu-gizli-a.sh` olarak elle koşuyordu; makine kapanınca
+# duruyordu. Burada 7/24 döner, sunucu yeniden başlasa bile kendiliğinden kalkar.
+Description=VegaLand surekli geo dogrulama turu (Overpass)
+Documentation=file://@KOK@/deploy/vps/RUNBOOK.md
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=@KULLANICI@
+WorkingDirectory=@KOK@/scraper
+Environment=NODE_ENV=production
+Environment=PATH=@NODE_DIZIN@:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+Environment=VEGALAND_SCRAPER=@KOK@/scraper
+# Parti boyu ve ayna başına işçi. Ayna sayısı artarsa işçi otomatik artar
+# (toplam işçi = canlı ayna × GEO_PER_MIRROR) — burayı elle şişirmeye gerek yok.
+Environment=PARTI_BOY=1500
+Environment=GEO_PER_MIRROR=3
+# oto = önce "gizli A" havuzu (en yüksek getiri), boşalınca tam kuyruk.
+Environment=GEO_MOD=oto
+
+ExecStart=/bin/bash @KOK@/deploy/vps/geo-turu-vps.sh
+
+# Çökerse/ağ giderse kalk. Betiğin kendi içinde de bekleme mantığı var.
+Restart=always
+RestartSec=60
+# ⛔ ÇIKIŞ 2 = SAĞLIK KAPISI DURDURDU (yol bulma oranı çöktü, veri bozuk olabilir).
+# Bu durumda YENİDEN BAŞLATMA — bozuk veriyle 100 bin kaydı damgalamaktan iyidir.
+# Çıkış 3 = kurulum hatası (scraper klasörü yok) — sonsuz döngüye girmesin.
+RestartPreventExitStatus=2 3
+
+# ── Güvenlik sıkılaştırması ──
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=read-only
+ReadWritePaths=@KOK@
+# Ağır tur panelin/DB'nin nefesini kesmesin: düşük öncelik.
+Nice=10
+IOSchedulingClass=best-effort
+IOSchedulingPriority=6
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=vegaland-geo
+
+[Install]
+WantedBy=multi-user.target

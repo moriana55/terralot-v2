@@ -1,0 +1,43 @@
+[Unit]
+# VegaLand — GÜNLÜK HASAT TURU (Mac'teki com.terralot.sourcing launchd işinin karşılığı)
+# ŞABLON: @…@ yer tutucuları kur.sh tarafından doldurulur. Elle düzenlemek gerekirse
+# /etc/systemd/system/vegaland-hasat.service dosyasını düzenle, sonra `systemctl daemon-reload`.
+Description=VegaLand gunluk hasat turu (hasat-runner.mjs)
+Documentation=file://@KOK@/deploy/vps/RUNBOOK.md
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=@KULLANICI@
+WorkingDirectory=@KOK@/scraper
+Environment=NODE_ENV=production
+Environment=PATH=@NODE_DIZIN@:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+# ÜCRETLİ RapidAPI Zillow taramasını ATLA — VPS turu yalnız ücretsiz kaynaklarla koşar.
+Environment=SKIP_ZILLOW=1
+# Puppeteer'li canlı vergi listesi taramaları VPS'te headless Chrome ister; ilk
+# kurulumda ATLANIR. Chrome kurup açmak istersen bu satırı 0 yap.
+Environment=SKIP_TAX=1
+
+# Tekillik: hasat-runner.mjs kendi PID'li kilidini (.hasat.lock) tutuyor; flock
+# ikinci bir kat güvence — timer ile elle tetikleme üst üste binmesin.
+ExecStart=/usr/bin/flock -n @KOK@/scraper/.hasat.flock @NODE@ @KOK@/scraper/hasat-runner.mjs
+
+# Bir tur en fazla 6 saat sürsün; takılan Puppeteer/fetch sonsuza kalmasın.
+TimeoutStartSec=6h
+# Hata olursa systemd görsün (hasat-runner sessiz başarı DÖNDÜRMEZ, 1 ile çıkar).
+SuccessExitStatus=0
+
+# ── Güvenlik sıkılaştırması (yazma yalnız proje klasörüne) ──
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=read-only
+ReadWritePaths=@KOK@
+# journald kaydı: `journalctl -u vegaland-hasat`
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=vegaland-hasat
+
+[Install]
+WantedBy=multi-user.target

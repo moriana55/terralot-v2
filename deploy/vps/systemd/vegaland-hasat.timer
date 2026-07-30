@@ -1,0 +1,17 @@
+[Unit]
+Description=VegaLand gunluk hasat turu zamanlayici (her gun 03:30 UTC)
+Documentation=file://@KOK@/deploy/vps/RUNBOOK.md
+
+[Timer]
+# Günde bir. Saat UTC'dir (VPS Litvanya'da ama systemd varsayılanı UTC).
+# Türkiye saatiyle 06:30. Değiştirmek için: systemctl edit vegaland-hasat.timer
+OnCalendar=*-*-* 03:30:00
+# Sunucu o saatte kapalıysa açılışta telafi et — bir günü kaçırmayalım.
+Persistent=true
+# Aynı saniyede başlayan yükü dağıt.
+RandomizedDelaySec=10min
+AccuracySec=1min
+Unit=vegaland-hasat.service
+
+[Install]
+WantedBy=timers.target
