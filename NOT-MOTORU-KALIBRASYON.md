@@ -322,6 +322,53 @@ FL comp testi önce/sonra (aynı örneklem, aynı sorgu):
 
 ---
 
+## 7) Hedefli geo turu — "gizli A havuzu" (2026-07-30, devam ediyor)
+
+Kalibrasyonun önerdiği adım uygulandı: **tüm 787K kuyruk değil**, yalnız skoru
+kendi eyaletinin A tabanını aşan ama geo bekleyen **12.083** kayıt taranıyor.
+
+- Komut: `GEO_GIZLI_A=1 node scraper/geo-enrich-offmarket.mjs`
+  (parti parti: `scraper/geo-turu-gizli-a.sh`, `PARTI_BOY=1500`)
+- **Sağlık kapısı:** her partiden sonra yol bulma oranı ölçülür; **%20 altına
+  düşerse tur DURUR.** 2026-07-29 hatasında bu oran %0'dı.
+- **Kanarya (227 kayıt): yol bulma %100** — düzeltme canlıda doğrulandı
+  (sağlıklı turlarda ~%88; bu küme yüksek skorlu olduğu için daha da yüksek).
+- **Ayna darboğazı:** 7 Overpass aynasından bugün **yalnız 1'i** ayakta
+  (maps.mail.ru). Alman kümesi (z./lz4./overpass-api.de) ECONNREFUSED,
+  kumi/monicz/private.coffee timeout. IPv4/IPv6 denendi — sorun DNS değil,
+  aynalar bu IP'ye kapalı. 3 işçi × 1 ayna → ~20 lead/dk, yani 12 bin kayıt
+  ≈ 9-10 saat. Tur arka planda, **resume edilebilir** (kesilirse aynı komut
+  kaldığı yerden devam eder; `geo_enriched_at is null` + hücre önbelleği).
+
+Turun durumu her partide `scraper/logs/gizli-a-durum.txt` defterine yazılır;
+`node scraper/geo-durum.mjs` tek satırda yol bulma oranı + kalan havuzu verir.
+
+### İlk ara sonuç (1.096 kayıt tarandıktan sonra)
+
+| | Tur öncesi | 1.096 kayıt sonrası |
+|---|---:|---:|
+| Geo doğrulanmış | 34.115 | **35.212** |
+| **A+** | 5.718 | **5.743** |
+| **A** | 5.498 | **6.341** |
+| **A+/A toplam** | **11.216** | **12.084** (+868) |
+| B | 209.171 | 208.303 (−868) |
+| C / D / F | 334.864 / 250.680 / 108.326 | **aynı** |
+| Gizli A havuzu (kalan) | 12.083 | 10.986 |
+| Toplam satır | 921.271 | **921.271** ✔ |
+
+**Yol bulma oranı: %100 (1.096/1.096).** Su %66,9 · elektrik %59,6.
+
+**Bu artış NOT ENFLASYONU DEĞİL — kanıtı:** taranan 1.096 kaydın **868'i**
+kendisi A/A+ oldu ve A+/A toplamı **tam olarak +868** arttı; B **tam olarak
+−868** düştü; C/D/F **hiç değişmedi**. Yani eşikler kaymadı, alakasız hiçbir
+kayıt terfi etmedi. Yükselen tek şey: bu kayıtların üzerindeki **B tavanı
+kalktı** — çünkü skorları zaten A tabanının üstündeydi, tek eksikleri
+doğrulamaydı. Dönüşüm oranı %79 (kuyruk skora göre sıralı çalıştığı için yüksek).
+
+Eyalet kırılımı (A+/A): OR 764 → **1.333** · NV 1.918 → **2.183** ·
+NC 962 → **981** · TX 1.620 → **1.623** · FL 627 → **636** · CO 1.044 → **1.047**.
+Diğer eyaletler değişmedi (o partilerde taranmadılar).
+
 ## Tekrar üretim
 
 ```bash
