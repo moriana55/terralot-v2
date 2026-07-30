@@ -12,7 +12,16 @@
 // koşmadan yeni hasat edilen hiçbir satır deal havuzuna giremez. 551.000 kayıt
 // `geo_enriched_at is null` durumundaydı; darboğaz buydu.
 //
-// ── HIZLANDIRMA (2026-07-29) ────────────────────────────────────────────────
+// ── HIZLANDIRMA (2026-07-29/30) ─────────────────────────────────────────────
+// ÖLÇÜM (aynı ayna, aynı işçi sayısı, 5 dk bütçe, çakışmayan iki dilim):
+//   eski (tekil hücre) :  7,7 hücre/dk · 66 istek · 25 hata
+//   yeni (süper hücre) : 36,9 hücre/dk · 51 istek · 18 hata  → 4,8x
+// GERÇEK TURDA (7 canlı ayna × 3 işçi = 21 işçi, hata 0):
+//   2.600–4.100 hücre/dk · 3.200–5.000 lead/dk — eski akışın ~35 hücre/dk
+//   tavanına kıyasla iki basamaklı kat. Kazancın kaynağı üç katmanlı:
+//   (1) istek sayısı ~18-20x düşük, (2) ayna sağlık yoklaması ölü aynaya
+//   zaman yakmıyor → paralellik gerçekten 21 işçi, (3) kalıcı önbellek.
+//
 // ESKİ AKIŞ: her 0.001° hücre (~110 m) için AYRI bir `around` sorgusu.
 //   → 40.111 hücre = 40.111 istek. Ücretsiz aynada ~30-40 hücre/dk.
 //
