@@ -76,18 +76,24 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 // Ayakta olan: maps.mail.ru. Liste GENİŞ tutuluyor; `aynaYokla()` koşu başında
 // hangisinin gerçekten ABD verisi döndürdüğünü ÖLÇER, ölüleri listeden atar.
 // Yarın biri geri gelirse kod değişmeden paralellik kendiliğinden artar.
+// 30 Tem 00:45 yeniden yoklama: Alman kümesi (z./lz4.overpass-api.de) GERİ GELDİ
+// (504 = boğulmuş ama ayakta), overpass.monicz.dev de veri döndürüyor. Ölü/faydasız
+// olanlar listede DURMAYA devam ediyor — yoklama ucuz, ayna geri gelirse
+// paralellik kendiliğinden artar (kod değişmeden).
 export const OVERPASS_MIRRORS = (process.env.GEO_MIRRORS || [
   "https://maps.mail.ru/osm/tools/overpass/api/interpreter",
+  "https://overpass.monicz.dev/api/interpreter",
+  "https://z.overpass-api.de/api/interpreter",
+  "https://lz4.overpass-api.de/api/interpreter",
   "https://overpass-api.de/api/interpreter",
   "https://overpass.kumi.systems/api/interpreter",
   "https://overpass.private.coffee/api/interpreter",
-  "https://overpass.osm.jp/api/interpreter",
 ].join(",")).split(",").map((s) => s.trim()).filter(Boolean);
 
 // Ayna başına eşzamanlı işçi. Toplam işçi = canlı ayna × bu sayı.
 const PER_MIRROR = parseInt(process.env.GEO_PER_MIRROR || "3", 10);
 // Süper hücre sorgusu tekil hücre sorgusundan ağır — tavan yüksek.
-const FETCH_TIMEOUT = parseInt(process.env.GEO_TIMEOUT || "90000", 10);
+const FETCH_TIMEOUT = parseInt(process.env.GEO_TIMEOUT || "120000", 10);
 // Eleman tavanı. Sorgu buna DAYANIRSA kırpılmış olabilir → süper hücre bölünür.
 const ELEMAN_TAVANI = parseInt(process.env.GEO_ELEMAN_TAVANI || "4000", 10);
 const UA = "terralot-geo/1.0 (land grading; contact sales@nocturndev.com)";
