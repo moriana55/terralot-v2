@@ -382,25 +382,51 @@ async function main() {
   const CONCURRENCY = parseInt(process.env.GEO_CONCURRENCY || String(canli.length * PER_MIRROR), 10);
   console.log(`canlı ayna: ${canli.length} · işçi: ${CONCURRENCY} (ayna başına ~${PER_MIRROR})`);
 
+  // 2a) HEDEFLİ MOD — "gizli A havuzu" (GEO_GIZLI_A=1).
+  // Skoru kendi eyaletindeki en düşük A skorunu ZATEN aşan, ama yalnız geo
+  // taraması yapılmadığı için B tavanına takılan kayıtlar. 2026-07-30
+  // kalibrasyonunda 12.083 adet ölçüldü; 787K'lık tam kuyruğun %1,5'i.
+  // Getirisi en yüksek küme: tek eksiği doğrulama olan lead'ler.
+  // Not kullanılan yer: grade='B' + geo_enriched_at null → tur yarıda kesilse
+  // bile aynı komut kaldığı yerden devam eder (taranan kayıt kuyruktan düşer).
+  let pend;
+  if (process.env.GEO_GIZLI_A === "1") {
+    pend = await client.query(
+      `with a as (select state, min(grade_score) a_min from offmarket_leads
+                   where grade in ('A','A+') group by 1)
+       select o.lead_id, o.lat::float8 lat, o.lng::float8 lng
+         from offmarket_leads o join a on a.state = o.state
+        where o.grade = 'B' and o.geo_enriched_at is null and o.lat is not null
+          and o.grade_score >= a.a_min
+          ${GEO_EYALET.length ? "and o.state = any($2)" : ""}
+        order by o.grade_score desc
+        limit $1`,
+      GEO_EYALET.length ? [GEO_TOP, GEO_EYALET] : [GEO_TOP]);
+    console.log(`geo kuyruğu (GİZLİ A havuzu): ${pend.rows.length} lead` +
+      `${GEO_EYALET.length ? ` · eyalet ${GEO_EYALET.join("/")}` : ""} · limit ${GEO_TOP}`);
+  }
+
   // 2) Huni eşiği: koordinatlı + skorlu en iyi GEO_TOP kaydın skor tabanı.
   const eyaletKosul = GEO_EYALET.length ? "and state = any($2)" : "";
-  const thr = await client.query(
+  const thr = pend ? null : await client.query(
     `select grade_score s from offmarket_leads
      where lat is not null and grade_score is not null ${eyaletKosul}
      order by grade_score desc offset $1 limit 1`,
     GEO_EYALET.length ? [GEO_TOP, GEO_EYALET] : [GEO_TOP]);
-  const minScore = thr.rows[0]?.s ?? 0;
+  const minScore = thr?.rows[0]?.s ?? 0;
 
-  const pend = await client.query(
-    `select lead_id, lat::float8 lat, lng::float8 lng from offmarket_leads
-     where geo_enriched_at is null and lat is not null and grade_score >= $1
-       ${GEO_EYALET.length ? "and state = any($3)" : ""}
-     order by grade_score desc
-     limit $2`,
-    GEO_EYALET.length ? [minScore, GEO_TOP, GEO_EYALET] : [minScore, GEO_TOP]);
-  console.log(
-    `geo kuyruğu: ${pend.rows.length} lead (skor >= ${minScore}, top ~${GEO_TOP}` +
-    `${GEO_EYALET.length ? `, eyalet ${GEO_EYALET.join("/")}` : ""})`);
+  if (!pend) {
+    pend = await client.query(
+      `select lead_id, lat::float8 lat, lng::float8 lng from offmarket_leads
+       where geo_enriched_at is null and lat is not null and grade_score >= $1
+         ${GEO_EYALET.length ? "and state = any($3)" : ""}
+       order by grade_score desc
+       limit $2`,
+      GEO_EYALET.length ? [minScore, GEO_TOP, GEO_EYALET] : [minScore, GEO_TOP]);
+    console.log(
+      `geo kuyruğu: ${pend.rows.length} lead (skor >= ${minScore}, top ~${GEO_TOP}` +
+      `${GEO_EYALET.length ? `, eyalet ${GEO_EYALET.join("/")}` : ""})`);
+  }
 
   // 3) 0.001° hücre dedupe — komşu parseller tek sorgu paylaşır.
   const cells = new Map();
