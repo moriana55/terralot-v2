@@ -301,7 +301,14 @@ async function upsert(client, satirlar) {
   const sql =
     `INSERT INTO offmarket_leads (${KOLONLAR.join(",")}) VALUES ${yer.join(",")} ` +
     `ON CONFLICT (lead_id) DO UPDATE SET ${guncelle}`;
-  await client.query(sql, deger);
+  // Bağlantı koparsa parti KAYBOLMASIN — 3 deneme (Pool yeni bağlantı açar).
+  for (let a = 1; ; a++) {
+    try { await client.query(sql, deger); break; }
+    catch (e) {
+      if (a >= 3) throw e;
+      await sleep(3000 * a);
+    }
+  }
   return satirlar.length;
 }
 
@@ -343,8 +350,20 @@ async function main() {
       : Object.keys(COUNTY_REGISTRY).filter((k) =>
           eyaletler.includes(COUNTY_REGISTRY[k].state) && !ATLANAN_EYALETLER.has(COUNTY_REGISTRY[k].state));
 
-  const client = new pg.Client({ connectionString: dbUrl(), ssl: { rejectUnauthorized: false } });
-  await client.connect();
+  // Pool (Client DEĞİL): 29 Tem TX turu 4. county'de "Connection terminated
+  // unexpectedly" ile ÖLDÜ — pg.Client'ta boşta kopan bağlantı yakalanmayan
+  // 'error' olayı fırlatıp süreci düşürüyor, kalan 5 county hiç hasat edilmiyor
+  // ve rapor dosyası yazılmadığı için tur deftere de geçmiyordu. Pool yeniden
+  // bağlanır; 'error' dinleyicisi boşta kopmayı sessizce yutar.
+  const client = new pg.Pool({
+    connectionString: dbUrl(),
+    ssl: { rejectUnauthorized: false },
+    max: 2,
+    keepAlive: true,
+    idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 20000,
+  });
+  client.on("error", (e) => console.warn(`pg boşta bağlantı hatası (yok sayıldı): ${e.message}`));
   await semaHazirla(client);
 
   const taban = await olc(client);
