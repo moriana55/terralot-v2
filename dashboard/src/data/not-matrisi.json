@@ -1,0 +1,2303 @@
+{
+ "uretildi": "2026-08-03T04:01:14.491Z",
+ "funnel": {
+  "total": 921324,
+  "graded": 914257,
+  "geoDone": 651134,
+  "aPlus": 10683,
+  "a": 39346,
+  "b": 135368
+ },
+ "matrix": [
+  {
+   "state": "AL",
+   "grade": "A",
+   "n": 3182,
+   "geo_n": 3182
+  },
+  {
+   "state": "AL",
+   "grade": "A+",
+   "n": 532,
+   "geo_n": 532
+  },
+  {
+   "state": "AL",
+   "grade": "B",
+   "n": 7128,
+   "geo_n": 7081
+  },
+  {
+   "state": "AL",
+   "grade": "C",
+   "n": 14605,
+   "geo_n": 14371
+  },
+  {
+   "state": "AL",
+   "grade": "D",
+   "n": 12977,
+   "geo_n": 12561
+  },
+  {
+   "state": "AL",
+   "grade": "F",
+   "n": 8237,
+   "geo_n": 6188
+  },
+  {
+   "state": "AL",
+   "grade": null,
+   "n": 53,
+   "geo_n": 0
+  },
+  {
+   "state": "AR",
+   "grade": "A",
+   "n": 1968,
+   "geo_n": 1968
+  },
+  {
+   "state": "AR",
+   "grade": "B",
+   "n": 7822,
+   "geo_n": 1742
+  },
+  {
+   "state": "AR",
+   "grade": "C",
+   "n": 35208,
+   "geo_n": 776
+  },
+  {
+   "state": "AR",
+   "grade": "D",
+   "n": 22022,
+   "geo_n": 0
+  },
+  {
+   "state": "AR",
+   "grade": "F",
+   "n": 4059,
+   "geo_n": 0
+  },
+  {
+   "state": "AR",
+   "grade": null,
+   "n": 506,
+   "geo_n": 0
+  },
+  {
+   "state": "AZ",
+   "grade": "A",
+   "n": 704,
+   "geo_n": 704
+  },
+  {
+   "state": "AZ",
+   "grade": "A+",
+   "n": 299,
+   "geo_n": 299
+  },
+  {
+   "state": "AZ",
+   "grade": "B",
+   "n": 2760,
+   "geo_n": 2760
+  },
+  {
+   "state": "AZ",
+   "grade": "C",
+   "n": 6217,
+   "geo_n": 6213
+  },
+  {
+   "state": "AZ",
+   "grade": "D",
+   "n": 5428,
+   "geo_n": 5408
+  },
+  {
+   "state": "AZ",
+   "grade": "F",
+   "n": 4514,
+   "geo_n": 4483
+  },
+  {
+   "state": "AZ",
+   "grade": null,
+   "n": 78,
+   "geo_n": 0
+  },
+  {
+   "state": "CO",
+   "grade": "A",
+   "n": 1579,
+   "geo_n": 1579
+  },
+  {
+   "state": "CO",
+   "grade": "A+",
+   "n": 533,
+   "geo_n": 533
+  },
+  {
+   "state": "CO",
+   "grade": "B",
+   "n": 2904,
+   "geo_n": 2904
+  },
+  {
+   "state": "CO",
+   "grade": "C",
+   "n": 16149,
+   "geo_n": 16071
+  },
+  {
+   "state": "CO",
+   "grade": "D",
+   "n": 17647,
+   "geo_n": 8961
+  },
+  {
+   "state": "CO",
+   "grade": "F",
+   "n": 1330,
+   "geo_n": 983
+  },
+  {
+   "state": "CO",
+   "grade": null,
+   "n": 51,
+   "geo_n": 0
+  },
+  {
+   "state": "FL",
+   "grade": "A",
+   "n": 3355,
+   "geo_n": 3355
+  },
+  {
+   "state": "FL",
+   "grade": "A+",
+   "n": 971,
+   "geo_n": 971
+  },
+  {
+   "state": "FL",
+   "grade": "B",
+   "n": 13520,
+   "geo_n": 13520
+  },
+  {
+   "state": "FL",
+   "grade": "C",
+   "n": 29503,
+   "geo_n": 29191
+  },
+  {
+   "state": "FL",
+   "grade": "D",
+   "n": 23380,
+   "geo_n": 22868
+  },
+  {
+   "state": "FL",
+   "grade": "F",
+   "n": 13410,
+   "geo_n": 11127
+  },
+  {
+   "state": "FL",
+   "grade": null,
+   "n": 221,
+   "geo_n": 0
+  },
+  {
+   "state": "GA",
+   "grade": "A",
+   "n": 761,
+   "geo_n": 761
+  },
+  {
+   "state": "GA",
+   "grade": "A+",
+   "n": 211,
+   "geo_n": 211
+  },
+  {
+   "state": "GA",
+   "grade": "B",
+   "n": 3040,
+   "geo_n": 3040
+  },
+  {
+   "state": "GA",
+   "grade": "C",
+   "n": 4692,
+   "geo_n": 3887
+  },
+  {
+   "state": "GA",
+   "grade": "D",
+   "n": 4833,
+   "geo_n": 1191
+  },
+  {
+   "state": "GA",
+   "grade": "F",
+   "n": 3050,
+   "geo_n": 3
+  },
+  {
+   "state": "GA",
+   "grade": null,
+   "n": 194,
+   "geo_n": 0
+  },
+  {
+   "state": "ID",
+   "grade": "A",
+   "n": 756,
+   "geo_n": 756
+  },
+  {
+   "state": "ID",
+   "grade": "A+",
+   "n": 225,
+   "geo_n": 225
+  },
+  {
+   "state": "ID",
+   "grade": "B",
+   "n": 2067,
+   "geo_n": 2067
+  },
+  {
+   "state": "ID",
+   "grade": "C",
+   "n": 5032,
+   "geo_n": 4154
+  },
+  {
+   "state": "ID",
+   "grade": "D",
+   "n": 4490,
+   "geo_n": 2326
+  },
+  {
+   "state": "ID",
+   "grade": "F",
+   "n": 2072,
+   "geo_n": 1192
+  },
+  {
+   "state": "KS",
+   "grade": "A",
+   "n": 679,
+   "geo_n": 679
+  },
+  {
+   "state": "KS",
+   "grade": "A+",
+   "n": 389,
+   "geo_n": 389
+  },
+  {
+   "state": "KS",
+   "grade": "B",
+   "n": 3629,
+   "geo_n": 3629
+  },
+  {
+   "state": "KS",
+   "grade": "C",
+   "n": 8258,
+   "geo_n": 5139
+  },
+  {
+   "state": "KS",
+   "grade": "D",
+   "n": 7189,
+   "geo_n": 0
+  },
+  {
+   "state": "KS",
+   "grade": "F",
+   "n": 834,
+   "geo_n": 0
+  },
+  {
+   "state": "KY",
+   "grade": "A",
+   "n": 230,
+   "geo_n": 230
+  },
+  {
+   "state": "KY",
+   "grade": "A+",
+   "n": 84,
+   "geo_n": 84
+  },
+  {
+   "state": "KY",
+   "grade": "B",
+   "n": 1031,
+   "geo_n": 1031
+  },
+  {
+   "state": "KY",
+   "grade": "C",
+   "n": 1532,
+   "geo_n": 1532
+  },
+  {
+   "state": "KY",
+   "grade": "D",
+   "n": 1511,
+   "geo_n": 1511
+  },
+  {
+   "state": "KY",
+   "grade": "F",
+   "n": 1006,
+   "geo_n": 588
+  },
+  {
+   "state": "MI",
+   "grade": "A",
+   "n": 303,
+   "geo_n": 303
+  },
+  {
+   "state": "MI",
+   "grade": "A+",
+   "n": 113,
+   "geo_n": 113
+  },
+  {
+   "state": "MI",
+   "grade": "B",
+   "n": 1116,
+   "geo_n": 1116
+  },
+  {
+   "state": "MI",
+   "grade": "C",
+   "n": 2103,
+   "geo_n": 689
+  },
+  {
+   "state": "MI",
+   "grade": "D",
+   "n": 2140,
+   "geo_n": 0
+  },
+  {
+   "state": "MI",
+   "grade": "F",
+   "n": 1426,
+   "geo_n": 0
+  },
+  {
+   "state": "MI",
+   "grade": null,
+   "n": 9,
+   "geo_n": 0
+  },
+  {
+   "state": "MO",
+   "grade": "A",
+   "n": 466,
+   "geo_n": 466
+  },
+  {
+   "state": "MO",
+   "grade": "A+",
+   "n": 125,
+   "geo_n": 125
+  },
+  {
+   "state": "MO",
+   "grade": "B",
+   "n": 1580,
+   "geo_n": 1580
+  },
+  {
+   "state": "MO",
+   "grade": "C",
+   "n": 3142,
+   "geo_n": 2547
+  },
+  {
+   "state": "MO",
+   "grade": "D",
+   "n": 3396,
+   "geo_n": 0
+  },
+  {
+   "state": "MO",
+   "grade": "F",
+   "n": 1643,
+   "geo_n": 0
+  },
+  {
+   "state": "MO",
+   "grade": null,
+   "n": 1,
+   "geo_n": 0
+  },
+  {
+   "state": "MS",
+   "grade": "A",
+   "n": 1261,
+   "geo_n": 1261
+  },
+  {
+   "state": "MS",
+   "grade": "A+",
+   "n": 289,
+   "geo_n": 289
+  },
+  {
+   "state": "MS",
+   "grade": "B",
+   "n": 3956,
+   "geo_n": 3956
+  },
+  {
+   "state": "MS",
+   "grade": "C",
+   "n": 8161,
+   "geo_n": 6361
+  },
+  {
+   "state": "MS",
+   "grade": "D",
+   "n": 9250,
+   "geo_n": 503
+  },
+  {
+   "state": "MS",
+   "grade": "F",
+   "n": 2484,
+   "geo_n": 26
+  },
+  {
+   "state": "MT",
+   "grade": "A",
+   "n": 274,
+   "geo_n": 274
+  },
+  {
+   "state": "MT",
+   "grade": "A+",
+   "n": 247,
+   "geo_n": 247
+  },
+  {
+   "state": "MT",
+   "grade": "B",
+   "n": 11412,
+   "geo_n": 2856
+  },
+  {
+   "state": "MT",
+   "grade": "C",
+   "n": 1008,
+   "geo_n": 838
+  },
+  {
+   "state": "MT",
+   "grade": "D",
+   "n": 6508,
+   "geo_n": 1726
+  },
+  {
+   "state": "MT",
+   "grade": "F",
+   "n": 4276,
+   "geo_n": 922
+  },
+  {
+   "state": "NC",
+   "grade": "A",
+   "n": 2738,
+   "geo_n": 2738
+  },
+  {
+   "state": "NC",
+   "grade": "A+",
+   "n": 932,
+   "geo_n": 932
+  },
+  {
+   "state": "NC",
+   "grade": "B",
+   "n": 11634,
+   "geo_n": 11634
+  },
+  {
+   "state": "NC",
+   "grade": "C",
+   "n": 17084,
+   "geo_n": 17084
+  },
+  {
+   "state": "NC",
+   "grade": "D",
+   "n": 19203,
+   "geo_n": 17058
+  },
+  {
+   "state": "NC",
+   "grade": "F",
+   "n": 11825,
+   "geo_n": 1934
+  },
+  {
+   "state": "NC",
+   "grade": null,
+   "n": 1083,
+   "geo_n": 0
+  },
+  {
+   "state": "NE",
+   "grade": "A",
+   "n": 62,
+   "geo_n": 62
+  },
+  {
+   "state": "NE",
+   "grade": "A+",
+   "n": 12,
+   "geo_n": 12
+  },
+  {
+   "state": "NE",
+   "grade": "B",
+   "n": 113,
+   "geo_n": 113
+  },
+  {
+   "state": "NE",
+   "grade": "C",
+   "n": 195,
+   "geo_n": 195
+  },
+  {
+   "state": "NE",
+   "grade": "D",
+   "n": 248,
+   "geo_n": 248
+  },
+  {
+   "state": "NE",
+   "grade": "F",
+   "n": 127,
+   "geo_n": 66
+  },
+  {
+   "state": "NM",
+   "grade": "A",
+   "n": 6718,
+   "geo_n": 6718
+  },
+  {
+   "state": "NM",
+   "grade": "A+",
+   "n": 1878,
+   "geo_n": 1878
+  },
+  {
+   "state": "NM",
+   "grade": "B",
+   "n": 14252,
+   "geo_n": 14247
+  },
+  {
+   "state": "NM",
+   "grade": "C",
+   "n": 54727,
+   "geo_n": 54560
+  },
+  {
+   "state": "NM",
+   "grade": "D",
+   "n": 54018,
+   "geo_n": 7740
+  },
+  {
+   "state": "NM",
+   "grade": "F",
+   "n": 8056,
+   "geo_n": 66
+  },
+  {
+   "state": "NM",
+   "grade": null,
+   "n": 34,
+   "geo_n": 0
+  },
+  {
+   "state": "NV",
+   "grade": "A",
+   "n": 2060,
+   "geo_n": 2060
+  },
+  {
+   "state": "NV",
+   "grade": "A+",
+   "n": 628,
+   "geo_n": 628
+  },
+  {
+   "state": "NV",
+   "grade": "B",
+   "n": 6046,
+   "geo_n": 6046
+  },
+  {
+   "state": "NV",
+   "grade": "C",
+   "n": 18310,
+   "geo_n": 18310
+  },
+  {
+   "state": "NV",
+   "grade": "D",
+   "n": 16022,
+   "geo_n": 16022
+  },
+  {
+   "state": "NV",
+   "grade": "F",
+   "n": 9014,
+   "geo_n": 8121
+  },
+  {
+   "state": "NV",
+   "grade": null,
+   "n": 17,
+   "geo_n": 0
+  },
+  {
+   "state": "OK",
+   "grade": "D",
+   "n": 8,
+   "geo_n": 0
+  },
+  {
+   "state": "OK",
+   "grade": "F",
+   "n": 337,
+   "geo_n": 0
+  },
+  {
+   "state": "OR",
+   "grade": "A",
+   "n": 2171,
+   "geo_n": 2171
+  },
+  {
+   "state": "OR",
+   "grade": "A+",
+   "n": 522,
+   "geo_n": 522
+  },
+  {
+   "state": "OR",
+   "grade": "B",
+   "n": 6536,
+   "geo_n": 6536
+  },
+  {
+   "state": "OR",
+   "grade": "C",
+   "n": 13604,
+   "geo_n": 13551
+  },
+  {
+   "state": "OR",
+   "grade": "D",
+   "n": 13332,
+   "geo_n": 13149
+  },
+  {
+   "state": "OR",
+   "grade": "F",
+   "n": 7724,
+   "geo_n": 6556
+  },
+  {
+   "state": "OR",
+   "grade": null,
+   "n": 357,
+   "geo_n": 0
+  },
+  {
+   "state": "SC",
+   "grade": "A",
+   "n": 440,
+   "geo_n": 440
+  },
+  {
+   "state": "SC",
+   "grade": "A+",
+   "n": 184,
+   "geo_n": 184
+  },
+  {
+   "state": "SC",
+   "grade": "B",
+   "n": 2075,
+   "geo_n": 2075
+  },
+  {
+   "state": "SC",
+   "grade": "C",
+   "n": 3207,
+   "geo_n": 3182
+  },
+  {
+   "state": "SC",
+   "grade": "D",
+   "n": 3792,
+   "geo_n": 43
+  },
+  {
+   "state": "SC",
+   "grade": "F",
+   "n": 2060,
+   "geo_n": 5
+  },
+  {
+   "state": "SC",
+   "grade": null,
+   "n": 200,
+   "geo_n": 0
+  },
+  {
+   "state": "SD",
+   "grade": "A",
+   "n": 156,
+   "geo_n": 156
+  },
+  {
+   "state": "SD",
+   "grade": "A+",
+   "n": 39,
+   "geo_n": 39
+  },
+  {
+   "state": "SD",
+   "grade": "B",
+   "n": 555,
+   "geo_n": 555
+  },
+  {
+   "state": "SD",
+   "grade": "C",
+   "n": 1160,
+   "geo_n": 1160
+  },
+  {
+   "state": "SD",
+   "grade": "D",
+   "n": 1166,
+   "geo_n": 1166
+  },
+  {
+   "state": "SD",
+   "grade": "F",
+   "n": 655,
+   "geo_n": 326
+  },
+  {
+   "state": "TN",
+   "grade": "A",
+   "n": 130,
+   "geo_n": 130
+  },
+  {
+   "state": "TN",
+   "grade": "A+",
+   "n": 63,
+   "geo_n": 63
+  },
+  {
+   "state": "TN",
+   "grade": "B",
+   "n": 3461,
+   "geo_n": 49
+  },
+  {
+   "state": "TN",
+   "grade": "F",
+   "n": 6,
+   "geo_n": 0
+  },
+  {
+   "state": "TN",
+   "grade": null,
+   "n": 6,
+   "geo_n": 0
+  },
+  {
+   "state": "TX",
+   "grade": "A",
+   "n": 8599,
+   "geo_n": 8599
+  },
+  {
+   "state": "TX",
+   "grade": "A+",
+   "n": 2215,
+   "geo_n": 2215
+  },
+  {
+   "state": "TX",
+   "grade": "B",
+   "n": 26305,
+   "geo_n": 26001
+  },
+  {
+   "state": "TX",
+   "grade": "C",
+   "n": 62731,
+   "geo_n": 60313
+  },
+  {
+   "state": "TX",
+   "grade": "D",
+   "n": 61256,
+   "geo_n": 47464
+  },
+  {
+   "state": "TX",
+   "grade": "F",
+   "n": 35250,
+   "geo_n": 17285
+  },
+  {
+   "state": "TX",
+   "grade": null,
+   "n": 4257,
+   "geo_n": 0
+  },
+  {
+   "state": "WV",
+   "grade": "A",
+   "n": 230,
+   "geo_n": 230
+  },
+  {
+   "state": "WV",
+   "grade": "A+",
+   "n": 107,
+   "geo_n": 107
+  },
+  {
+   "state": "WV",
+   "grade": "B",
+   "n": 1295,
+   "geo_n": 622
+  },
+  {
+   "state": "WV",
+   "grade": "C",
+   "n": 1312,
+   "geo_n": 9
+  },
+  {
+   "state": "WV",
+   "grade": "D",
+   "n": 1421,
+   "geo_n": 0
+  },
+  {
+   "state": "WV",
+   "grade": "F",
+   "n": 908,
+   "geo_n": 0
+  },
+  {
+   "state": "WY",
+   "grade": "A",
+   "n": 524,
+   "geo_n": 524
+  },
+  {
+   "state": "WY",
+   "grade": "A+",
+   "n": 85,
+   "geo_n": 85
+  },
+  {
+   "state": "WY",
+   "grade": "B",
+   "n": 1131,
+   "geo_n": 1131
+  },
+  {
+   "state": "WY",
+   "grade": "C",
+   "n": 1942,
+   "geo_n": 1942
+  },
+  {
+   "state": "WY",
+   "grade": "D",
+   "n": 2120,
+   "geo_n": 2120
+  },
+  {
+   "state": "WY",
+   "grade": "F",
+   "n": 1318,
+   "geo_n": 803
+  }
+ ],
+ "cards": [
+  {
+   "lead_id": "TX-libertytx-60503",
+   "state": "TX",
+   "county": "Liberty",
+   "region": "Liberty County, TX",
+   "apn": "60503",
+   "owner": "GULF STATES UTILITIES CO",
+   "situs": "COUNTY ROAD 3990",
+   "use": "006745",
+   "acres": "1.04",
+   "land_value": "38620",
+   "est_offer": null,
+   "est_retail": null,
+   "est_margin": null,
+   "absentee": true,
+   "mailing_city": "NEW ORLEANS",
+   "mailing_state": "LA",
+   "grade": "A+",
+   "grade_score": "81",
+   "grade_flags": [
+    "🛣 yola cepheli (~64 m)",
+    "⚡ elektrik hattı ~80 m",
+    "🌊 su/göl ~256 m",
+    "🏘 kasabaya ~2 km",
+    "rakip bu county'de aktif (2 ilan)",
+    "county nüfusu 5 yılda %24 büyüdü",
+    "assessed bazlı spread — county assessed değeri, piyasa değeri DEĞİL",
+    "out-of-state sahip",
+    "toplu anlaşma: aynı sahipte 27 parsel"
+   ],
+   "grade_breakdown": {
+    "risk": 0,
+    "appeal": 40,
+    "margin": 15,
+    "liquidity": 16,
+    "motivation": 10
+   },
+   "dist_road_m": 64,
+   "dist_power_m": 80,
+   "dist_water_m": 256,
+   "dist_town_m": 2054,
+   "geo_enriched_at": "2026-07-30T09:39:01.107Z",
+   "lat": "30.371039",
+   "lng": "-95.07721875"
+  },
+  {
+   "lead_id": "NC-Brunswick-153CA00102",
+   "state": "NC",
+   "county": "Brunswick",
+   "region": "Brunswick County, NC",
+   "apn": "153CA00102",
+   "owner": "STARS & STRIPES 3K LLC",
+   "situs": "5 GREAT EAGLE TERRACE NE",
+   "use": "LAKE/POND",
+   "acres": "5.59",
+   "land_value": "560",
+   "est_offer": "400",
+   "est_retail": "8997",
+   "est_margin": "8597",
+   "absentee": true,
+   "mailing_city": "ATLANTA",
+   "mailing_state": "GA",
+   "grade": "A+",
+   "grade_score": "81",
+   "grade_flags": [
+    "🛣 yola cepheli (~84 m)",
+    "⚡ elektrik hattı ~134 m",
+    "🌊 su/göl ~206 m",
+    "🏘 kasabaya ~7 km",
+    "rakip bu county'de aktif (1 ilan)",
+    "county nüfusu 5 yılda %21 büyüdü",
+    "out-of-state sahip",
+    "toplu anlaşma: aynı sahipte 5 parsel"
+   ],
+   "grade_breakdown": {
+    "risk": 0,
+    "appeal": 40,
+    "margin": 15,
+    "liquidity": 16,
+    "motivation": 10
+   },
+   "dist_road_m": 84,
+   "dist_power_m": 134,
+   "dist_water_m": 206,
+   "dist_town_m": 6814,
+   "geo_enriched_at": "2026-07-25T03:43:21.734Z",
+   "lat": "34.04116716666667",
+   "lng": "-78.21534733333334"
+  },
+  {
+   "lead_id": "OR-Klamath-439261",
+   "state": "OR",
+   "county": "Klamath",
+   "region": "Klamath County, OR",
+   "apn": "439261",
+   "owner": "KIM DOUGLAS JUNIOR & KIM HAE KYUNG",
+   "situs": null,
+   "use": "200",
+   "acres": "1.11",
+   "land_value": "73530",
+   "est_offer": null,
+   "est_retail": null,
+   "est_margin": null,
+   "absentee": true,
+   "mailing_city": "LA QUINTA",
+   "mailing_state": "CA",
+   "grade": "A",
+   "grade_score": "81",
+   "grade_flags": [
+    "🛣 yola cepheli (~76 m)",
+    "⚡ elektrik hattı ~56 m",
+    "🌊 su/göl ~230 m",
+    "🏘 kasabaya ~3 km",
+    "pazar kanıtlı: rakipler bu county'de 4 ilan taşıyor",
+    "assessed bazlı spread — county assessed değeri, piyasa değeri DEĞİL",
+    "⚠ assessed outlier ($66,243/ac) — kırpıldı, A+ verilmez",
+    "out-of-state sahip",
+    "toplu anlaşma: aynı sahipte 20 parsel"
+   ],
+   "grade_breakdown": {
+    "risk": 0,
+    "appeal": 40,
+    "margin": 15,
+    "liquidity": 16,
+    "motivation": 10
+   },
+   "dist_road_m": 76,
+   "dist_power_m": 56,
+   "dist_water_m": 230,
+   "dist_town_m": 3300,
+   "geo_enriched_at": "2026-07-30T09:35:54.338Z",
+   "lat": "42.25339625",
+   "lng": "-121.7927325"
+  },
+  {
+   "lead_id": "NV-Nye-01838146",
+   "state": "NV",
+   "county": "Nye",
+   "region": "Nye County, NV",
+   "apn": "01838146",
+   "owner": "JOHNSON TRUST & JOHNSON TRUST",
+   "situs": "0 W CROWELL AVE",
+   "use": "VACANT",
+   "acres": "2.07",
+   "land_value": "6534",
+   "est_offer": null,
+   "est_retail": null,
+   "est_margin": null,
+   "absentee": true,
+   "mailing_city": "SOUTH JORDAN",
+   "mailing_state": "UT",
+   "grade": "A+",
+   "grade_score": "81",
+   "grade_flags": [
+    "🛣 yola cepheli (~58 m)",
+    "⚡ elektrik hattı ~84 m",
+    "🌊 su/göl ~262 m",
+    "🏘 kasabaya ~1 km",
+    "pazar kanıtlı: rakipler bu county'de 8 ilan taşıyor",
+    "county nüfusu 5 yılda %8 büyüdü",
+    "assessed bazlı spread — county assessed değeri, piyasa değeri DEĞİL",
+    "ucuz-çok-adet: 2.1x para (net $2,247 / maliyet $2,000)",
+    "out-of-state sahip",
+    "miras/trust sahibi — motivasyon yüksek"
+   ],
+   "grade_breakdown": {
+    "risk": 0,
+    "appeal": 40,
+    "margin": 12,
+    "liquidity": 20,
+    "motivation": 9
+   },
+   "dist_road_m": 58,
+   "dist_power_m": 84,
+   "dist_water_m": 262,
+   "dist_town_m": 1145,
+   "geo_enriched_at": "2026-07-30T10:08:20.977Z",
+   "lat": "36.901872600000004",
+   "lng": "-116.7675544"
+  },
+  {
+   "lead_id": "NC-Brunswick-2132A002",
+   "state": "NC",
+   "county": "Brunswick",
+   "region": "Brunswick County, NC",
+   "apn": "2132A002",
+   "owner": "MOHLER FAMILY TRUST",
+   "situs": null,
+   "use": "SFR NATURE",
+   "acres": "1.06",
+   "land_value": "40000",
+   "est_offer": null,
+   "est_retail": null,
+   "est_margin": null,
+   "absentee": true,
+   "mailing_city": "OTTAWA HILLS",
+   "mailing_state": "OH",
+   "grade": "A+",
+   "grade_score": "80",
+   "grade_flags": [
+    "🛣 yola cepheli (~99 m)",
+    "⚡ elektrik hattı ~147 m",
+    "🌊 su/göl ~25 m",
+    "🏘 kasabaya ~2 km",
+    "rakip bu county'de aktif (1 ilan)",
+    "county nüfusu 5 yılda %21 büyüdü",
+    "assessed bazlı spread — county assessed değeri, piyasa değeri DEĞİL",
+    "out-of-state sahip",
+    "miras/trust sahibi — motivasyon yüksek"
+   ],
+   "grade_breakdown": {
+    "risk": 0,
+    "appeal": 40,
+    "margin": 15,
+    "liquidity": 16,
+    "motivation": 9
+   },
+   "dist_road_m": 99,
+   "dist_power_m": 147,
+   "dist_water_m": 25,
+   "dist_town_m": 2277,
+   "geo_enriched_at": "2026-07-30T10:22:56.438Z",
+   "lat": "33.956095999999995",
+   "lng": "-78.3993675"
+  },
+  {
+   "lead_id": "NC-Brunswick-1710004307",
+   "state": "NC",
+   "county": "Brunswick",
+   "region": "Brunswick County, NC",
+   "apn": "1710004307",
+   "owner": "OLIVIA MARIE BEY TRUST",
+   "situs": null,
+   "use": "RES RU ACR",
+   "acres": "4.02",
+   "land_value": "56720",
+   "est_offer": null,
+   "est_retail": null,
+   "est_margin": null,
+   "absentee": true,
+   "mailing_city": "LANCASTER",
+   "mailing_state": "SC",
+   "grade": "A+",
+   "grade_score": "80",
+   "grade_flags": [
+    "🛣 yola cepheli (~97 m)",
+    "⚡ elektrik hattı ~101 m",
+    "🌊 su/göl ~97 m",
+    "🏘 kasabaya ~7 km",
+    "rakip bu county'de aktif (1 ilan)",
+    "county nüfusu 5 yılda %21 büyüdü",
+    "assessed bazlı spread — county assessed değeri, piyasa değeri DEĞİL",
+    "out-of-state sahip",
+    "miras/trust sahibi — motivasyon yüksek"
+   ],
+   "grade_breakdown": {
+    "risk": 0,
+    "appeal": 40,
+    "margin": 15,
+    "liquidity": 16,
+    "motivation": 9
+   },
+   "dist_road_m": 97,
+   "dist_power_m": 101,
+   "dist_water_m": 97,
+   "dist_town_m": 7269,
+   "geo_enriched_at": "2026-07-30T09:56:51.177Z",
+   "lat": "34.0023155",
+   "lng": "-78.15015425"
+  },
+  {
+   "lead_id": "NC-Brunswick-18100065",
+   "state": "NC",
+   "county": "Brunswick",
+   "region": "Brunswick County, NC",
+   "apn": "18100065",
+   "owner": "ESKRIDGE WILTON TRUSTEE & C L WELLS",
+   "situs": null,
+   "use": "COMMERCIAL",
+   "acres": "1.06",
+   "land_value": "36890",
+   "est_offer": null,
+   "est_retail": null,
+   "est_margin": null,
+   "absentee": true,
+   "mailing_city": "MARION",
+   "mailing_state": "SC",
+   "grade": "A+",
+   "grade_score": "80",
+   "grade_flags": [
+    "🛣 yola cepheli (~53 m)",
+    "⚡ elektrik hattı ~45 m",
+    "🌊 su/göl ~248 m",
+    "🏘 kasabaya ~2 km",
+    "rakip bu county'de aktif (1 ilan)",
+    "county nüfusu 5 yılda %21 büyüdü",
+    "assessed bazlı spread — county assessed değeri, piyasa değeri DEĞİL",
+    "out-of-state sahip",
+    "miras/trust sahibi — motivasyon yüksek"
+   ],
+   "grade_breakdown": {
+    "risk": 0,
+    "appeal": 40,
+    "margin": 15,
+    "liquidity": 16,
+    "motivation": 9
+   },
+   "dist_road_m": 53,
+   "dist_power_m": 45,
+   "dist_water_m": 248,
+   "dist_town_m": 1735,
+   "geo_enriched_at": "2026-07-30T10:22:56.438Z",
+   "lat": "33.988513250000004",
+   "lng": "-78.38960175"
+  },
+  {
+   "lead_id": "AZ-215-11-094",
+   "state": "AZ",
+   "county": "Golden Valley / Kingman",
+   "region": "Golden Valley / Kingman",
+   "apn": "215-11-094",
+   "owner": "CTR TRUST",
+   "situs": "W ZORA DR",
+   "use": "0003-VL-UNDET-RURAL-SUBD",
+   "acres": "2.27",
+   "land_value": "2575.48",
+   "est_offer": "900",
+   "est_retail": "5998",
+   "est_margin": "5098",
+   "absentee": true,
+   "mailing_city": "LAS VEGAS",
+   "mailing_state": "NV",
+   "grade": "A+",
+   "grade_score": "79",
+   "grade_flags": [
+    "🛣 yola cepheli (~95 m)",
+    "⚡ elektrik hattı ~115 m",
+    "🏘 kasabaya ~7 km",
+    "pazar kanıtlı: rakipler bu county'de 4 ilan taşıyor",
+    "county nüfusu 5 yılda %6 büyüdü",
+    "ucuz-çok-adet: 2.1x para (net $3,098 / maliyet $2,900)",
+    "out-of-state sahip",
+    "toplu anlaşma: aynı sahipte 88 parsel",
+    "miras/trust sahibi — motivasyon yüksek"
+   ],
+   "grade_breakdown": {
+    "risk": 0,
+    "appeal": 34,
+    "margin": 12,
+    "liquidity": 20,
+    "motivation": 13
+   },
+   "dist_road_m": 95,
+   "dist_power_m": 115,
+   "dist_water_m": -1,
+   "dist_town_m": 7370,
+   "geo_enriched_at": "2026-07-23T14:35:43.213Z",
+   "lat": "35.092045",
+   "lng": "-114.186844"
+  },
+  {
+   "lead_id": "NV-Nye-01859123",
+   "state": "NV",
+   "county": "Nye",
+   "region": "Nye County, NV",
+   "apn": "01859123",
+   "owner": "SHINE LARRY L & ANNABELLE TRUST & SHINE LARRY L & ANNABELLE TRUST",
+   "situs": "950 N C AVE",
+   "use": "VACANT",
+   "acres": "0.96",
+   "land_value": "9718",
+   "est_offer": null,
+   "est_retail": null,
+   "est_margin": null,
+   "absentee": true,
+   "mailing_city": "SEAL BEACH",
+   "mailing_state": "CA",
+   "grade": "A+",
+   "grade_score": "79",
+   "grade_flags": [
+    "🛣 yola cepheli (~74 m)",
+    "⚡ elektrik ~405 m",
+    "🌊 su ~861 m",
+    "🏘 kasabaya ~1 km",
+    "pazar kanıtlı: rakipler bu county'de 8 ilan taşıyor",
+    "county nüfusu 5 yılda %8 büyüdü",
+    "assessed bazlı spread — county assessed değeri, piyasa değeri DEĞİL",
+    "ucuz-çok-adet: 3.2x para (net $4,317 / maliyet $2,000)",
+    "out-of-state sahip",
+    "toplu anlaşma: aynı sahipte 7 parsel",
+    "miras/trust sahibi — motivasyon yüksek"
+   ],
+   "grade_breakdown": {
+    "risk": 0,
+    "appeal": 31,
+    "margin": 15,
+    "liquidity": 20,
+    "motivation": 13
+   },
+   "dist_road_m": 74,
+   "dist_power_m": 405,
+   "dist_water_m": 861,
+   "dist_town_m": 668,
+   "geo_enriched_at": "2026-07-30T09:12:48.163Z",
+   "lat": "36.912044",
+   "lng": "-116.76515225000001"
+  },
+  {
+   "lead_id": "OR-Klamath-204987",
+   "state": "OR",
+   "county": "Klamath",
+   "region": "Klamath County, OR",
+   "apn": "204987",
+   "owner": "PETERSEN UTA THALIA",
+   "situs": null,
+   "use": "496",
+   "acres": "1.27",
+   "land_value": "16600",
+   "est_offer": null,
+   "est_retail": null,
+   "est_margin": null,
+   "absentee": true,
+   "mailing_city": "MORGAN HILL",
+   "mailing_state": "CA",
+   "grade": "A+",
+   "grade_score": "78",
+   "grade_flags": [
+    "🛣 yola cepheli (~93 m)",
+    "⚡ elektrik hattı ~43 m",
+    "🌊 su ~978 m",
+    "🏘 kasabaya ~2 km",
+    "pazar kanıtlı: rakipler bu county'de 4 ilan taşıyor",
+    "assessed bazlı spread — county assessed değeri, piyasa değeri DEĞİL",
+    "out-of-state sahip",
+    "toplu anlaşma: aynı sahipte 140 parsel"
+   ],
+   "grade_breakdown": {
+    "risk": 0,
+    "appeal": 37,
+    "margin": 15,
+    "liquidity": 16,
+    "motivation": 10
+   },
+   "dist_road_m": 93,
+   "dist_power_m": 43,
+   "dist_water_m": 978,
+   "dist_town_m": 2123,
+   "geo_enriched_at": "2026-07-30T09:32:33.602Z",
+   "lat": "42.5841886",
+   "lng": "-121.8417682"
+  },
+  {
+   "lead_id": "OR-Klamath-439412",
+   "state": "OR",
+   "county": "Klamath",
+   "region": "Klamath County, OR",
+   "apn": "439412",
+   "owner": "KIM DOUGLAS JUNIOR & KIM HAE KYUNG",
+   "situs": null,
+   "use": "200",
+   "acres": "1.1",
+   "land_value": "40040",
+   "est_offer": null,
+   "est_retail": null,
+   "est_margin": null,
+   "absentee": true,
+   "mailing_city": "LA QUINTA",
+   "mailing_state": "CA",
+   "grade": "A+",
+   "grade_score": "78",
+   "grade_flags": [
+    "🛣 yol ~135 m",
+    "⚡ elektrik hattı ~82 m",
+    "🌊 su/göl ~279 m",
+    "🏘 kasabaya ~3 km",
+    "pazar kanıtlı: rakipler bu county'de 4 ilan taşıyor",
+    "assessed bazlı spread — county assessed değeri, piyasa değeri DEĞİL",
+    "out-of-state sahip",
+    "toplu anlaşma: aynı sahipte 20 parsel"
+   ],
+   "grade_breakdown": {
+    "risk": 0,
+    "appeal": 37,
+    "margin": 15,
+    "liquidity": 16,
+    "motivation": 10
+   },
+   "dist_road_m": 135,
+   "dist_power_m": 82,
+   "dist_water_m": 279,
+   "dist_town_m": 3249,
+   "geo_enriched_at": "2026-07-30T09:35:54.338Z",
+   "lat": "42.253075",
+   "lng": "-121.79195125000001"
+  },
+  {
+   "lead_id": "OR-Klamath-769715",
+   "state": "OR",
+   "county": "Klamath",
+   "region": "Klamath County, OR",
+   "apn": "769715",
+   "owner": "ETERNAL HILLS MEMORIAL ASSOCIATION INC",
+   "situs": null,
+   "use": "931",
+   "acres": "6.32",
+   "land_value": "17110",
+   "est_offer": null,
+   "est_retail": null,
+   "est_margin": null,
+   "absentee": true,
+   "mailing_city": "GAITHERSBURG",
+   "mailing_state": "MD",
+   "grade": "A+",
+   "grade_score": "78",
+   "grade_flags": [
+    "🛣 yola cepheli (~29 m)",
+    "⚡ elektrik hattı ~91 m",
+    "🌊 su ~1791 m",
+    "🏘 kasabaya ~4 km",
+    "pazar kanıtlı: rakipler bu county'de 4 ilan taşıyor",
+    "assessed bazlı spread — county assessed değeri, piyasa değeri DEĞİL",
+    "out-of-state sahip",
+    "toplu anlaşma: aynı sahipte 9 parsel"
+   ],
+   "grade_breakdown": {
+    "risk": 0,
+    "appeal": 37,
+    "margin": 15,
+    "liquidity": 16,
+    "motivation": 10
+   },
+   "dist_road_m": 29,
+   "dist_power_m": 91,
+   "dist_water_m": 1791,
+   "dist_town_m": 4456,
+   "geo_enriched_at": "2026-07-30T09:35:54.930Z",
+   "lat": "42.1818212",
+   "lng": "-121.694941"
+  },
+  {
+   "lead_id": "NV-Nye-02774122",
+   "state": "NV",
+   "county": "Nye",
+   "region": "Nye County, NV",
+   "apn": "02774122",
+   "owner": "MAJESTIC PAHRUMP HOLDINGS LLC & MAJESTIC PAHRUMP HOLDINGS LLC",
+   "situs": "4867 S NEVADA HIGHWAY 160",
+   "use": "VACANT",
+   "acres": "7.95",
+   "land_value": "43898",
+   "est_offer": null,
+   "est_retail": null,
+   "est_margin": null,
+   "absentee": true,
+   "mailing_city": "CITY OF INDUSTRY",
+   "mailing_state": "CA",
+   "grade": "A+",
+   "grade_score": "78",
+   "grade_flags": [
+    "🛣 yola cepheli (~44 m)",
+    "⚡ elektrik hattı ~74 m",
+    "🌊 su ~442 m",
+    "🏘 kasabaya ~7 km",
+    "pazar kanıtlı: rakipler bu county'de 8 ilan taşıyor",
+    "county nüfusu 5 yılda %8 büyüdü",
+    "assessed bazlı spread — county assessed değeri, piyasa değeri DEĞİL",
+    "out-of-state sahip"
+   ],
+   "grade_breakdown": {
+    "risk": 0,
+    "appeal": 37,
+    "margin": 15,
+    "liquidity": 20,
+    "motivation": 6
+   },
+   "dist_road_m": 44,
+   "dist_power_m": 74,
+   "dist_water_m": 442,
+   "dist_town_m": 6887,
+   "geo_enriched_at": "2026-07-30T09:29:40.287Z",
+   "lat": "36.165364499999995",
+   "lng": "-115.90688399999999"
+  },
+  {
+   "lead_id": "NV-Nye-04241217",
+   "state": "NV",
+   "county": "Nye",
+   "region": "Nye County, NV",
+   "apn": "04241217",
+   "owner": "VACKAR ANTHONY R & CHERIE E & VACKAR ANTHONY R & CHERIE E",
+   "situs": "1831 S NEVADA HIGHWAY 160",
+   "use": "VACANT",
+   "acres": "3.96",
+   "land_value": "16974",
+   "est_offer": null,
+   "est_retail": null,
+   "est_margin": null,
+   "absentee": true,
+   "mailing_city": "MOHAVE VALLEY",
+   "mailing_state": "AZ",
+   "grade": "A+",
+   "grade_score": "78",
+   "grade_flags": [
+    "🛣 yola cepheli (~61 m)",
+    "⚡ elektrik hattı ~116 m",
+    "🌊 su ~855 m",
+    "🏘 kasabaya ~1 km",
+    "pazar kanıtlı: rakipler bu county'de 8 ilan taşıyor",
+    "county nüfusu 5 yılda %8 büyüdü",
+    "assessed bazlı spread — county assessed değeri, piyasa değeri DEĞİL",
+    "out-of-state sahip"
+   ],
+   "grade_breakdown": {
+    "risk": 0,
+    "appeal": 37,
+    "margin": 15,
+    "liquidity": 20,
+    "motivation": 6
+   },
+   "dist_road_m": 61,
+   "dist_power_m": 116,
+   "dist_water_m": 855,
+   "dist_town_m": 888,
+   "geo_enriched_at": "2026-07-30T09:30:13.745Z",
+   "lat": "36.193925",
+   "lng": "-115.96609975"
+  },
+  {
+   "lead_id": "OR-Klamath-535503",
+   "state": "OR",
+   "county": "Klamath",
+   "region": "Klamath County, OR",
+   "apn": "535503",
+   "owner": "DRY GULCH LAND TRUST ET AL",
+   "situs": null,
+   "use": "400",
+   "acres": "1.45",
+   "land_value": "14890",
+   "est_offer": null,
+   "est_retail": null,
+   "est_margin": null,
+   "absentee": true,
+   "mailing_city": "MITCHELVILLE",
+   "mailing_state": "IA",
+   "grade": "A+",
+   "grade_score": "78",
+   "grade_flags": [
+    "🛣 yola cepheli (~83 m)",
+    "⚡ elektrik ~499 m",
+    "🌊 su ~1124 m",
+    "🏘 kasabaya ~4 km",
+    "pazar kanıtlı: rakipler bu county'de 4 ilan taşıyor",
+    "assessed bazlı spread — county assessed değeri, piyasa değeri DEĞİL",
+    "out-of-state sahip",
+    "toplu anlaşma: aynı sahipte 6 parsel",
+    "miras/trust sahibi — motivasyon yüksek"
+   ],
+   "grade_breakdown": {
+    "risk": 0,
+    "appeal": 34,
+    "margin": 15,
+    "liquidity": 16,
+    "motivation": 13
+   },
+   "dist_road_m": 83,
+   "dist_power_m": 499,
+   "dist_water_m": 1124,
+   "dist_town_m": 4270,
+   "geo_enriched_at": "2026-07-30T09:27:08.423Z",
+   "lat": "42.194281000000004",
+   "lng": "-121.813017"
+  },
+  {
+   "lead_id": "OR-Klamath-439421",
+   "state": "OR",
+   "county": "Klamath",
+   "region": "Klamath County, OR",
+   "apn": "439421",
+   "owner": "KIM DOUGLAS JUNIOR & KIM HAE KYUNG",
+   "situs": null,
+   "use": "200",
+   "acres": "1.1",
+   "land_value": "39340",
+   "est_offer": null,
+   "est_retail": null,
+   "est_margin": null,
+   "absentee": true,
+   "mailing_city": "LA QUINTA",
+   "mailing_state": "CA",
+   "grade": "A+",
+   "grade_score": "78",
+   "grade_flags": [
+    "🛣 yola cepheli (~92 m)",
+    "⚡ elektrik hattı ~132 m",
+    "🌊 su ~381 m",
+    "🏘 kasabaya ~3 km",
+    "pazar kanıtlı: rakipler bu county'de 4 ilan taşıyor",
+    "assessed bazlı spread — county assessed değeri, piyasa değeri DEĞİL",
+    "out-of-state sahip",
+    "toplu anlaşma: aynı sahipte 20 parsel"
+   ],
+   "grade_breakdown": {
+    "risk": 0,
+    "appeal": 37,
+    "margin": 15,
+    "liquidity": 16,
+    "motivation": 10
+   },
+   "dist_road_m": 92,
+   "dist_power_m": 132,
+   "dist_water_m": 381,
+   "dist_town_m": 3147,
+   "geo_enriched_at": "2026-07-30T09:35:54.338Z",
+   "lat": "42.25209475",
+   "lng": "-121.79210275000001"
+  },
+  {
+   "lead_id": "OR-Klamath-598008",
+   "state": "OR",
+   "county": "Klamath",
+   "region": "Klamath County, OR",
+   "apn": "598008",
+   "owner": "ETERNAL HILLS MEMORIAL ASSOCIATION INC",
+   "situs": null,
+   "use": "931",
+   "acres": "4.92",
+   "land_value": "13200",
+   "est_offer": null,
+   "est_retail": null,
+   "est_margin": null,
+   "absentee": true,
+   "mailing_city": "GAITHERSBURG",
+   "mailing_state": "MD",
+   "grade": "A+",
+   "grade_score": "78",
+   "grade_flags": [
+    "🛣 yola cepheli (~39 m)",
+    "⚡ elektrik hattı ~115 m",
+    "🌊 su ~1944 m",
+    "🏘 kasabaya ~4 km",
+    "pazar kanıtlı: rakipler bu county'de 4 ilan taşıyor",
+    "assessed bazlı spread — county assessed değeri, piyasa değeri DEĞİL",
+    "out-of-state sahip",
+    "toplu anlaşma: aynı sahipte 9 parsel"
+   ],
+   "grade_breakdown": {
+    "risk": 0,
+    "appeal": 37,
+    "margin": 15,
+    "liquidity": 16,
+    "motivation": 10
+   },
+   "dist_road_m": 39,
+   "dist_power_m": 115,
+   "dist_water_m": 1944,
+   "dist_town_m": 4298,
+   "geo_enriched_at": "2026-07-30T09:35:54.930Z",
+   "lat": "42.1820492",
+   "lng": "-121.697166"
+  },
+  {
+   "lead_id": "FL-Citrus-17E17S200220  00510 0040",
+   "state": "FL",
+   "county": "Citrus",
+   "region": "Citrus County",
+   "apn": "17E17S200220  00510 0040",
+   "owner": "CABATU FILEMON ROEL",
+   "situs": "8030 N JACARANDA WAY, CRYSTAL RIVER",
+   "use": "Vacant Residential",
+   "acres": "3.468",
+   "land_value": "12590",
+   "est_offer": null,
+   "est_retail": null,
+   "est_margin": null,
+   "absentee": true,
+   "mailing_city": "NORTH LAS VEGAS",
+   "mailing_state": "NV",
+   "grade": "A+",
+   "grade_score": "78",
+   "grade_flags": [
+    "🛣 yol ~172 m",
+    "⚡ elektrik hattı ~103 m",
+    "🌊 su/göl ~18 m",
+    "🏘 kasabaya ~7 km",
+    "pazar kanıtlı: rakipler bu county'de 9 ilan taşıyor",
+    "county nüfusu 5 yılda %10 büyüdü",
+    "assessed bazlı spread — county assessed değeri, piyasa değeri DEĞİL",
+    "out-of-state sahip"
+   ],
+   "grade_breakdown": {
+    "risk": 0,
+    "appeal": 37,
+    "margin": 15,
+    "liquidity": 20,
+    "motivation": 6
+   },
+   "dist_road_m": 172,
+   "dist_power_m": 103,
+   "dist_water_m": 18,
+   "dist_town_m": 6774,
+   "geo_enriched_at": "2026-07-24T23:08:29.381Z",
+   "lat": "28.97765666824641",
+   "lng": "-82.63357076630543"
+  },
+  {
+   "lead_id": "NC-Brunswick-226PC00102",
+   "state": "NC",
+   "county": "Brunswick",
+   "region": "Brunswick County, NC",
+   "apn": "226PC00102",
+   "owner": "FARM AT BRUNSWICK HOA INC THE",
+   "situs": null,
+   "use": "LAKE/POND",
+   "acres": "6",
+   "land_value": "600",
+   "est_offer": "400",
+   "est_retail": "8997",
+   "est_margin": "8597",
+   "absentee": true,
+   "mailing_city": "TEMPE",
+   "mailing_state": "AZ",
+   "grade": "A+",
+   "grade_score": "78",
+   "grade_flags": [
+    "🛣 yola cepheli (~89 m)",
+    "⚡ elektrik ~473 m",
+    "🌊 su/göl ~66 m",
+    "🏘 kasabaya ~3 km",
+    "rakip bu county'de aktif (1 ilan)",
+    "county nüfusu 5 yılda %21 büyüdü",
+    "out-of-state sahip",
+    "toplu anlaşma: aynı sahipte 5 parsel"
+   ],
+   "grade_breakdown": {
+    "risk": 0,
+    "appeal": 37,
+    "margin": 15,
+    "liquidity": 16,
+    "motivation": 10
+   },
+   "dist_road_m": 89,
+   "dist_power_m": 473,
+   "dist_water_m": 66,
+   "dist_town_m": 2936,
+   "geo_enriched_at": "2026-07-25T03:43:34.013Z",
+   "lat": "33.9221434",
+   "lng": "-78.5613124"
+  },
+  {
+   "lead_id": "NC-Brunswick-243CG00101",
+   "state": "NC",
+   "county": "Brunswick",
+   "region": "Brunswick County, NC",
+   "apn": "243CG00101",
+   "owner": "DRAPAC GROUP 35 LLC",
+   "situs": "1052 OCEAN ISLE BEACH RD SW",
+   "use": "WASTELAND",
+   "acres": "4.25",
+   "land_value": "1080",
+   "est_offer": "400",
+   "est_retail": "8997",
+   "est_margin": "8597",
+   "absentee": true,
+   "mailing_city": "ATLANTA",
+   "mailing_state": "GA",
+   "grade": "A+",
+   "grade_score": "78",
+   "grade_flags": [
+    "🛣 yol ~156 m",
+    "⚡ elektrik hattı ~101 m",
+    "🌊 su/göl ~138 m",
+    "🏘 kasabaya ~3 km",
+    "rakip bu county'de aktif (1 ilan)",
+    "county nüfusu 5 yılda %21 büyüdü",
+    "out-of-state sahip",
+    "toplu anlaşma: aynı sahipte 5 parsel"
+   ],
+   "grade_breakdown": {
+    "risk": 0,
+    "appeal": 37,
+    "margin": 15,
+    "liquidity": 16,
+    "motivation": 10
+   },
+   "dist_road_m": 156,
+   "dist_power_m": 101,
+   "dist_water_m": 138,
+   "dist_town_m": 3064,
+   "geo_enriched_at": "2026-07-25T03:43:34.727Z",
+   "lat": "33.918757600000006",
+   "lng": "-78.4452444"
+  },
+  {
+   "lead_id": "FL-Putnam-10-10-26-2870-0040-0010",
+   "state": "FL",
+   "county": "Putnam",
+   "region": "Putnam County",
+   "apn": "10-10-26-2870-0040-0010",
+   "owner": "CARL CHILDRENS TRUST (THE)",
+   "situs": " ,  ",
+   "use": "Vacant Residential",
+   "acres": "1.74",
+   "land_value": "11340",
+   "est_offer": null,
+   "est_retail": null,
+   "est_margin": null,
+   "absentee": true,
+   "mailing_city": "HENDERSON",
+   "mailing_state": "NV",
+   "grade": "A+",
+   "grade_score": "78",
+   "grade_flags": [
+    "🛣 yol ~130 m",
+    "⚡ elektrik ~282 m",
+    "🌊 su/göl ~138 m",
+    "🏘 kasabaya ~5 km",
+    "pazar kanıtlı: rakipler bu county'de 4 ilan taşıyor",
+    "county nüfusu 5 yılda %5 büyüdü",
+    "assessed bazlı spread — county assessed değeri, piyasa değeri DEĞİL",
+    "out-of-state sahip",
+    "miras/trust sahibi — motivasyon yüksek"
+   ],
+   "grade_breakdown": {
+    "risk": 0,
+    "appeal": 34,
+    "margin": 15,
+    "liquidity": 20,
+    "motivation": 9
+   },
+   "dist_road_m": 130,
+   "dist_power_m": 282,
+   "dist_water_m": 138,
+   "dist_town_m": 4711,
+   "geo_enriched_at": "2026-07-30T09:13:30.799Z",
+   "lat": "29.638908",
+   "lng": "-81.684616"
+  },
+  {
+   "lead_id": "NC-Brunswick-0980002505",
+   "state": "NC",
+   "county": "Brunswick",
+   "region": "Brunswick County, NC",
+   "apn": "0980002505",
+   "owner": "DEALIOS LLC",
+   "situs": null,
+   "use": "RES RU ACR",
+   "acres": "7.52",
+   "land_value": "36850",
+   "est_offer": null,
+   "est_retail": null,
+   "est_margin": null,
+   "absentee": true,
+   "mailing_city": "TEWKSBURY",
+   "mailing_state": "MA",
+   "grade": "A+",
+   "grade_score": "78",
+   "grade_flags": [
+    "🛣 yol ~144 m",
+    "⚡ elektrik hattı ~59 m",
+    "🌊 su/göl ~88 m",
+    "🏘 kasabaya ~8 km",
+    "rakip bu county'de aktif (1 ilan)",
+    "county nüfusu 5 yılda %21 büyüdü",
+    "assessed bazlı spread — county assessed değeri, piyasa değeri DEĞİL",
+    "out-of-state sahip",
+    "toplu anlaşma: aynı sahipte 7 parsel"
+   ],
+   "grade_breakdown": {
+    "risk": 0,
+    "appeal": 37,
+    "margin": 15,
+    "liquidity": 16,
+    "motivation": 10
+   },
+   "dist_road_m": 144,
+   "dist_power_m": 59,
+   "dist_water_m": 88,
+   "dist_town_m": 7812,
+   "geo_enriched_at": "2026-07-30T09:35:47.452Z",
+   "lat": "34.1280562",
+   "lng": "-78.104964"
+  },
+  {
+   "lead_id": "NC-Brunswick-216CA151",
+   "state": "NC",
+   "county": "Brunswick",
+   "region": "Brunswick County, NC",
+   "apn": "216CA151",
+   "owner": "ASHE CRYSTAL",
+   "situs": "786 BUCKEYE ST SW",
+   "use": "MH SUBDIV",
+   "acres": "0.66",
+   "land_value": "42000",
+   "est_offer": null,
+   "est_retail": null,
+   "est_margin": null,
+   "absentee": true,
+   "mailing_city": "DUNNELLON",
+   "mailing_state": "FL",
+   "grade": "A+",
+   "grade_score": "78",
+   "grade_flags": [
+    "🛣 yola cepheli (~57 m)",
+    "⚡ elektrik hattı ~139 m",
+    "🌊 su/göl ~170 m",
+    "🏘 kasabaya ~2 km",
+    "rakip bu county'de aktif (1 ilan)",
+    "county nüfusu 5 yılda %21 büyüdü",
+    "assessed bazlı spread — county assessed değeri, piyasa değeri DEĞİL",
+    "out-of-state sahip",
+    "toplu anlaşma: aynı sahipte 9 parsel"
+   ],
+   "grade_breakdown": {
+    "risk": 0,
+    "appeal": 37,
+    "margin": 15,
+    "liquidity": 16,
+    "motivation": 10
+   },
+   "dist_road_m": 57,
+   "dist_power_m": 139,
+   "dist_water_m": 170,
+   "dist_town_m": 2366,
+   "geo_enriched_at": "2026-07-30T11:46:16.675Z",
+   "lat": "33.951128250000004",
+   "lng": "-78.26630975"
+  },
+  {
+   "lead_id": "NV-Nye-01838145",
+   "state": "NV",
+   "county": "Nye",
+   "region": "Nye County, NV",
+   "apn": "01838145",
+   "owner": "JOHNSON TRUST & JOHNSON TRUST",
+   "situs": "0 W CROWELL AVE",
+   "use": "VACANT",
+   "acres": "2.07",
+   "land_value": "6534",
+   "est_offer": null,
+   "est_retail": null,
+   "est_margin": null,
+   "absentee": true,
+   "mailing_city": "SOUTH JORDAN",
+   "mailing_state": "UT",
+   "grade": "A+",
+   "grade_score": "78",
+   "grade_flags": [
+    "🛣 yola cepheli (~68 m)",
+    "⚡ elektrik hattı ~141 m",
+    "🌊 su ~337 m",
+    "🏘 kasabaya ~1 km",
+    "pazar kanıtlı: rakipler bu county'de 8 ilan taşıyor",
+    "county nüfusu 5 yılda %8 büyüdü",
+    "assessed bazlı spread — county assessed değeri, piyasa değeri DEĞİL",
+    "ucuz-çok-adet: 2.1x para (net $2,247 / maliyet $2,000)",
+    "out-of-state sahip",
+    "miras/trust sahibi — motivasyon yüksek"
+   ],
+   "grade_breakdown": {
+    "risk": 0,
+    "appeal": 37,
+    "margin": 12,
+    "liquidity": 20,
+    "motivation": 9
+   },
+   "dist_road_m": 68,
+   "dist_power_m": 141,
+   "dist_water_m": 337,
+   "dist_town_m": 1084,
+   "geo_enriched_at": "2026-07-30T10:08:20.977Z",
+   "lat": "36.901870800000005",
+   "lng": "-116.76653719999999"
+  },
+  {
+   "lead_id": "NC-Brunswick-21000124",
+   "state": "NC",
+   "county": "Brunswick",
+   "region": "Brunswick County, NC",
+   "apn": "21000124",
+   "owner": "HGC BRUNSWICK PLANTATION LLC",
+   "situs": null,
+   "use": "S-PVT GOLF",
+   "acres": "8.72",
+   "land_value": "21800",
+   "est_offer": null,
+   "est_retail": null,
+   "est_margin": null,
+   "absentee": true,
+   "mailing_city": "HERNDON",
+   "mailing_state": "VA",
+   "grade": "A+",
+   "grade_score": "78",
+   "grade_flags": [
+    "🛣 yola cepheli (~92 m)",
+    "⚡ elektrik ~212 m",
+    "🌊 su/göl ~105 m",
+    "🏘 kasabaya ~4 km",
+    "rakip bu county'de aktif (1 ilan)",
+    "county nüfusu 5 yılda %21 büyüdü",
+    "assessed bazlı spread — county assessed değeri, piyasa değeri DEĞİL",
+    "out-of-state sahip",
+    "toplu anlaşma: aynı sahipte 12 parsel"
+   ],
+   "grade_breakdown": {
+    "risk": 0,
+    "appeal": 37,
+    "margin": 15,
+    "liquidity": 16,
+    "motivation": 10
+   },
+   "dist_road_m": 92,
+   "dist_power_m": 212,
+   "dist_water_m": 105,
+   "dist_town_m": 4477,
+   "geo_enriched_at": "2026-07-30T09:48:11.360Z",
+   "lat": "33.939248750000004",
+   "lng": "-78.56540462499999"
+  },
+  {
+   "lead_id": "OR-Klamath-893089",
+   "state": "OR",
+   "county": "Klamath",
+   "region": "Klamath County, OR",
+   "apn": "893089",
+   "owner": "WENDT PAMELA LOUISE TRUSTEE &",
+   "situs": "1143 OREGON ASH CIR, KLAMATH FALLS",
+   "use": "400",
+   "acres": "1.03",
+   "land_value": "32400",
+   "est_offer": null,
+   "est_retail": null,
+   "est_margin": null,
+   "absentee": true,
+   "mailing_city": "PEORIA",
+   "mailing_state": "AZ",
+   "grade": "A+",
+   "grade_score": "77",
+   "grade_flags": [
+    "🛣 yola cepheli (~49 m)",
+    "⚡ elektrik ~363 m",
+    "🌊 su/göl ~208 m",
+    "🏘 kasabaya ~4 km",
+    "pazar kanıtlı: rakipler bu county'de 4 ilan taşıyor",
+    "assessed bazlı spread — county assessed değeri, piyasa değeri DEĞİL",
+    "out-of-state sahip",
+    "miras/trust sahibi — motivasyon yüksek"
+   ],
+   "grade_breakdown": {
+    "risk": 0,
+    "appeal": 37,
+    "margin": 15,
+    "liquidity": 16,
+    "motivation": 9
+   },
+   "dist_road_m": 49,
+   "dist_power_m": 363,
+   "dist_water_m": 208,
+   "dist_town_m": 4101,
+   "geo_enriched_at": "2026-07-30T10:18:47.263Z",
+   "lat": "42.2192095",
+   "lng": "-121.83087925"
+  },
+  {
+   "lead_id": "NC-Brunswick-1970001927",
+   "state": "NC",
+   "county": "Brunswick",
+   "region": "Brunswick County, NC",
+   "apn": "1970001927",
+   "owner": "R1E GROUP LLC",
+   "situs": null,
+   "use": "RES RU ACR",
+   "acres": "2.99",
+   "land_value": "52030",
+   "est_offer": null,
+   "est_retail": null,
+   "est_margin": null,
+   "absentee": true,
+   "mailing_city": "ALDIE",
+   "mailing_state": "VA",
+   "grade": "A+",
+   "grade_score": "77",
+   "grade_flags": [
+    "🛣 yola cepheli (~74 m)",
+    "⚡ elektrik hattı ~26 m",
+    "🌊 su/göl ~99 m",
+    "🏘 kasabaya ~2 km",
+    "rakip bu county'de aktif (1 ilan)",
+    "county nüfusu 5 yılda %21 büyüdü",
+    "assessed bazlı spread — county assessed değeri, piyasa değeri DEĞİL",
+    "out-of-state sahip"
+   ],
+   "grade_breakdown": {
+    "risk": 0,
+    "appeal": 40,
+    "margin": 15,
+    "liquidity": 16,
+    "motivation": 6
+   },
+   "dist_road_m": 74,
+   "dist_power_m": 26,
+   "dist_water_m": 99,
+   "dist_town_m": 1810,
+   "geo_enriched_at": "2026-07-30T11:30:40.566Z",
+   "lat": "33.9739925",
+   "lng": "-78.40544375"
+  },
+  {
+   "lead_id": "FL-Charlotte-422105376001",
+   "state": "FL",
+   "county": "Charlotte",
+   "region": "Charlotte County",
+   "apn": "422105376001",
+   "owner": "PLACIDA HOLDINGS LLC TRUSTEE",
+   "situs": "13273 PICKEREL WAY, PLACIDA",
+   "use": "Vacant Residential",
+   "acres": "1.705",
+   "land_value": "92",
+   "est_offer": null,
+   "est_retail": null,
+   "est_margin": null,
+   "absentee": true,
+   "mailing_city": "BOWLING GREEN",
+   "mailing_state": "KY",
+   "grade": "A+",
+   "grade_score": "77",
+   "grade_flags": [
+    "🛣 yol ~155 m",
+    "elektrik hattı 1.5 km içinde görünmüyor (OSM)",
+    "🌊 su/göl ~241 m",
+    "🏘 kasabaya ~6 km",
+    "pazar kanıtlı: rakipler bu county'de 18 ilan taşıyor",
+    "county nüfusu 5 yılda %13 büyüdü",
+    "değer TAHMİNİ: rakip $/acre comp'undan (county değerlemesi yok)",
+    "out-of-state sahip",
+    "toplu anlaşma: aynı sahipte 15 parsel",
+    "miras/trust sahibi — motivasyon yüksek"
+   ],
+   "grade_breakdown": {
+    "risk": 0,
+    "appeal": 29,
+    "margin": 15,
+    "liquidity": 20,
+    "motivation": 13
+   },
+   "dist_road_m": 155,
+   "dist_power_m": -1,
+   "dist_water_m": 241,
+   "dist_town_m": 6439,
+   "geo_enriched_at": "2026-07-23T14:35:02.820Z",
+   "lat": "26.844446782196844",
+   "lng": "-82.23527696716506"
+  },
+  {
+   "lead_id": "OR-Klamath-441230",
+   "state": "OR",
+   "county": "Klamath",
+   "region": "Klamath County, OR",
+   "apn": "441230",
+   "owner": "CHANG JINGWAH KIM & CHANG VICTORIA P &",
+   "situs": null,
+   "use": "400",
+   "acres": "8.29",
+   "land_value": "32370",
+   "est_offer": null,
+   "est_retail": null,
+   "est_margin": null,
+   "absentee": true,
+   "mailing_city": "SAN LEANDRO",
+   "mailing_state": "CA",
+   "grade": "A+",
+   "grade_score": "77",
+   "grade_flags": [
+    "🛣 yola cepheli (~44 m)",
+    "⚡ elektrik hattı ~147 m",
+    "🌊 su/göl ~289 m",
+    "🏘 kasabaya ~2 km",
+    "pazar kanıtlı: rakipler bu county'de 4 ilan taşıyor",
+    "assessed bazlı spread — county assessed değeri, piyasa değeri DEĞİL",
+    "out-of-state sahip"
+   ],
+   "grade_breakdown": {
+    "risk": 0,
+    "appeal": 40,
+    "margin": 15,
+    "liquidity": 16,
+    "motivation": 6
+   },
+   "dist_road_m": 44,
+   "dist_power_m": 147,
+   "dist_water_m": 289,
+   "dist_town_m": 2100,
+   "geo_enriched_at": "2026-08-02T08:31:04.387Z",
+   "lat": "42.235215499999995",
+   "lng": "-121.76033849999999"
+  },
+  {
+   "lead_id": "NC-Brunswick-16700064",
+   "state": "NC",
+   "county": "Brunswick",
+   "region": "Brunswick County, NC",
+   "apn": "16700064",
+   "owner": "MCMILLAN RUTH H HEIRS",
+   "situs": "1181 OCEAN HWY W",
+   "use": "RES RU ACR",
+   "acres": "0.93",
+   "land_value": "44640",
+   "est_offer": null,
+   "est_retail": null,
+   "est_margin": null,
+   "absentee": true,
+   "mailing_city": "DAYTON",
+   "mailing_state": "OH",
+   "grade": "A+",
+   "grade_score": "77",
+   "grade_flags": [
+    "🛣 yola cepheli (~76 m)",
+    "⚡ elektrik hattı ~50 m",
+    "🌊 su/göl ~183 m",
+    "🏘 kasabaya ~8 km",
+    "rakip bu county'de aktif (1 ilan)",
+    "county nüfusu 5 yılda %21 büyüdü",
+    "assessed bazlı spread — county assessed değeri, piyasa değeri DEĞİL",
+    "out-of-state sahip",
+    "miras/trust sahibi — motivasyon yüksek"
+   ],
+   "grade_breakdown": {
+    "risk": 0,
+    "appeal": 37,
+    "margin": 15,
+    "liquidity": 16,
+    "motivation": 9
+   },
+   "dist_road_m": 76,
+   "dist_power_m": 50,
+   "dist_water_m": 183,
+   "dist_town_m": 7947,
+   "geo_enriched_at": "2026-07-30T11:48:32.773Z",
+   "lat": "34.0041565",
+   "lng": "-78.30812949999999"
+  }
+ ]
+}

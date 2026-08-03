@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
 import { enforceRateLimit, requireGate } from "@/lib/api-guard";
 import { OFFMARKET_STATES, OFFMARKET_STATE_META } from "@/lib/offmarket-stats";
+// Canlı head-count zaman aşımına uğrarsa düşülecek gerçek sayılar
+// (scraper/build-not-matrisi.mjs üretir; eyalet × not kırılımı).
+import notMatrisi from "@/data/not-matrisi.json";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -48,17 +51,41 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    const byState = STATES.map((st, i) => ({
-      state: st.code,
-      label: st.label,
-      region: st.region,
-      color: st.color,
-      count: stateRes[i]?.count ?? 0,
-    })).sort((a, b) => b.count - a.count);
+    // ── SIFIR GÖSTERME HATASI (2026-08-03 düzeltildi) ────────────────────────
+    // Eskiden `count: stateRes[i]?.count ?? 0` yazıyordu. Head-count sorgusu
+    // HATA alınca (veritabanı ağır yazma altında → statement timeout) count
+    // null geliyor ve ekrana "CO 0", "TX 0" diye yazılıyordu. Yani ölçülemeyen
+    // değer YOK gibi gösteriliyordu; başlıktaki toplam da 920.492'den
+    // 165.663'e düşüyordu. Ölçülemeyen sayı, sıfır DEĞİLDİR.
+    //
+    // Artık başarısız eyalet için sırayla: not-matrisi snapshot'ı → sabit
+    // fallback. Hangi eyaletin ölçülemediği `tahminiEyaletler`de bildirilir.
+    const snapshotSayim = new Map<string, number>();
+    for (const r of (notMatrisi as { matrix?: { state: string; n: number }[] }).matrix ?? []) {
+      snapshotSayim.set(r.state, (snapshotSayim.get(r.state) ?? 0) + r.n);
+    }
 
+    const tahminiEyaletler: string[] = [];
+    const byState = STATES.map((st, i) => {
+      const canli = stateRes[i]?.count;
+      let count = canli ?? null;
+      if (count == null) {
+        count = snapshotSayim.get(st.code) ?? OFFMARKET_STATE_META[st.code as keyof typeof OFFMARKET_STATE_META]?.fallbackCount ?? 0;
+        tahminiEyaletler.push(st.code);
+      }
+      return { state: st.code, label: st.label, region: st.region, color: st.color, count };
+    }).sort((a, b) => b.count - a.count);
+
+    // Toplam da aynı mantık: canlı toplam gelmediyse eyaletlerden türet.
     const total = totalRes.count ?? byState.reduce((s, x) => s + x.count, 0);
 
-    return NextResponse.json({ total, byState, states: byState.length });
+    return NextResponse.json({
+      total,
+      byState,
+      states: byState.length,
+      tahminiEyaletler,
+      olcumTam: tahminiEyaletler.length === 0,
+    });
   } catch (e) {
     return NextResponse.json(
       { total: null, byState: [], note: e instanceof Error ? e.message : "offmarket-breakdown failed" },

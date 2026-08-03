@@ -5,5 +5,8 @@
       "path": "/api/saved-searches/run-all",
       "schedule": "0 13 * * *"
     }
-  ]
+  ],
+  "git": {
+    "deploymentEnabled": false
+  }
 }

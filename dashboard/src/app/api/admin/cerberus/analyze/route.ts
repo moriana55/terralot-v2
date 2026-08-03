@@ -263,6 +263,38 @@ export async function POST(req: NextRequest) {
     for (const r of (compableRes.data as Record<string, unknown>[]) || []) merged.set(String(r.id), r);
     for (const r of (scoredRes.data as Record<string, unknown>[]) || []) if (!merged.has(String(r.id))) merged.set(String(r.id), r);
     leads = [...merged.values()];
+
+    // ── İLERLEME KİLİDİ DÜZELTMESİ (2026-08-03) ────────────────────────────
+    // Yukarıdaki iki havuz HER ÇAĞRIDA aynı ilk ~2000 kaydı getiriyor
+    // (final_score DESC ve minimum_bid ASC sabit sıralı). Zaten analiz edilmiş
+    // kayıtlar sorguda ELENMEDİĞİ için ilk turdan sonra her tur "1.986'sı zaten
+    // var, 14 tane yaptım, kuyruk 0" diyordu — motor 2.000'de takılıp kalıyordu.
+    // Gerçek kuyruk 32.576 iken ekranda %9 kapsama görünmesinin sebebi buydu.
+    //
+    // Çözüm: bu iki havuzdan ANALİZ EDİLMEMİŞ yeterince kayıt çıkmadıysa,
+    // tabloyu id sırasıyla sayfalayıp analiz edilmemişleri topla.
+    if (!reanalyze) {
+      const tazeSayisi = leads.filter((r) => !analyzedKeys.has(`apn:${String(r.apn ?? "").trim()}`)).length;
+      if (tazeSayisi < limit) {
+        for (let from = 0; from < 60000 && leads.length < overPull + limit * 4; from += DB_PAGE) {
+          const { data, error } = await s
+            .from(TDP).select(SELECT_COLS).order("id", { ascending: true })
+            .range(from, from + DB_PAGE - 1);
+          if (error || !data?.length) break;
+          let eklenen = 0;
+          for (const r of data as Record<string, unknown>[]) {
+            const k = `apn:${String(r.apn ?? "").trim()}`;
+            if (!r.apn || analyzedKeys.has(k) || merged.has(String(r.id))) continue;
+            merged.set(String(r.id), r);
+            eklenen++;
+          }
+          leads = [...merged.values()];
+          if (leads.filter((r) => !analyzedKeys.has(`apn:${String(r.apn ?? "").trim()}`)).length >= limit) break;
+          if (data.length < DB_PAGE) break;
+          if (eklenen === 0 && from > 20000) break;
+        }
+      }
+    }
   } catch (e) {
     return NextResponse.json({ error: "source_query_failed", message: e instanceof Error ? e.message : "failed" }, { status: 500 });
   }

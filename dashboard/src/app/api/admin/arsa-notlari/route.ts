@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+// Canlı RPC zaman aşımına uğrarsa düşülecek yedek (scraper/build-not-matrisi.mjs üretir).
+import notMatrisiSnapshot from "@/data/not-matrisi.json";
 import { supabaseAdmin } from "@/lib/supabase";
 import { enforceRateLimit, requireGate } from "@/lib/api-guard";
 
@@ -49,16 +51,33 @@ export async function GET(req: NextRequest) {
   const s = supabaseAdmin();
 
   // 1) Eyalet × not matrisi + geo ilerleme (RPC — sql/offmarket_grades.sql kurar).
+  type MxRow = { state: string; grade: string | null; n: number; geo_n: number };
+  const SNAP = notMatrisiSnapshot as { uretildi: string; matrix: MxRow[] };
+
   const mx = await s.rpc("offmarket_grade_matrix");
+  let matrix: MxRow[];
+  let matrisKaynagi: "canli" | "snapshot" = "canli";
+  let snapshotAni: string | null = null;
+
   if (mx.error) {
     const msg = mx.error.message ?? "";
     if (/function|does not exist|schema cache|column/i.test(msg)) {
       return NextResponse.json({ schemaReady: false, note: msg });
     }
-    return NextResponse.json({ error: msg }, { status: 500 });
+    // 921K satırlık tam tarama; veritabanı ağır yazma altındayken (geo turu,
+    // hasat) statement timeout veriyor ve sayfa TAMAMEN boş kalıyordu.
+    // Sayı göstermemektense biraz eski ama gerçek sayıyı göster — kaynağı da
+    // dürüstçe söyle. Snapshot: node scraper/build-not-matrisi.mjs
+    if (SNAP?.matrix?.length) {
+      matrix = SNAP.matrix;
+      matrisKaynagi = "snapshot";
+      snapshotAni = SNAP.uretildi;
+    } else {
+      return NextResponse.json({ error: msg }, { status: 500 });
+    }
+  } else {
+    matrix = (mx.data ?? []) as MxRow[];
   }
-  type MxRow = { state: string; grade: string | null; n: number; geo_n: number };
-  const matrix = (mx.data ?? []) as MxRow[];
   const funnel = { total: 0, graded: 0, geoDone: 0, aPlus: 0, a: 0, b: 0 };
   for (const r of matrix) {
     funnel.total += r.n;
@@ -70,13 +89,34 @@ export async function GET(req: NextRequest) {
   }
 
   // 2) Vitrin kartları — A+ önce, sonra A; skor sırasıyla.
-  const { data: cards, error: cardErr } = await s
-    .from("offmarket_leads")
-    .select(CARD_COLS)
-    .in("grade", ["A+", "A"])
-    .order("grade_score", { ascending: false })
-    .limit(30);
-  if (cardErr) return NextResponse.json({ error: cardErr.message }, { status: 500 });
+  //
+  // ⚠ Bu sorgu 921K satırda grade filtresi + grade_score sıralaması yapıyor.
+  // Veritabanı ağır yazma altındayken (geo turu / hasat) statement timeout
+  // veriyordu ve TÜM sayfa 500'e düşüyordu — huni ve matris hazır olmasına
+  // rağmen ekran boş kalıyordu. Artık kart hatası sayfayı düşürmez: sayılar
+  // gösterilir, kart bölümü kendi durumunu dürüstçe söyler.
+  type Kart = Record<string, unknown> & { state?: unknown; county?: unknown; region?: unknown };
+  let cards: Kart[] = [];
+  let kartHatasi: string | null = null;
+  let kartKaynagi: "canli" | "snapshot" = "canli";
+  {
+    const { data, error } = await s
+      .from("offmarket_leads")
+      .select(CARD_COLS)
+      .in("grade", ["A+", "A"])
+      .order("grade_score", { ascending: false })
+      .limit(30);
+    if (error) {
+      kartHatasi = error.message;
+      // Canlı sorgu düştü → snapshot kartlarına düş. Sayfanın görsel kısmı
+      // boş kalmasın; kaynak ekranda dürüstçe belirtilir.
+      const yedek = (SNAP as unknown as { cards?: Kart[] }).cards;
+      if (yedek?.length) {
+        cards = yedek;
+        kartKaynagi = "snapshot";
+      }
+    } else cards = (data ?? []) as Kart[];
+  }
 
   // 3) Pazar kanıtı: rakip aynı county'de ilan taşıyor mu (323 satır — lokal hesap).
   const comp = await s.from("competitor_listings").select("competitor, state, county, price, acres");
@@ -103,5 +143,5 @@ export async function GET(req: NextRequest) {
     };
   });
 
-  return NextResponse.json({ schemaReady: true, funnel, matrix, cards: withComp });
+  return NextResponse.json({ schemaReady: true, funnel, matrix, cards: withComp, matrisKaynagi, snapshotAni, kartHatasi, kartKaynagi });
 }

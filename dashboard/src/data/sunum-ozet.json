@@ -1,0 +1,131 @@
+{
+ "uretildi": "2026-08-03T03:18:45.593Z",
+ "veriAni": "2026-08-03T02:45:51.870Z",
+ "toplamLead": 921271,
+ "countyN": 234,
+ "eyaletN": 25,
+ "aplusA": 48879,
+ "dagilim": [
+  {
+   "ad": "Yatak bölgesi (şehre komşu)",
+   "parsel": 257555,
+   "county": 46,
+   "renk": "#0891b2",
+   "pay": 28
+  },
+  {
+   "ad": "Emeklilik bölgesi",
+   "parsel": 185626,
+   "county": 34,
+   "renk": "#a21caf",
+   "pay": 20
+  },
+  {
+   "ad": "Tarım · çiftçilik",
+   "parsel": 124873,
+   "county": 22,
+   "renk": "#65a30d",
+   "pay": 14
+  },
+  {
+   "ad": "Madencilik · enerji",
+   "parsel": 112437,
+   "county": 50,
+   "renk": "#7c2d12",
+   "pay": 12
+  },
+  {
+   "ad": "Kırsal · karma",
+   "parsel": 64938,
+   "county": 34,
+   "renk": "#64748b",
+   "pay": 7
+  },
+  {
+   "ad": "Turizm · ikinci ev",
+   "parsel": 54376,
+   "county": 15,
+   "renk": "#c2410c",
+   "pay": 6
+  },
+  {
+   "ad": "İmalat · lojistik",
+   "parsel": 50814,
+   "county": 19,
+   "renk": "#b45309",
+   "pay": 6
+  },
+  {
+   "ad": "Askeri / federal üs",
+   "parsel": 27994,
+   "county": 6,
+   "renk": "#1d4ed8",
+   "pay": 3
+  },
+  {
+   "ad": "Üniversite kasabası",
+   "parsel": 25008,
+   "county": 8,
+   "renk": "#4f46e5",
+   "pay": 3
+  }
+ ],
+ "ilkIkiPay": 48,
+ "alici": {
+  "biriktirici": 300,
+  "aktif": 200,
+  "postali": 474,
+  "kurumsalParsel": 178859,
+  "kurumsalSahip": 56191,
+  "enIyiKesisim": [
+   {
+    "owner": "GOKCE CAPITAL LLC",
+    "kesisim": 13670
+   },
+   {
+    "owner": "ONLINE LAND SALES LLC",
+    "kesisim": 13529
+   },
+   {
+    "owner": "WP RE VENTURES 1 LLC",
+    "kesisim": 12901
+   }
+  ]
+ },
+ "enBuyukCounty": [
+  {
+   "ad": "NM/Valencia",
+   "lead": 139526,
+   "aplus": 8596,
+   "sinif": "Yatak bölgesi (şehre komşu)"
+  },
+  {
+   "ad": "NV/Nye",
+   "lead": 52097,
+   "aplus": 2688,
+   "sinif": "Madencilik · enerji"
+  },
+  {
+   "ad": "OR/Klamath",
+   "lead": 37983,
+   "aplus": 2376,
+   "sinif": "Tarım · çiftçilik"
+  },
+  {
+   "ad": "CO/Costilla",
+   "lead": 33153,
+   "aplus": 1670,
+   "sinif": "Tarım · çiftçilik"
+  },
+  {
+   "ad": "AR/Sharp",
+   "lead": 31996,
+   "aplus": 1726,
+   "sinif": "Emeklilik bölgesi"
+  }
+ ],
+ "skiptrace": {
+  "dosya": "scraper/out/skiptrace-2026-08-03-23194.csv",
+  "kisi": 23194
+ }
+}

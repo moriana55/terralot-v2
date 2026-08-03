@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
- * HARİTA NOKTA EXPORT — offmarket_leads'teki TÜM koordinatlı kayıtları (15 eyalet,
- * ~555K) kompakt bir gz dosyasına yazar. Dashboard'daki
+ * HARİTA NOKTA EXPORT — offmarket_leads'teki TÜM koordinatlı kayıtları (25 eyalet,
+ * ~920K) kompakt bir gz dosyasına yazar. Dashboard'daki
  * /api/admin/offmarket-map-clusters bu dosyayı okuyup supercluster indeksi kurar.
  *
  * Format (gzip'li JSON):
@@ -26,7 +26,13 @@ const g = (k) => (env.match(new RegExp(`^${k}=(.*)$`, "m")) || [])[1]?.replace(/
 const supa = createClient(g("NEXT_PUBLIC_SUPABASE_URL"), g("SUPABASE_SERVICE_ROLE_KEY"), { auth: { persistSession: false } });
 
 const OUT = resolve(HERE, "../dashboard/src/data/offmarket-map-points.json.gz");
-const STATES = ["AZ", "NM", "CO", "TX", "FL", "AR", "NC", "GA", "TN", "OK", "NV", "OR", "MO", "MI", "SC"];
+// ⚠ Bu liste `dashboard/src/lib/offmarket-stats.ts` içindeki OFFMARKET_STATES ile
+// AYNI kalmalı (burası .mjs olduğu için TS'ten import edilemiyor). Yeni eyalet
+// eklerken İKİSİNİ birden güncelle, yoksa hasat edilen lead haritada görünmez.
+const STATES = [
+  "AZ", "NM", "CO", "TX", "FL", "AR", "NC", "GA", "TN", "OK", "NV", "OR", "MO", "MI", "SC",
+  "MT", "WY", "ID", "KS", "NE", "SD", "MS", "AL", "KY", "WV",
+];
 const PAGE = 1000;
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 

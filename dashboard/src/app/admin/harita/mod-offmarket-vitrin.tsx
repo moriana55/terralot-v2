@@ -15,7 +15,7 @@
 // aynı mod'un "Panel" görünümü (`?mod=offmarket&gorunum=panel`).
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { ArrowLeft, Loader2 } from "lucide-react";
@@ -54,6 +54,18 @@ export default function ModOffmarketVitrin() {
   const [selected, setSelected] = useState<OffmarketState | null>(null);
   const [satellite, setSatellite] = useState(false);
   const [showComp, setShowComp] = useState(false); // rakip ilanları (kırmızı elmas)
+  // Kaç rakip ilanı KOORDİNATLI olarak elimizde — butona yazılır. Sayı olmadan
+  // katman açılıp hiçbir şey çıkmayınca "bozuk" sanılıyordu; oysa elimizdeki
+  // koordinatlı ilanlar sadece birkaç county'de.
+  const [compSayisi, setCompSayisi] = useState<number | null>(null);
+  useEffect(() => {
+    let canli = true;
+    fetch("/api/admin/competitor-map")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => { if (canli && d) setCompSayisi(Number(d.total) || 0); })
+      .catch(() => {});
+    return () => { canli = false; };
+  }, []);
   // Çip tıklamasını haritaya iletmek için "komut" state'i (her tıklamada artan id).
   const [flyCmd, setFlyCmd] = useState<{ id: number; st: OffmarketState | null }>({ id: 0, st: null });
 
@@ -165,7 +177,7 @@ export default function ModOffmarketVitrin() {
               className="inline-block h-2 w-2"
               style={{ background: "#dc2626", transform: "rotate(45deg)", boxShadow: showComp ? "0 0 6px #dc2626" : "none" }}
             />
-            Rakip İlanlar
+            Rakip İlanlar{compSayisi != null && ` ${compSayisi}`}
           </button>
 
           {/* Koyu / Uydu anahtarı */}

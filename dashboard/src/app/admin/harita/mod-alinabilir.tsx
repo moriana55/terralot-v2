@@ -61,7 +61,17 @@ export default function ModAlinabilir() {
           <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-emerald-600">
             <MapIcon className="h-3.5 w-3.5" /> Alınabilir Parseller · Harita
           </div>
-          <h1 className="mt-1 text-2xl font-bold text-slate-900">Deal Haritası</h1>
+          <h1 className="mt-1 text-2xl font-bold text-slate-900">
+            Deal Haritası <span className="text-base font-semibold text-amber-700">· comp-değerli pilot havuz</span>
+          </h1>
+          {/* KAPSAM UYARISI: bu mod canlı offmarket_leads (921K) tablosunu DEĞİL,
+              Haziran 2026'da donmuş snapshot dosyalarını okur (AZ Mohave + TX Dallas
+              + NM Luna). Ulusal envanterle karıştırılmasın diye açıkça yazılıyor —
+              müşteri demosunda "20.443" ile "921.271" yan yana gelince kafa karışıyordu. */}
+          <p className="mb-1 inline-block rounded-md bg-amber-50 px-2 py-1 text-[11px] font-semibold text-amber-800">
+            Kapsam: AZ Mohave · TX Dallas · NM Luna pilotu (Haziran 2026 anlık görüntüsü) —
+            ulusal envanterin tamamı için “Off-Market” moduna geç.
+          </p>
           <p className="text-sm text-slate-500">
             ATTOM değerli, spread ≥ $1.500 alınabilir parseller — her nokta gerçek bir deal.{" "}
             <span className="font-semibold text-slate-700">

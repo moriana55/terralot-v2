@@ -159,12 +159,18 @@ function ClusterLayer({
   const [features, setFeatures] = useState<ClusterFeature[]>([]);
   const abortRef = useRef<AbortController | null>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const failedRef = useRef(false);
+  // ⚠ 2026-08-03: burada `failedRef` TEK BİR hatadan sonra kalıcı olarak
+  // kapanıyordu — bir istek zaman aşımına uğrayınca harita oturum boyunca bir
+  // daha VERİ ÇEKMİYORDU. Eyalet çipine basınca harita uçuyor ama küme
+  // gelmiyordu; ekran boş kalıyordu. Artık üst üste 3 hatada duruyor ve
+  // filtre/görünüm değişince sayaç sıfırlanıyor (geçici arıza kalıcı olmasın).
+  const hataSayaci = useRef(0);
+  const HATA_TAVANI = 3;
   // Yüzbinlerce noktayı SVG değil canvas'a çiz — SVG'de tarayıcı takılır.
   const renderer = useMemo(() => L.canvas({ padding: 0.5 }), []);
 
   const load = useCallback(() => {
-    if (failedRef.current) return;
+    if (hataSayaci.current >= HATA_TAVANI) return;
     const b = map.getBounds().pad(0.2);
     const z = map.getZoom();
     abortRef.current?.abort();
@@ -180,12 +186,14 @@ function ClusterLayer({
         if (ac.signal.aborted) return;
         if (d.note && !Array.isArray(d.features)) throw new Error(d.note);
         if (d.note && !(d.features as unknown[]).length && !d.meta?.totalPoints) throw new Error(d.note);
+        hataSayaci.current = 0; // başarılı cevap → sayaç sıfırlanır
         setFeatures(d.features ?? []);
       })
       .catch((e) => {
         if (ac.signal.aborted || e?.name === "AbortError") return;
-        failedRef.current = true;
-        onError?.();
+        hataSayaci.current += 1;
+        if (hataSayaci.current >= HATA_TAVANI) onError?.();
+        else setTimeout(load, 800 * hataSayaci.current); // kısa geri çekilme, sonra tekrar dene
       });
   }, [map, stateFilter, onError]);
 
@@ -193,6 +201,9 @@ function ClusterLayer({
     if (timerRef.current) clearTimeout(timerRef.current);
     timerRef.current = setTimeout(load, 250);
   }, [load]);
+
+  // Eyalet filtresi değişti → önceki geçici arıza yeni isteği engellemesin.
+  useEffect(() => { hataSayaci.current = 0; }, [stateFilter]);
 
   useMapEvents({ moveend: schedule, zoomend: schedule });
   useEffect(() => { load(); return () => abortRef.current?.abort(); }, [load]);

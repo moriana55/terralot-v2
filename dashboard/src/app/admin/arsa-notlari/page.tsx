@@ -34,6 +34,11 @@ type MxRow = { state: string; grade: string | null; n: number; geo_n: number };
 type Payload = {
   schemaReady: boolean; note?: string; error?: string;
   funnel?: { total: number; graded: number; geoDone: number; aPlus: number; a: number; b: number };
+  /** Matris canlı RPC'den mi, yoksa timeout sonrası snapshot yedeğinden mi geldi. */
+  matrisKaynagi?: "canli" | "snapshot";
+  kartKaynagi?: "canli" | "snapshot";
+  kartHatasi?: string | null;
+  snapshotAni?: string | null;
   matrix?: MxRow[]; cards?: Card[];
 };
 
@@ -125,7 +130,7 @@ export default function ArsaNotlari() {
       {/* Huni şeridi */}
       <div className="mt-5 grid grid-cols-2 sm:grid-cols-5 gap-3">
         {[
-          ["Toplam lead", fmt(f.total), "15 eyalet, county kayıtlarından"],
+          ["Toplam lead", fmt(f.total), "25 eyalet, county kayıtlarından"],
           ["Puanlanan", `${fmt(f.graded)} (%${gradedPct})`, "not motoru — percentile eşikli"],
           ["Geo-doğrulanan", fmt(f.geoDone), "OSM yol/elektrik/su taraması"],
           ["A notu", fmt(f.a), GRADE_LABELS["A"]],
@@ -138,6 +143,16 @@ export default function ArsaNotlari() {
           </div>
         ))}
       </div>
+
+      {/* Canlı RPC timeout aldıysa yedeğe düşüldü — sayı gerçek ama biraz eski.
+          Sessizce eski sayı göstermek yanlış olurdu; kaynağı açıkça söyle. */}
+      {(data.matrisKaynagi === "snapshot" || data.kartKaynagi === "snapshot") && (
+        <div className="mt-4 rounded-lg px-4 py-3 text-sm flex items-center gap-2" style={{ border: "1.5px solid #d9770655", background: "#d977060f", color: "#b45309" }}>
+          <Layers size={15} /> Canlı sorgu zaman aşımına uğradı (veritabanı şu an ağır yazma altında) —
+          rakamlar {data.snapshotAni ? new Date(data.snapshotAni).toLocaleString("tr-TR") : "son"} anındaki
+          yedekten gösteriliyor. Sayılar gerçek, sadece güncel değil.
+        </div>
+      )}
 
       {f.geoDone === 0 && (
         <div className="mt-4 rounded-lg px-4 py-3 text-sm flex items-center gap-2" style={{ border: "1.5px solid #0891b255", background: "#0891b20f", color: "#0891b2" }}>

@@ -7,7 +7,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { ScoreBadge, gradeOf } from "@/components/ScoreBadge";
-import { Target, Plus, MapPin, Mail, CheckCircle2, AlertTriangle, Search, FileText, Gavel, Eye, EyeOff, Send, BarChart3, LayoutGrid, Calculator, DollarSign, TrendingUp, ExternalLink, Loader2, ShieldCheck, Star, Layers } from "lucide-react";
+import { Target, MapPin, Mail, CheckCircle2, AlertTriangle, Search, FileText, Gavel, Eye, EyeOff, Send, BarChart3, LayoutGrid, Calculator, DollarSign, TrendingUp, ExternalLink, Loader2, ShieldCheck, Star, Layers } from "lucide-react";
 
 // --- Real row shape from Supabase: tax_delinquent_properties ---
 interface TaxLeadRow {
@@ -368,10 +368,10 @@ export default function CalisSekmesi() {
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--muted)" }}>Off-Market Land Hunting</p>
-          <h1 className="text-2xl font-bold mt-1">Acquisition Pipeline</h1>
+          <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--muted)" }}>Off-Market Arsa Avı</p>
+          <h1 className="text-2xl font-bold mt-1">Satın Alma Hattı</h1>
           <p className="text-xs mt-1 flex items-center gap-1.5" style={{ color: "var(--muted)" }}>
-            <EyeOff className="w-3 h-3" /> {total.toLocaleString()} scraped leads · live from <code className="font-mono">tax_delinquent_properties</code>
+            <EyeOff className="w-3 h-3" /> {total.toLocaleString()} vergi-borçlu kayıt · canlı kaynak <code className="font-mono">tax_delinquent_properties</code> (off-market envanterden AYRI veri kümesi)
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -381,9 +381,8 @@ export default function CalisSekmesi() {
           <button onClick={exportCSV} disabled={exporting} className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all hover:opacity-90 active:scale-95 disabled:opacity-60 border" style={{ borderColor: "var(--outline)", color: "var(--foreground)" }}>
             {exporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <ExternalLink className="w-4 h-4" />} Export CSV (top 500)
           </button>
-          <button disabled title="Yakında" className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold cursor-not-allowed opacity-50" style={{ background: "var(--primary)", color: "#fff" }}>
-            <Plus className="w-4 h-4" /> New Lead · Yakında
-          </button>
+          {/* "New Lead · Yakında" butonu kaldırıldı — AGENTS.md kuralı:
+              çalışmayan/"yakında" butonu konmaz, her bağlantı çalışan bir yere gider. */}
         </div>
       </div>
 
@@ -391,18 +390,18 @@ export default function CalisSekmesi() {
       {stats && (
         <div className="rounded-xl border p-5" style={{ background: "var(--surface)", borderColor: "rgba(255,255,255,0.05)" }}>
           <div className="flex items-center justify-between mb-4">
-            <p className="text-xs font-bold uppercase tracking-widest" style={{ color: "var(--muted)" }}>Sourcing Funnel</p>
+            <p className="text-xs font-bold uppercase tracking-widest" style={{ color: "var(--muted)" }}>Kaynak Hunisi</p>
             <p className="text-[11px]" style={{ color: "var(--muted)" }}>
-              {stats.states} states · {stats.counties.toLocaleString()} counties scanned · {stats.struckOff.toLocaleString()} struck-off · {stats.withOwner.toLocaleString()} contactable
+              {stats.states} eyalet · {stats.counties.toLocaleString()} county tarandı · {stats.struckOff.toLocaleString()} ihalede satılamamış · {stats.withOwner.toLocaleString()} ulaşılabilir sahip
             </p>
           </div>
           <div className="flex items-stretch gap-1.5 overflow-x-auto">
             {[
-              { label: "Records scraped", value: stats.total, color: "#8ed1df" },
-              { label: "Evaluable", value: stats.evaluable, color: "#5aa9ff" },
-              { label: "Deals (45+)", value: stats.score45, color: "#ffb43c" },
-              { label: "Hot (70+)", value: stats.score70, color: "#50dc8c" },
-              { label: "Elite (90+)", value: stats.score90, color: "#30c070" },
+              { label: "Taranan kayıt", value: stats.total, color: "#8ed1df" },
+              { label: "Değerlendirilebilir", value: stats.evaluable, color: "#5aa9ff" },
+              { label: "Fırsat (45+)", value: stats.score45, color: "#ffb43c" },
+              { label: "Sıcak (70+)", value: stats.score70, color: "#50dc8c" },
+              { label: "Elit (90+)", value: stats.score90, color: "#30c070" },
             ].map((f, i, arr) => (
               <div key={f.label} className="flex items-center gap-1.5 flex-shrink-0">
                 <div className="rounded-lg px-4 py-3 min-w-[120px]" style={{ background: "var(--surface-low)", borderLeft: `3px solid ${f.color}` }}>

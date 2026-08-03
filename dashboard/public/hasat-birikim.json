@@ -1,6 +1,6 @@
 {
   "surum": 1,
-  "guncelleme": "2026-07-30T00:58:51.563Z",
+  "guncelleme": "2026-08-03T03:59:29.901Z",
   "turlar": [
     {
       "kaynak": "filtreli-hasat-2026-07-29-MS.json",
@@ -314,6 +314,52 @@
         "kamu-sahipli": 9281,
         "deger-bandi": 54039,
         "mukerrer": 17537
+      }
+    },
+    {
+      "kaynak": "filtreli-hasat-2026-07-30-AL-ID-MS-MT-NC-WV-WY.json",
+      "baslangic": "2026-07-30T04:40:57.167Z",
+      "bitis": "2026-07-30T04:56:46.573Z",
+      "eyaletler": [
+        "AL",
+        "ID",
+        "MS",
+        "MT",
+        "NC",
+        "WV",
+        "WY"
+      ],
+      "aday": 295746,
+      "yazilan": 178941,
+      "elenen": {
+        "acre-bandi": 61790,
+        "kamu-sahipli": 4789,
+        "deger-bandi": 34006,
+        "mektup-eksik": 3263,
+        "mukerrer": 12957
+      }
+    },
+    {
+      "kaynak": "filtreli-hasat-2026-08-03-AL-ID-MS-MT-NC-WV-WY.json",
+      "baslangic": "2026-08-03T03:46:04.995Z",
+      "bitis": "2026-08-03T03:59:29.427Z",
+      "eyaletler": [
+        "AL",
+        "ID",
+        "MS",
+        "MT",
+        "NC",
+        "WV",
+        "WY"
+      ],
+      "aday": 246366,
+      "yazilan": 155058,
+      "elenen": {
+        "acre-bandi": 54503,
+        "kamu-sahipli": 4397,
+        "deger-bandi": 27283,
+        "mektup-eksik": 3226,
+        "mukerrer": 1899
       }
     }
   ]

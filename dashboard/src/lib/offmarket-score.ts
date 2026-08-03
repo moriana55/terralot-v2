@@ -2,7 +2,7 @@
 // OFF-MARKET SKORLAMA — 0-100 `offmarket_score`, COUNTY'DEN BAĞIMSIZ.
 //
 // Bu motor önce yalnız Mohave (AZ) için yazılmıştı (`mohave-score.ts`). Sahibin
-// "tek olacak her şey" direktifiyle GENELLEŞTİRİLDİ: aynı skor artık 15 eyaletin
+// "tek olacak her şey" direktifiyle GENELLEŞTİRİLDİ: aynı skor artık 25 eyaletin
 // 206 county'sinde çalışır. Mohave'ye özel olan TEK şey bölge-talep katsayıları
 // idi; onlar silinmedi, county bazlı ayar tablosuna (`COUNTY_BOLGE_TALEBI`)
 // taşındı. `mohave-score.ts` artık bu dosyanın Mohave bağlamına bağlanmış ince

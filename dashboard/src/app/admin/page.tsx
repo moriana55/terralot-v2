@@ -25,7 +25,11 @@ import Link from "next/link";
 import {
   ArrowRight, Loader2, Mail, PhoneCall, MessageSquare, Handshake, Award,
   Database, Map, Target, Sparkles, Radar, BarChart3, AlertTriangle,
+  Presentation, Users, Building2, FileText,
 } from "lucide-react";
+// Sunum bloğunun sayıları — 2 KB'lık özet (tam snapshot'lar 600 KB, client'a taşınmaz).
+// Üreten: node scraper/build-sunum-ozet.mjs (iki snapshot betiğinden sonra).
+import sunumOzet from "@/data/sunum-ozet.json";
 
 /** Bir sayacın üç hâli: yükleniyor · sayı · kaynak kurulu değil. */
 type Sayac =
@@ -45,6 +49,63 @@ async function al<T>(url: string): Promise<T | null> {
     return null;
   }
 }
+
+
+const tr = (v: number) => v.toLocaleString("tr-TR");
+
+// Sunum şeridi — anlatım sırası. Rakamlar özet dosyasından türetilir.
+const SUNUM = sunumOzet as {
+  veriAni: string; toplamLead: number; countyN: number; eyaletN: number; aplusA: number;
+  ilkIkiPay: number;
+  dagilim: { ad: string; parsel: number; county: number; pay: number }[];
+  alici: { biriktirici: number; aktif: number; postali: number };
+  skiptrace: { dosya: string; kisi: number } | null;
+};
+
+const SUNUM_ADIMLARI = [
+  {
+    href: "/admin/sunum-ulusal",
+    icon: Presentation,
+    ad: "Açılış — ulusal operasyon",
+    cumle: "Beş adımda hikâyenin tamamı; buradan başla, alt linklerden derine in.",
+    rakam: `${SUNUM.eyaletN} eyalet`,
+  },
+  {
+    href: "/admin/harita",
+    icon: Map,
+    ad: "Envanter — haritada göster",
+    cumle: `${SUNUM.countyN} county'ye dağılmış off-market parsellerin tamamı, tek ekranda.`,
+    rakam: tr(SUNUM.toplamLead),
+  },
+  {
+    href: "/admin/arsa-notlari",
+    icon: Award,
+    ad: "Kalite — satışa hazır olanlar",
+    cumle: "Yol, elektrik, su, kasaba mesafesi ölçülmemiş parsel A+/A olamaz.",
+    rakam: tr(SUNUM.aplusA),
+  },
+  {
+    href: "/admin/bolge-profili",
+    icon: Users,
+    ad: "Alıcı kim — neden orada yaşıyorlar",
+    cumle: `${SUNUM.dagilim[0]?.ad} + ${SUNUM.dagilim[1]?.ad} = envanterin %${SUNUM.ilkIkiPay}'i. İki mektup şablonu yarısını karşılıyor.`,
+    rakam: `%${SUNUM.ilkIkiPay}`,
+  },
+  {
+    href: "/admin/toplu-alicilar",
+    icon: Building2,
+    ad: "Toplu satış kanalı — kurumsal alıcılar",
+    cumle: `Bizim county'lerimizde arsa toplayan şirketler; ${SUNUM.alici.postali} tanesinin posta adresi elimizde.`,
+    rakam: tr(SUNUM.alici.biriktirici + SUNUM.alici.aktif),
+  },
+  {
+    href: "/admin/arama",
+    icon: FileText,
+    ad: "Sıradaki adım — sahiplere ulaşma",
+    cumle: "Skip-trace listesi kişi bazında tekilleştirildi; sağlayıcı seçimi bekliyor.",
+    rakam: SUNUM.skiptrace ? tr(SUNUM.skiptrace.kisi) : "—",
+  },
+];
 
 export default function BugunEkrani() {
   const [envanter, setEnvanter] = useState<Sayac>(bekle);
@@ -132,6 +193,47 @@ export default function BugunEkrani() {
         <h1 className="text-2xl font-extrabold tracking-tight">Bugün</h1>
         <p className="text-[13px] mt-1" style={{ color: "var(--muted)" }}>{bugun}</p>
       </header>
+
+      {/* ── 0) SUNUM ŞERİDİ — toplantıda sırayla açılacak ekranlar ─────────────
+          Ahmet toplantısında "hangi sayfaydı" diye aranmamak için: anlatım
+          sırasına dizili, her birinde söylenecek rakam üstünde. Sayılar
+          `sunum-ozet.json`'dan gelir; hardcoded rakam YOK. */}
+      <section className="rounded-xl border overflow-hidden" style={{ background: "var(--surface)", borderColor: "var(--outline)" }}>
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 px-5 py-3.5 border-b" style={{ borderColor: "var(--surface-high)" }}>
+          <Presentation className="w-4 h-4" style={{ color: "var(--accent-ink)" }} />
+          <h2 className="font-bold text-sm">Sunum · sırayla aç</h2>
+          <span className="text-[11px]" style={{ color: "var(--muted)" }}>
+            · {SUNUM.eyaletN} eyalet · {tr(SUNUM.toplamLead)} parsel · {tr(SUNUM.aplusA)} A+/A
+          </span>
+        </div>
+
+        <ul>
+          {SUNUM_ADIMLARI.map((a, i) => (
+            <li key={a.href} className="border-t first:border-t-0" style={{ borderColor: "var(--surface-high)" }}>
+              <Link href={a.href} className="flex items-center gap-4 px-5 py-3 transition-colors hover:bg-[var(--surface-low)]">
+                <span className="w-5 shrink-0 text-[11px] font-bold font-mono" style={{ color: "var(--muted)" }}>
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <a.icon className="w-4 h-4 shrink-0" style={{ color: "var(--accent-ink)" }} />
+                <span className="min-w-0 flex-1">
+                  <span className="block text-[13px] font-semibold">{a.ad}</span>
+                  <span className="block text-[11px] mt-0.5" style={{ color: "var(--muted)" }}>{a.cumle}</span>
+                </span>
+                <span className="shrink-0 text-right font-mono font-extrabold text-[15px] leading-none">
+                  {a.rakam}
+                </span>
+                <ArrowRight className="w-3.5 h-3.5 shrink-0" style={{ color: "var(--muted)" }} />
+              </Link>
+            </li>
+          ))}
+        </ul>
+
+        <div className="px-5 py-3 border-t text-[11px]" style={{ borderColor: "var(--surface-high)", color: "var(--muted)" }}>
+          <b style={{ color: "var(--warn)" }}>Söyleme:</b> &quot;telefonlar hazır&quot; — liste hazır, numaralar değil.
+          {SUNUM.skiptrace && <> Dosya: <code>{SUNUM.skiptrace.dosya}</code></>}
+          {" · "}Veri anı: {new Date(SUNUM.veriAni).toLocaleString("tr-TR")}
+        </div>
+      </section>
 
       {/* ── 1) Bugün ne yapılmalı ── */}
       <section className="rounded-xl border" style={{ background: "var(--surface)", borderColor: "var(--outline)" }}>

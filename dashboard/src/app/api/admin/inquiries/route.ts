@@ -17,12 +17,29 @@ export async function GET(req: NextRequest) {
 
   try {
     const s = supabaseAdmin();
-    const { data, error } = await s
+    // ⚠ Eskiden `select("*, Property(title)")` ile gömülü ilişki çekiliyordu.
+    // PostgREST bu gömmeyi veritabanındaki FOREIGN KEY üzerinden çözer; o kısıt
+    // canlıda yok (Prisma şemasında tanımlı ama DB'ye uygulanmamış) →
+    // "Could not find a relationship between 'Inquiry' and 'Property'" hatası
+    // dönüyor ve sayfa HER ZAMAN boş kalıyordu. FK'ye bağımlı olmayan iki
+    // sorgu + yerel eşleştirme ile çözüldü.
+    const { data: rows, error } = await s
       .from("Inquiry")
-      .select(`*, Property(title)`)
+      .select("*")
       .order("createdAt", { ascending: false });
     if (error) return NextResponse.json({ inquiries: [], error: error.message }, { status: 200 });
-    return NextResponse.json({ inquiries: data ?? [] });
+
+    const ids = [...new Set((rows ?? []).map((r) => r.propertyId).filter(Boolean))];
+    const baslik = new Map<string, string>();
+    if (ids.length) {
+      const { data: props } = await s.from("Property").select("id, title").in("id", ids);
+      for (const p of props ?? []) baslik.set(p.id, p.title);
+    }
+    const inquiries = (rows ?? []).map((r) => ({
+      ...r,
+      Property: r.propertyId ? { title: baslik.get(r.propertyId) ?? null } : null,
+    }));
+    return NextResponse.json({ inquiries });
   } catch (e) {
     return NextResponse.json(
       { inquiries: [], error: e instanceof Error ? e.message : "failed" },

@@ -44,7 +44,7 @@ function loadEnvLocal() {
 }
 
 async function fetchPage(offset) {
-  const p = new URLSearchParams({ where: WHERE, outFields: FIELDS, returnGeometry: "false", orderByFields: "ParcelNum ASC", resultOffset: String(offset), resultRecordCount: String(PAGE), f: "json" });
+  const p = new URLSearchParams({ where: WHERE, outFields: FIELDS, returnGeometry: "true", outSR: "4326", orderByFields: "ParcelNum ASC", resultOffset: String(offset), resultRecordCount: String(PAGE), f: "json" });
   const res = await fetch(`${LAYER}?${p}`, { signal: AbortSignal.timeout(90000), headers: { "User-Agent": "Mozilla/5.0" } });
   if (!res.ok) throw new Error(`HTTP ${res.status} @${offset}`);
   const j = await res.json();
@@ -52,7 +52,29 @@ async function fetchPage(offset) {
   return j;
 }
 
+// Alan ağırlıklı poligon merkezi (WGS84 derece) → [lat, lng].
+// ⚠ Koordinat ŞART: lat/lng olmayan kayıt haritada çıkmaz ve geo-enrich (yol/
+// elektrik/su) ona dokunamaz → not motorunda B tavanında kalır, A+/A olamaz.
+function centroid(rings) {
+  const ring = rings?.[0];
+  if (!Array.isArray(ring) || ring.length < 3) return null;
+  let a = 0, cx = 0, cy = 0;
+  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+    const [x0, y0] = ring[j], [x1, y1] = ring[i];
+    if (![x0, y0, x1, y1].every(Number.isFinite)) return null;
+    const f = x0 * y1 - x1 * y0;
+    a += f; cx += (x0 + x1) * f; cy += (y0 + y1) * f;
+  }
+  if (Math.abs(a) < 1e-12) return null;
+  a *= 0.5;
+  const lat = cy / (6 * a), lng = cx / (6 * a);
+  // Costilla County kaba sınır kontrolü — bozuk geometri koordinat uydurmasın.
+  if (lat < 36.5 || lat > 38.2 || lng < -106.5 || lng > -104.5) return null;
+  return [lat, lng];
+}
+
 async function main() {
+
   console.log("Costilla CO off-market pull…\nfiltre (server):", WHERE);
   const rows = []; const seen = new Set();
   for (let off = 0; off < MAX; off += PAGE) {
@@ -72,7 +94,9 @@ async function main() {
       const situs = [a.Location_Street_Number, a.Location_Street].filter((x) => x && String(x).trim() && String(x).trim().toUpperCase() !== "N/A").join(" ").trim();
       const retail = acres ? Math.round(2999 * Math.max(0.7, Math.min(3, acres))) : 2999;
       const offer = estOffer(v);
+      const c = centroid(f.geometry?.rings);
       rows.push({
+        lat: c?.[0] ?? null, lng: c?.[1] ?? null,
         apn, owner,
         mailing_address: String(a.Mailing_Address).trim(), mailing_city: String(a.Mailing_City).trim(),
         mailing_state: String(a.Mailing_State || "").trim(), mailing_zip: String(a.Mailing_Zip || "").trim(),
@@ -103,7 +127,7 @@ async function main() {
     mailing_address: r.mailing_address, mailing_city: r.mailing_city, mailing_state: r.mailing_state, mailing_zip: r.mailing_zip,
     situs: r.situs, use: r.use, acres: r.acres, land_value: r.land_value,
     est_offer: r.est_offer, est_retail: r.est_retail, est_margin: r.est_margin,
-    absentee: r.absentee, lat: null, lng: null, source: "ARCGIS:CO-costilla",
+    absentee: r.absentee, lat: r.lat, lng: r.lng, source: "ARCGIS:CO-costilla",
   }));
   const CHUNK = 500;
   for (let i = 0; i < recs.length; i += CHUNK) {

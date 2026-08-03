@@ -20,6 +20,7 @@ import {
   MailPlus, PhoneCall, Send, Mail, Handshake, Users,
   Sparkles, MessageSquare, CircleDollarSign, CreditCard,
   Database, Swords, Radar, BarChart3, Cpu, Rocket, Copy, Tv, LayoutDashboard,
+  Building2, Gavel,
 } from "lucide-react";
 
 export type MenuItem = {
@@ -76,20 +77,6 @@ export const MENU: MenuGroup[] = [
         alias: ["grade", "not motoru", "a plus"],
       },
       {
-        href: "/admin/all-deals",
-        label: "Tüm Fırsatlar",
-        icon: Target,
-        hint: "ANA TARAYICI — bütün kaynakların birleştiği filtreli deal listesi",
-        alias: ["all deals", "ulusal firsatlar", "deal listesi", "tarayici"],
-      },
-      {
-        href: "/admin/satilabilir-cekirdek",
-        label: "Doğrulanmış Çekirdek",
-        icon: Target,
-        hint: "Mohave yığınından mektup atılacak en iyi ~500 parsel",
-        alias: ["cekirdek", "top 500"],
-      },
-      {
         href: "/admin/canli-sorgu",
         label: "Canlı County Sorgu",
         icon: Radio,
@@ -102,20 +89,6 @@ export const MENU: MenuGroup[] = [
         icon: BellRing,
         hint: "Filtre setini kaydet, çalıştır, yeni eşleşmeleri gör",
         alias: ["saved searches", "alarm", "alert"],
-      },
-      {
-        href: "/admin/ucuz-arsa",
-        label: "Ucuz Boş Arsa",
-        icon: MapPin,
-        hint: "Vergi-borçlu ucuz arsa listesi (TX snapshot) + puanlama rubriği",
-        alias: ["cheap land", "ucuz arsa"],
-      },
-      {
-        href: "/admin/real-deals",
-        label: "Küratörlü Dealler · Dallas",
-        icon: Target,
-        hint: "Dallas County için elle doğrulanmış 246 deal (DCAD + Regrid)",
-        alias: ["real deals", "dallas", "curated"],
       },
       {
         href: "/admin/off-market-envanter",
@@ -273,6 +246,40 @@ export const MENU: MenuGroup[] = [
     label: "5 · Pazar & rakip",
     items: [
       {
+        href: "/admin/toplu-alicilar",
+        label: "Toplu Alıcılar",
+        icon: Building2,
+        hint: "Toplu arsa alan şirketler — hangi bölgede topluyorlar, posta adresleri, bizim envanterle kesişim",
+        alias: [
+          "toplu alici", "kurumsal", "sirket", "bulk buyer", "land banker",
+          "ev uretici", "builder", "b2b", "toplu pazarlama", "toplu teklif",
+        ],
+      },
+      {
+        href: "/admin/rakip-kanit",
+        label: "Rakip Kanıtı",
+        icon: Gavel,
+        hint: "Rakip gerçekten satıyor mu — tapu kaydından marj + canlı ilan durumu (sözleşmede) + taksit şartları",
+        alias: ["rakip kanit", "marj", "tapu", "satiyor mu", "pending", "sozlesmede", "taksit sarti", "deed"],
+      },
+      {
+        href: "/admin/gokce-capital",
+        label: "Dosya · Gokce Capital",
+        icon: Building2,
+        hint: "Envanterimizle örtüşmesi en yüksek rakip — parselleri, tapu alımları, posta adresleri",
+        alias: ["gokce", "gokce capital", "erika", "rakip dosya"],
+      },
+      {
+        href: "/admin/bolge-profili",
+        label: "Bölge Profili",
+        icon: Users,
+        hint: "İnsanlar bu bölgede neden yaşıyor — sektörel istihdam (LQ) + demografi + pazarlama karşılığı",
+        alias: [
+          "bolge profili", "neden yasiyor", "demografi", "istihdam", "lq",
+          "qcew", "yasam sebebi", "hedef kitle", "persona", "pazarlama",
+        ],
+      },
+      {
         href: "/admin/istihbarat",
         label: "Pazar İstihbaratı",
         icon: Database,
@@ -354,25 +361,14 @@ export const MENU: MenuGroup[] = [
         alias: ["data coverage", "veri kapsami", "kalite", "mailable"],
       },
       {
-        href: "/admin/markets",
-        label: "Market Kayıt Defteri",
-        icon: Globe,
-        hint: "Hangi pazar hangi olgunlukta: izleme → araştırma → pilot → aktif",
-        alias: ["markets", "registry", "kayit defteri", "olgunluk"],
-      },
-      {
-        href: "/admin/scraper",
-        label: "Bot Filosu",
-        icon: Cpu,
-        hint: "Scraper filosunun durumu + yaklaşan icra satışları takvimi",
-        alias: ["scraper", "bot", "cerberus botlari", "fleet"],
-      },
-      {
-        href: "/admin/sunum",
-        label: "Müşteri Sunumu",
+        href: "/admin/sunum-ulusal",
+        label: "Sunum · Ulusal Operasyon",
         icon: Tv,
-        hint: "Mohave operasyonunun 3 ekranlık canlı-veri demosu",
-        alias: ["sunum", "demo", "presentation"],
+        hint: "Ahmet'e canlı anlatım — 25 eyalet, envanter → not → alıcı profili → toplu satış → skip-trace",
+        alias: [
+          "sunum", "ulusal sunum", "presentation", "demo", "toplanti",
+          "hikaye", "pitch", "musteri sunumu",
+        ],
       },
     ],
   },
@@ -385,6 +381,80 @@ export const MENU: MenuGroup[] = [
     label: "🧪 Lab · arşiv",
     lab: true,
     items: [
+      // Market Kayıt Defteri: 6 pazarı ELLE sayan "kontrollü ölçekleme" defteri.
+      // Operasyon 25 eyalet / 234 county / 921.271 parsele çıkınca yanlış kaldı
+      // (örn. Nye'a "0 kaynak satırı" yazıyor, veritabanında 52.097 lead var).
+      // Aşama mantığı (izleme→araştırma→pilot→aktif) hâlâ değerli; canlı sayılarla
+      // ve 25 eyaletle yeniden kurulana kadar günlük akış dışında.
+      {
+        href: "/admin/markets",
+        label: "Market Kayıt Defteri",
+        icon: Globe,
+        hint: "Hangi pazar hangi olgunlukta: izleme → araştırma → pilot → aktif",
+        alias: ["markets", "registry", "kayit defteri", "olgunluk"],
+      },
+
+      // Bot Filosu: hasat işinin sistem içi durum ekranı. Şu an KIRMIZI —
+      // günlük launchd işi (com.terralot.sourcing) üst üste başarısız.
+      // Müşteri demosunda sistem-içi arıza ekranı göstermenin faydası yok;
+      // arıza giderilince günlük akışa geri alınabilir.
+      {
+        href: "/admin/scraper",
+        label: "Bot Filosu",
+        icon: Cpu,
+        hint: "Scraper filosunun durumu + yaklaşan icra satışları takvimi",
+        alias: ["scraper", "bot", "cerberus botlari", "fleet"],
+      },
+
+      // Mohave müşteri sunumu: tek county'lik (20.000 parsel) ESKİ anlatım.
+      // Yerini /admin/sunum-ulusal aldı (25 eyalet · 921K). İkisi menüde yan yana
+      // durunca hangisinin güncel olduğu karışıyordu.
+      {
+        href: "/admin/sunum",
+        label: "Müşteri Sunumu · Mohave",
+        icon: Tv,
+        hint: "Mohave operasyonunun 3 ekranlık canlı-veri demosu",
+        alias: ["sunum", "demo", "presentation"],
+      },
+
+      // ── HAZİRAN 2026 PİLOT EKRANLARI (2026-08-03'te buraya taşındı) ────────
+      //    Bunlar canlı `offmarket_leads` (921.271 parsel) tablosunu DEĞİL,
+      //    Haziran'da donmuş statik snapshot dosyalarını okur:
+      //      mohave-offmarket.json (20.000) · real-deals.json (246) ·
+      //      cheap-land.json (40) · import-propstream-nm-luna.json (157)
+      //    Müşteri demosunda "20.443 fırsat" yazan bir ekranın "921.271 parsel"
+      //    anlatımının yanında durması yanlış izlenim veriyordu. Route'lar
+      //    çalışıyor, ATTOM comp/spread değerleme mantığı burada yaşıyor —
+      //    canlı tabloya taşınana kadar günlük akıştan çıkarıldı.
+      {
+        href: "/admin/all-deals",
+        label: "Tüm Fırsatlar",
+        icon: Target,
+        hint: "ANA TARAYICI — bütün kaynakların birleştiği filtreli deal listesi",
+        alias: ["all deals", "ulusal firsatlar", "deal listesi", "tarayici"],
+      },
+      {
+        href: "/admin/satilabilir-cekirdek",
+        label: "Doğrulanmış Çekirdek",
+        icon: Target,
+        hint: "Mohave yığınından mektup atılacak en iyi ~500 parsel",
+        alias: ["cekirdek", "top 500"],
+      },
+      {
+        href: "/admin/ucuz-arsa",
+        label: "Ucuz Boş Arsa",
+        icon: MapPin,
+        hint: "Vergi-borçlu ucuz arsa listesi (TX snapshot) + puanlama rubriği",
+        alias: ["cheap land", "ucuz arsa"],
+      },
+      {
+        href: "/admin/real-deals",
+        label: "Küratörlü Dealler · Dallas",
+        icon: Target,
+        hint: "Dallas County için elle doğrulanmış 246 deal (DCAD + Regrid)",
+        alias: ["real deals", "dallas", "curated"],
+      },
+
       // ── Emekli edilen ekranlar: route SİLİNMEDİ, redirect() ile halefine gider.
       //    Eski gövdeleri kendi klasörlerinde `_arsiv-ekran.tsx` olarak duruyor.
       { href: "/admin/off-market-harita", label: "↪︎ Eyalet Haritası (eski)", icon: Map, hint: "Harita → ?mod=offmarket&gorunum=panel" },

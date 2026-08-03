@@ -1,0 +1,646 @@
+{
+ "uretildi": "2026-08-03T05:17:02.320Z",
+ "marj": [
+  {
+   "competitor": "Discount Lots",
+   "status": "ACTIVE",
+   "title": "Secure 0.28 Acres in Dunnellon, Marion County FL with Paved Access and Prime Residential Potential!",
+   "apn": "3448-072-000",
+   "acres": "0.28",
+   "ilan_fiyat": 23424,
+   "sale_year": 2025,
+   "sale_month": 4,
+   "alis_fiyat": 2000,
+   "kat": 11.7
+  },
+  {
+   "competitor": "Discount Lots",
+   "status": "ACTIVE",
+   "title": "1.18 Acres in Alford Elevated Ground and Rural Autonomy in the Florida Panhandle",
+   "apn": "02-2N-11-0086-1130-0250",
+   "acres": "1.18",
+   "ilan_fiyat": 21456,
+   "sale_year": 2025,
+   "sale_month": 4,
+   "alis_fiyat": 3300,
+   "kat": 6.5
+  },
+  {
+   "competitor": "Discount Lots",
+   "status": "SUSPECTED_SOLD",
+   "title": "0.46 Acres in Georgetown Cove Community Access on Lake George",
+   "apn": "07-13-27-7062-0710-0450",
+   "acres": "0.46",
+   "ilan_fiyat": 17904,
+   "sale_year": 2025,
+   "sale_month": 2,
+   "alis_fiyat": 3600,
+   "kat": 5
+  },
+  {
+   "competitor": "Discount Lots",
+   "status": "ACTIVE",
+   "title": "1.25 Acres in Okeechobee Agricultural Space in Florida’s Heartland",
+   "apn": "1-23-34-33-0A00-00029-J000",
+   "acres": "1.25",
+   "ilan_fiyat": 71136,
+   "sale_year": 2024,
+   "sale_month": 6,
+   "alis_fiyat": 19700,
+   "kat": 3.6
+  },
+  {
+   "competitor": "Discount Lots",
+   "status": "SUSPECTED_SOLD",
+   "title": "0.23 Acres with Paved Access & Utilities Available",
+   "apn": "0958-11-3548",
+   "acres": "0.23",
+   "ilan_fiyat": 24000,
+   "sale_year": 2024,
+   "sale_month": 5,
+   "alis_fiyat": 7000,
+   "kat": 3.4
+  },
+  {
+   "competitor": "Discount Lots",
+   "status": "ACTIVE",
+   "title": "0.25 Acres in Ocala  Level Ground in the Heart of Florida's Horse Country",
+   "apn": "2004-232-012",
+   "acres": "0.25",
+   "ilan_fiyat": 27216,
+   "sale_year": 2024,
+   "sale_month": 4,
+   "alis_fiyat": 9000,
+   "kat": 3
+  },
+  {
+   "competitor": "Discount Lots",
+   "status": "SUSPECTED_SOLD",
+   "title": "0.23 Acres in Citrus Springs, FL with Paved Access & Level Homesite",
+   "apn": "18E-17S-10-0260-16380-0070",
+   "acres": "0.23",
+   "ilan_fiyat": 21504,
+   "sale_year": 2024,
+   "sale_month": 2,
+   "alis_fiyat": 9100,
+   "kat": 2.4
+  },
+  {
+   "competitor": "Discount Lots",
+   "status": "SUSPECTED_SOLD",
+   "title": "0.34 Acres in Keystone Heights Level Terrain and Rural Autonomy in Clay County",
+   "apn": "22-08-23-003593-000-00",
+   "acres": "0.34",
+   "ilan_fiyat": 15168,
+   "sale_year": 2024,
+   "sale_month": 6,
+   "alis_fiyat": 12700,
+   "kat": 1.2
+  },
+  {
+   "competitor": "Discount Lots",
+   "status": "SUSPECTED_SOLD",
+   "title": "0.22 Acres in Inverness, FL with Residential Zoning & No HOA",
+   "apn": "19E-19S-12-0110-00070-0170",
+   "acres": "0.22",
+   "ilan_fiyat": 16704,
+   "sale_year": 2024,
+   "sale_month": 5,
+   "alis_fiyat": 18000,
+   "kat": 0.9
+  }
+ ],
+ "ortKat": 4.2,
+ "marjRakipler": [
+  "Discount Lots"
+ ],
+ "durum": [
+  {
+   "competitor": "Discount Lots",
+   "status": "ACTIVE",
+   "n": 191,
+   "ort_fiyat": 36674
+  },
+  {
+   "competitor": "Discount Lots",
+   "status": "SUSPECTED_SOLD",
+   "n": 150,
+   "ort_fiyat": 29288
+  },
+  {
+   "competitor": "Landio",
+   "status": "SUSPECTED_SOLD",
+   "n": 99,
+   "ort_fiyat": 3412263
+  },
+  {
+   "competitor": "Landio",
+   "status": "ACTIVE",
+   "n": 89,
+   "ort_fiyat": 3651356
+  },
+  {
+   "competitor": "Landio",
+   "status": "PENDING",
+   "n": 13,
+   "ort_fiyat": 1148761
+  },
+  {
+   "competitor": "Rina Land",
+   "status": "ACTIVE",
+   "n": 35,
+   "ort_fiyat": 7518
+  },
+  {
+   "competitor": "Rina Land",
+   "status": "SUSPECTED_SOLD",
+   "n": 30,
+   "ort_fiyat": 14128
+  }
+ ],
+ "eyalet": [
+  {
+   "state": "California",
+   "ilan": 121,
+   "sozlesmede": 0,
+   "ort_fiyat": 51660
+  },
+  {
+   "state": "Florida",
+   "ilan": 112,
+   "sozlesmede": 0,
+   "ort_fiyat": 40821
+  },
+  {
+   "state": "Tennessee",
+   "ilan": 40,
+   "sozlesmede": 0,
+   "ort_fiyat": 214830
+  },
+  {
+   "state": "Kentucky",
+   "ilan": 39,
+   "sozlesmede": 0,
+   "ort_fiyat": 36572
+  },
+  {
+   "state": "Arizona",
+   "ilan": 35,
+   "sozlesmede": 0,
+   "ort_fiyat": 7249971
+  },
+  {
+   "state": "Texas",
+   "ilan": 34,
+   "sozlesmede": 0,
+   "ort_fiyat": 1389149
+  },
+  {
+   "state": "Colorado",
+   "ilan": 29,
+   "sozlesmede": 0,
+   "ort_fiyat": 322101
+  },
+  {
+   "state": "TN",
+   "ilan": 27,
+   "sozlesmede": 2,
+   "ort_fiyat": 304269
+  },
+  {
+   "state": "CO",
+   "ilan": 17,
+   "sozlesmede": 1,
+   "ort_fiyat": 574265
+  },
+  {
+   "state": "Nevada",
+   "ilan": 14,
+   "sozlesmede": 0,
+   "ort_fiyat": 24066
+  },
+  {
+   "state": "TX",
+   "ilan": 12,
+   "sozlesmede": 0,
+   "ort_fiyat": 3902867
+  },
+  {
+   "state": "NM",
+   "ilan": 11,
+   "sozlesmede": 3,
+   "ort_fiyat": 77204
+  },
+  {
+   "state": "New Mexico",
+   "ilan": 11,
+   "sozlesmede": 0,
+   "ort_fiyat": 73371
+  },
+  {
+   "state": "Georgia",
+   "ilan": 11,
+   "sozlesmede": 0,
+   "ort_fiyat": 129424
+  },
+  {
+   "state": null,
+   "ilan": 8,
+   "sozlesmede": 0,
+   "ort_fiyat": 12249
+  }
+ ],
+ "taksit": [
+  {
+   "state": "CA",
+   "county": "Inyo",
+   "fiyat": 19997,
+   "pesinat": 499,
+   "oran": 2,
+   "acres": 0.77,
+   "gorulme": 1849,
+   "durum": "ACTIVE"
+  },
+  {
+   "state": "NM",
+   "county": "Cibola",
+   "fiyat": 7997,
+   "pesinat": 499,
+   "oran": 6,
+   "acres": 5.28,
+   "gorulme": 1674,
+   "durum": "PENDING"
+  },
+  {
+   "state": "NC",
+   "county": "Northampton",
+   "fiyat": 29500,
+   "pesinat": 2950,
+   "oran": 10,
+   "acres": 3,
+   "gorulme": 3613,
+   "durum": "ACTIVE"
+  },
+  {
+   "state": "TX",
+   "county": "Liberty",
+   "fiyat": 24997,
+   "pesinat": 2499,
+   "oran": 10,
+   "acres": 0.86,
+   "gorulme": 1160,
+   "durum": "ACTIVE"
+  },
+  {
+   "state": "NM",
+   "county": "Cibola",
+   "fiyat": 9997,
+   "pesinat": 999,
+   "oran": 10,
+   "acres": 5.18,
+   "gorulme": 1914,
+   "durum": "PENDING"
+  },
+  {
+   "state": "MO",
+   "county": "Camden",
+   "fiyat": 24900,
+   "pesinat": 4980,
+   "oran": 20,
+   "acres": 0.49,
+   "gorulme": 2468,
+   "durum": "PENDING"
+  },
+  {
+   "state": "TN",
+   "county": "White",
+   "fiyat": 14900,
+   "pesinat": 2980,
+   "oran": 20,
+   "acres": 0.5,
+   "gorulme": 3721,
+   "durum": "ACTIVE"
+  },
+  {
+   "state": "TN",
+   "county": "Stewart County",
+   "fiyat": 84997,
+   "pesinat": 16999.4,
+   "oran": 20,
+   "acres": 4.1,
+   "gorulme": 4499,
+   "durum": "PENDING"
+  },
+  {
+   "state": "TN",
+   "county": "Stewart County",
+   "fiyat": 52530,
+   "pesinat": 10506.19,
+   "oran": 20,
+   "acres": 3,
+   "gorulme": 3102,
+   "durum": "ACTIVE"
+  },
+  {
+   "state": "TN",
+   "county": "Stewart County",
+   "fiyat": 169950,
+   "pesinat": 33990,
+   "oran": 20,
+   "acres": 9.3,
+   "gorulme": 3498,
+   "durum": "ACTIVE"
+  },
+  {
+   "state": "NM",
+   "county": "Cibola County",
+   "fiyat": 49900,
+   "pesinat": 9980,
+   "oran": 20,
+   "acres": 27.69,
+   "gorulme": 5318,
+   "durum": "ACTIVE"
+  },
+  {
+   "state": "LA",
+   "county": "Acadia",
+   "fiyat": 39997,
+   "pesinat": 11999,
+   "oran": 30,
+   "acres": 4,
+   "gorulme": 1722,
+   "durum": "ACTIVE"
+  },
+  {
+   "state": "TN",
+   "county": "Stewart",
+   "fiyat": 89390,
+   "pesinat": 35317.79,
+   "oran": 40,
+   "acres": 8.31,
+   "gorulme": 1403,
+   "durum": "ACTIVE"
+  },
+  {
+   "state": "TX",
+   "county": "Hardin",
+   "fiyat": 130000,
+   "pesinat": 60000,
+   "oran": 46,
+   "acres": 13,
+   "gorulme": 3266,
+   "durum": "ACTIVE"
+  },
+  {
+   "state": "TN",
+   "county": "Stewart",
+   "fiyat": 66045,
+   "pesinat": 33022.5,
+   "oran": 50,
+   "acres": 7.77,
+   "gorulme": 1940,
+   "durum": "ACTIVE"
+  },
+  {
+   "state": "TN",
+   "county": "Stewart",
+   "fiyat": 81345,
+   "pesinat": 40672.5,
+   "oran": 50,
+   "acres": 9.57,
+   "gorulme": 918,
+   "durum": "ACTIVE"
+  },
+  {
+   "state": "TN",
+   "county": "Stewart",
+   "fiyat": 89590,
+   "pesinat": 44795,
+   "oran": 50,
+   "acres": 10.54,
+   "gorulme": 1140,
+   "durum": "ACTIVE"
+  },
+  {
+   "state": "TN",
+   "county": "Stewart",
+   "fiyat": 135575,
+   "pesinat": 67787.5,
+   "oran": 50,
+   "acres": 15.95,
+   "gorulme": 671,
+   "durum": "ACTIVE"
+  },
+  {
+   "state": "TN",
+   "county": "Stewart",
+   "fiyat": 133450,
+   "pesinat": 66725,
+   "oran": 50,
+   "acres": 15.7,
+   "gorulme": 1288,
+   "durum": "ACTIVE"
+  },
+  {
+   "state": "TN",
+   "county": "Stewart",
+   "fiyat": 140124,
+   "pesinat": 70062,
+   "oran": 50,
+   "acres": 14.44,
+   "gorulme": 1290,
+   "durum": "ACTIVE"
+  },
+  {
+   "state": "TN",
+   "county": "Stewart",
+   "fiyat": 148260,
+   "pesinat": 74130,
+   "oran": 50,
+   "acres": 21.18,
+   "gorulme": 2591,
+   "durum": "ACTIVE"
+  },
+  {
+   "state": "TN",
+   "county": "Stewart",
+   "fiyat": 99790,
+   "pesinat": 49895,
+   "oran": 50,
+   "acres": 11.74,
+   "gorulme": 2064,
+   "durum": "ACTIVE"
+  },
+  {
+   "state": "TN",
+   "county": "Stewart",
+   "fiyat": 178330,
+   "pesinat": 89166.5,
+   "oran": 50,
+   "acres": 19.35,
+   "gorulme": 2460,
+   "durum": "ACTIVE"
+  },
+  {
+   "state": "TN",
+   "county": "Stewart",
+   "fiyat": 146795,
+   "pesinat": 73397.5,
+   "oran": 50,
+   "acres": 17.27,
+   "gorulme": 908,
+   "durum": "ACTIVE"
+  },
+  {
+   "state": "TN",
+   "county": "Stewart",
+   "fiyat": 99025,
+   "pesinat": 49512.5,
+   "oran": 50,
+   "acres": 11.65,
+   "gorulme": 4814,
+   "durum": "ACTIVE"
+  },
+  {
+   "state": "TN",
+   "county": "Stewart",
+   "fiyat": 88570,
+   "pesinat": 44285,
+   "oran": 50,
+   "acres": 10.42,
+   "gorulme": 5546,
+   "durum": "ACTIVE"
+  },
+  {
+   "state": "TN",
+   "county": "Stewart",
+   "fiyat": 65705,
+   "pesinat": 32852.5,
+   "oran": 50,
+   "acres": 7.73,
+   "gorulme": 1639,
+   "durum": "ACTIVE"
+  },
+  {
+   "state": "TN",
+   "county": "Stewart",
+   "fiyat": 363495,
+   "pesinat": 181747.5,
+   "oran": 50,
+   "acres": 66.09,
+   "gorulme": 2270,
+   "durum": "ACTIVE"
+  },
+  {
+   "state": "TN",
+   "county": "Stewart",
+   "fiyat": 198840,
+   "pesinat": 99420,
+   "oran": 50,
+   "acres": 33.14,
+   "gorulme": 458,
+   "durum": "ACTIVE"
+  },
+  {
+   "state": "TN",
+   "county": "Stewart",
+   "fiyat": 193320,
+   "pesinat": 102382.5,
+   "oran": 53,
+   "acres": 32.22,
+   "gorulme": 2456,
+   "durum": "ACTIVE"
+  },
+  {
+   "state": "TN",
+   "county": "Stewart",
+   "fiyat": 120530,
+   "pesinat": 66725,
+   "oran": 55,
+   "acres": 14.18,
+   "gorulme": 842,
+   "durum": "ACTIVE"
+  }
+ ],
+ "landioOzet": {
+  "dosya": "landio-api-2026-08-03.json",
+  "toplam": 102,
+  "aktif": 89,
+  "sozlesmede": 13,
+  "taksitli": 32,
+  "kendiMali": 19,
+  "ortGorulme": 3202,
+  "enCokGorulen": [
+   {
+    "state": "CO",
+    "county": "Conejos",
+    "fiyat": 1895000,
+    "gorulme": 25442,
+    "acres": 137,
+    "durum": "ACTIVE"
+   },
+   {
+    "state": "FL",
+    "county": "Calhoun",
+    "fiyat": 99900,
+    "gorulme": 18447,
+    "acres": 20.25,
+    "durum": "ACTIVE"
+   },
+   {
+    "state": "WY",
+    "county": "Carbon",
+    "fiyat": 80000,
+    "gorulme": 14292,
+    "acres": 160,
+    "durum": "PENDING"
+   },
+   {
+    "state": "WY",
+    "county": "Sweetwater",
+    "fiyat": 39900,
+    "gorulme": 12481,
+    "acres": 80,
+    "durum": "ACTIVE"
+   },
+   {
+    "state": "UT",
+    "county": "Juab",
+    "fiyat": 400000,
+    "gorulme": 11446,
+    "acres": 120.4,
+    "durum": "ACTIVE"
+   },
+   {
+    "state": "WY",
+    "county": "Carbon",
+    "fiyat": 125000,
+    "gorulme": 11439,
+    "acres": 40,
+    "durum": "ACTIVE"
+   },
+   {
+    "state": "MT",
+    "county": "Mineral",
+    "fiyat": 1450000,
+    "gorulme": 10122,
+    "acres": 135,
+    "durum": "PENDING"
+   },
+   {
+    "state": "NY",
+    "county": "Washington",
+    "fiyat": 373000,
+    "gorulme": 9876,
+    "acres": 186.5,
+    "durum": "PENDING"
+   }
+  ]
+ },
+ "medyanPesinat": 50,
+ "pesinatBandi": {
+  "min": 2,
+  "max": 55
+ },
+ "tapuSiniri": "land_comps yalnız FL + CO kapsıyor ve Kasım 2025'te bitiyor; eşleşenler rakibin ALIŞ işlemleri."
+}
