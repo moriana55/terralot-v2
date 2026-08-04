@@ -26,8 +26,13 @@ import zlib from 'node:zlib';
 import { fileURLToPath } from 'node:url';
 
 const KOK = path.dirname(fileURLToPath(import.meta.url));
-const VERI = process.env.VEGALAND_VERI || path.join(KOK, 'veri');
-const KAYNAKLAR = JSON.parse(fs.readFileSync(path.join(KOK, 'kaynaklar.json'), 'utf8'));
+const VERI_KOK = process.env.VEGALAND_VERI || path.join(KOK, 'veri');
+const VERI = process.argv.includes('--county') ? path.join(VERI_KOK, 'county') : VERI_KOK;
+// --county verilirse county defteri okunur (county-hazirla.mjs üretir).
+// Çıktı ayrı dizine yazılır ki eyalet geneli hasatla karışmasın.
+const COUNTY_KIPI = process.argv.includes('--county');
+const KAYNAKLAR = JSON.parse(fs.readFileSync(
+  path.join(KOK, COUNTY_KIPI ? 'county-kaynaklar.json' : 'kaynaklar.json'), 'utf8'));
 const UA = { 'User-Agent': 'Mozilla/5.0 (compatible; VegaLand/1.0)' };
 
 const PENCERE = Number(process.env.PENCERE || 2000);   // OBJECTID pencere genişliği
@@ -217,14 +222,23 @@ async function eyaletHasat(ab) {
   }
 }
 
-const arg = process.argv.slice(2);
+const argHam = process.argv.slice(2);
+// '--guven yuksek' yazınca 'yuksek' hedef eyalet sanılmasın diye bayrak
+// değerlerini listeden çıkarıyoruz.
+const DEGERLI_BAYRAK = new Set(['--guven']);
+const arg = argHam.filter((a, i) => !(i > 0 && DEGERLI_BAYRAK.has(argHam[i - 1])));
 // `_` ile başlayan anahtarlar açıklama satırı, eyalet değil.
 // --hepsi = sahip adı + posta adresi olan eyaletler (kampanyaya hazır).
 // --tumu  = kaynağı çalışan HER eyalet; posta veya isim eksik olsa da ham veri alınır
 //           (eksik alan skip-trace ile tamamlanabilir, veri bedava).
 const durumu = (k) => KAYNAKLAR[k].durum || 'hazir';
-const tumEyalet = Object.keys(KAYNAKLAR).filter((k) => !k.startsWith('_'));
-const hedef = arg.includes('--tumu')
+const GUVEN = argHam.includes('--guven') ? argHam[argHam.indexOf('--guven') + 1].split(',') : null;
+const tumEyalet = Object.keys(KAYNAKLAR)
+  .filter((k) => !k.startsWith('_'))
+  // county defterinde alan eşlemesi OTOMATİK çıkarıldı; --guven ile hangi
+  // güven seviyesinin işleneceği seçilebilir (önce yuksek, sonra orta).
+  .filter((k) => !GUVEN || GUVEN.includes(KAYNAKLAR[k].guven || 'yuksek'));
+const hedef = (arg.includes('--tumu') || (COUNTY_KIPI && !arg.some((a) => !a.startsWith('--'))))
   ? tumEyalet.filter((k) => durumu(k) !== 'yanlis-pozitif')
   : arg.includes('--hepsi')
     ? tumEyalet.filter((k) => durumu(k) === 'hazir')
