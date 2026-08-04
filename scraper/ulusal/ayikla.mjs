@@ -267,6 +267,11 @@ async function ayikla(ab) {
   const bandlar = {};
   const gorulen = new Set();
 
+  // Kesik/bozuk gzip tüm eyaleti düşürmesin: okunabilen kısım işlenir, kesinti
+  // dürüstçe raporlanır. (NJ dosyası süreç öldürülünce %57'de kesilmişti ve
+  // ayıklama 'invalid block type' ile eyaletin tamamını atlıyordu.)
+  let kesinti = null;
+  rl.input.on('error', (e) => { kesinti = e.message; });
   for await (const satir of rl) {
     s.okunan++;
     let r; try { r = JSON.parse(satir); } catch { s.bozuk++; continue; }
@@ -291,6 +296,11 @@ async function ayikla(ab) {
     if (!g.write(JSON.stringify(n) + '\n')) await new Promise((r2) => g.once('drain', r2));
   }
   await Promise.all(Object.values(akis).map((g) => new Promise((r) => g.end(r))));
+  if (kesinti) {
+    console.error(`${ab}: ⚠ HAM DOSYA KESİK — ${kesinti}. Okunabilen ${s.okunan.toLocaleString('tr-TR')} satır işlendi, ` +
+      'gerisi eksik. Eyaleti yeniden hasat et.');
+    s.kesik = true;
+  }
 
   const yuzde = (x) => s.okunan ? `%${((x / s.okunan) * 100).toFixed(1)}` : '-';
   const say = (x) => (x || 0).toLocaleString('tr-TR');
