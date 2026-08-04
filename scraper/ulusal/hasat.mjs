@@ -164,8 +164,9 @@ async function eyaletHasat(ab) {
 }
 
 const arg = process.argv.slice(2);
+// `_` ile başlayan anahtarlar açıklama satırı, eyalet değil
 const hedef = arg.includes('--hepsi')
-  ? Object.keys(KAYNAKLAR).filter((k) => (KAYNAKLAR[k].durum || 'hazir') === 'hazir')
+  ? Object.keys(KAYNAKLAR).filter((k) => !k.startsWith('_') && (KAYNAKLAR[k].durum || 'hazir') === 'hazir')
   : arg.filter((a) => !a.startsWith('--'));
 
 if (!hedef.length) {
