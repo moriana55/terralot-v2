@@ -76,6 +76,9 @@ async function katmanBilgisi(kaynak) {
     encok: Number(s.encok ?? 0),
     toplam: sayim.count ?? 0,
     maxKayit: meta.maxRecordCount || 1000,
+    // Seyreklik = OID aralığı / kayıt sayısı. NC'de 28,7M genişlikte 5,9M kayıt
+    // var (seyreklik 4,8) — sabit 2000'lik pencere çoğunlukla boş dönüyordu.
+    seyreklik: Math.max(1, (Number(s.encok ?? 0) - Number(s.enaz ?? 1) + 1) / Math.max(sayim.count || 1, 1)),
   };
 }
 
@@ -95,6 +98,16 @@ async function pencereCek(kaynak, bilgi, bas, bit) {
   let j;
   try {
     j = await jsonAl(url);
+    // Esri pencereyi maxRecordCount'ta kırptıysa veri EKSİK gelir. Sessizce kabul
+    // etmek yerine pencereyi ikiye bölüp tekrar iniyoruz.
+    if (j.exceededTransferLimit && bit - bas > 2) {
+      const orta = bas + Math.floor((bit - bas) / 2);
+      const [a, b] = await Promise.all([
+        pencereCek(kaynak, bilgi, bas, orta),
+        pencereCek(kaynak, bilgi, orta, bit),
+      ]);
+      return a.concat(b);
+    }
   } catch (e) {
     const genislik = bit - bas;
     if (genislik > 50) {
@@ -132,7 +145,10 @@ async function eyaletHasat(ab) {
 
   fs.mkdirSync(VERI, { recursive: true });
   const bilgi = await katmanBilgisi(kaynak);
-  const pencere = Math.min(PENCERE, bilgi.maxKayit);
+  // Pencere OID GENİŞLİĞİdir, kayıt sayısı değil. Seyrek katmanda dar pencere
+  // boş döner; genişletiyoruz ki pencere başına ~PENCERE kadar kayıt düşsün.
+  // Fazla gelirse exceededTransferLimit yakalayıp bölüyoruz.
+  const pencere = Math.max(1, Math.round(Math.min(PENCERE, bilgi.maxKayit) * bilgi.seyreklik));
 
   let ilerleme = { sonrakiOid: bilgi.enaz, yazilan: 0, basladi: new Date().toISOString() };
   if (fs.existsSync(ilerlemeYolu(ab))) {
@@ -140,7 +156,7 @@ async function eyaletHasat(ab) {
     console.error(`${ab}: kaldığı yerden devam — OID ${ilerleme.sonrakiOid}, ${ilerleme.yazilan.toLocaleString('tr-TR')} kayıt yazılmış`);
   } else {
     console.error(`${ab}: ${kaynak.ad}`);
-    console.error(`${ab}: ${bilgi.toplam.toLocaleString('tr-TR')} parsel · OID ${bilgi.enaz}-${bilgi.encok} · pencere ${pencere} · ${bilgi.alanlar.length} alan`);
+    console.error(`${ab}: ${bilgi.toplam.toLocaleString('tr-TR')} parsel · OID ${bilgi.enaz}-${bilgi.encok} · seyreklik ${bilgi.seyreklik.toFixed(2)} · pencere ${pencere} · ${bilgi.alanlar.length} alan`);
   }
 
   const gz = zlib.createGzip({ level: 6 });
@@ -163,6 +179,9 @@ async function eyaletHasat(ab) {
     const gruplar = await Promise.all(isler);
     const satirlar = gruplar.filter(Boolean).flat();
     if (satirlar.length === 0) bosArdisik++; else bosArdisik = 0;
+    // NOT: boş pencere sayacı artık hasadı DURDURMUYOR. NC'de OID'ler seyrek
+    // olduğu için 40 ardışık boş pencere %0,5'te 'katman bitti' sanılıp
+    // 5,9M parselin 5,9M'i kaçırılmıştı. Tek durma ölçütü OID üst sınırıdır.
     for (const s of satirlar) {
       if (!gz.write(JSON.stringify(s) + '\n')) await new Promise((r) => gz.once('drain', r));
     }
@@ -176,7 +195,7 @@ async function eyaletHasat(ab) {
     const yuzde = bilgi.toplam ? ((ilerleme.yazilan / bilgi.toplam) * 100).toFixed(1) : '?';
     process.stderr.write(`\r${ab}: ${ilerleme.yazilan.toLocaleString('tr-TR')}/${bilgi.toplam.toLocaleString('tr-TR')} (%${yuzde}) · ${hiz}/sn · OID ${oid}   `);
 
-    if (bosArdisik > 40) { console.error(`\n${ab}: 40 ardışık boş pencere, OID aralığı bitti sayılıyor`); break; }
+    if (bosArdisik === 200) console.error(`\n${ab}: 200 ardışık boş pencere — OID aralığı seyrek, taramaya devam ediliyor`);
   }
 
   await new Promise((r) => { gz.end(r); });
