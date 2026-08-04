@@ -76,6 +76,10 @@ async function katmanBilgisi(kaynak) {
     encok: Number(s.encok ?? 0),
     toplam: sayim.count ?? 0,
     maxKayit: meta.maxRecordCount || 1000,
+    // Nokta katmanında centroid hesabı yok — koordinat doğrudan geometry.x/y'de
+    // gelir ve sunucu çok daha hızlı yanıt verir. Poligon katmanında ise her
+    // sorguda centroid hesaplattığımız için ağır kaynaklar boğuluyor.
+    nokta: meta.geometryType === 'esriGeometryPoint',
     // Seyreklik = OID aralığı / kayıt sayısı. NC'de 28,7M genişlikte 5,9M kayıt
     // var (seyreklik 4,8) — sabit 2000'lik pencere çoğunlukla boş dönüyordu.
     seyreklik: Math.max(1, (Number(s.encok ?? 0) - Number(s.enaz ?? 1) + 1) / Math.max(sayim.count || 1, 1)),
@@ -94,7 +98,10 @@ async function pencereCek(kaynak, bilgi, bas, bit) {
   const url =
     `${kaynak.url}/query?where=${where}` +
     `&outFields=${encodeURIComponent(bilgi.alanlar.join(','))}` +
-    `&returnGeometry=false&returnCentroid=true&outSR=4326&f=json`;
+    (bilgi.nokta
+      ? '&returnGeometry=true'                       // nokta: koordinat zaten geometride
+      : '&returnGeometry=false&returnCentroid=true') // poligon: centroid iste
+    + '&outSR=4326&f=json';
   let j;
   try {
     j = await jsonAl(url);
@@ -125,7 +132,7 @@ async function pencereCek(kaynak, bilgi, bas, bit) {
   }
   return (j.features || []).map((f) => {
     const a = f.attributes || {};
-    const c = f.centroid || {};
+    const c = f.centroid || f.geometry || {};
     if (c.x != null) { a._lng = Math.round(c.x * 1e6) / 1e6; a._lat = Math.round(c.y * 1e6) / 1e6; }
     a._ey = kaynak.eyalet;
     return a;
@@ -156,7 +163,7 @@ async function eyaletHasat(ab) {
     console.error(`${ab}: kaldığı yerden devam — OID ${ilerleme.sonrakiOid}, ${ilerleme.yazilan.toLocaleString('tr-TR')} kayıt yazılmış`);
   } else {
     console.error(`${ab}: ${kaynak.ad}`);
-    console.error(`${ab}: ${bilgi.toplam.toLocaleString('tr-TR')} parsel · OID ${bilgi.enaz}-${bilgi.encok} · seyreklik ${bilgi.seyreklik.toFixed(2)} · pencere ${pencere} · ${bilgi.alanlar.length} alan`);
+    console.error(`${ab}: ${bilgi.toplam.toLocaleString('tr-TR')} parsel · OID ${bilgi.enaz}-${bilgi.encok} · seyreklik ${bilgi.seyreklik.toFixed(2)} · pencere ${pencere} · ${bilgi.alanlar.length} alan · ${bilgi.nokta ? 'nokta' : 'poligon'}`);
   }
 
   const gz = zlib.createGzip({ level: 6 });

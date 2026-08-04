@@ -11,8 +11,8 @@
   },
   "FL": {
     "eyalet": "FL",
-    "ad": "Florida Statewide Cadastral",
-    "url": "https://services9.arcgis.com/Gh9awoU677aKree0/arcgis/rest/services/Florida_Statewide_Cadastral/FeatureServer/0",
+    "ad": "Florida Statewide Parcel Centroid Version",
+    "url": "https://services9.arcgis.com/Gh9awoU677aKree0/arcgis/rest/services/Florida_Statewide_Parcel_Centroid_Version/FeatureServer/0",
     "parsel": 10831924,
     "posta": true,
     "durum": "hazir",
@@ -30,7 +30,8 @@
       "OWN_ZIPCD",
       "DOR_UC",
       "NO_BULDNG"
-    ]
+    ],
+    "not": "Poligon sürümü (Florida_Statewide_Cadastral) aynı 10.831.924 kaydı veriyor ama returnCentroid=true ile sunucuya her sorguda centroid hesaplatınca hız 8.590/sn'den 63/sn'ye düştü. Nokta sürümü aynı alanları içeriyor, koordinat geometride hazır: 2000 kayıt 1.729 ms."
   },
   "OH": {
     "eyalet": "OH",
