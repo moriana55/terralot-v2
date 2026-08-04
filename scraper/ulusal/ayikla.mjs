@@ -156,8 +156,14 @@ function normalize(ab, r) {
 
   const apn = tmz(al(r, e.apn));
   const county = tmz(al(r, e.county));
+  // Kaynak katmanın kendi OBJECTID'si — katman içinde KESİN tekil.
+  const oid = r.OBJECTID ?? r.FID ?? r.OID_ ?? r.objectid ?? null;
   return {
-    lead_id: `${ab}-${county || 'NA'}-${apn || r.OBJECTID || r.FID}`.replace(/\s+/g, '_'),
+    // APN çoğu eyalette sadece county İÇİNDE tekil; TX katmanında county alanı
+    // olmadığı için APN'e göre tekilleştirmek 1,7M gerçek parseli mükerrer sanıp
+    // atıyordu. Kimlik APN + OBJECTID birlikte kuruluyor.
+    lead_id: `${ab}-${county || 'NA'}-${apn || 'NA'}-${oid ?? ''}`.replace(/\s+/g, '_').replace(/-$/, ''),
+    _oid: oid,
     eyalet: ab,
     county,
     apn,
@@ -197,8 +203,12 @@ async function ayikla(ab) {
     if (!n.sahip) { s.sahipsiz++; continue; }
     if (!n.posta_adres) { s.postasiz++; continue; }
     if (!n.bos_arsa) { s.dolu++; continue; }
-    if (gorulen.has(n.lead_id)) { s.mukerrer++; continue; }   // hasat kesintisinde oluşan tekrar
-    gorulen.add(n.lead_id);
+    // Gerçek mükerrer sadece hasat penceresi çakışmasından doğar; onda OBJECTID de
+    // aynıdır. OBJECTID yoksa lead_id'ye düşülür.
+    const anahtar = n._oid ?? n.lead_id;
+    if (gorulen.has(anahtar)) { s.mukerrer++; continue; }
+    gorulen.add(anahtar);
+    delete n._oid;
     n.eyalet_disi = !!(n.posta_eyalet && n.posta_eyalet !== ab);
     if (n.eyalet_disi) s.eyaletDisi++;
     s.bosArsa++; s.gecen++;
