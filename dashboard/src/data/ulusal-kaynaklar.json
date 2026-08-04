@@ -71,9 +71,9 @@
     "ad": "Parcels and MOD-IV Composite of New Jersey",
     "url": "https://maps.nj.gov/arcgis/rest/services/Framework/Cadastral/MapServer/0",
     "parsel": 3478727,
-    "posta": true,
-    "durum": "hazir",
-    "not": "MOD-IV birleşimi — sahip + posta + değerleme bir arada",
+    "posta": false,
+    "durum": "sahip-adi-yok",
+    "not": "2026-08-05 DÜZELTME: OWNER_NAME alanı katmanda VAR ama 3.478.727 kaydın HİÇBİRİNDE dolu değil (tam sayımla doğrulandı) — NJ kamuya açık MOD-IV katmanında sahip adı yayınlamıyor. Ayrıca ST_ADDRESS, PROP_LOC ile birebir aynı: bu mülkün adresi, sahibin posta adresi DEĞİL. Dolayısıyla 'eyalet dışı sahip' sinyali de NJ'de çalışmaz.",
     "alanlar": [
       "PAMS_PIN",
       "OWNER_NAME",
