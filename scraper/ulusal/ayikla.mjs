@@ -197,14 +197,39 @@ function normalize(ab, r) {
   };
 }
 
+/**
+ * KOVALAR — hiçbir satır silinmez, ait olduğu kovaya yazılır.
+ * İş kararı 2026-08-04: 'elerken ayrı ayrı kovalara kuralım ki işimize yarayacak
+ * yerler de olsun, belki yön değiştiririz.' Eskiden süzgeçten geçmeyen satır
+ * çöpe gidiyordu — TX'te 10,4M binalı parsel böyle kaybolmuştu; oysa binalı
+ * parsel VegaWest'in ana işi (ev alıp yenileyip satmak).
+ */
+const KOVA = {
+  aday:      'boş arsa + sahip adı + posta adresi — ana ürün',
+  binali:    'üzerinde bina var + sahip + posta — ev/konut işi (VegaWest modeli)',
+  postasiz:  'boş arsa + sahip adı var, posta adresi YOK — skip-trace adayı',
+  sahipsiz:  'sahip adı yok (posta olabilir) — isimsiz mektup kampanyası',
+};
+
+function kovaSec(n) {
+  if (!n.sahip) return 'sahipsiz';
+  if (!n.bos_arsa) return 'binali';
+  if (!n.posta_adres) return 'postasiz';
+  return 'aday';
+}
+
 async function ayikla(ab) {
   const giris = path.join(VERI, `${ab}.ndjson.gz`);
   if (!fs.existsSync(giris)) { console.error(`${ab}: ham dosya yok, atlandı`); return null; }
   if (!ESLEME[ab]) { console.error(`${ab}: eşleme tanımlı değil, atlandı`); return null; }
-  fs.mkdirSync(CIKTI, { recursive: true });
 
-  const gz = zlib.createGzip({ level: 6 });
-  gz.pipe(fs.createWriteStream(path.join(CIKTI, `${ab}.ndjson.gz`)));
+  const akis = {};
+  for (const k of Object.keys(KOVA)) {
+    fs.mkdirSync(path.join(CIKTI, k), { recursive: true });
+    const g = zlib.createGzip({ level: 6 });
+    g.pipe(fs.createWriteStream(path.join(CIKTI, k, `${ab}.ndjson.gz`)));
+    akis[k] = g;
+  }
 
   const rl = readline.createInterface({ input: fs.createReadStream(giris).pipe(zlib.createGunzip()), crlfDelay: Infinity });
   const s = { okunan: 0, bozuk: 0, sahipsiz: 0, postasiz: 0, dolu: 0, mukerrer: 0, gecen: 0, bosArsa: 0, eyaletDisi: 0 };
@@ -216,9 +241,6 @@ async function ayikla(ab) {
     let r; try { r = JSON.parse(satir); } catch { s.bozuk++; continue; }
     const n = normalize(ab, r);
     if (!n) { s.bozuk++; continue; }
-    if (!n.sahip) { s.sahipsiz++; continue; }
-    if (!n.posta_adres) { s.postasiz++; continue; }
-    if (!n.bos_arsa) { s.dolu++; continue; }
     // Gerçek mükerrer sadece hasat penceresi çakışmasından doğar; onda OBJECTID de
     // aynıdır. OBJECTID yoksa lead_id'ye düşülür.
     const anahtar = n._oid ?? n.lead_id;
@@ -226,19 +248,26 @@ async function ayikla(ab) {
     gorulen.add(anahtar);
     delete n._oid;
     n.eyalet_disi = !!(n.posta_eyalet && n.posta_eyalet !== ab);
-    if (n.eyalet_disi) s.eyaletDisi++;
-    bandlar[n.deger_bandi] = (bandlar[n.deger_bandi] || 0) + 1;
-    s.bosArsa++; s.gecen++;
-    if (!gz.write(JSON.stringify(n) + '\n')) await new Promise((r2) => gz.once('drain', r2));
+
+    const kova = kovaSec(n);
+    s[kova] = (s[kova] || 0) + 1;
+    if (kova === 'aday') {
+      s.gecen++;
+      if (n.eyalet_disi) s.eyaletDisi++;
+      bandlar[n.deger_bandi] = (bandlar[n.deger_bandi] || 0) + 1;
+    }
+    const g = akis[kova];
+    if (!g.write(JSON.stringify(n) + '\n')) await new Promise((r2) => g.once('drain', r2));
   }
-  await new Promise((r) => { gz.end(r); });
+  await Promise.all(Object.values(akis).map((g) => new Promise((r) => g.end(r))));
 
   const yuzde = (x) => s.okunan ? `%${((x / s.okunan) * 100).toFixed(1)}` : '-';
+  const say = (x) => (x || 0).toLocaleString('tr-TR');
   console.error(
-    `${ab}: ${s.okunan.toLocaleString('tr-TR')} okundu → ${s.gecen.toLocaleString('tr-TR')} geçti (${yuzde(s.gecen)})` +
-    ` · elenen: sahipsiz ${s.sahipsiz.toLocaleString('tr-TR')}, postasız ${s.postasiz.toLocaleString('tr-TR')},` +
-    ` binalı ${s.dolu.toLocaleString('tr-TR')}, mükerrer ${s.mukerrer.toLocaleString('tr-TR')}` +
-    ` · eyalet dışı sahip ${s.eyaletDisi.toLocaleString('tr-TR')}`
+    `${ab}: ${say(s.okunan)} okundu → kovalar: ` +
+    `aday ${say(s.aday)} (${yuzde(s.aday || 0)}) · binalı ${say(s.binali)} · ` +
+    `postasız ${say(s.postasiz)} · sahipsiz ${say(s.sahipsiz)} · mükerrer ${say(s.mukerrer)}` +
+    ` · adayların ${say(s.eyaletDisi)}'i eyalet dışı sahip`
   );
   console.error(`${ab}: değer bandı → ` + Object.entries(bandlar).sort((a, b) => b[1] - a[1])
     .map(([k, v]) => `${k}: ${v.toLocaleString('tr-TR')}`).join(' · '));
