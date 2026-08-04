@@ -15,3 +15,6 @@ dashboard/scratch/
 # Veri yedekleri diskte durur, git deposuna girmez (41MB+ dökümler)
 yedek/2*/
 scraper/logs/gizli-a-*.log
+
+# ulusal hasat çıktısı (ham veri repoya girmez, kaynaktan yeniden çekilebilir)
+scraper/ulusal/veri/
