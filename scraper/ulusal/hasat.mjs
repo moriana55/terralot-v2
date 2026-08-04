@@ -169,10 +169,17 @@ async function eyaletHasat(ab) {
 }
 
 const arg = process.argv.slice(2);
-// `_` ile başlayan anahtarlar açıklama satırı, eyalet değil
-const hedef = arg.includes('--hepsi')
-  ? Object.keys(KAYNAKLAR).filter((k) => !k.startsWith('_') && (KAYNAKLAR[k].durum || 'hazir') === 'hazir')
-  : arg.filter((a) => !a.startsWith('--'));
+// `_` ile başlayan anahtarlar açıklama satırı, eyalet değil.
+// --hepsi = sahip adı + posta adresi olan eyaletler (kampanyaya hazır).
+// --tumu  = kaynağı çalışan HER eyalet; posta veya isim eksik olsa da ham veri alınır
+//           (eksik alan skip-trace ile tamamlanabilir, veri bedava).
+const durumu = (k) => KAYNAKLAR[k].durum || 'hazir';
+const tumEyalet = Object.keys(KAYNAKLAR).filter((k) => !k.startsWith('_'));
+const hedef = arg.includes('--tumu')
+  ? tumEyalet.filter((k) => durumu(k) !== 'yanlis-pozitif')
+  : arg.includes('--hepsi')
+    ? tumEyalet.filter((k) => durumu(k) === 'hazir')
+    : arg.filter((a) => !a.startsWith('--'));
 
 if (!hedef.length) {
   console.error('kullanım: node hasat.mjs TX [FL ...]  |  node hasat.mjs --hepsi');

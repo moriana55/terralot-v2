@@ -105,6 +105,12 @@ const ESLEME = {
     // NYS mülk sınıfı 300-399 = boş arsa
     bosArsa: (r) => /^3\d\d$/.test(String(r.PROP_CLASS || '')) || sayi(r.YR_BLT) === 0,
   },
+  WI: {
+    apn: 'PARCELID', sahip: 'OWNERNME1', situs: 'SITEADRESS', tarif: null,
+    akr: (r) => sayi(r.GISACRES) || sayi(r.DEEDACRES), deger: 'LNDVALUE', county: 'CONAME',
+    postaTek: 'PSTLADRESS',   // '358 N ROCKYHILL RD , GALENA, IL 61036'
+    bosArsa: (r) => sayi(r.IMPVALUE) === 0,
+  },
   HI: {
     apn: 'PARCEL_ID', sahip: 'OWNER', situs: 'SITUS', tarif: 'LEGAL_DESC',
     akr: 'ACREAGE', deger: 'MKT_VAL_LA', county: 'COUNTY_NAM',

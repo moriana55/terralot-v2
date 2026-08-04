@@ -363,5 +363,29 @@
       "M_ZIPCODE",
       "BUILDINGS"
     ]
+  },
+  "WI": {
+    "eyalet": "WI",
+    "ad": "Wisconsin Statewide Parcels DB (V1200, 2026)",
+    "url": "https://services3.arcgis.com/n6uYoouQZW75n5WI/arcgis/rest/services/Wisconsin_Statewide_Parcels_DB/FeatureServer/0",
+    "parsel": 3574646,
+    "posta": true,
+    "durum": "hazir",
+    "alanlar": [
+      "PARCELID",
+      "OWNERNME1",
+      "PSTLADRESS",
+      "SITEADRESS",
+      "LNDVALUE",
+      "IMPVALUE",
+      "GISACRES",
+      "DEEDACRES",
+      "CONAME",
+      "PROPCLASS",
+      "ESTFMKVALUE",
+      "LATITUDE",
+      "LONGITUDE"
+    ],
+    "not": "WI DOA V1200 standart şeması. PSTLADRESS tek satır: 'ADRES, ŞEHİR, EY ZIP'. IMPVALUE=0 → boş arsa."
   }
 }
