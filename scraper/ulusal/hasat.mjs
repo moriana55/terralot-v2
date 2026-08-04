@@ -54,7 +54,12 @@ async function jsonAl(url, deneme = 0) {
 async function katmanBilgisi(kaynak) {
   const meta = await jsonAl(`${kaynak.url}?f=json`);
   const oidAlan = meta.objectIdField || 'OBJECTID';
-  const alanlar = (meta.fields || []).map((f) => f.name).filter((n) => n !== 'Shape__Area' && n !== 'Shape__Length');
+  const hepsi = (meta.fields || []).map((f) => f.name).filter((n) => !/^Shape[_.]/.test(n));
+  // kaynak.alanlar verilmişse SADECE onları iste. FL'de 119, MD'de 117 alan var;
+  // hepsini çekmek yanıtı şişirip sunucuyu 504'e düşürüyor (FL'de 458/sn'ye indi).
+  const alanlar = kaynak.alanlar?.length
+    ? [oidAlan, ...kaynak.alanlar.filter((a) => hepsi.includes(a) && a !== oidAlan)]
+    : hepsi;
   const ist = await jsonAl(
     `${kaynak.url}/query?where=1%3D1&outStatistics=` +
       encodeURIComponent(JSON.stringify([

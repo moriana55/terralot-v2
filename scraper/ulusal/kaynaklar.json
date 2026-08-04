@@ -15,7 +15,22 @@
     "url": "https://services9.arcgis.com/Gh9awoU677aKree0/arcgis/rest/services/Florida_Statewide_Cadastral/FeatureServer/0",
     "parsel": 10831924,
     "posta": true,
-    "durum": "hazir"
+    "durum": "hazir",
+    "alanlar": [
+      "PARCEL_ID",
+      "OWN_NAME",
+      "PHY_ADDR1",
+      "S_LEGAL",
+      "LND_SQFOOT",
+      "LND_VAL",
+      "CO_NO",
+      "OWN_ADDR1",
+      "OWN_CITY",
+      "OWN_STATE",
+      "OWN_ZIPCD",
+      "DOR_UC",
+      "NO_BULDNG"
+    ]
   },
   "OH": {
     "eyalet": "OH",
@@ -32,7 +47,23 @@
     "url": "https://services.nconemap.gov/secure/rest/services/NC1Map_Parcels/MapServer/1",
     "parsel": 5938639,
     "posta": true,
-    "durum": "hazir"
+    "durum": "hazir",
+    "alanlar": [
+      "parno",
+      "ownname",
+      "siteadd",
+      "legdecfull",
+      "gisacres",
+      "landval",
+      "cntyname",
+      "mailadd",
+      "mcity",
+      "mstate",
+      "mzip",
+      "improvval",
+      "structno",
+      "parusedesc"
+    ]
   },
   "NJ": {
     "eyalet": "NJ",
@@ -41,7 +72,21 @@
     "parsel": 3478727,
     "posta": true,
     "durum": "hazir",
-    "not": "MOD-IV birleşimi — sahip + posta + değerleme bir arada"
+    "not": "MOD-IV birleşimi — sahip + posta + değerleme bir arada",
+    "alanlar": [
+      "PAMS_PIN",
+      "OWNER_NAME",
+      "PROP_LOC",
+      "LAND_DESC",
+      "CALC_ACRE",
+      "LAND_VAL",
+      "IMPRVT_VAL",
+      "COUNTY",
+      "ST_ADDRESS",
+      "CITY_STATE",
+      "ZIP5",
+      "PROP_CLASS"
+    ]
   },
   "IN": {
     "eyalet": "IN",
@@ -66,7 +111,21 @@
     "url": "https://gis.colorado.gov/public/rest/services/Address_and_Parcel/Colorado_Public_Parcels/FeatureServer/0",
     "parsel": 2599761,
     "posta": true,
-    "durum": "hazir"
+    "durum": "hazir",
+    "alanlar": [
+      "parcel_id",
+      "owner",
+      "situsAdd",
+      "legalDesc",
+      "landAcres",
+      "apprValTot",
+      "countyName",
+      "ownerAdd",
+      "ownAddCty",
+      "ownAddStt",
+      "ownAddZip",
+      "landUseDsc"
+    ]
   },
   "MA": {
     "eyalet": "MA",
@@ -74,7 +133,21 @@
     "url": "https://services1.arcgis.com/hGdibHYSPO59RG1h/arcgis/rest/services/Massachusetts_Property_Tax_Parcels/FeatureServer/0",
     "parsel": 2559286,
     "posta": true,
-    "durum": "hazir"
+    "durum": "hazir",
+    "alanlar": [
+      "LOC_ID",
+      "OWNER1",
+      "SITE_ADDR",
+      "LOT_SIZE",
+      "LAND_VAL",
+      "BLDG_VAL",
+      "CITY",
+      "OWN_ADDR",
+      "OWN_CITY",
+      "OWN_STATE",
+      "OWN_ZIP",
+      "USE_CODE"
+    ]
   },
   "MD": {
     "eyalet": "MD",
@@ -83,7 +156,22 @@
     "parsel": 2288725,
     "posta": true,
     "durum": "sahip-adi-yok",
-    "not": "OWNADD1/OWNCITY/OWNSTATE/OWNERZIP var ama sahip ADI alanı yok."
+    "not": "OWNADD1/OWNCITY/OWNSTATE/OWNERZIP var ama sahip ADI alanı yok.",
+    "alanlar": [
+      "ACCTID",
+      "OWNADD1",
+      "OWNCITY",
+      "OWNSTATE",
+      "OWNERZIP",
+      "ADDRESS",
+      "ACRES",
+      "NFMLNDVL",
+      "JURSCODE",
+      "DESCLU",
+      "LU",
+      "STRUBLDG",
+      "YEARBLT"
+    ]
   },
   "AR": {
     "eyalet": "AR",
@@ -99,7 +187,22 @@
     "url": "https://gis.waggonereng.com/server/rest/services/Hosted/Mississippi_Parcels_Staewide/FeatureServer/3",
     "parsel": 1981235,
     "posta": true,
-    "durum": "hazir"
+    "durum": "hazir",
+    "alanlar": [
+      "parno",
+      "ownname",
+      "siteadd",
+      "legldesc",
+      "gisacres",
+      "landval",
+      "cntyname",
+      "mailadd1",
+      "mcity1",
+      "mstate1",
+      "mzip1",
+      "impval1",
+      "impval2"
+    ]
   },
   "UT": {
     "eyalet": "UT",
@@ -116,7 +219,21 @@
     "url": "https://services3.arcgis.com/3FL1kr7L4LvwA2Kb/arcgis/rest/services/Connecticut_CAMA_and_Parcel_Layer/FeatureServer/0",
     "parsel": 1282833,
     "posta": true,
-    "durum": "hazir"
+    "durum": "hazir",
+    "alanlar": [
+      "Parcel_ID",
+      "Owner",
+      "Location",
+      "Land_Acres",
+      "Appraised_Land",
+      "Appraised_Building",
+      "Town_Name",
+      "Mailing_Address",
+      "Mailing_City",
+      "Mailing_State",
+      "Mailing_Zip",
+      "State_Use_Description"
+    ]
   },
   "MT": {
     "eyalet": "MT",
@@ -124,7 +241,22 @@
     "url": "https://services.arcgis.com/qnjIrwR8z5Izc0ij/arcgis/rest/services/Montana_Cadastral_Framework/FeatureServer/1",
     "parsel": 921006,
     "posta": true,
-    "durum": "hazir"
+    "durum": "hazir",
+    "alanlar": [
+      "PARCELID",
+      "OwnerName",
+      "AddressLine1",
+      "LegalDescriptionShort",
+      "GISAcres",
+      "TotalLandValue",
+      "TotalBuildingValue",
+      "CountyName",
+      "OwnerAddress1",
+      "OwnerCity",
+      "OwnerState",
+      "OwnerZipCode",
+      "PropType"
+    ]
   },
   "DE": {
     "eyalet": "DE",
@@ -148,7 +280,19 @@
     "url": "https://services3.arcgis.com/r0iJ85SKZ4zAzz3P/arcgis/rest/services/Wyoming_Parcels_for_2025/FeatureServer/0",
     "parsel": 373048,
     "posta": true,
-    "durum": "hazir"
+    "durum": "hazir",
+    "alanlar": [
+      "parcelnb",
+      "ownername1",
+      "locationad",
+      "legal",
+      "actualvalu",
+      "jurisdicti",
+      "mailaddres",
+      "mailcity",
+      "mailstate",
+      "mailzipcod"
+    ]
   },
   "VT": {
     "eyalet": "VT",
@@ -156,7 +300,22 @@
     "url": "https://services1.arcgis.com/BkFxaEFNwHqX3tAw/arcgis/rest/services/FS_VCGI_OPENDATA_Cadastral_VTPARCELS_poly_standardized_parcels_SP_v1/FeatureServer/0",
     "parsel": 343860,
     "posta": true,
-    "durum": "hazir"
+    "durum": "hazir",
+    "alanlar": [
+      "PARCID",
+      "OWNER1",
+      "LOCAPROP",
+      "DESCPROP",
+      "ACRESGL",
+      "LAND_LV",
+      "IMPRV_LV",
+      "TNAME",
+      "ADDRGL1",
+      "CITYGL",
+      "STGL",
+      "ZIPGL",
+      "CAT"
+    ]
   },
   "NY": {
     "eyalet": "NY",
@@ -165,7 +324,21 @@
     "parsel": null,
     "posta": true,
     "durum": "hazir",
-    "not": "VegaWest projesinde kanıtlı — sahip + posta adresi + yatak/banyo/sqft/piyasa değeri. Taksitli satış yapılmıyor ama AYRI SEGMENT olarak alınıyor."
+    "not": "VegaWest projesinde kanıtlı — sahip + posta adresi + yatak/banyo/sqft/piyasa değeri. Taksitli satış yapılmıyor ama AYRI SEGMENT olarak alınıyor.",
+    "alanlar": [
+      "PRINT_KEY",
+      "PRIMARY_OWNER",
+      "PARCEL_ADDR",
+      "ACRES",
+      "FULL_MARKET_VAL",
+      "COUNTY_NAME",
+      "MAIL_ADDR",
+      "MAIL_CITY",
+      "MAIL_STATE",
+      "MAIL_ZIP",
+      "PROP_CLASS",
+      "YR_BLT"
+    ]
   },
   "HI": {
     "eyalet": "HI",
@@ -174,6 +347,21 @@
     "parsel": 79544,
     "posta": true,
     "durum": "hazir",
-    "not": "79K — eyalet toplamının altında olabilir, kapsam doğrulanmalı"
+    "not": "79K — eyalet toplamının altında olabilir, kapsam doğrulanmalı",
+    "alanlar": [
+      "PARCEL_ID",
+      "OWNER",
+      "SITUS",
+      "LEGAL_DESC",
+      "ACREAGE",
+      "MKT_VAL_LA",
+      "MKT_VAL_BL",
+      "COUNTY_NAM",
+      "MAIL_ADDRE",
+      "M_PLACENM",
+      "M_STATENM",
+      "M_ZIPCODE",
+      "BUILDINGS"
+    ]
   }
 }
