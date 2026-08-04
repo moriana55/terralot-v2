@@ -140,6 +140,20 @@ function sehirEyaletAyristir(v) {
 
 function al(r, k) { return typeof k === 'function' ? k(r) : (k ? r[k] : null); }
 
+/**
+ * Değer bandı — ETİKET, eleme kriteri DEĞİL.
+ * İş kararı 2026-08-04: ucuzlukçuluk bırakıldı. Ucuz band al-sat, pahalı band
+ * aracılık/komisyon modeli. Pahalı parsel listeden DÜŞMEZ, sadece etiketlenir.
+ */
+function degerBandi(d) {
+  if (d == null || d <= 0) return 'bilinmiyor';
+  if (d < 25_000) return '0-25K';
+  if (d < 100_000) return '25-100K';
+  if (d < 500_000) return '100-500K';
+  if (d < 1_000_000) return '500K-1M';
+  return '1M+';
+}
+
 function normalize(ab, r) {
   const e = ESLEME[ab]; if (!e) return null;
   let posta = {};
@@ -176,6 +190,7 @@ function normalize(ab, r) {
     tarif: tmz(al(r, e.tarif)),
     akr: al(r, e.akr) != null ? Math.round(sayi(al(r, e.akr)) * 100) / 100 : null,
     deger: e.deger ? sayi(al(r, e.deger)) || null : null,
+    deger_bandi: degerBandi(e.deger ? sayi(al(r, e.deger)) : null),
     lat: r._lat ?? null,
     lng: r._lng ?? null,
     bos_arsa: !!(e.bosArsa && e.bosArsa(r)),
@@ -193,6 +208,7 @@ async function ayikla(ab) {
 
   const rl = readline.createInterface({ input: fs.createReadStream(giris).pipe(zlib.createGunzip()), crlfDelay: Infinity });
   const s = { okunan: 0, bozuk: 0, sahipsiz: 0, postasiz: 0, dolu: 0, mukerrer: 0, gecen: 0, bosArsa: 0, eyaletDisi: 0 };
+  const bandlar = {};
   const gorulen = new Set();
 
   for await (const satir of rl) {
@@ -211,6 +227,7 @@ async function ayikla(ab) {
     delete n._oid;
     n.eyalet_disi = !!(n.posta_eyalet && n.posta_eyalet !== ab);
     if (n.eyalet_disi) s.eyaletDisi++;
+    bandlar[n.deger_bandi] = (bandlar[n.deger_bandi] || 0) + 1;
     s.bosArsa++; s.gecen++;
     if (!gz.write(JSON.stringify(n) + '\n')) await new Promise((r2) => gz.once('drain', r2));
   }
@@ -223,7 +240,9 @@ async function ayikla(ab) {
     ` binalı ${s.dolu.toLocaleString('tr-TR')}, mükerrer ${s.mukerrer.toLocaleString('tr-TR')}` +
     ` · eyalet dışı sahip ${s.eyaletDisi.toLocaleString('tr-TR')}`
   );
-  return { eyalet: ab, ...s };
+  console.error(`${ab}: değer bandı → ` + Object.entries(bandlar).sort((a, b) => b[1] - a[1])
+    .map(([k, v]) => `${k}: ${v.toLocaleString('tr-TR')}`).join(' · '));
+  return { eyalet: ab, ...s, bandlar };
 }
 
 const arg = process.argv.slice(2);
