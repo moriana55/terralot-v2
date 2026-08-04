@@ -79,14 +79,37 @@ async function katmanBilgisi(kaynak) {
   };
 }
 
-/** Tek pencereyi çek; centroid ister, poligon istemez. */
+const BOSLUK = [];   // hiçbir şekilde çekilemeyen OID aralıkları — sessizce atlanmaz, raporlanır
+
+/**
+ * Tek pencereyi çek. Sunucu 504/timeout verirse pencereyi İKİYE BÖLerek yeniden dener
+ * (FL gibi ağır katmanlarda tek bir yoğun aralık tüm hasadı kilitliyordu).
+ * En küçük pencerede de başarısızsa aralık BOSLUK'a yazılır ve hasat devam eder.
+ */
 async function pencereCek(kaynak, bilgi, bas, bit) {
   const where = encodeURIComponent(`${bilgi.oidAlan} >= ${bas} AND ${bilgi.oidAlan} < ${bit}`);
   const url =
     `${kaynak.url}/query?where=${where}` +
     `&outFields=${encodeURIComponent(bilgi.alanlar.join(','))}` +
     `&returnGeometry=false&returnCentroid=true&outSR=4326&f=json`;
-  const j = await jsonAl(url);
+  let j;
+  try {
+    j = await jsonAl(url);
+  } catch (e) {
+    const genislik = bit - bas;
+    if (genislik > 50) {
+      const orta = bas + Math.floor(genislik / 2);
+      console.error(`\n${kaynak.eyalet}: OID ${bas}-${bit} çekilemedi (${e.message}), ikiye bölünüyor`);
+      const [a, b] = await Promise.all([
+        pencereCek(kaynak, bilgi, bas, orta),
+        pencereCek(kaynak, bilgi, orta, bit),
+      ]);
+      return a.concat(b);
+    }
+    console.error(`\n${kaynak.eyalet}: ⚠ OID ${bas}-${bit} ATLANDI — ${e.message}`);
+    BOSLUK.push({ eyalet: kaynak.eyalet, bas, bit, hata: e.message });
+    return [];
+  }
   return (j.features || []).map((f) => {
     const a = f.attributes || {};
     const c = f.centroid || {};
@@ -102,7 +125,10 @@ function ciktiYolu(ab) { return path.join(VERI, `${ab}.ndjson.gz`); }
 async function eyaletHasat(ab) {
   const kaynak = KAYNAKLAR[ab];
   if (!kaynak) { console.error(`${ab}: kayıtta yok, atlandı`); return; }
-  if (kaynak.durum && kaynak.durum !== 'hazir') { console.error(`${ab}: durum='${kaynak.durum}', atlandı`); return; }
+  // Hangi eyaletlerin koşacağına en aşağıdaki hedef listesi karar verir; burada
+  // sadece kaynağı bozuk olan elenir. (Eskiden 'hazir' olmayan her şey burada
+  // atlanıyordu — bu, --tumu kipini ve tek eyalet çağrısını sessizce engelliyordu.)
+  if (kaynak.durum === 'yanlis-pozitif') { console.error(`${ab}: kaynak yanlış pozitif, atlandı`); return; }
 
   fs.mkdirSync(VERI, { recursive: true });
   const bilgi = await katmanBilgisi(kaynak);
@@ -135,12 +161,7 @@ async function eyaletHasat(ab) {
       }));
     }
     const gruplar = await Promise.all(isler);
-    if (gruplar.some((g) => g === null)) {
-      console.error(`${ab}: pencere hatası, 10 sn bekleniyor`);
-      await uyu(10_000);
-      continue; // aynı yerden tekrar dene
-    }
-    const satirlar = gruplar.flat();
+    const satirlar = gruplar.filter(Boolean).flat();
     if (satirlar.length === 0) bosArdisik++; else bosArdisik = 0;
     for (const s of satirlar) {
       if (!gz.write(JSON.stringify(s) + '\n')) await new Promise((r) => gz.once('drain', r));
@@ -162,6 +183,8 @@ async function eyaletHasat(ab) {
   console.error(`\n${ab}: BİTTİ — ${ilerleme.yazilan.toLocaleString('tr-TR')} kayıt → ${ciktiYolu(ab)}`);
   ilerleme.bitti = new Date().toISOString();
   ilerleme.beklenen = bilgi.toplam;
+  ilerleme.bosluk = BOSLUK.filter((b) => b.eyalet === ab);
+  if (ilerleme.bosluk.length) console.error(`${ab}: ⚠ ${ilerleme.bosluk.length} OID aralığı hiç çekilemedi (ilerleme dosyasında listeli)`);
   fs.writeFileSync(ilerlemeYolu(ab), JSON.stringify(ilerleme, null, 1));
   if (bilgi.toplam && Math.abs(ilerleme.yazilan - bilgi.toplam) / bilgi.toplam > 0.02) {
     console.error(`${ab}: ⚠ UYARI — beklenen ${bilgi.toplam.toLocaleString('tr-TR')}, yazılan ${ilerleme.yazilan.toLocaleString('tr-TR')} (%2'den fazla sapma)`);
