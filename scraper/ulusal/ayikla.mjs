@@ -46,7 +46,10 @@ const ESLEME = {
     apn: 'parno', sahip: 'ownname', situs: 'siteadd', tarif: 'legdecfull',
     akr: 'gisacres', deger: 'landval', county: 'cntyname',
     posta: 'mailadd', postaSehir: 'mcity', postaEyalet: 'mstate', postaZip: 'mzip',
-    bosArsa: (r) => sayi(r.improvval) === 0 || sayi(r.structno) === 0 || /vacant/i.test(r.parusedesc || ''),
+    // structno NC verisinde HİÇ doldurulmamış (400.000 satırın 400.000'inde 0) ve
+    // parusedesc boş geliyor. İkisini de kullanmak her parseli boş arsa sayıyordu
+    // (%81). Tek güvenilir sinyal improvval — %20,3 boş arsa veriyor, makul.
+    bosArsa: (r) => sayi(r.improvval) === 0,
   },
   NJ: {
     apn: 'PAMS_PIN', sahip: 'OWNER_NAME', situs: 'PROP_LOC', tarif: 'LAND_DESC',
@@ -231,6 +234,34 @@ async function ayikla(ab) {
     akis[k] = g;
   }
 
+  // ── ÖN TARAMA: ölü alan tespiti ────────────────────────────────────────────
+  // Bir alan örneklemin tamamında boş/sıfırsa o alan DOLDURULMAMIŞ demektir;
+  // 'değeri sıfır' demek değildir. NC'de structno böyleydi ve her parseli boş
+  // arsa saydırıyordu. Ölü alanlar rapora yazılır ki kural yazarken görülsün.
+  const ORNEK = 50_000;
+  const doluluk = new Map();
+  let orneklenen = 0;
+  {
+    const on = readline.createInterface({ input: fs.createReadStream(giris).pipe(zlib.createGunzip()), crlfDelay: Infinity });
+    for await (const satir of on) {
+      if (orneklenen >= ORNEK) break;
+      let r; try { r = JSON.parse(satir); } catch { continue; }
+      orneklenen++;
+      for (const [k, v] of Object.entries(r)) {
+        if (k.startsWith('_')) continue;
+        const bos = v === null || v === undefined || v === '' || v === 0 || v === '0';
+        const d = doluluk.get(k) || { dolu: 0 };
+        if (!bos) d.dolu++;
+        doluluk.set(k, d);
+      }
+    }
+    on.close();
+  }
+  const oluAlanlar = [...doluluk.entries()].filter(([, d]) => d.dolu === 0).map(([k]) => k);
+  if (oluAlanlar.length) {
+    console.error(`${ab}: ⚠ ÖLÜ ALAN (${orneklenen.toLocaleString('tr-TR')} satırda hiç dolu değil): ${oluAlanlar.join(', ')}`);
+  }
+
   const rl = readline.createInterface({ input: fs.createReadStream(giris).pipe(zlib.createGunzip()), crlfDelay: Infinity });
   const s = { okunan: 0, bozuk: 0, sahipsiz: 0, postasiz: 0, dolu: 0, mukerrer: 0, gecen: 0, bosArsa: 0, eyaletDisi: 0 };
   const bandlar = {};
@@ -269,6 +300,13 @@ async function ayikla(ab) {
     `postasız ${say(s.postasiz)} · sahipsiz ${say(s.sahipsiz)} · mükerrer ${say(s.mukerrer)}` +
     ` · adayların ${say(s.eyaletDisi)}'i eyalet dışı sahip`
   );
+  // Boş arsa oranı ölçüldüğü kadarıyla ABD genelinde %10-30 bandında. Çok
+  // yüksek oran neredeyse her zaman bir alanın yanlış okunduğunu gösterir.
+  const bosOran = s.okunan ? (s.aday + s.postasiz) / s.okunan : 0;
+  if (bosOran > 0.6) {
+    console.error(`${ab}: ⚠ ŞÜPHELİ — parsellerin %${(bosOran * 100).toFixed(1)}'i boş arsa çıktı. ` +
+      `bosArsa kuralının dayandığı alan doldurulmamış olabilir (yukarıdaki ölü alan listesine bak).`);
+  }
   console.error(`${ab}: değer bandı → ` + Object.entries(bandlar).sort((a, b) => b[1] - a[1])
     .map(([k, v]) => `${k}: ${v.toLocaleString('tr-TR')}`).join(' · '));
   return { eyalet: ab, ...s, bandlar };
