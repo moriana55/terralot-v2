@@ -20,8 +20,29 @@ import readline from 'node:readline';
 import { fileURLToPath } from 'node:url';
 
 const KOK = path.dirname(fileURLToPath(import.meta.url));
-const VERI = process.env.VEGALAND_VERI || path.join(KOK, 'veri');
+// --county: county-hazirla.mjs'in ürettiği OTOMATİK eşlemeleri kullanır ve
+// veri/county/ altını işler. Eyalet geneli eşlemeler ELLE doğrulanmıştı;
+// county tarafı otomatik, o yüzden çıktı da ayrı dizine yazılıyor.
+const COUNTY_KIPI = process.argv.includes('--county');
+const VERI_KOK = process.env.VEGALAND_VERI || path.join(KOK, 'veri');
+const VERI = COUNTY_KIPI ? path.join(VERI_KOK, 'county') : VERI_KOK;
 const CIKTI = path.join(VERI, 'ayik');
+
+/**
+ * County defterindeki otomatik alan rollerini ESLEME biçimine çevirir.
+ * bosArsa kuralı ÖN TARAMA sonucuna göre seçilir (aşağıda), çünkü hangi alanın
+ * gerçekten dolu olduğunu önceden bilmiyoruz — NC'de structno, WY'de locationad
+ * yüzünden tam bu noktada iki kez yanıldık.
+ */
+function countyEsleme(kayit) {
+  const e = kayit.esleme || {};
+  return {
+    apn: e.apn, sahip: e.sahip, situs: e.situs, tarif: null,
+    akr: e.akr, deger: e.deger, county: null,
+    posta: e.posta, postaSehir: e.postaSehir, postaEyalet: e.postaEyalet, postaZip: e.postaZip,
+    _bina: e.bina, _situs: e.situs, _eyalet: kayit.eyalet, _countyAd: kayit.county,
+  };
+}
 
 /**
  * Eşleme sözlüğü. Değer bir alan adı VEYA (satır)=>değer fonksiyonu.
@@ -125,6 +146,10 @@ const ESLEME = {
   },
 };
 
+const COUNTY_KAYIT = COUNTY_KIPI
+  ? JSON.parse(fs.readFileSync(path.join(KOK, 'county-kaynaklar.json'), 'utf8'))
+  : null;
+
 const sayi = (v) => { const n = Number(String(v ?? '').replace(/[^0-9.\-]/g, '')); return Number.isFinite(n) ? n : 0; };
 // Yer tutucu değerler gerçek veri DEĞİLDİR. WY'de adres alanı boş bırakılmak
 // yerine "  N/A" yazılmış; '!adres' kontrolü bunu dolu sayınca 373.048 parselin
@@ -207,7 +232,7 @@ function normalize(ab, r) {
     deger_bandi: degerBandi(e.deger ? sayi(al(r, e.deger)) : null),
     lat: r._lat ?? null,
     lng: r._lng ?? null,
-    bos_arsa: !!(e.bosArsa && e.bosArsa(r)),
+    bos_arsa: e.bosArsa ? !!e.bosArsa(r) : false,
   };
 }
 
@@ -223,10 +248,13 @@ const KOVA = {
   binali:    'üzerinde bina var + sahip + posta — ev/konut işi (VegaWest modeli)',
   postasiz:  'boş arsa + sahip adı var, posta adresi YOK — skip-trace adayı',
   sahipsiz:  'sahip adı yok (posta olabilir) — isimsiz mektup kampanyası',
+  belirsiz:  'boş arsa mı belli DEĞİL — kaynakta bina/kullanım sinyali yok',
 };
 
-function kovaSec(n) {
+function kovaSec(n, bosArsaBilinmiyor) {
   if (!n.sahip) return 'sahipsiz';
+  // Boş arsa olup olmadığını söyleyecek alan yoksa 'binalı' demek uydurma olur.
+  if (bosArsaBilinmiyor) return n.posta_adres ? 'belirsiz' : 'postasiz';
   if (!n.bos_arsa) return 'binali';
   if (!n.posta_adres) return 'postasiz';
   return 'aday';
@@ -235,6 +263,11 @@ function kovaSec(n) {
 async function ayikla(ab) {
   const giris = path.join(VERI, `${ab}.ndjson.gz`);
   if (!fs.existsSync(giris)) { console.error(`${ab}: ham dosya yok, atlandı`); return null; }
+  if (COUNTY_KIPI) {
+    const kayit = COUNTY_KAYIT[ab];
+    if (!kayit) { console.error(`${ab}: county defterinde yok, atlandı`); return null; }
+    ESLEME[ab] = countyEsleme(kayit);
+  }
   if (!ESLEME[ab]) { console.error(`${ab}: eşleme tanımlı değil, atlandı`); return null; }
 
   const akis = {};
@@ -273,6 +306,25 @@ async function ayikla(ab) {
     console.error(`${ab}: ⚠ ÖLÜ ALAN (${orneklenen.toLocaleString('tr-TR')} satırda hiç dolu değil): ${oluAlanlar.join(', ')}`);
   }
 
+  // County kipinde boş arsa kuralı ÖN TARAMAYA göre seçilir. Elle yazılmış kural
+  // yok; hangi alanın gerçekten dolu olduğuna bakılır. Hiçbiri sağlam değilse
+  // parseller 'belirsiz' kovasına gider — 'boş arsa' diye uydurulmaz.
+  if (COUNTY_KIPI) {
+    const e = ESLEME[ab];
+    const saglam = (alan) => alan && (doluluk.get(alan)?.dolu || 0) > 0;
+    if (saglam(e._bina)) {
+      e.bosArsa = (r) => sayi(r[e._bina]) === 0;
+      e._yontem = `bina alanı (${e._bina}) = 0`;
+    } else if (saglam(e._situs)) {
+      e.bosArsa = (r) => !tmz(r[e._situs]);
+      e._yontem = `konum adresi (${e._situs}) boş`;
+    } else {
+      e.bosArsa = null;   // karar verilemiyor
+      e._yontem = 'belirlenemedi';
+    }
+    console.error(`${ab}: boş arsa yöntemi → ${e._yontem}`);
+  }
+
   const rl = readline.createInterface({ input: fs.createReadStream(giris).pipe(zlib.createGunzip()), crlfDelay: Infinity });
   const s = { okunan: 0, bozuk: 0, sahipsiz: 0, postasiz: 0, dolu: 0, mukerrer: 0, gecen: 0, bosArsa: 0, eyaletDisi: 0 };
   const bandlar = {};
@@ -301,7 +353,7 @@ async function ayikla(ab) {
     delete n._oid;
     n.eyalet_disi = !!(n.posta_eyalet && n.posta_eyalet !== ab);
 
-    const kova = kovaSec(n);
+    const kova = kovaSec(n, ESLEME[ab].bosArsa == null);
     s[kova] = (s[kova] || 0) + 1;
     if (kova === 'aday') {
       s.gecen++;
@@ -339,7 +391,12 @@ async function ayikla(ab) {
 }
 
 const arg = process.argv.slice(2);
-const hedef = arg.includes('--hepsi') ? Object.keys(ESLEME) : arg.filter((a) => !a.startsWith('--'));
+const hedef = arg.includes('--hepsi')
+  ? (COUNTY_KIPI
+      // sadece gerçekten hasat edilmiş county'ler
+      ? fs.readdirSync(VERI).filter((f) => f.endsWith('.ndjson.gz')).map((f) => f.replace('.ndjson.gz', ''))
+      : Object.keys(ESLEME))
+  : arg.filter((a) => !a.startsWith('--'));
 if (!hedef.length) { console.error('kullanım: node ayikla.mjs TX | --hepsi'); process.exit(1); }
 
 const rapor = [];

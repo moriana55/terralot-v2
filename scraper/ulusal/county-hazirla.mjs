@@ -43,10 +43,17 @@ const ROL = {
   postaEyalet: { kabul: [/^mail_?st(ate)?$/i, /^mstate/i, /^own(er)?_?st(ate)?$/i, /mail.*state/i, /owner.*state/i], ret: [/code|_cd$/i] },
   postaZip:    { kabul: [/^mail_?zip/i, /^mzip/i, /^own(er)?_?zip/i, /mail.*zip/i, /owner.*zip/i], ret: [] },
   apn:         { kabul: [/^apn$/i, /^parcel_?id$/i, /^parcelnum/i, /^pin$/i, /^parno$/i, /^prop_?id$/i, /^account/i, /parcel.*(id|no|num)/i], ret: [/date|year/i] },
-  situs:       { kabul: [/^situs_?add?r?/i, /^site_?add?r?/i, /^prop_?add?r?/i, /^phy_?add?r?/i, /^address$/i, /^locat/i], ret: [/mail|own|city|state|zip|code/i] },
+  situs:       { kabul: [/^situs_?add?r?/i, /^site_?add?r?/i, /^prop_?add?r?/i, /^phy_?add?r?/i, /^address$/i, /^locat/i,
+                          // Maricopa 'PropertyFullStreetAddress' — dar kalıplar kaçırıyordu
+                          /propert.*(street|address)/i, /physical.*address/i, /full.*street.*address/i, /site.*address/i], ret: [/mail|own|city|state|zip|code|dir$|type$|num/i] },
   akr:         { kabul: [/^gis_?acres?$/i, /^acres?$/i, /^deed_?acres?$/i, /^calc_?acres?$/i, /^land_?acres?$/i, /acre/i], ret: [/code|_cd$/i] },
   deger:       { kabul: [/^land_?val/i, /^lndval/i, /^landvalue$/i, /^assessed_?val/i, /^market_?val/i, /^total_?val/i, /^appr/i, /val(ue)?$/i], ret: [/code|_cd$|date|year|type/i] },
-  bina:        { kabul: [/^imp(rov)?_?val/i, /^impval/i, /^bldg_?val/i, /^building_?val/i, /^struct(no|ure)?$/i, /^no_?bldg/i], ret: [/code|_cd$|date/i] },
+  bina:        { kabul: [/^imp(rov)?_?val/i, /^impval/i, /^bldg_?val/i, /^building_?val/i, /^struct(no|ure)?$/i, /^no_?bldg/i,
+                          // 'ImprovementFullCashValue', 'BuildingValue', 'StructureValue' gibi
+                          // uzun adlar dar kalıplara takılmıyordu — Maricopa böyle kaçtı.
+                          /improvement.*val/i, /building.*val/i, /struct.*val/i, /bldg.*val/i], ret: [/code|_cd$|date|assessed.*ratio|desc/i] },
+  kullanim:    { kabul: [/^propert?y?_?use_?desc/i, /^land_?use_?desc/i, /use_?desc/i, /^propuse/i, /^proptype/i, /^land_?use$/i, /^propert?y?_?use$/i], ret: [/code$|_cd$/i] },
+  yapimYili:   { kabul: [/^construction_?year/i, /^year_?built/i, /^yr_?blt/i, /^act_?yr_?blt/i, /^eff_?year/i], ret: [] },
 };
 
 function rolBul(alanlar, rol) {
@@ -85,8 +92,12 @@ for (const x of enIyi.values()) {
   // Posta adresi tek satırda mı, parçalı mı?
   const postaTam = !!(e.posta && (e.postaSehir || e.postaZip));
   // Güven: kaç kritik rol bulundu?
-  const kritik = [e.sahip, e.posta, e.apn, e.akr || e.deger].filter(Boolean).length;
-  const guven = postaTam && kritik >= 4 ? 'yuksek' : e.posta && kritik >= 3 ? 'orta' : 'dusuk';
+  // Boş arsa kararı verebilmek için bina değeri / kullanım açıklaması / yapım
+  // yılı / konum adresinden EN AZ BİRİ lazım; yoksa parsel 'belirsiz' kalır.
+  const arsaSinyali = [e.bina, e.kullanim, e.yapimYili, e.situs].filter(Boolean).length;
+  const kritik = [e.sahip, e.posta, e.apn, e.akr || e.deger].filter(Boolean).length + (arsaSinyali ? 1 : 0);
+  const guven = postaTam && arsaSinyali && kritik >= 5 ? 'yuksek'
+              : e.posta && kritik >= 3 ? 'orta' : 'dusuk';
   sayac[guven]++;
 
   cikti[x.anahtar] = {
@@ -96,6 +107,7 @@ for (const x of enIyi.values()) {
     url: x.url,
     parsel: x.kayit,
     posta: postaTam,
+    arsaSinyali: arsaSinyali > 0,
     guven,
     durum: e.posta ? 'hazir' : 'posta-yok',
     // Hasat sadece bu alanları istesin — yanıt boyutu küçülür, sunucu boğulmaz.

@@ -25,7 +25,10 @@ import readline from 'node:readline';
 import { fileURLToPath } from 'node:url';
 
 const KOK = path.dirname(fileURLToPath(import.meta.url));
-const VERI = process.env.VEGALAND_VERI || path.join(KOK, 'veri');
+// --county: veri/county/ayik/aday altını puanlar, çıktı veri/county/puanli.
+const COUNTY_KIPI = process.argv.includes('--county');
+const VERI_KOK = process.env.VEGALAND_VERI || path.join(KOK, 'veri');
+const VERI = COUNTY_KIPI ? path.join(VERI_KOK, 'county') : VERI_KOK;
 const GIRIS = path.join(VERI, 'ayik', 'aday');
 const CIKTI = path.join(VERI, 'puanli');
 
