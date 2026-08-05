@@ -93,7 +93,10 @@ const ESLEME = {
     apn: 'parcelnb', sahip: 'ownername1', situs: 'locationad', tarif: 'legal',
     akr: null, deger: 'actualvalu', county: 'jurisdicti',
     posta: 'mailaddres', postaSehir: 'mailcity', postaEyalet: 'mailstate', postaZip: 'mailzipcod',
-    bosArsa: (r) => !r.locationad,
+    // WY katmanında bina değeri/kullanım kodu YOK. Elimizdeki tek sinyal konum
+    // adresi; yer tutucular temizlendikten sonra boşsa arsa sayıyoruz.
+    // ⚠ Zayıf sinyal — adresi olan boş arsa da vardır, kabul edilen risk.
+    bosArsa: (r) => !tmz(r.locationad),
   },
   VT: {
     apn: 'PARCID', sahip: 'OWNER1', situs: 'LOCAPROP', tarif: 'DESCPROP',
@@ -123,7 +126,15 @@ const ESLEME = {
 };
 
 const sayi = (v) => { const n = Number(String(v ?? '').replace(/[^0-9.\-]/g, '')); return Number.isFinite(n) ? n : 0; };
-const tmz = (v) => { const s = String(v ?? '').trim().replace(/\s+/g, ' '); return s && s !== 'null' ? s : null; };
+// Yer tutucu değerler gerçek veri DEĞİLDİR. WY'de adres alanı boş bırakılmak
+// yerine "  N/A" yazılmış; '!adres' kontrolü bunu dolu sayınca 373.048 parselin
+// tamamı 'binalı' kovasına düştü ve eyaletten hiç aday çıkmadı.
+const YER_TUTUCU = /^(n\/?a|none|null|nil|unknown|unk|tbd|-+|\.+|0)$/i;
+const tmz = (v) => {
+  const s = String(v ?? '').trim().replace(/\s+/g, ' ');
+  if (!s || YER_TUTUCU.test(s)) return null;
+  return s;
+};
 
 /** 'ADRES, ŞEHİR, EYALET ZIP' → parçalar. TX tek satırlı posta adresi için. */
 function postaAyristir(tek) {
