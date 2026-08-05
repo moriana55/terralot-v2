@@ -22,6 +22,10 @@ const KOK = path.dirname(fileURLToPath(import.meta.url));
 const VERI = process.env.VEGALAND_VERI || path.join(KOK, 'veri');
 const PAKET = path.join(VERI, 'paket');
 const hamDahil = process.argv.includes('--ham');
+// Çekirdek paket: ürün için gereken her şey, arşiv hariç. 'binali' kovası
+// (üzerinde bina olan parseller) satır sayısının çoğunu ve paketin büyük
+// kısmını oluşturuyor ama arsa işinde kullanılmıyor — sunucuda kalabilir.
+const cekirdek = process.argv.includes('--cekirdek');
 
 const boyut = (p) => {
   if (!fs.existsSync(p)) return 0;
@@ -32,10 +36,16 @@ const boyut = (p) => {
 const mb = (b) => `${(b / 1048576).toFixed(1)} MB`;
 
 // Pakete girecekler — VERI'ye göreli yollar.
-const parcalar = [
-  { yol: 'ayik',           aciklama: 'ayıklanmış kovalar (aday · postasız · sahipsiz · binalı)' },
-  { yol: 'puanli',         aciklama: 'puanlanmış arsalar (A+/A/B/C/D)' },
-];
+const parcalar = cekirdek
+  ? [
+      { yol: 'puanli',          aciklama: 'puanlanmış arsalar (A+/A/B/C/D) — ANA ÜRÜN' },
+      { yol: 'ayik/aday',       aciklama: 'boş arsa + sahip + posta (puanlanmamış ham aday)' },
+      { yol: 'ayik/postasiz',   aciklama: 'boş arsa, posta yok — skip-trace adayı' },
+    ]
+  : [
+      { yol: 'ayik',            aciklama: 'ayıklanmış kovalar (aday · postasız · sahipsiz · binalı)' },
+      { yol: 'puanli',          aciklama: 'puanlanmış arsalar (A+/A/B/C/D)' },
+    ];
 if (hamDahil) parcalar.push({ yol: '.', aciklama: 'HAM parseller (--ham verildi)' });
 
 // Kaynak defteri ve keşif çıktısı VERI dışında, scraper dizininde duruyor.
@@ -80,13 +90,14 @@ for (const f of [...yanDosyalar, 'huni.json', 'huni.txt']) {
 if (!icindekiler.length) { console.error('Pakete girecek hiçbir şey yok. Önce ayikla.mjs ve puanla.mjs koş.'); process.exit(1); }
 
 const tarih = new Date().toISOString().slice(0, 10);
-const ad = `vegaland-${hamDahil ? 'tam-' : ''}${tarih}.tar.gz`;
+const ad = `vegaland-${hamDahil ? 'tam-' : cekirdek ? 'cekirdek-' : ''}${tarih}.tar.gz`;
 const hedef = path.join(PAKET, ad);
 
 console.error('\nPakete girenler:');
 for (const i of icindekiler) console.error(`  ${i.yol.padEnd(26)} ${mb(i.bayt).padStart(10)}  ${i.aciklama}`);
 console.error(`  ${'─'.repeat(26)} ${mb(icindekiler.reduce((a, i) => a + i.bayt, 0)).padStart(10)} (sıkıştırmadan önce)`);
 if (!hamDahil) console.error('\nHam parseller DAHİL DEĞİL — kaynaktan yeniden indirilebilir (node hasat.mjs --tumu).');
+if (cekirdek) console.error("'binali' ve 'sahipsiz' kovaları DAHİL DEĞİL — arsa işinde kullanılmıyor, sunucuda kalıyor.");
 
 const girdiler = icindekiler.map((i) => i.yol).filter((y) => y !== '.');
 execFileSync('tar', ['-czf', hedef, '-C', VERI, ...girdiler], { stdio: 'inherit' });
