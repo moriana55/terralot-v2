@@ -72,7 +72,11 @@ async function katmanBilgisi(kaynak) {
         { statisticType: 'max', onStatisticField: oidAlan, outStatisticFieldName: 'encok' },
       ])) + '&f=json'
   );
-  const s = ist.features?.[0]?.attributes || {};
+  // Bazı ArcGIS sunucuları outStatisticFieldName'i BÜYÜK HARFE çeviriyor
+  // (NY 'ENAZ'/'ENCOK' döndürdü). Küçük harf okuyunca undefined gelip encok=0
+  // oluyor, döngü hiç çalışmıyor ve eyalet '0 kayıt, BİTTİ' diye geçiliyordu.
+  const ham = ist.features?.[0]?.attributes || {};
+  const s = Object.fromEntries(Object.entries(ham).map(([k, v]) => [k.toLowerCase(), v]));
   const sayim = await jsonAl(`${kaynak.url}/query?where=1%3D1&returnCountOnly=true&f=json`);
   return {
     oidAlan,
@@ -157,6 +161,11 @@ async function eyaletHasat(ab) {
 
   fs.mkdirSync(VERI, { recursive: true });
   const bilgi = await katmanBilgisi(kaynak);
+  // encok < enaz ise OID aralığı okunamamış demektir; sessizce '0 kayıt bitti'
+  // demek yerine hata ver, yoksa eyalet boş geçilir ve fark edilmez.
+  if (!(bilgi.encok >= bilgi.enaz)) {
+    throw new Error(`OID aralığı okunamadı (enaz=${bilgi.enaz}, encok=${bilgi.encok}) — istatistik sorgusu beklenmeyen biçimde döndü`);
+  }
   // Pencere OID GENİŞLİĞİdir, kayıt sayısı değil. Seyrek katmanda dar pencere
   // boş döner; genişletiyoruz ki pencere başına ~PENCERE kadar kayıt düşsün.
   // Fazla gelirse exceededTransferLimit yakalayıp bölüyoruz.
