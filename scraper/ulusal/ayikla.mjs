@@ -288,9 +288,14 @@ async function ayikla(ab) {
     let r; try { r = JSON.parse(satir); } catch { s.bozuk++; continue; }
     const n = normalize(ab, r);
     if (!n) { s.bozuk++; continue; }
-    // Gerçek mükerrer sadece hasat penceresi çakışmasından doğar; onda OBJECTID de
-    // aynıdır. OBJECTID yoksa lead_id'ye düşülür.
-    const anahtar = n._oid ?? n.lead_id;
+    // Tekilleştirme anahtarı:
+    //  • county + APN varsa O kullanılır — katman yenilense bile değişmez.
+    //    (NC OneMap hasat sırasında yeniden inşa edildi, OBJECTID'ler kaydı;
+    //     aynı parsel iki farklı OBJECTID ile yakalanıp 295 bin fazla satır oluştu.)
+    //  • county yoksa APN county içinde tekil olduğu için güvenilmez → OBJECTID.
+    //    (TX'te county alanı yok; APN'e göre tekilleştirmek 1,7M gerçek parseli
+    //     mükerrer sanıp atmıştı.)
+    const anahtar = (n.county && n.apn) ? `${n.county}|${n.apn}` : (n._oid ?? n.lead_id);
     if (gorulen.has(anahtar)) { s.mukerrer++; continue; }
     gorulen.add(anahtar);
     delete n._oid;
