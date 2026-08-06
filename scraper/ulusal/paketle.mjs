@@ -36,15 +36,24 @@ const boyut = (p) => {
 const mb = (b) => `${(b / 1048576).toFixed(1)} MB`;
 
 // Pakete girecekler — VERI'ye göreli yollar.
+// County çıktıları veri/county/ altında ayrı duruyor (eşlemeleri otomatik
+// çıkarıldığı için eyalet geneli veriyle karıştırılmıyor) — pakete ayrıca
+// eklenmeli, yoksa 397 county'nin tüm emeği dışarı çıkmaz.
 const parcalar = cekirdek
   ? [
-      { yol: 'puanli',          aciklama: 'puanlanmış arsalar (A+/A/B/C/D) — ANA ÜRÜN' },
-      { yol: 'ayik/aday',       aciklama: 'boş arsa + sahip + posta (puanlanmamış ham aday)' },
-      { yol: 'ayik/postasiz',   aciklama: 'boş arsa, posta yok — skip-trace adayı' },
+      { yol: 'puanli',              aciklama: 'puanlanmış arsalar (A+/A/B/C/D) — ANA ÜRÜN' },
+      { yol: 'ayik/aday',           aciklama: 'boş arsa + sahip + posta (puanlanmamış ham aday)' },
+      { yol: 'ayik/postasiz',       aciklama: 'boş arsa, posta yok — skip-trace adayı' },
+      { yol: 'county/puanli',       aciklama: 'COUNTY puanlanmış arsalar — ANA ÜRÜN' },
+      { yol: 'county/ayik/aday',    aciklama: 'COUNTY ham aday' },
+      { yol: 'county/ayik/postasiz', aciklama: 'COUNTY skip-trace adayı' },
+      { yol: 'geo',                 aciklama: 'geo zenginleştirilmiş dilim (varsa)' },
     ]
   : [
       { yol: 'ayik',            aciklama: 'ayıklanmış kovalar (aday · postasız · sahipsiz · binalı)' },
       { yol: 'puanli',          aciklama: 'puanlanmış arsalar (A+/A/B/C/D)' },
+      { yol: 'county',          aciklama: 'COUNTY kovaları + puanları (ham parseller hariç)' },
+      { yol: 'geo',             aciklama: 'geo zenginleştirilmiş dilim (varsa)' },
     ];
 if (hamDahil) parcalar.push({ yol: '.', aciklama: 'HAM parseller (--ham verildi)' });
 

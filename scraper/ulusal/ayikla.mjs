@@ -208,16 +208,21 @@ function normalize(ab, r) {
   if (posta.eyalet) posta.eyalet = String(posta.eyalet).trim().toUpperCase().slice(0, 2);
 
   const apn = tmz(al(r, e.apn));
-  const county = tmz(al(r, e.county));
+  // County kipinde dosya adı 'AL-01059' gibi bir county ANAHTARI; eyalet kodu
+  // ve county adı eşlemede taşınıyor. Bunu kullanmazsak eyalet alanına county
+  // anahtarı yazılıyor ve 'eyalet_disi' karşılaştırması ('AL' !== 'AL-01059')
+  // posta adresi olan HER kaydı yanlışlıkla eyalet dışı sayıyordu.
+  const eyaletKodu = e._eyalet || ab;
+  const county = tmz(e._countyAd || al(r, e.county));
   // Kaynak katmanın kendi OBJECTID'si — katman içinde KESİN tekil.
   const oid = r.OBJECTID ?? r.FID ?? r.OID_ ?? r.objectid ?? null;
   return {
     // APN çoğu eyalette sadece county İÇİNDE tekil; TX katmanında county alanı
     // olmadığı için APN'e göre tekilleştirmek 1,7M gerçek parseli mükerrer sanıp
     // atıyordu. Kimlik APN + OBJECTID birlikte kuruluyor.
-    lead_id: `${ab}-${county || 'NA'}-${apn || 'NA'}-${oid ?? ''}`.replace(/\s+/g, '_').replace(/-$/, ''),
+    lead_id: `${eyaletKodu}-${county || 'NA'}-${apn || 'NA'}-${oid ?? ''}`.replace(/\s+/g, '_').replace(/-$/, ''),
     _oid: oid,
-    eyalet: ab,
+    eyalet: eyaletKodu,
     county,
     apn,
     sahip: tmz(al(r, e.sahip)),
@@ -351,7 +356,7 @@ async function ayikla(ab) {
     if (gorulen.has(anahtar)) { s.mukerrer++; continue; }
     gorulen.add(anahtar);
     delete n._oid;
-    n.eyalet_disi = !!(n.posta_eyalet && n.posta_eyalet !== ab);
+    n.eyalet_disi = !!(n.posta_eyalet && n.posta_eyalet !== n.eyalet);
 
     const kova = kovaSec(n, ESLEME[ab].bosArsa == null);
     s[kova] = (s[kova] || 0) + 1;

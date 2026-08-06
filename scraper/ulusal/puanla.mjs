@@ -29,8 +29,13 @@ const KOK = path.dirname(fileURLToPath(import.meta.url));
 const COUNTY_KIPI = process.argv.includes('--county');
 const VERI_KOK = process.env.VEGALAND_VERI || path.join(KOK, 'veri');
 const VERI = COUNTY_KIPI ? path.join(VERI_KOK, 'county') : VERI_KOK;
-const GIRIS = path.join(VERI, 'ayik', 'aday');
-const CIKTI = path.join(VERI, 'puanli');
+// --kova <ad>: hangi kovanın puanlanacağı. Varsayılan 'aday' (boş arsa).
+// 'binali' verilirse üzerinde bina olan parseller puanlanır — sahip adı ve
+// posta adresi orada da var, motivasyon sinyalleri aynı işliyor.
+const argHam = process.argv.slice(2);
+const KOVA = argHam.includes('--kova') ? argHam[argHam.indexOf('--kova') + 1] : 'aday';
+const GIRIS = path.join(VERI, 'ayik', KOVA);
+const CIKTI = path.join(VERI, KOVA === 'aday' ? 'puanli' : `puanli-${KOVA}`);
 
 /** Sahip adından tüzel/miras/tröst sinyali. Satış motivasyonunun en güçlü göstergesi. */
 const SAHIP_TIPI = [
@@ -138,7 +143,7 @@ async function eyaletPuanla(ab) {
   return { eyalet: ab, sayi, dagilim, bandDagilim, elenenKamu };
 }
 
-const arg = process.argv.slice(2);
+const arg = argHam.filter((a, i) => !(i > 0 && argHam[i - 1] === '--kova'));
 const hedef = arg.includes('--hepsi')
   ? fs.readdirSync(GIRIS).filter((f) => f.endsWith('.ndjson.gz')).map((f) => f.replace('.ndjson.gz', ''))
   : arg.filter((a) => !a.startsWith('--'));
@@ -155,4 +160,4 @@ const t = rapor.reduce((a, r) => ({
   n: a.n + r.sayi, Aa: a.Aa + (r.dagilim['A+'] || 0), A: a.A + (r.dagilim.A || 0), B: a.B + (r.dagilim.B || 0),
 }), { n: 0, Aa: 0, A: 0, B: 0 });
 const bin = (x) => x.toLocaleString('tr-TR');
-console.error(`\nTOPLAM: ${bin(t.n)} puanlı arsa · A+ ${bin(t.Aa)} · A ${bin(t.A)} · B ${bin(t.B)}`);
+console.error(`\nTOPLAM (${KOVA}): ${bin(t.n)} puanlı kayıt · A+ ${bin(t.Aa)} · A ${bin(t.A)} · B ${bin(t.B)}`);
