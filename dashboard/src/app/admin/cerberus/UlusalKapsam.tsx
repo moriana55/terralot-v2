@@ -92,6 +92,34 @@ export function UlusalKapsam() {
         />
       </div>
 
+      {huni.birlesik && (
+        <div
+          className="mt-5 rounded-lg border p-4"
+          style={{ background: "var(--surface-high)", borderColor: "var(--outline)" }}
+        >
+          <div className="text-sm font-bold mb-2" style={{ color: "var(--primary)" }}>
+            TEK ENVANTER — mevcut envanter + yeni hasat birleşik
+          </div>
+          <p className="text-xs mb-3" style={{ color: "var(--muted)" }}>
+            Üç kaynak tek listede ve <b>aynı puanlama motorundan</b> geçti. Mevcut envanterin
+            kendi not sistemi (A-F) ile buradaki sınıflar farklı ölçeklerdi; toplamak yerine
+            hepsi yeniden puanlandı.
+          </p>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+            <Kutu2 baslik="Arsa" deger={bin(huni.birlesik.arsa)} alt={`${huni.birlesik.eyalet} eyalet`} />
+            <Kutu2 baslik="Puanlanan" deger={bin(huni.birlesik.puanlanan)} alt={`${bin(huni.birlesik.kamuElendi)} kamu elendi`} />
+            <Kutu2 baslik="A+" deger={bin(huni.birlesik.sinif["A+"])} alt="en güçlü motivasyon" />
+            <Kutu2 baslik="A" deger={bin(huni.birlesik.sinif.A)} alt={`B ${bin(huni.birlesik.sinif.B)}`} />
+          </div>
+          <div className="text-xs mt-3" style={{ color: "var(--muted)" }}>
+            kaynak: eyalet geneli {bin(huni.birlesik.kaynakDagilim.eyalet)} ·
+            county {bin(huni.birlesik.kaynakDagilim.county)} ·
+            mevcut envanter {bin(huni.birlesik.kaynakDagilim.mevcut)} ·
+            elenen mükerrer {bin(huni.birlesik.elenenMukerrer)}
+          </div>
+        </div>
+      )}
+
       <div className="mt-4 overflow-x-auto">
         <table className="text-xs w-full">
           <thead>
@@ -123,6 +151,16 @@ export function UlusalKapsam() {
         sayfasında canlı sorguyla doğrulanabilir.
       </p>
     </section>
+  );
+}
+
+function Kutu2({ baslik, deger, alt }: { baslik: string; deger: string; alt: string }) {
+  return (
+    <div>
+      <div style={{ color: "var(--muted)" }}>{baslik}</div>
+      <div className="text-lg font-bold tabular-nums" style={{ color: "var(--primary)" }}>{deger}</div>
+      <div style={{ color: "var(--muted)" }}>{alt}</div>
+    </div>
   );
 }
 

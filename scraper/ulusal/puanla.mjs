@@ -28,14 +28,20 @@ const KOK = path.dirname(fileURLToPath(import.meta.url));
 // --county: veri/county/ayik/aday altını puanlar, çıktı veri/county/puanli.
 const COUNTY_KIPI = process.argv.includes('--county');
 const VERI_KOK = process.env.VEGALAND_VERI || path.join(KOK, 'veri');
-const VERI = COUNTY_KIPI ? path.join(VERI_KOK, 'county') : VERI_KOK;
+// --birlesik: birlestir.mjs'in ürettiği TEK havuzu puanlar (mevcut envanter +
+// eyalet geneli + county, tekilleştirilmiş). Hepsi aynı motordan geçsin diye.
+const BIRLESIK = process.argv.includes('--birlesik');
+const VERI = BIRLESIK ? path.join(VERI_KOK, 'birlesik')
+  : COUNTY_KIPI ? path.join(VERI_KOK, 'county') : VERI_KOK;
 // --kova <ad>: hangi kovanın puanlanacağı. Varsayılan 'aday' (boş arsa).
 // 'binali' verilirse üzerinde bina olan parseller puanlanır — sahip adı ve
 // posta adresi orada da var, motivasyon sinyalleri aynı işliyor.
 const argHam = process.argv.slice(2);
 const KOVA = argHam.includes('--kova') ? argHam[argHam.indexOf('--kova') + 1] : 'aday';
-const GIRIS = path.join(VERI, 'ayik', KOVA);
-const CIKTI = path.join(VERI, KOVA === 'aday' ? 'puanli' : `puanli-${KOVA}`);
+// Birleşik havuzda kova ayrımı yok — tek dosya (aday.ndjson.gz) doğrudan VERI altında.
+const GIRIS = BIRLESIK ? VERI : path.join(VERI, 'ayik', KOVA);
+const CIKTI = BIRLESIK ? path.join(VERI, 'puanli')
+  : path.join(VERI, KOVA === 'aday' ? 'puanli' : `puanli-${KOVA}`);
 
 /** Sahip adından tüzel/miras/tröst sinyali. Satış motivasyonunun en güçlü göstergesi. */
 const SAHIP_TIPI = [

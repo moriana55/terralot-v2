@@ -1,5 +1,5 @@
 {
- "olculdu": "2026-08-06T02:38:19.334Z",
+ "olculdu": "2026-08-06T05:16:28.635Z",
  "erisim": {
   "parsel": 116979342,
   "eyalet": 49,
@@ -331,5 +331,226 @@
    "A+": 0,
    "A": 0
   }
- ]
+ ],
+ "birlesik": {
+  "arsa": 12709107,
+  "eyalet": 48,
+  "kaynakDagilim": {
+   "county": 1483417,
+   "mevcut": 811546,
+   "eyalet": 10414144
+  },
+  "elenenMukerrer": 1590584,
+  "puanlanan": 12245809,
+  "kamuElendi": 463298,
+  "sinif": {
+   "A+": 25693,
+   "A": 328199,
+   "B": 965919,
+   "C": 2708634,
+   "D": 8217364
+  },
+  "band": {
+   "bilinmiyor": 4629394,
+   "0-25K": 4361500,
+   "25-100K": 1969801,
+   "100-500K": 980926,
+   "500K-1M": 197873,
+   "1M+": 106315
+  },
+  "eyaletler": [
+   {
+    "eyalet": "FL",
+    "adet": 2810647
+   },
+   {
+    "eyalet": "TX",
+    "adet": 2153450
+   },
+   {
+    "eyalet": "NC",
+    "adet": 1679246
+   },
+   {
+    "eyalet": "WI",
+    "adet": 1124060
+   },
+   {
+    "eyalet": "NY",
+    "adet": 979492
+   },
+   {
+    "eyalet": "MS",
+    "adet": 575013
+   },
+   {
+    "eyalet": "CO",
+    "adet": 429549
+   },
+   {
+    "eyalet": "MT",
+    "adet": 415953
+   },
+   {
+    "eyalet": "MA",
+    "adet": 310266
+   },
+   {
+    "eyalet": "AZ",
+    "adet": 274472
+   },
+   {
+    "eyalet": "NM",
+    "adet": 179682
+   },
+   {
+    "eyalet": "TN",
+    "adet": 156467
+   },
+   {
+    "eyalet": "CT",
+    "adet": 143510
+   },
+   {
+    "eyalet": "AR",
+    "adet": 111599
+   },
+   {
+    "eyalet": "OH",
+    "adet": 95989
+   },
+   {
+    "eyalet": "MI",
+    "adet": 75765
+   },
+   {
+    "eyalet": "ND",
+    "adet": 75571
+   },
+   {
+    "eyalet": "KY",
+    "adet": 62966
+   },
+   {
+    "eyalet": "GA",
+    "adet": 58742
+   },
+   {
+    "eyalet": "OK",
+    "adet": 58618
+   },
+   {
+    "eyalet": "VT",
+    "adet": 58539
+   },
+   {
+    "eyalet": "NE",
+    "adet": 56738
+   },
+   {
+    "eyalet": "ID",
+    "adet": 55287
+   },
+   {
+    "eyalet": "NV",
+    "adet": 52097
+   },
+   {
+    "eyalet": "SC",
+    "adet": 50753
+   },
+   {
+    "eyalet": "AL",
+    "adet": 49986
+   },
+   {
+    "eyalet": "IA",
+    "adet": 48410
+   },
+   {
+    "eyalet": "MO",
+    "adet": 48299
+   },
+   {
+    "eyalet": "VA",
+    "adet": 45233
+   },
+   {
+    "eyalet": "OR",
+    "adet": 44985
+   },
+   {
+    "eyalet": "IL",
+    "adet": 43446
+   },
+   {
+    "eyalet": "KS",
+    "adet": 43382
+   },
+   {
+    "eyalet": "CA",
+    "adet": 42356
+   },
+   {
+    "eyalet": "ME",
+    "adet": 40926
+   },
+   {
+    "eyalet": "HI",
+    "adet": 40181
+   },
+   {
+    "eyalet": "WV",
+    "adet": 36863
+   },
+   {
+    "eyalet": "WY",
+    "adet": 31430
+   },
+   {
+    "eyalet": "MD",
+    "adet": 30707
+   },
+   {
+    "eyalet": "LA",
+    "adet": 27175
+   },
+   {
+    "eyalet": "IN",
+    "adet": 25313
+   },
+   {
+    "eyalet": "MN",
+    "adet": 20156
+   },
+   {
+    "eyalet": "PA",
+    "adet": 15550
+   },
+   {
+    "eyalet": "WA",
+    "adet": 14671
+   },
+   {
+    "eyalet": "SD",
+    "adet": 9893
+   },
+   {
+    "eyalet": "NJ",
+    "adet": 4749
+   },
+   {
+    "eyalet": "UT",
+    "adet": 631
+   },
+   {
+    "eyalet": "DE",
+    "adet": 263
+   },
+   {
+    "eyalet": "AK",
+    "adet": 31
+   }
+  ]
+ }
 }

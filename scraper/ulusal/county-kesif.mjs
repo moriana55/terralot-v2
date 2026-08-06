@@ -38,10 +38,17 @@ const FIPS = {
   VA: '51', WA: '53', WV: '54', WI: '55', WY: '56',
 };
 const AD = {
-  AL: 'Alabama', AZ: 'Arizona', AR: 'Arkansas', GA: 'Georgia', IA: 'Iowa', ID: 'Idaho',
-  KS: 'Kansas', KY: 'Kentucky', ME: 'Maine', MI: 'Michigan', MO: 'Missouri', NE: 'Nebraska',
-  NM: 'New Mexico', ND: 'North Dakota', NV: 'Nevada', OK: 'Oklahoma', OR: 'Oregon',
-  SC: 'South Carolina', SD: 'South Dakota', TN: 'Tennessee',
+  AL: 'Alabama', AK: 'Alaska', AZ: 'Arizona', AR: 'Arkansas', CA: 'California',
+  CO: 'Colorado', CT: 'Connecticut', DE: 'Delaware', FL: 'Florida', GA: 'Georgia',
+  HI: 'Hawaii', IA: 'Iowa', ID: 'Idaho', IL: 'Illinois', IN: 'Indiana',
+  KS: 'Kansas', KY: 'Kentucky', LA: 'Louisiana', MA: 'Massachusetts', MD: 'Maryland',
+  ME: 'Maine', MI: 'Michigan', MN: 'Minnesota', MO: 'Missouri', MS: 'Mississippi',
+  MT: 'Montana', NC: 'North Carolina', ND: 'North Dakota', NE: 'Nebraska',
+  NH: 'New Hampshire', NJ: 'New Jersey', NM: 'New Mexico', NV: 'Nevada', NY: 'New York',
+  OH: 'Ohio', OK: 'Oklahoma', OR: 'Oregon', PA: 'Pennsylvania', RI: 'Rhode Island',
+  SC: 'South Carolina', SD: 'South Dakota', TN: 'Tennessee', TX: 'Texas', UT: 'Utah',
+  VA: 'Virginia', VT: 'Vermont', WA: 'Washington', WI: 'Wisconsin', WV: 'West Virginia',
+  WY: 'Wyoming',
 };
 
 const UA = { 'User-Agent': 'Mozilla/5.0 (compatible; VegaLand/1.0)' };
