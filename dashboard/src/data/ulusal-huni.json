@@ -1,0 +1,119 @@
+{
+ "olculdu": "2026-08-06T01:02:50.653Z",
+ "erisim": {
+  "parsel": 116979342,
+  "eyalet": 49,
+  "eyaletGeneli": {
+   "parsel": 66275200,
+   "eyalet": 21
+  },
+  "county": {
+   "parsel": 50704142,
+   "eyalet": 36,
+   "adet": 590
+  }
+ },
+ "indirilen": {
+  "parsel": 82527272,
+  "eyaletGeneli": 70399887,
+  "county": 12127385,
+  "countyDosya": 179,
+  "eyaletDosya": 21
+ },
+ "islenen": {
+  "okunan": 52423085,
+  "aday": 11894931,
+  "binali": 33868668,
+  "postasiz": 634983,
+  "sahipsiz": 4552639,
+  "eyaletDisi": 1632166
+ },
+ "puanlanan": {
+  "toplam": 11483593,
+  "A+": 18057,
+  "A": 251540,
+  "B": 723934,
+  "C": 2456222,
+  "D": 8033840
+ },
+ "eyaletler": [
+  {
+   "eyalet": "TX",
+   "aday": 3360404,
+   "A+": 4993,
+   "A": 50505
+  },
+  {
+   "eyalet": "FL",
+   "aday": 2629336,
+   "A+": 3085,
+   "A": 59104
+  },
+  {
+   "eyalet": "NC",
+   "aday": 1645521,
+   "A+": 1523,
+   "A": 33663
+  },
+  {
+   "eyalet": "WI",
+   "aday": 1045341,
+   "A+": 2404,
+   "A": 29641
+  },
+  {
+   "eyalet": "NY",
+   "aday": 945259,
+   "A+": 630,
+   "A": 8548
+  },
+  {
+   "eyalet": "MS",
+   "aday": 557921,
+   "A+": 2720,
+   "A": 20741
+  },
+  {
+   "eyalet": "MT",
+   "aday": 380919,
+   "A+": 1346,
+   "A": 22742
+  },
+  {
+   "eyalet": "CO",
+   "aday": 370014,
+   "A+": 626,
+   "A": 11907
+  },
+  {
+   "eyalet": "MA",
+   "aday": 294093,
+   "A+": 425,
+   "A": 7163
+  },
+  {
+   "eyalet": "CT",
+   "aday": 132838,
+   "A+": 155,
+   "A": 3289
+  },
+  {
+   "eyalet": "VT",
+   "aday": 57041,
+   "A+": 53,
+   "A": 2071
+  },
+  {
+   "eyalet": "HI",
+   "aday": 39710,
+   "A+": 97,
+   "A": 1800
+  },
+  {
+   "eyalet": "WY",
+   "aday": 25196,
+   "A+": 0,
+   "A": 366
+  }
+ ]
+}

@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { ScoreBadge } from "@/components/ScoreBadge";
 import { CerberusLogo } from "@/components/DealHoundLogo";
+import { UlusalKapsam } from "./UlusalKapsam";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // CERBERUS INTEL CONSOLE
@@ -145,6 +146,9 @@ export default function CerberusIntelPage() {
           </button>
         </div>
       </div>
+
+      {/* Ulusal hasat hunisi — erişim / indirilen / işlenen ayrı gösterilir. */}
+      <UlusalKapsam />
 
       {runMsg && (
         <div className="flex items-start gap-2 px-4 py-3 rounded-lg text-sm mb-5"
