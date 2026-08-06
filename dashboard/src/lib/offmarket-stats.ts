@@ -14,6 +14,8 @@ export const OFFMARKET_STATES = [
   "AZ", "NM", "CO", "TX", "FL", "AR", "NC", "TN", "GA", "OK", "NV", "OR", "MO", "MI", "SC",
   // 3. dalga — HEDEF-25-EYALET.md'deki taksit-dostu 10 yeni eyalet
   "MT", "WY", "ID", "KS", "NE", "SD", "MS", "AL", "KY", "WV",
+  // 4. dalga - 2026-08-06 ulusal hasat (eyalet geneli + county kaynaklari)
+  "WI", "NY", "MA", "CT", "OH", "ND", "VT", "IA", "VA", "IL", "CA", "ME", "HI", "MD", "LA", "IN", "MN", "PA", "WA", "NJ", "UT", "DE", "AK",
 ] as const;
 export type OffmarketState = (typeof OFFMARKET_STATES)[number];
 
@@ -64,6 +66,31 @@ export const OFFMARKET_STATE_META: Record<OffmarketState, StateMeta> = {
   AL: { code: "AL", label: "Alabama",        region: "DeKalb + Talladega + Cullman + Greene",     color: "#b91c1c", bounds: [-88.47, 30.14, -84.89, 35.01], lat: 32.8, lng: -86.8,  fallbackCount: 46661 },
   KY: { code: "KY", label: "Kentucky",       region: "Pulaski + Campbell",                        color: "#6d28d9", bounds: [-89.57, 36.5, -81.96, 39.15],  lat: 37.8, lng: -85.8,  fallbackCount: 5394 },
   WV: { code: "WV", label: "West Virginia",  region: "Wirt + Clay + Calhoun + Webster",           color: "#047857", bounds: [-82.65, 37.2, -77.72, 40.64],  lat: 38.6, lng: -80.6,  fallbackCount: 5273 },
+
+  // 4. dalga (2026-08-06) - sinir kutusu ve merkez Census TIGERweb kaynakli
+  WI: { code: "WI", label: "Wisconsin", region: "ulusal hasat", color: "#059669", bounds: [-92.889, 42.492, -86.25, 47.31], lat: 44.6273, lng: -89.7098, fallbackCount: 1124060 },
+  NY: { code: "NY", label: "New York", region: "ulusal hasat", color: "#2563eb", bounds: [-79.763, 40.477, -71.777, 45.016], lat: 42.9196, lng: -75.5941, fallbackCount: 979492 },
+  MA: { code: "MA", label: "Massachusetts", region: "ulusal hasat", color: "#dc2626", bounds: [-73.508, 41.187, -69.859, 42.887], lat: 42.1618, lng: -71.4975, fallbackCount: 310266 },
+  CT: { code: "CT", label: "Connecticut", region: "ulusal hasat", color: "#d97706", bounds: [-73.728, 40.951, -71.787, 42.051], lat: 41.5751, lng: -72.7393, fallbackCount: 143510 },
+  OH: { code: "OH", label: "Ohio", region: "ulusal hasat", color: "#7c3aed", bounds: [-84.82, 38.403, -80.519, 42.327], lat: 40.4097, lng: -82.7169, fallbackCount: 95989 },
+  ND: { code: "ND", label: "North Dakota", region: "ulusal hasat", color: "#0891b2", bounds: [-104.049, 45.935, -96.554, 49.001], lat: 47.4505, lng: -100.4661, fallbackCount: 75571 },
+  VT: { code: "VT", label: "Vermont", region: "ulusal hasat", color: "#be185d", bounds: [-73.438, 42.727, -71.465, 45.017], lat: 44.0693, lng: -72.6661, fallbackCount: 58539 },
+  IA: { code: "IA", label: "Iowa", region: "ulusal hasat", color: "#ea580c", bounds: [-96.639, 40.375, -90.14, 43.501], lat: 42.0754, lng: -93.4959, fallbackCount: 48410 },
+  VA: { code: "VA", label: "Virginia", region: "ulusal hasat", color: "#0f766e", bounds: [-83.675, 36.541, -75.166, 39.466], lat: 37.5183, lng: -78.6759, fallbackCount: 45233 },
+  IL: { code: "IL", label: "Illinois", region: "ulusal hasat", color: "#4338ca", bounds: [-91.513, 36.97, -87.02, 42.508], lat: 40.1006, lng: -89.1501, fallbackCount: 43446 },
+  CA: { code: "CA", label: "California", region: "ulusal hasat", color: "#b91c1c", bounds: [-124.482, 32.53, -114.131, 42.01], lat: 37.1548, lng: -119.5278, fallbackCount: 42356 },
+  ME: { code: "ME", label: "Maine", region: "ulusal hasat", color: "#a16207", bounds: [-71.084, 42.917, -66.885, 47.46], lat: 45.2611, lng: -69.2137, fallbackCount: 40926 },
+  HI: { code: "HI", label: "Hawaii", region: "ulusal hasat", color: "#059669", bounds: [-178.444, 18.865, -154.756, 28.517], lat: 21.0509, lng: -157.9937, fallbackCount: 40181 },
+  MD: { code: "MD", label: "Maryland", region: "ulusal hasat", color: "#2563eb", bounds: [-79.488, 37.887, -74.986, 39.723], lat: 38.9464, lng: -76.679, fallbackCount: 30707 },
+  LA: { code: "LA", label: "Louisiana", region: "ulusal hasat", color: "#dc2626", bounds: [-94.043, 28.855, -88.758, 33.02], lat: 30.9026, lng: -91.7982, fallbackCount: 27175 },
+  IN: { code: "IN", label: "Indiana", region: "ulusal hasat", color: "#d97706", bounds: [-88.098, 37.772, -84.785, 41.761], lat: 39.9059, lng: -86.2873, fallbackCount: 25313 },
+  MN: { code: "MN", label: "Minnesota", region: "ulusal hasat", color: "#7c3aed", bounds: [-97.239, 43.499, -89.483, 49.384], lat: 46.3167, lng: -94.1982, fallbackCount: 20156 },
+  PA: { code: "PA", label: "Pennsylvania", region: "ulusal hasat", color: "#0891b2", bounds: [-80.52, 39.72, -74.69, 42.516], lat: 40.9011, lng: -77.8369, fallbackCount: 15550 },
+  WA: { code: "WA", label: "Washington", region: "ulusal hasat", color: "#be185d", bounds: [-124.849, 45.544, -116.916, 49.002], lat: 47.4149, lng: -120.5955, fallbackCount: 14671 },
+  NJ: { code: "NJ", label: "New Jersey", region: "ulusal hasat", color: "#ea580c", bounds: [-75.564, 38.789, -73.885, 41.358], lat: 40.1049, lng: -74.6584, fallbackCount: 4749 },
+  UT: { code: "UT", label: "Utah", region: "ulusal hasat", color: "#0f766e", bounds: [-114.053, 36.998, -109.042, 42.002], lat: 39.3063, lng: -111.6703, fallbackCount: 631 },
+  DE: { code: "DE", label: "Delaware", region: "ulusal hasat", color: "#4338ca", bounds: [-75.789, 38.451, -74.984, 39.84], lat: 38.9933, lng: -75.4514, fallbackCount: 263 },
+  AK: { code: "AK", label: "Alaska", region: "ulusal hasat", color: "#b91c1c", bounds: [-179.231, 51.175, 179.86, 71.44], lat: 63.4136, lng: -152.8789, fallbackCount: 31 },
 };
 
 /** API gelene kadar kullanılan eyalet → sayı fallback haritası. */
