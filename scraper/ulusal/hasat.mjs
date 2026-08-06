@@ -89,6 +89,10 @@ async function katmanBilgisi(kaynak) {
     // gelir ve sunucu çok daha hızlı yanıt verir. Poligon katmanında ise her
     // sorguda centroid hesaplattığımız için ağır kaynaklar boğuluyor.
     nokta: meta.geometryType === 'esriGeometryPoint',
+    // Bazı kaynaklar TABLO yayınlıyor (geometryType yok). Onlara returnCentroid
+    // göndermek 'Invalid query parameters' (400) veriyor ve hasat o county'de
+    // kilitleniyordu — GA Gwinnett saatlerce böyle döndü.
+    geometriYok: !meta.geometryType,
     // Seyreklik = OID aralığı / kayıt sayısı. NC'de 28,7M genişlikte 5,9M kayıt
     // var (seyreklik 4,8) — sabit 2000'lik pencere çoğunlukla boş dönüyordu.
     seyreklik: Math.max(1, (Number(s.encok ?? 0) - Number(s.enaz ?? 1) + 1) / Math.max(sayim.count || 1, 1)),
@@ -107,9 +111,11 @@ async function pencereCek(kaynak, bilgi, bas, bit) {
   const url =
     `${kaynak.url}/query?where=${where}` +
     `&outFields=${encodeURIComponent(bilgi.alanlar.join(','))}` +
-    (bilgi.nokta
-      ? '&returnGeometry=true'                       // nokta: koordinat zaten geometride
-      : '&returnGeometry=false&returnCentroid=true') // poligon: centroid iste
+    (bilgi.geometriYok
+      ? '&returnGeometry=false'                      // tablo: geometri parametresi yok
+      : bilgi.nokta
+        ? '&returnGeometry=true'                     // nokta: koordinat zaten geometride
+        : '&returnGeometry=false&returnCentroid=true') // poligon: centroid iste
     + '&outSR=4326&f=json';
   let j;
   try {
@@ -137,6 +143,11 @@ async function pencereCek(kaynak, bilgi, bas, bit) {
     }
     console.error(`\n${kaynak.eyalet}: ⚠ OID ${bas}-${bit} ATLANDI — ${e.message}`);
     BOSLUK.push({ eyalet: kaynak.eyalet, bas, bit, hata: e.message });
+    // Kaynak baştan sona bozuksa bölerek öğütmenin anlamı yok: 200 boşluktan
+    // sonra bu kaynağı bırakıp sıradakine geçiyoruz.
+    if (BOSLUK.filter((b) => b.eyalet === kaynak.eyalet).length > 200) {
+      throw new Error('kaynak sürekli hata veriyor, 200 aralık atlandı — vazgeçildi');
+    }
     return [];
   }
   return (j.features || []).map((f) => {
