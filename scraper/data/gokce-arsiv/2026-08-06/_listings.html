@@ -1,0 +1,1322 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Gokce Capital Listing">
+  <link rel="icon" type="image/x-icon" href="https://d35sqbuxm7djsy.cloudfront.net/gc/gc-logo.png">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" 
+  rel="stylesheet">
+  <title>Own Land. Live Free. 🇺🇸</title>
+  <script src="https://d35sqbuxm7djsy.cloudfront.net/js/jquery-3.7.1.min.js"></script>
+  <script>
+    $(document).ready(function(){ 
+    
+    var flag = true;
+        var modal = $('#modalDialog');
+
+        $(document).on('mouseleave', leaveFromTop);
+                
+        function leaveFromTop(e){
+          if( e.clientY < 0 && flag == true) {
+            flag = false;
+            modal.show();
+
+            //When the user clicks on <span> (x), close the modal
+            $(".close").on('click', function() {
+            modal.fadeOut();
+          });
+
+          //When the user clicks anywhere outside of the modal, close it
+          $('body').on('click', fadeOutModal);
+      }
+    }
+
+    function fadeOutModal(e){
+      if($(e.target).hasClass("modal")){
+        modal.fadeOut();
+    }
+  }  
+    
+    //Close footer cta bar when close image is clicked
+    $('#footer-close-image').click(function () {
+          $('#footer-cta').fadeOut();
+        });
+         
+    //Close header cta bar when close image is clicked
+    $('#header-close-image').click(function () {
+          $('#header-cta').fadeOut();
+        });
+  });
+  </script>
+  
+  <script>
+    // Set the date we're counting down to
+    var countDownDate = new Date("Aug 06, 2026 23:59:59").getTime();
+    
+    // Update the count down every 1 second
+    var x = setInterval(function() {
+    
+      // Get today's date and time
+      var now = new Date().getTime();
+    
+      // Find the distance between now and the count down date
+      var distance = countDownDate - now;
+    
+      // Time calculations for days, hours, minutes and seconds
+      var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+      var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+    
+      // Display the result in the element with id="countdown"
+      document.getElementById("countdown").innerHTML = "<b>Offer closes in " + hours + "h "
+      + minutes + "m " + seconds + "s </b>";
+    
+      // If the count down is finished, write some text
+      if (distance < 0) {
+        clearInterval(x);
+        document.getElementById("countdown").innerHTML = "EXPIRED";
+      }
+    }, 1000);
+    </script>
+
+<style>
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+  margin: 5% auto;
+  width: 60%;
+  max-width: 90%;
+  background-color: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.175);
+  border-radius: .3rem;
+  outline: 0;
+}
+.modal-header {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-align: start;
+    -ms-flex-align: start;
+    align-items: flex-start;
+    -webkit-box-pack: justify;
+    -ms-flex-pack: justify;
+    justify-content: space-between;
+    padding: 1rem;
+    border-top-left-radius: .3rem;
+    border-top-right-radius: .3rem;
+}
+.modal-title {
+    margin-left: auto;
+    margin-bottom: 0;
+    line-height: 1.5;
+    margin-top: 0;
+    color: #273248;
+    font-family: "Archivo Narrow", sans-serif;
+    font-weight: bold;
+    font-size: 38px;
+}
+.modal-header .close {
+    float: right;
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1;
+    color: #000;
+    text-shadow: 0 1px 0 #fff;
+    opacity: .5;
+    padding: 1rem;
+    margin: -1rem -1rem -1rem auto;
+    background-color: transparent;
+    border: 0;
+}
+.close:not(:disabled):not(.disabled) {
+    cursor: pointer;
+}
+
+.modal-body {
+    flex: 1 1 auto;
+    padding: 1rem;
+}
+.modal-body p {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    font-size: 28px;
+}
+
+body {
+  color: #797979;
+  padding-top: 0.2%;
+  padding-bottom: 1%;
+  padding-left: 1%;
+  padding-right: 1%;
+}
+
+div#header-bar {
+  position: fixed;
+  left: 0%;
+  top: 0%;
+  background: #f5f5f5;
+  width: 100%;
+  text-align: center;
+  opacity: 0.95;
+  padding-top: 0.5%;
+  padding-bottom: 0.5%;
+  font-size: 22px;
+  z-index: 1000;
+}
+
+img#header-close-image {
+  position: fixed;
+  right: 1%;
+  top: 1%;
+  border: 1px solid #c4c4c4;
+  border-radius: 50%;
+  cursor: pointer;
+  padding: 5px;
+  z-index: 1001;
+}
+
+img#footer-close-image {
+  position: fixed;
+  right: 1%;
+  bottom: 1%;
+  border: 1px solid #c4c4c4;
+  border-radius: 50%;
+  cursor: pointer;
+  padding: 5px;
+}
+
+.center {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+h4 {
+  color: #273248;
+  font-family: "Archivo Narrow", sans-serif;
+  text-transform: uppercase;
+  font-weight: bold;
+  font-size: 25px;
+  line-height: 1.3em;
+  width: 60%;
+  text-align: left;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+iframe {
+    display: block;
+    width: 60%;
+    aspect-ratio: 16 / 9;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 25px;
+    border: none;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow:
+        0 12px 30px rgba(0, 0, 0, 0.15),
+        0 2px 8px rgba(0, 0, 0, 0.08);
+    transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease;
+}
+
+iframe:hover {
+    transform: translateY(-3px);
+    box-shadow:
+        0 18px 45px rgba(0, 0, 0, 0.22),
+        0 6px 16px rgba(0, 0, 0, 0.10);
+}
+
+img#top-left-corner-logo {
+  position:absolute;
+  z-index: 1001
+}
+
+img#erika {
+  margin-left: auto;
+  margin-right: auto;
+  display: block;
+  width: 26%;
+  height: auto;
+}
+
+img#testimonial {
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+    width: 80%;
+    height: auto;
+}
+
+b, i {
+  color: #273248;
+}
+
+a {
+  color: #e74c3c;
+  text-decoration: none;
+}
+
+a:hover {
+  color: #273248;
+}
+
+p {
+   font-family: Georgia, Times New Roman, Times, serif;
+   font-size: 26px;
+   line-height: 1.5em;
+   text-align: center;
+}
+
+table {
+  font-family: Georgia, Times New Roman, Times, serif;
+  font-size: 18px;
+  border-collapse: collapse;
+  border-style: hidden;
+  padding-top: 1%;
+  padding-bottom: 1%;
+  padding-left: 5%;
+  padding-right: 5%;
+}
+
+table#listings {
+  width: 60%;
+}
+
+p#blurb {
+  width: 50%;
+  text-align: left;
+  margin-left: auto;
+  margin-right: auto;
+  font-size: 24px;
+}
+
+p#menu {
+  font-size: 18px;
+}
+
+div#footer {
+  width: 60%;
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+  font-size: 16px;
+}
+
+div#google_maps_div {
+ width:100%; 
+ height:600px;
+}
+
+td, th {
+  border: 1px solid #ddd;
+  padding: 12px;
+}
+
+tr:nth-child(even) {
+  background-color: #FAFAFA;
+}
+
+th {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  text-align: left;
+  color: #797979;
+}
+
+h1 {
+  color: #273248;
+  font-family: "bebas Neue";
+  text-transform: uppercase;
+  font-size: 50px;
+  line-height: 1em;
+  text-align: center;
+  width: 60%;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 1%;
+}
+
+h2 {
+  color: #273248;
+  font-family: "bebas Neue";
+  text-transform: uppercase;
+  font-size: 50px;
+  line-height: 1em;
+  text-align: center;
+  width: 60%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.button {
+    background-color: #da4b5b;
+    text-transform: uppercase;
+    font-style: italic;
+    font-family: "bebas neue";
+    font-size: 64px;
+    color: white;
+    border-radius: 14px;
+    -webkit-transition-duration: 0.4s;
+    -o-transition-duration: 0.4s;
+    transition-duration: 0.4s;
+    padding-left: 8%;
+    padding-right: 8%;
+    padding-top: 1%;
+    padding-bottom: 1%;
+    -webkit-box-shadow: 0 8px 16px 0 rgb(0 0 0 / 20%), 0 6px 20px 0 rgb(0 0 0 / 19%);
+    box-shadow: 0 8px 16px 0 rgb(0 0 0 / 20%), 0 6px 20px 0 rgb(0 0 0 / 19%);
+}
+
+.button:hover {
+ color: white;
+ -webkit-box-shadow: 0 8px 16px 0 rgb(0 0 0 / 0%), 0 6px 20px 0 rgb(0 0 0 / 0%);
+ box-shadow: 0 8px 16px 0 rgb(0 0 0 / 0%), 0 6px 20px 0 rgb(0 0 0 / 0%);
+}
+
+div#footer-bar {
+  position: fixed;
+  left: 0%;
+  bottom: 0%;
+  background: #f5f5f5;
+  width: 100%;
+  text-align: center;
+  opacity: 0.98;
+  padding-top: 0.2%;
+  padding-bottom: 0.2%;
+  font-size: 24px;
+}
+
+th {
+    white-space: nowrap;
+}
+
+th::after {
+    content: " ▼";
+    opacity: 0.3; 
+    font-size: 12px;
+}
+
+th.asc::after {
+    content: " ▲";
+    opacity: 1;
+}
+
+th.desc::after {
+    content: " ▼";
+    opacity: 1;
+}
+
+.highlight {
+    background-color: yellow;
+    padding: 2px 0;
+}
+
+/*mobile*/
+@media screen and (max-width: 900px) {
+iframe {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+}
+ 
+ .button {
+    font-size: 40px;
+}
+ 
+ div#header-cta, div#footer-cta, img#header-close-image, div#modalDialog, img#footer-close-image {
+ display: none;
+ }
+
+div#google_maps_div {
+ width:100%; 
+ height:300px;
+}
+
+table#listings {
+  width: 100%;
+  font-size: 14px;
+  table-layout: fixed;
+}
+
+td, th {
+  padding: 8px;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+th {
+  white-space: normal;
+}
+
+table#listings td:nth-child(2), th:nth-child(2), td:nth-child(3), th:nth-child(3), 
+td:nth-child(6), th:nth-child(6), td:nth-child(7), th:nth-child(7) {
+    display: none;
+}
+
+ img#top-left-corner-logo, .listings-stats {
+   display: none;
+ }
+
+ table#listings, h2, h4 {
+   width: 100%;
+ }
+ 
+ h1 {
+   font-size: 35px;
+   margin-top: 0%;
+   width: 100%
+ }
+ 
+ p#blurb {
+  width: 100%;
+ }
+ 
+ div#footer {
+  width: 100%;
+ }
+ 
+ div#footer-bar {
+   font-size: 18px;
+ }
+ 
+ img#erika {
+  width: 50%;
+ }
+ img#testimonial {
+    width: 100%;
+ }
+}
+
+</style>
+
+<script type="text/javascript">
+var locations = [
+   ['279. Tierra Grande (Cabida Cir)',34.4895, -106.5466,'<b><a href="https://gokcecapital.gokcap.com/property?pn=279" target="_blank" rel="noopener">Available</a></b><br><br>APN: 1020016240480000000<br><br>Size: 10.84 Acres']
+,['322. Highlands (Beaver St NW)',27.2462, -81.409,'<b><a href="https://gokcecapital.gokcap.com/property?pn=322" target="_blank" rel="noopener">Available</a></b><br><br>APN: C143729-19007300100<br><br>Size: 0.26 Acres']
+,['372. Allegany (Hiltonville Rd)',42.3798, -77.8531,'<b><a href="https://gokcecapital.gokcap.com/property?pn=372" target="_blank" rel="noopener">Available</a></b><br><br>APN: 023600-085-000-0001-018-000-0000<br><br>Size: 1.40 Acres']
+,['395. Steuben (CR 70A)',42.3752, -77.429,'<b><a href="https://gokcecapital.gokcap.com/property?pn=395" target="_blank" rel="noopener">Available</a></b><br><br>APN: 462289-127-000-0001-011-300<br><br>Size: 6.70 Acres']
+,['398. Oneida (River Rd)',43.20133, -75.38855,'<b><a href="https://gokcecapital.gokcap.com/property?pn=398" target="_blank" rel="noopener">On Hold</a></b><br><br>APN: 244.003-0003-050<br><br>Size: 1.40 Acres']
+,['399. Lewis County (Adams Hill Rd)',43.8381, -75.3143,'<b><a href="https://gokcecapital.gokcap.com/property?pn=399" target="_blank" rel="noopener">Available<div style="color: #797979; font-size: 13px; padding-top: 5px;">🔥 Bargain Pick</div></a></b><br><br>APN: 234489-182-000-0001-003-113-0000<br><br>Size: 0.87 Acres']
+,['402. Costilla (Lincoln)',37.3824, -105.6872,'<b><a href="https://gokcecapital.gokcap.com/property?pn=402" target="_blank" rel="noopener">Available<div style="color: #797979; font-size: 13px; padding-top: 5px;">#3 Bargain Pick</div></a></b><br><br>APN: 70381100<br><br>Size: 4.96 Acres']
+,['531. Gordon (Carman Way)',34.5463, -84.6563,'<b><a href="https://gokcecapital.gokcap.com/property?pn=531" target="_blank" rel="noopener">Available</a></b><br><br>APN: 1231-1605<br><br>Size: 1.39 Acres']
+,['542. Franklin (Marchamps Dr)',34.5012, -83.0946,'<b><a href="https://gokcecapital.gokcap.com/property?pn=542" target="_blank" rel="noopener">Available</a></b><br><br>APN: 061b-214<br><br>Size: 0.72 Acres']
+,['580. Campbell',36.3103, -84.0591,'<b><a href="https://gokcecapital.gokcap.com/property?pn=580" target="_blank" rel="noopener">Available</a></b><br><br>APN: 117d-d-008.00<br><br>Size: 0.64 Acres']
+,['647. Lee (Hamilton Ave)',26.61474, -81.58807,'<b><a href="https://gokcecapital.gokcap.com/property?pn=647" target="_blank" rel="noopener">Available</a></b><br><br>APN: 26-44-27-L3-00007.0120<br><br>Size: 0.47 Acres']
+,['648. Graham (Springwood Lake)',35.29846, -83.81747,'<b><a href="https://gokcecapital.gokcap.com/property?pn=648" target="_blank" rel="noopener">Available</a></b><br><br>APN: 556903000009<br><br>Size: 0.56 Acres']
+,['672. Montgomery (Candor Oaks Dr)',35.47657, -80.10165,'<b><a href="https://gokcecapital.gokcap.com/property?pn=672" target="_blank" rel="noopener">Available</a></b><br><br>APN: 667317109133<br><br>Size: 0.49 Acres']
+,['676. Henderson (Flameleaf Ln)',35.30451, -82.52148,'<b><a href="https://gokcecapital.gokcap.com/property?pn=676" target="_blank" rel="noopener">Available</a></b><br><br>APN: 1004654<br><br>Size: 0.91 Acres']
+,['681. Duplin (River Rd)',34.73171, -77.92999,'<b><a href="https://gokcecapital.gokcap.com/property?pn=681" target="_blank" rel="noopener">Available</a></b><br><br>APN: 09-6872--<br><br>Size: 0.54 Acres']
+,['683. Montgomery (Whisper Lake Dr)',35.4764, -80.129,'<b><a href="https://gokcecapital.gokcap.com/property?pn=683" target="_blank" rel="noopener">Available</a></b><br><br>APN: 6663-18-30-7221<br><br>Size: 2.86 Acres']
+,['685. Montgomery (Bayview Ct)',35.47328, -80.11461,'<b><a href="https://gokcecapital.gokcap.com/property?pn=685" target="_blank" rel="noopener">Available</a></b><br><br>APN: 6662 08 88 0856<br><br>Size: 0.92 Acres']
+,['686. Montgomery (Bayview Ct)',35.47349, -80.11554,'<b><a href="https://gokcecapital.gokcap.com/property?pn=686" target="_blank" rel="noopener">Available</a></b><br><br>APN: 6662-08-78-8903 & 6662-08-79-5182<br><br>Size: 1.29 Acres']
+,['689. Montgomery (Candor Oaks Dr)',35.47661, -80.10115,'<b><a href="https://gokcecapital.gokcap.com/property?pn=689" target="_blank" rel="noopener">Available</a></b><br><br>APN: 6673-17-20-0175<br><br>Size: 0.50 Acres']
+,['699. Pamlico (Sail Haven Dr)',35.03894, -76.69754,'<b><a href="https://gokcecapital.gokcap.com/property?pn=699" target="_blank" rel="noopener">Available</a></b><br><br>APN: J081-22-21<br><br>Size: 0.92 Acres']
+,['708. Scotland (N Pine St)',34.77864, -79.45903,'<b><a href="https://gokcecapital.gokcap.com/property?pn=708" target="_blank" rel="noopener">Available</a></b><br><br>APN: 01-0050-01-016<br><br>Size: 0.37 Acres']
+,['709. Richmond (N State Ln)',34.99847, -79.88453,'<b><a href="https://gokcecapital.gokcap.com/property?pn=709" target="_blank" rel="noopener">Available</a></b><br><br>APN: 743502550577<br><br>Size: 1.11 Acres']
+,['721. Wilson (Lee St NE)',35.72983, -77.90827,'<b><a href="https://gokcecapital.gokcap.com/property?pn=721" target="_blank" rel="noopener">Available<div style="color: #797979; font-size: 13px; padding-top: 5px;">#2 Bargain Pick</div></a></b><br><br>APN: 3722-32-9380.000<br><br>Size: 0.26 Acres']
+,['734. Warren (Harbor Dr)',36.53423, -78.02294,'<b><a href="https://gokcecapital.gokcap.com/property?pn=734" target="_blank" rel="noopener">Available</a></b><br><br>APN: I2A150<br><br>Size: 0.72 Acres']
+,['736. Luna (Camino Dos SE)',32.12336, -107.42349,'<b><a href="https://gokcecapital.gokcap.com/property?pn=736" target="_blank" rel="noopener">Available</a></b><br><br>APN: 3032148143109<br><br>Size: 0.50 Acres']
+,['743. Putnam (Geneve St)',29.61306, -81.93008,'<b><a href="https://gokcecapital.gokcap.com/property?pn=743" target="_blank" rel="noopener">Available</a></b><br><br>APN: 19-10-24-4074-0270-0070<br><br>Size: 0.46 Acres']
+,['746. Costilla (Denver)',37.38205, -105.69157,'<b><a href="https://gokcecapital.gokcap.com/property?pn=746" target="_blank" rel="noopener">Available</a></b><br><br>APN: 70381000<br><br>Size: 5.00 Acres']
+,['750. Valencia',34.54857, -106.65557,'<b><a href="https://gokcecapital.gokcap.com/property?pn=750" target="_blank" rel="noopener">Available</a></b><br><br>APN: 1-014-021-255-190-000180<br><br>Size: 5.70 Acres']
+,['751. Socorro',34.47989, -106.60654,'<b><a href="https://gokcecapital.gokcap.com/property?pn=751" target="_blank" rel="noopener">Available</a></b><br><br>APN: R039375-<br><br>Size: 6.86 Acres']
+,['756. Costilla (Lafayette Rd)',37.37781, -105.64016,'<b><a href="https://gokcecapital.gokcap.com/property?pn=756" target="_blank" rel="noopener">Available</a></b><br><br>APN: 70385070<br><br>Size: 5.00 Acres']
+,['757. Putnam (Neilsen Ave)',29.68037, -81.8534,'<b><a href="https://gokcecapital.gokcap.com/property?pn=757" target="_blank" rel="noopener">Available</a></b><br><br>APN: 25-09-24-4075-0900-0060<br><br>Size: 0.21 Acres']
+,['758. Putnam (Creager Ave)',29.67958, -81.84803,'<b><a href="https://gokcecapital.gokcap.com/property?pn=758" target="_blank" rel="noopener">Available</a></b><br><br>APN:  25-09-24-4075-0850-0270<br><br>Size: 0.22 Acres']
+,['759. Putnam (Carolyn Ave)',29.68682, -81.86899,'<b><a href="https://gokcecapital.gokcap.com/property?pn=759" target="_blank" rel="noopener">Available</a></b><br><br>APN: 26-09-24-4076-1170-0230<br><br>Size: 0.22 Acres']
+,['761. Putnam (Michael Ave)',29.67296, -81.85931,'<b><a href="https://gokcecapital.gokcap.com/property?pn=761" target="_blank" rel="noopener">Available</a></b><br><br>APN: 36-09-24-4075-1310-0040<br><br>Size: 0.22 Acres']
+,['766. Costilla (David Rd)',37.36466, -105.42848,'<b><a href="https://gokcecapital.gokcap.com/property?pn=766" target="_blank" rel="noopener">Available</a></b><br><br>APN: 70200580<br><br>Size: 5.28 Acres']
+,['768. Elko (Columbia River Blvd)',40.98548, -115.54349,'<b><a href="https://gokcecapital.gokcap.com/property?pn=768" target="_blank" rel="noopener">Available</a></b><br><br>APN: 024-044-008<br><br>Size: 2.00 Acres']
+,['769. Elko',40.84727, -115.66913,'<b><a href="https://gokcecapital.gokcap.com/property?pn=769" target="_blank" rel="noopener">Available</a></b><br><br>APN: 014-017-013<br><br>Size: 2.27 Acres']
+,['773. Putnam (Shappell Ave)',29.67604, -81.85735,'<b><a href="https://gokcecapital.gokcap.com/property?pn=773" target="_blank" rel="noopener">Available</a></b><br><br>APN: 25-09-24-4075-1100-0080<br><br>Size: 0.22 Acres']
+,['774. Putnam (Morris Ave)',29.69373, -81.85741,'<b><a href="https://gokcecapital.gokcap.com/property?pn=774" target="_blank" rel="noopener">Available</a></b><br><br>APN: 24-09-24-4076-1350-0100<br><br>Size: 0.22 Acres']
+,['775. Putnam (Kay St)',29.6355, -81.90981,'<b><a href="https://gokcecapital.gokcap.com/property?pn=775" target="_blank" rel="noopener">Available</a></b><br><br>APN: 09-10-24-0351-0030-0050<br><br>Size: 0.20 Acres']
+,['779. Elko',40.98777, -115.62382,'<b><a href="https://gokcecapital.gokcap.com/property?pn=779" target="_blank" rel="noopener">Available<div style="color: #797979; font-size: 13px; padding-top: 5px;">#2 Value Pick</div></a></b><br><br>APN: 017-057-007<br><br>Size: 2.27 Acres']
+,['784. Elko (Somerset Dr)',41.24467, -114.27806,'<b><a href="https://gokcecapital.gokcap.com/property?pn=784" target="_blank" rel="noopener">On Hold</a></b><br><br>APN: 010-36I-048<br><br>Size: 10.00 Acres']
+,['788. Putnam (Theresa Ave)',29.7028, -81.85091,'<b><a href="https://gokcecapital.gokcap.com/property?pn=788" target="_blank" rel="noopener">Available</a></b><br><br>APN: 24-09-24-4075-0230-0060<br><br>Size: 0.22 Acres']
+,['789. Putnam (Neilsen Ave)',29.69889, -81.85386,'<b><a href="https://gokcecapital.gokcap.com/property?pn=789" target="_blank" rel="noopener">Available</a></b><br><br>APN: 24-09-24-4075-0310-0060<br><br>Size: 0.22 Acres']
+,['791. Putnam (Neilsen Ave)',29.69002, -81.85415,'<b><a href="https://gokcecapital.gokcap.com/property?pn=791" target="_blank" rel="noopener">Available</a></b><br><br>APN: 24-09-24-4075-0500-0160<br><br>Size: 0.22 Acres']
+,['792. Putnam (Morris Ave)',29.69291, -81.8568,'<b><a href="https://gokcecapital.gokcap.com/property?pn=792" target="_blank" rel="noopener">Available</a></b><br><br>APN: 24-09-24-4076-1360-0210<br><br>Size: 0.22 Acres']
+,['793. Putnam (Gloria Ave)',29.68835, -81.85546,'<b><a href="https://gokcecapital.gokcap.com/property?pn=793" target="_blank" rel="noopener">Available</a></b><br><br>APN: 25-09-24-4075-0680-0050<br><br>Size: 0.22 Acres']
+,['795. Putnam (Louise Ave)',29.68218, -81.857,'<b><a href="https://gokcecapital.gokcap.com/property?pn=795" target="_blank" rel="noopener">Available</a></b><br><br>APN: 25-09-24-4075-0940-0070<br><br>Size: 0.22 Acres']
+,['796. Putnam (David Ave)',29.67629, -81.84999,'<b><a href="https://gokcecapital.gokcap.com/property?pn=796" target="_blank" rel="noopener">Available</a></b><br><br>APN: 25-09-24-4075-1170-0280<br><br>Size: 0.22 Acres']
+,['797. Putnam (Wilson Dr)',29.67521, -81.86192,'<b><a href="https://gokcecapital.gokcap.com/property?pn=797" target="_blank" rel="noopener">Available</a></b><br><br>APN: 25-09-24-4076-0550-0180<br><br>Size: 0.22 Acres']
+,['799. Putnam (Lenore Ave)',29.68765, -81.8674,'<b><a href="https://gokcecapital.gokcap.com/property?pn=799" target="_blank" rel="noopener">Available</a></b><br><br>APN: 26-09-24-4076-1190-0090<br><br>Size: 0.22 Acres']
+,['801. Costilla (Casey Rd)',37.43019, -105.38406,'<b><a href="https://gokcecapital.gokcap.com/property?pn=801" target="_blank" rel="noopener">Available</a></b><br><br>APN: 70268820<br><br>Size: 5.03 Acres']
+,['805. San Miguel',35.33359, -104.45884,'<b><a href="https://gokcecapital.gokcap.com/property?pn=805" target="_blank" rel="noopener">Available</a></b><br><br>APN: 379552<br><br>Size: 5.00 Acres']
+,['806. Luna (Maverick Rd)',32.15551, -107.70015,'<b><a href="https://gokcecapital.gokcap.com/property?pn=806" target="_blank" rel="noopener">Available</a></b><br><br>APN: 3047145577431, 3047145566431, 3047145554431, 3047145543431<br><br>Size: 2.00 Acres']
+,['814. San Miguel',35.31876, -104.43432,'<b><a href="https://gokcecapital.gokcap.com/property?pn=814" target="_blank" rel="noopener">Available</a></b><br><br>APN: 301870<br><br>Size: 5.00 Acres']
+,['815. San Miguel',35.34033, -104.3472,'<b><a href="https://gokcecapital.gokcap.com/property?pn=815" target="_blank" rel="noopener">Available</a></b><br><br>APN: 654702<br><br>Size: 5.12 Acres']
+,['817. San Miguel',35.32897, -104.39687,'<b><a href="https://gokcecapital.gokcap.com/property?pn=817" target="_blank" rel="noopener">Available</a></b><br><br>APN: 652197<br><br>Size: 5.30 Acres']
+,['818. San Miguel',35.32204, -104.44598,'<b><a href="https://gokcecapital.gokcap.com/property?pn=818" target="_blank" rel="noopener">Available</a></b><br><br>APN: 308790<br><br>Size: 5.00 Acres']
+,['819. Luna (Quando Ln SW)',32.11364, -107.79488,'<b><a href="https://gokcecapital.gokcap.com/property?pn=819" target="_blank" rel="noopener">Available</a></b><br><br>APN: 3053148285353<br><br>Size: 2.50 Acres']
+,['821. Gordon (Trinton Dr)',34.55287, -84.67025,'<b><a href="https://gokcecapital.gokcap.com/property?pn=821" target="_blank" rel="noopener">Available</a></b><br><br>APN: 1231 839<br><br>Size: 1.23 Acres']
+,['824. Clay (Harvard Ave)',29.78623, -82.00331,'<b><a href="https://gokcecapital.gokcap.com/property?pn=824" target="_blank" rel="noopener">Available</a></b><br><br>APN: 21-08-23-003710-000-00<br><br>Size: 0.72 Acres']
+,['825. Clay (Lehigh Dr)',29.78476, -81.99001,'<b><a href="https://gokcecapital.gokcap.com/property?pn=825" target="_blank" rel="noopener">Available</a></b><br><br>APN: 22-08-23-003634-000-00<br><br>Size: 0.38 Acres']
+,['827. Lee (Ida Ave N)',26.64545, -81.67165,'<b><a href="https://gokcecapital.gokcap.com/property?pn=827" target="_blank" rel="noopener">Available</a></b><br><br>APN: 13-44-26-L4-08078.0060<br><br>Size: 0.25 Acres']
+,['828. Marion (SW 159th Ct)',29.16315, -82.3831,'<b><a href="https://gokcecapital.gokcap.com/property?pn=828" target="_blank" rel="noopener">Available</a></b><br><br>APN: 2004-157-020<br><br>Size: 0.48 Acres']
+,['829. Luna (Warm Spring Rd)',32.1882, -107.65595,'<b><a href="https://gokcecapital.gokcap.com/property?pn=829" target="_blank" rel="noopener">Available</a></b><br><br>APN: 3045143243295<br><br>Size: 0.50 Acres']
+,['830. Luna (Warm Spring Rd)',32.1882, -107.65525,'<b><a href="https://gokcecapital.gokcap.com/property?pn=830" target="_blank" rel="noopener">Available</a></b><br><br>APN: 3045143220295<br><br>Size: 0.50 Acres']
+,['831. Washington (Otis)',30.5818, -85.5973,'<b><a href="https://gokcecapital.gokcap.com/property?pn=831" target="_blank" rel="noopener">Available</a></b><br><br>APN: 00000000-05-0302-0011<br><br>Size: 0.27 Acres']
+,['834. Washington (New Moon Dr)',30.53, -85.62295,'<b><a href="https://gokcecapital.gokcap.com/property?pn=834" target="_blank" rel="noopener">Available</a></b><br><br>APN: 00000000-01-0107-0031<br><br>Size: 0.37 Acres']
+,['835. Washington (New Moon Dr)',30.5304, -85.6245,'<b><a href="https://gokcecapital.gokcap.com/property?pn=835" target="_blank" rel="noopener">Available</a></b><br><br>APN: 00000000-01-0107-0025<br><br>Size: 0.43 Acres']
+,['836. Washington (Abbot St)',30.53595, -85.5738,'<b><a href="https://gokcecapital.gokcap.com/property?pn=836" target="_blank" rel="noopener">Available</a></b><br><br>APN: 00000000-02-0213-0013<br><br>Size: 0.31 Acres']
+,['840. San Miguel',35.31098, -104.48321,'<b><a href="https://gokcecapital.gokcap.com/property?pn=840" target="_blank" rel="noopener">Available</a></b><br><br>APN: 1-136-073-368-276<br><br>Size: 5.10 Acres']
+,['841. Luna (Sun Dl Trl NW)',32.2736, -108.0541,'<b><a href="https://gokcecapital.gokcap.com/property?pn=841" target="_blank" rel="noopener">Available</a></b><br><br>APN: 3068137380360<br><br>Size: 4.77 Acres']
+,['842. Washington (Malone Ct)',30.5508, -85.6191,'<b><a href="https://gokcecapital.gokcap.com/property?pn=842" target="_blank" rel="noopener">Available<div style="color: #797979; font-size: 13px; padding-top: 5px;">🔥 Value Pick</div></a></b><br><br>APN: 00000000-01-0009-0001<br><br>Size: 0.28 Acres']
+,['846. San Miguel',35.32385, -104.43765,'<b><a href="https://gokcecapital.gokcap.com/property?pn=846" target="_blank" rel="noopener">Available</a></b><br><br>APN: 386070<br><br>Size: 5.00 Acres']
+,['847. Luna (Ojo Rd)',32.2308, -107.4243,'<b><a href="https://gokcecapital.gokcap.com/property?pn=847" target="_blank" rel="noopener">Available</a></b><br><br>APN: 3032140182429<br><br>Size: 0.50 Acres']
+,['848. Luna (Lemitar Rd)',32.2349, -107.4251,'<b><a href="https://gokcecapital.gokcap.com/property?pn=848" target="_blank" rel="noopener">Available</a></b><br><br>APN: 3032140206280<br><br>Size: 0.54 Acres']
+,['849. Luna (Lemitar Rd)',32.2349, -107.4247,'<b><a href="https://gokcecapital.gokcap.com/property?pn=849" target="_blank" rel="noopener">Available</a></b><br><br>APN: 3032140194280<br><br>Size: 0.54 Acres']
+,['850. Luna (Rosa Rd)',32.23135, -107.42585,'<b><a href="https://gokcecapital.gokcap.com/property?pn=850" target="_blank" rel="noopener">Available</a></b><br><br>APN: 3032140229410<br><br>Size: 0.50 Acres']
+,['851. Luna (Ojo Rd)',32.2308, -107.42585,'<b><a href="https://gokcecapital.gokcap.com/property?pn=851" target="_blank" rel="noopener">Available</a></b><br><br>APN: 3032140229429<br><br>Size: 0.50 Acres']
+,['853. Harrison (30th St)',30.38685, -89.05805,'<b><a href="https://gokcecapital.gokcap.com/property?pn=853" target="_blank" rel="noopener">Available</a></b><br><br>APN: 0910N-05-043.000<br><br>Size: 0.33 Acres']
+,['854. Pender (Garnet Rd)',34.6624, -77.6787,'<b><a href="https://gokcecapital.gokcap.com/property?pn=854" target="_blank" rel="noopener">Available</a></b><br><br>APN: 3393-74-2765-0000<br><br>Size: 0.65 Acres']
+,['855. Washington (Abbot St)',30.5364, -85.5739,'<b><a href="https://gokcecapital.gokcap.com/property?pn=855" target="_blank" rel="noopener">Available</a></b><br><br>APN: 00000000-02-0212-0007<br><br>Size: 0.26 Acres']
+,['856. Bamberg (Carolina Hwy)',33.2985, -81.1465,'<b><a href="https://gokcecapital.gokcap.com/property?pn=856" target="_blank" rel="noopener">Available</a></b><br><br>APN: 0039-04-02-003<br><br>Size: 0.73 Acres']
+,['857. Bamberg (Price St)',33.30115, -81.0445,'<b><a href="https://gokcecapital.gokcap.com/property?pn=857" target="_blank" rel="noopener">Available</a></b><br><br>APN: 0072-05-02-022<br><br>Size: 0.78 Acres']
+,['868. Bamberg (Hagood Ave)',33.32245, -81.14879,'<b><a href="https://gokcecapital.gokcap.com/property?pn=868" target="_blank" rel="noopener">Available</a></b><br><br>APN: 0038-02-07-007<br><br>Size: 0.58 Acres']
+,['869. Harrison (Arcadia Farm Rd)',30.35815, -89.2599,'<b><a href="https://gokcecapital.gokcap.com/property?pn=869" target="_blank" rel="noopener">Available</a></b><br><br>APN: 0311n-02-025.000<br><br>Size: 0.58 Acres']
+,['870. Benton (Shultz Cir)',38.2069, -93.16125, 38.2064, -93.1623,'<b><a href="https://gokcecapital.gokcap.com/property?pn=870" target="_blank" rel="noopener">On Hold</a></b><br><br>APN: 16-9.1-29-000-004-010.000, 16-9.1-29-000-004-006.000<br><br>Size: 8.29 Acres']
+,['872. Putnam (Baxter Ave)',29.61395, -81.87575,'<b><a href="https://gokcecapital.gokcap.com/property?pn=872" target="_blank" rel="noopener">Available<div style="color: #797979; font-size: 13px; padding-top: 5px;">#2 Most Viewed</div><div style="color: #797979; font-size: 13px; padding-top: 5px;">🔥 Most Leads</div></a></b><br><br>APN: 23-10-24-4064-0050-0090<br><br>Size: 0.66 Acres']
+,['873. Marion (Fisher Trail)',29.05785, -81.878,'<b><a href="https://gokcecapital.gokcap.com/property?pn=873" target="_blank" rel="noopener">Available</a></b><br><br>APN: 9037-1195-19 <br><br>Size: 0.32 Acres']
+,['874. Benton (Dunn Dr)',38.213, -93.0814,'<b><a href="https://gokcecapital.gokcap.com/property?pn=874" target="_blank" rel="noopener">Available</a></b><br><br>APN: 16-7.1-25-000-002-002.000<br><br>Size: 5.41 Acres']
+,['876. Putnam (Hawknest Rd)',29.56105, -81.6525,'<b><a href="https://gokcecapital.gokcap.com/property?pn=876" target="_blank" rel="noopener">Available</a></b><br><br>APN: 11-11-26-8243-0260-0180<br><br>Size: 0.52 Acres']
+,['879. Iron (N 9100 W)',37.81525, -113.86305,'<b><a href="https://gokcecapital.gokcap.com/property?pn=879" target="_blank" rel="noopener">Available</a></b><br><br>APN: 02-143-84<br><br>Size: 4.54 Acres']
+,['880. Iron (N 8800 W)',37.83815, -113.8571,'<b><a href="https://gokcecapital.gokcap.com/property?pn=880" target="_blank" rel="noopener">Available</a></b><br><br>APN: 04-921-05<br><br>Size: 1.11 Acres']
+,['881. Putnam (Illinois Ave)',29.63475, -81.9597,'<b><a href="https://gokcecapital.gokcap.com/property?pn=881" target="_blank" rel="noopener">Available</a></b><br><br>APN: 12-10-23-1600-0090-0280<br><br>Size: 0.40 Acres']
+,['882. Marion (Sequoia Loop Dr)',29.07285, -81.8762,'<b><a href="https://gokcecapital.gokcap.com/property?pn=882" target="_blank" rel="noopener">Available</a></b><br><br>APN: 9044-1569-06<br><br>Size: 0.24 Acres']
+,['883. Marion (Fisher Run)',29.0554, -81.87394,'<b><a href="https://gokcecapital.gokcap.com/property?pn=883" target="_blank" rel="noopener">Available<div style="color: #797979; font-size: 13px; padding-top: 5px;">#3 Value Pick</div></a></b><br><br>APN: 9037-1192-15<br><br>Size: 0.26 Acres']
+,['884. Marion (Fisher Run)',29.05445, -81.8742,'<b><a href="https://gokcecapital.gokcap.com/property?pn=884" target="_blank" rel="noopener">Available</a></b><br><br>APN: 9037-1192-19<br><br>Size: 0.24 Acres']
+,['885. Jackson (Los Padres Ave)',30.5976, -85.34805,'<b><a href="https://gokcecapital.gokcap.com/property?pn=885" target="_blank" rel="noopener">Available<div style="color: #797979; font-size: 13px; padding-top: 5px;">🔥 Most Viewed</div><div style="color: #797979; font-size: 13px; padding-top: 5px;">#3 Most Leads</div></a></b><br><br>APN: 02-2N-11-0086-1000-0110<br><br>Size: 1.15 Acres']
+,['886. Putnam (SW 59th Ave)',29.6352, -81.94445,'<b><a href="https://gokcecapital.gokcap.com/property?pn=886" target="_blank" rel="noopener">Available<div style="color: #797979; font-size: 13px; padding-top: 5px;">#3 Most Viewed</div><div style="color: #797979; font-size: 13px; padding-top: 5px;">#2 Most Leads</div></a></b><br><br>APN: 07-10-24-7072-0170-0450<br><br>Size: 0.24 Acres']
+,['888. Jackson (Coronado Ave)',30.6135, -85.34435,'<b><a href="https://gokcecapital.gokcap.com/property?pn=888" target="_blank" rel="noopener">Available</a></b><br><br>APN: 02-2N-11-0086-1100-0090<br><br>Size: 1.02 Acres']
+,['889. Jackson (Lakepoint Rd)',30.6131, -85.38685,'<b><a href="https://gokcecapital.gokcap.com/property?pn=889" target="_blank" rel="noopener">Available</a></b><br><br>APN: 02-2N-11-0095-2140-0080<br><br>Size: 1.04 Acres']
+,['890. Jackson (Trenton Ave)',30.6426, -85.3746,'<b><a href="https://gokcecapital.gokcap.com/property?pn=890" target="_blank" rel="noopener">Available</a></b><br><br>APN: 02-2N-11-0095-2400-0030<br><br>Size: 1.04 Acres']
+,['891. Jackson (Pike Pond Rd)',30.6323, -85.4135,'<b><a href="https://gokcecapital.gokcap.com/property?pn=891" target="_blank" rel="noopener">Available</a></b><br><br>APN: 02-2N-11-0095-2760-0050<br><br>Size: 1.21 Acres']
+,['892. Jackson (McDuff Dr)',30.6062, -85.36265,'<b><a href="https://gokcecapital.gokcap.com/property?pn=892" target="_blank" rel="noopener">Available</a></b><br><br>APN: 05-2N-11-0200-00B0-0141<br><br>Size: 1.33 Acres']
+,['893. Iron (W 5200 N)',37.8026, -113.86175,'<b><a href="https://gokcecapital.gokcap.com/property?pn=893" target="_blank" rel="noopener">Available</a></b><br><br>APN: E-1714-0196-0001-01<br><br>Size: 4.14 Acres']
+,['894. Iron',37.7458, -113.5865,'<b><a href="https://gokcecapital.gokcap.com/property?pn=894" target="_blank" rel="noopener">Available</a></b><br><br>APN: E-1372-0001-0001<br><br>Size: 1.13 Acres']
+,['895. Jackson (Tanager Ct)',30.61605, -85.3193,'<b><a href="https://gokcecapital.gokcap.com/property?pn=895" target="_blank" rel="noopener">Available</a></b><br><br>APN: 02-2N-11-0084-0380-0410<br><br>Size: 1.13 Acres']
+,['896. Jackson (Blue Jay Ave)',30.6186, -85.3169,'<b><a href="https://gokcecapital.gokcap.com/property?pn=896" target="_blank" rel="noopener">Available</a></b><br><br>APN: 02-2N-11-0084-0400-0040<br><br>Size: 1.39 Acres']
+,['897. Jackson (Los Padres Ave)',30.6163, -85.3466,'<b><a href="https://gokcecapital.gokcap.com/property?pn=897" target="_blank" rel="noopener">Available</a></b><br><br>APN: 02-2N-11-0086-1120-0150<br><br>Size: 1.09 Acres']
+,['898. Jackson (Tipaquan St)',30.62385, -85.3054,'<b><a href="https://gokcecapital.gokcap.com/property?pn=898" target="_blank" rel="noopener">Available</a></b><br><br>APN: 02-2N-11-0084-0470-0100<br><br>Size: 1.16 Acres']
+,['899. Jackson (Dorcas Rd)',30.61515, -85.30395,'<b><a href="https://gokcecapital.gokcap.com/property?pn=899" target="_blank" rel="noopener">Available</a></b><br><br>APN: 02-2N-11-0084-0500-0350<br><br>Size: 1.33 Acres']
+,['900. Jackson (Quail Rd)',30.6117, -85.31915,'<b><a href="https://gokcecapital.gokcap.com/property?pn=900" target="_blank" rel="noopener">Available</a></b><br><br>APN: 02-2N-11-0084-0360-0160<br><br>Size: 1.21 Acres']
+,['901. Jackson (Mayflower Dr)',30.6071, -85.29335,'<b><a href="https://gokcecapital.gokcap.com/property?pn=901" target="_blank" rel="noopener">Available</a></b><br><br>APN: 02-2N-11-0084-0560-1070<br><br>Size: 1.22 Acres']
+,['902. Jackson (Woodland Rd)',30.6023, -85.32125,'<b><a href="https://gokcecapital.gokcap.com/property?pn=902" target="_blank" rel="noopener">Available</a></b><br><br>APN:  02-2N-11-0083-00R0-0050<br><br>Size: 1.14 Acres']
+,['903. Jackson (Hillside Dr)',30.6006, -85.3031,'<b><a href="https://gokcecapital.gokcap.com/property?pn=903" target="_blank" rel="noopener">Available</a></b><br><br>APN: 02-2N-11-0084-0640-0080<br><br>Size: 1.15 Acres']
+,['904. Jackson (Joy Ave)',30.602, -85.30075,'<b><a href="https://gokcecapital.gokcap.com/property?pn=904" target="_blank" rel="noopener">Available</a></b><br><br>APN: 02-2N-11-0084-0650-0030<br><br>Size: 1.15 Acres']
+,['905. Jackson (Battlefield Ave)',30.65825, -85.3422,'<b><a href="https://gokcecapital.gokcap.com/property?pn=905" target="_blank" rel="noopener">Available</a></b><br><br>APN: 02-2N-11-0087-1570-0030<br><br>Size: 1.13 Acres']
+,['906. Jackson (Cabrillo Ave)',30.65465, -85.3438,'<b><a href="https://gokcecapital.gokcap.com/property?pn=906" target="_blank" rel="noopener">Available</a></b><br><br>APN: 02-2N-11-0087-1590-0040<br><br>Size: 1.16 Acres']
+,['907. Jackson (Nortek Blvd)',30.61995, -85.36295,'<b><a href="https://gokcecapital.gokcap.com/property?pn=907" target="_blank" rel="noopener">Available</a></b><br><br>APN: 02-2N-11-0087-1940-0070<br><br>Size: 1.21 Acres']
+,['908. Jackson (Benton Ave)',30.61885, -85.36695,'<b><a href="https://gokcecapital.gokcap.com/property?pn=908" target="_blank" rel="noopener">Available</a></b><br><br>APN: 02-2N-11-0087-1960-0040<br><br>Size: 1.15 Acres']
+
+    ];
+function initMap() {
+    var myOptions = {
+        zoom: 5,
+        mapTypeId: google.maps.MapTypeId.ROADMAP
+    };
+    var map = new google.maps.Map(document.getElementById("google_maps_div"),
+        myOptions);
+    setMarkers(map, locations)
+}
+function setMarkers(map, locations) {
+    var marker, i
+    for (i = 0; i < locations.length; i++) {
+        var property = locations[i][0]
+        var lat = locations[i][1]
+        var long = locations[i][2]
+        var description = locations[i][3]
+        latlngset = new google.maps.LatLng(lat, long);
+        var marker = new google.maps.Marker({
+            map: map, title: property, position: latlngset
+        });
+        map.setCenter(new google.maps.LatLng(34.5, -96.597548))
+        var content = "#" + property + '<br><br>' + description
+        var infowindow = new google.maps.InfoWindow()
+        google.maps.event.addListener(marker,'click', (function(marker,content,infowindow){
+    return function() {
+        infowindow.setContent(content);
+        infowindow.open(map,marker);
+      };
+    })(marker,content,infowindow));
+    }
+}
+window.initMap = initMap;
+</script>
+</head>
+
+</head>
+<body>
+<div id="header-cta">
+  <div id="header-bar">
+    <font color='black'>Get a <b>$200</b> Freedom Credit when you buy or hold any property in <b>NC</b> or <b>GA</b> | Use code <b>NCGA200</b>
+    <div id="countdown"></div>
+    </font>
+  </div>
+  <img id="header-close-image"
+ src="https://d35sqbuxm7djsy.cloudfront.net/close.png" 
+ width="10" height="10" alt="Close"></img>
+</div>
+
+<img id="top-left-corner-logo" 
+src="https://d35sqbuxm7djsy.cloudfront.net/gc/gc-logo.png" 
+alt="logo" width="40" height="40">
+
+<br><br>
+<h1>OWN LAND. LIVE FREE. 🇺🇸</h1>
+
+<p id="menu">
+<a href="https://gokcecapital.com" target='_blank'>Home</a> 
+&emsp; Available 117
+&emsp; On Hold 3
+&emsp; Pending 3
+&emsp; Sold 768 Properties
+</p>
+
+<div id="google_maps_div"></div>
+
+<br>
+<div style="text-align:center; margin-bottom:20px;">
+    <input 
+        type="text" 
+        id="tableFilter" 
+        placeholder="Filter listings..." 
+        style="
+            width: 60%; 
+            padding: 12px; 
+            font-size: 18px;
+            border: 1px solid #ccc; 
+            border-radius: 6px;
+        ">
+</div>
+
+<table class="center" id="listings">
+<tr>
+    <th>Property</th>
+    <th>APN</th>
+    <th>Size</th>
+    <th>County</th>
+    <th>State</th>
+    <th>Price</th>
+    <th>Taxes</th>
+    <th>Status</th>
+</tr>
+<tr><td>279. Tierra Grande (Cabida Cir)</td><td>1020016240480000000</td><td>10.84 Acres</td><td>Valencia</td><td>NM</td><td>$9,997</td><td>Taxes:<br>$53/yr<br><br>HOA:<br>$75/yr</td><td><a href='https://gokcecapital.gokcap.com/property?pn=279' target='_blank'>Available</a></td></tr>
+<tr><td>322. Highlands (Beaver St NW)</td><td>C143729-19007300100</td><td>0.26 Acres</td><td>Highlands</td><td>FL</td><td>$14,997</td><td>Taxes:<br>$106/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=322' target='_blank'>Available</a></td></tr>
+<tr><td>372. Allegany (Hiltonville Rd)</td><td>023600-085-000-0001-018-000-0000</td><td>1.40 Acres</td><td>Allegany</td><td>NY</td><td>$23,997</td><td>Taxes:<br>$159/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=372' target='_blank'>Available</a></td></tr>
+<tr><td>395. Steuben (CR 70A)</td><td>462289-127-000-0001-011-300</td><td>6.70 Acres</td><td>Steuben</td><td>NY</td><td>$17,097</td><td>Taxes:<br>$95/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=395' target='_blank'>Available</a></td></tr>
+<tr><td>398. Oneida (River Rd)</td><td>244.003-0003-050</td><td>1.40 Acres</td><td>Oneida</td><td>NY</td><td>$16,497</td><td>Taxes:<br>$228/yr<br><br>No HOA</td><td><a style='color: #273248' href='https://gokcecapital.gokcap.com/property?pn=398' target='_blank'>On Hold</a></td></tr>
+<tr><td>399. Lewis County (Adams Hill Rd)</td><td>234489-182-000-0001-003-113-0000</td><td>0.87 Acres</td><td>Lewis</td><td>NY</td><td>$14,997</td><td>Taxes:<br>$87/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=399' target='_blank'>Available<div style="color: #797979; font-size: 13px; padding-top: 5px;">🔥 Bargain Pick</div></a></td></tr>
+<tr><td>402. Costilla (Lincoln)</td><td>70381100</td><td>4.96 Acres</td><td>Costilla</td><td>CO</td><td>$8,997</td><td>Taxes:<br>$76/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=402' target='_blank'>Available<div style="color: #797979; font-size: 13px; padding-top: 5px;">#3 Bargain Pick</div></a></td></tr>
+<tr><td>531. Gordon (Carman Way)</td><td>1231-1605</td><td>1.39 Acres</td><td>Gordon</td><td>GA</td><td>$13,997</td><td>Taxes:<br>$75/yr<br><br>HOA:<br>$900/yr</td><td><a href='https://gokcecapital.gokcap.com/property?pn=531' target='_blank'>Available</a></td></tr>
+<tr><td>542. Franklin (Marchamps Dr)</td><td>061b-214</td><td>0.72 Acres</td><td>Franklin</td><td>GA</td><td>$19,797</td><td>Taxes:<br>$60/yr<br><br>HOA:<br>$50/yr</td><td><a href='https://gokcecapital.gokcap.com/property?pn=542' target='_blank'>Available</a></td></tr>
+<tr><td>580. Campbell</td><td>117d-d-008.00</td><td>0.64 Acres</td><td>Campbell</td><td>TN</td><td>$7,497</td><td>Taxes:<br>$26/yr<br><br>HOA:<br>$698/yr</td><td><a href='https://gokcecapital.gokcap.com/property?pn=580' target='_blank'>Available</a></td></tr>
+<tr><td>647. Lee (Hamilton Ave)</td><td>26-44-27-L3-00007.0120</td><td>0.47 Acres</td><td>Lee</td><td>FL</td><td>$34,997</td><td>Taxes:<br>$378/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=647' target='_blank'>Available</a></td></tr>
+<tr><td>648. Graham (Springwood Lake)</td><td>556903000009</td><td>0.56 Acres</td><td>Graham</td><td>NC</td><td>$9,997</td><td>Taxes:<br>$35/yr<br><br>HOA:<br>$40/yr</td><td><a href='https://gokcecapital.gokcap.com/property?pn=648' target='_blank'>Available</a></td></tr>
+<tr><td>672. Montgomery (Candor Oaks Dr)</td><td>667317109133</td><td>0.49 Acres</td><td>Montgomery</td><td>NC</td><td>$18,047</td><td>Taxes:<br>$94/yr<br><br>HOA:<br>$3140/yr</td><td><a href='https://gokcecapital.gokcap.com/property?pn=672' target='_blank'>Available</a></td></tr>
+<tr><td>676. Henderson (Flameleaf Ln)</td><td>1004654</td><td>0.91 Acres</td><td>Henderson</td><td>NC</td><td>$14,247</td><td>Taxes:<br>$396/yr<br><br>HOA:<br>$1600/yr</td><td><a href='https://gokcecapital.gokcap.com/property?pn=676' target='_blank'>Available</a></td></tr>
+<tr><td>681. Duplin (River Rd)</td><td>09-6872--</td><td>0.54 Acres</td><td>Duplin</td><td>NC</td><td>$20,897</td><td>Taxes:<br>$184/yr<br><br>HOA:<br>$1200/yr</td><td><a href='https://gokcecapital.gokcap.com/property?pn=681' target='_blank'>Available</a></td></tr>
+<tr><td>683. Montgomery (Whisper Lake Dr)</td><td>6663-18-30-7221</td><td>2.86 Acres</td><td>Montgomery</td><td>NC</td><td>$56,997</td><td>Taxes:<br>$827/yr<br><br>HOA:<br>$967/yr</td><td><a href='https://gokcecapital.gokcap.com/property?pn=683' target='_blank'>Available</a></td></tr>
+<tr><td>685. Montgomery (Bayview Ct)</td><td>6662 08 88 0856</td><td>0.92 Acres</td><td>Montgomery</td><td>NC</td><td>$16,247</td><td>Taxes:<br>$99/yr<br><br>HOA:<br>$967/yr</td><td><a href='https://gokcecapital.gokcap.com/property?pn=685' target='_blank'>Available</a></td></tr>
+<tr><td>686. Montgomery (Bayview Ct)</td><td>6662-08-78-8903 & 6662-08-79-5182</td><td>1.29 Acres</td><td>Montgomery</td><td>NC</td><td>$18,997</td><td>Taxes:<br>$165/yr<br><br>HOA:<br>$967/yr</td><td><a href='https://gokcecapital.gokcap.com/property?pn=686' target='_blank'>Available</a></td></tr>
+<tr><td>689. Montgomery (Candor Oaks Dr)</td><td>6673-17-20-0175</td><td>0.50 Acres</td><td>Montgomery</td><td>NC</td><td>$18,047</td><td>Taxes:<br>$96/yr<br><br>HOA:<br>$3140/yr</td><td><a href='https://gokcecapital.gokcap.com/property?pn=689' target='_blank'>Available</a></td></tr>
+<tr><td>699. Pamlico (Sail Haven Dr)</td><td>J081-22-21</td><td>0.92 Acres</td><td>Pamlico</td><td>NC</td><td>$22,327</td><td>Taxes:<br>$133/yr<br><br>HOA:<br>$200/yr</td><td><a href='https://gokcecapital.gokcap.com/property?pn=699' target='_blank'>Available</a></td></tr>
+<tr><td>708. Scotland (N Pine St)</td><td>01-0050-01-016</td><td>0.37 Acres</td><td>Scotland</td><td>NC</td><td>$15,497</td><td>Taxes:<br>$72/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=708' target='_blank'>Available</a></td></tr>
+<tr><td>709. Richmond (N State Ln)</td><td>743502550577</td><td>1.11 Acres</td><td>Richmond</td><td>NC</td><td>$52,247</td><td>Taxes:<br>$735/yr<br><br>HOA:<br>$500/yr</td><td><a href='https://gokcecapital.gokcap.com/property?pn=709' target='_blank'>Available</a></td></tr>
+<tr><td>721. Wilson (Lee St NE)</td><td>3722-32-9380.000</td><td>0.26 Acres</td><td>Wilson</td><td>NC</td><td>$24,897</td><td>Taxes:<br>$333/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=721' target='_blank'>Available<div style="color: #797979; font-size: 13px; padding-top: 5px;">#2 Bargain Pick</div></a></td></tr>
+<tr><td>734. Warren (Harbor Dr)</td><td>I2A150</td><td>0.72 Acres</td><td>Warren</td><td>NC</td><td>$20,515</td><td>Taxes:<br>$256/yr<br><br>HOA:<br>$835/yr</td><td><a href='https://gokcecapital.gokcap.com/property?pn=734' target='_blank'>Available</a></td></tr>
+<tr><td>736. Luna (Camino Dos SE)</td><td>3032148143109</td><td>0.50 Acres</td><td>Luna</td><td>NM</td><td>$1,497</td><td>Taxes:<br>$53/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=736' target='_blank'>Available</a></td></tr>
+<tr><td>743. Putnam (Geneve St)</td><td>19-10-24-4074-0270-0070</td><td>0.46 Acres</td><td>Putnam</td><td>FL</td><td>$14,497</td><td>Taxes:<br>$142/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=743' target='_blank'>Available</a></td></tr>
+<tr><td>746. Costilla (Denver)</td><td>70381000</td><td>5.00 Acres</td><td>Costilla</td><td>CO</td><td>$8,997</td><td>Taxes:<br>$118/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=746' target='_blank'>Available</a></td></tr>
+<tr><td>750. Valencia</td><td>1-014-021-255-190-000180</td><td>5.70 Acres</td><td>Valencia</td><td>NM</td><td>$5,395</td><td>Taxes:<br>$25/yr<br><br>HOA:<br>$50/yr</td><td><a href='https://gokcecapital.gokcap.com/property?pn=750' target='_blank'>Available</a></td></tr>
+<tr><td>751. Socorro</td><td>R039375-</td><td>6.86 Acres</td><td>Socorro</td><td>NM</td><td>$6,145</td><td>Taxes:<br>$40/yr<br><br>HOA:<br>$50/yr</td><td><a href='https://gokcecapital.gokcap.com/property?pn=751' target='_blank'>Available</a></td></tr>
+<tr><td>756. Costilla (Lafayette Rd)</td><td>70385070</td><td>5.00 Acres</td><td>Costilla</td><td>CO</td><td>$8,997</td><td>Taxes:<br>$118/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=756' target='_blank'>Available</a></td></tr>
+<tr><td>757. Putnam (Neilsen Ave)</td><td>25-09-24-4075-0900-0060</td><td>0.21 Acres</td><td>Putnam</td><td>FL</td><td>$6,995</td><td>Taxes:<br>$85/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=757' target='_blank'>Available</a></td></tr>
+<tr><td>758. Putnam (Creager Ave)</td><td> 25-09-24-4075-0850-0270</td><td>0.22 Acres</td><td>Putnam</td><td>FL</td><td>$6,995</td><td>Taxes:<br>$85/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=758' target='_blank'>Available</a></td></tr>
+<tr><td>759. Putnam (Carolyn Ave)</td><td>26-09-24-4076-1170-0230</td><td>0.22 Acres</td><td>Putnam</td><td>FL</td><td>$6,995</td><td>Taxes:<br>$85/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=759' target='_blank'>Available</a></td></tr>
+<tr><td>761. Putnam (Michael Ave)</td><td>36-09-24-4075-1310-0040</td><td>0.22 Acres</td><td>Putnam</td><td>FL</td><td>$6,995</td><td>Taxes:<br>$87/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=761' target='_blank'>Available</a></td></tr>
+<tr><td>766. Costilla (David Rd)</td><td>70200580</td><td>5.28 Acres</td><td>Costilla</td><td>CO</td><td>$9,997</td><td>Taxes:<br>$155/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=766' target='_blank'>Available</a></td></tr>
+<tr><td>768. Elko (Columbia River Blvd)</td><td>024-044-008</td><td>2.00 Acres</td><td>Elko</td><td>NV</td><td>$6,997</td><td>Taxes:<br>$45/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=768' target='_blank'>Available</a></td></tr>
+<tr><td>769. Elko</td><td>014-017-013</td><td>2.27 Acres</td><td>Elko</td><td>NV</td><td>$9,947</td><td>Taxes:<br>$19/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=769' target='_blank'>Available</a></td></tr>
+<tr><td>773. Putnam (Shappell Ave)</td><td>25-09-24-4075-1100-0080</td><td>0.22 Acres</td><td>Putnam</td><td>FL</td><td>$6,995</td><td>Taxes:<br>$85/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=773' target='_blank'>Available</a></td></tr>
+<tr><td>774. Putnam (Morris Ave)</td><td>24-09-24-4076-1350-0100</td><td>0.22 Acres</td><td>Putnam</td><td>FL</td><td>$6,995</td><td>Taxes:<br>$85/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=774' target='_blank'>Available</a></td></tr>
+<tr><td>775. Putnam (Kay St)</td><td>09-10-24-0351-0030-0050</td><td>0.20 Acres</td><td>Putnam</td><td>FL</td><td>$6,995</td><td>Taxes:<br>$61/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=775' target='_blank'>Available</a></td></tr>
+<tr><td>779. Elko</td><td>017-057-007</td><td>2.27 Acres</td><td>Elko</td><td>NV</td><td>$6,497</td><td>Taxes:<br>$19/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=779' target='_blank'>Available<div style="color: #797979; font-size: 13px; padding-top: 5px;">#2 Value Pick</div></a></td></tr>
+<tr><td>784. Elko (Somerset Dr)</td><td>010-36I-048</td><td>10.00 Acres</td><td>Elko</td><td>NV</td><td>$11,493</td><td>Taxes:<br>$28/yr<br><br>No HOA</td><td><a style='color: #273248' href='https://gokcecapital.gokcap.com/property?pn=784' target='_blank'>On Hold</a></td></tr>
+<tr><td>788. Putnam (Theresa Ave)</td><td>24-09-24-4075-0230-0060</td><td>0.22 Acres</td><td>Putnam</td><td>FL</td><td>$6,995</td><td>Taxes:<br>$85/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=788' target='_blank'>Available</a></td></tr>
+<tr><td>789. Putnam (Neilsen Ave)</td><td>24-09-24-4075-0310-0060</td><td>0.22 Acres</td><td>Putnam</td><td>FL</td><td>$6,995</td><td>Taxes:<br>$85/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=789' target='_blank'>Available</a></td></tr>
+<tr><td>791. Putnam (Neilsen Ave)</td><td>24-09-24-4075-0500-0160</td><td>0.22 Acres</td><td>Putnam</td><td>FL</td><td>$6,995</td><td>Taxes:<br>$85/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=791' target='_blank'>Available</a></td></tr>
+<tr><td>792. Putnam (Morris Ave)</td><td>24-09-24-4076-1360-0210</td><td>0.22 Acres</td><td>Putnam</td><td>FL</td><td>$6,995</td><td>Taxes:<br>$85/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=792' target='_blank'>Available</a></td></tr>
+<tr><td>793. Putnam (Gloria Ave)</td><td>25-09-24-4075-0680-0050</td><td>0.22 Acres</td><td>Putnam</td><td>FL</td><td>$6,995</td><td>Taxes:<br>$87/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=793' target='_blank'>Available</a></td></tr>
+<tr><td>795. Putnam (Louise Ave)</td><td>25-09-24-4075-0940-0070</td><td>0.22 Acres</td><td>Putnam</td><td>FL</td><td>$6,995</td><td>Taxes:<br>$87/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=795' target='_blank'>Available</a></td></tr>
+<tr><td>796. Putnam (David Ave)</td><td>25-09-24-4075-1170-0280</td><td>0.22 Acres</td><td>Putnam</td><td>FL</td><td>$6,995</td><td>Taxes:<br>$87/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=796' target='_blank'>Available</a></td></tr>
+<tr><td>797. Putnam (Wilson Dr)</td><td>25-09-24-4076-0550-0180</td><td>0.22 Acres</td><td>Putnam</td><td>FL</td><td>$6,995</td><td>Taxes:<br>$87/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=797' target='_blank'>Available</a></td></tr>
+<tr><td>799. Putnam (Lenore Ave)</td><td>26-09-24-4076-1190-0090</td><td>0.22 Acres</td><td>Putnam</td><td>FL</td><td>$6,995</td><td>Taxes:<br>$87/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=799' target='_blank'>Available</a></td></tr>
+<tr><td>801. Costilla (Casey Rd)</td><td>70268820</td><td>5.03 Acres</td><td>Costilla</td><td>CO</td><td>$9,997</td><td>Taxes:<br>$302/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=801' target='_blank'>Available</a></td></tr>
+<tr><td>805. San Miguel</td><td>379552</td><td>5.00 Acres</td><td>San Miguel</td><td>NM</td><td>$6,495</td><td>Taxes:<br>$5/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=805' target='_blank'>Available</a></td></tr>
+<tr><td>806. Luna (Maverick Rd)</td><td>3047145577431, 3047145566431, 3047145554431, 3047145543431</td><td>2.00 Acres</td><td>Luna</td><td>NM</td><td>$5,997</td><td>Taxes:<br>$72/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=806' target='_blank'>Available</a></td></tr>
+<tr><td>814. San Miguel</td><td>301870</td><td>5.00 Acres</td><td>San Miguel</td><td>NM</td><td>$6,495</td><td>Taxes:<br>$5/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=814' target='_blank'>Available</a></td></tr>
+<tr><td>815. San Miguel</td><td>654702</td><td>5.12 Acres</td><td>San Miguel</td><td>NM</td><td>$6,495</td><td>Taxes:<br>$5/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=815' target='_blank'>Available</a></td></tr>
+<tr><td>817. San Miguel</td><td>652197</td><td>5.30 Acres</td><td>San Miguel</td><td>NM</td><td>$6,495</td><td>Taxes:<br>$5/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=817' target='_blank'>Available</a></td></tr>
+<tr><td>818. San Miguel</td><td>308790</td><td>5.00 Acres</td><td>San Miguel</td><td>NM</td><td>$6,495</td><td>Taxes:<br>$5/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=818' target='_blank'>Available</a></td></tr>
+<tr><td>819. Luna (Quando Ln SW)</td><td>3053148285353</td><td>2.50 Acres</td><td>Luna</td><td>NM</td><td>$6,497</td><td>Taxes:<br>$43/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=819' target='_blank'>Available</a></td></tr>
+<tr><td>821. Gordon (Trinton Dr)</td><td>1231 839</td><td>1.23 Acres</td><td>Gordon</td><td>GA</td><td>$13,273</td><td>Taxes:<br>$58/yr<br><br>HOA:<br>$900/yr</td><td><a href='https://gokcecapital.gokcap.com/property?pn=821' target='_blank'>Available</a></td></tr>
+<tr><td>824. Clay (Harvard Ave)</td><td>21-08-23-003710-000-00</td><td>0.72 Acres</td><td>Clay</td><td>FL</td><td>$19,997</td><td>Taxes:<br>$96/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=824' target='_blank'>Available</a></td></tr>
+<tr><td>825. Clay (Lehigh Dr)</td><td>22-08-23-003634-000-00</td><td>0.38 Acres</td><td>Clay</td><td>FL</td><td>$12,997</td><td>Taxes:<br>$71/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=825' target='_blank'>Available</a></td></tr>
+<tr><td>827. Lee (Ida Ave N)</td><td>13-44-26-L4-08078.0060</td><td>0.25 Acres</td><td>Lee</td><td>FL</td><td>$24,997</td><td>Taxes:<br>$374/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=827' target='_blank'>Available</a></td></tr>
+<tr><td>828. Marion (SW 159th Ct)</td><td>2004-157-020</td><td>0.48 Acres</td><td>Marion</td><td>FL</td><td>$22,997</td><td>Taxes:<br>$212/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=828' target='_blank'>Available</a></td></tr>
+<tr><td>829. Luna (Warm Spring Rd)</td><td>3045143243295</td><td>0.50 Acres</td><td>Luna</td><td>NM</td><td>$1,497</td><td>Taxes:<br>$15/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=829' target='_blank'>Available</a></td></tr>
+<tr><td>830. Luna (Warm Spring Rd)</td><td>3045143220295</td><td>0.50 Acres</td><td>Luna</td><td>NM</td><td>$1,497</td><td>Taxes:<br>$15/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=830' target='_blank'>Available</a></td></tr>
+<tr><td>831. Washington (Otis)</td><td>00000000-05-0302-0011</td><td>0.27 Acres</td><td>Washington</td><td>FL</td><td>$8,997</td><td>Taxes:<br>$89/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=831' target='_blank'>Available</a></td></tr>
+<tr><td>834. Washington (New Moon Dr)</td><td>00000000-01-0107-0031</td><td>0.37 Acres</td><td>Washington</td><td>FL</td><td>$11,337</td><td>Taxes:<br>$116/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=834' target='_blank'>Available</a></td></tr>
+<tr><td>835. Washington (New Moon Dr)</td><td>00000000-01-0107-0025</td><td>0.43 Acres</td><td>Washington</td><td>FL</td><td>$14,175</td><td>Taxes:<br>$116/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=835' target='_blank'>Available</a></td></tr>
+<tr><td>836. Washington (Abbot St)</td><td>00000000-02-0213-0013</td><td>0.31 Acres</td><td>Washington</td><td>FL</td><td>$10,527</td><td>Taxes:<br>$108/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=836' target='_blank'>Available</a></td></tr>
+<tr><td>840. San Miguel</td><td>1-136-073-368-276</td><td>5.10 Acres</td><td>San Miguel</td><td>NM</td><td>$6,495</td><td>Taxes:<br>$4/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=840' target='_blank'>Available</a></td></tr>
+<tr><td>841. Luna (Sun Dl Trl NW)</td><td>3068137380360</td><td>4.77 Acres</td><td>Luna</td><td>NM</td><td>$9,997</td><td>Taxes:<br>$11/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=841' target='_blank'>Available</a></td></tr>
+<tr><td>842. Washington (Malone Ct)</td><td>00000000-01-0009-0001</td><td>0.28 Acres</td><td>Washington</td><td>FL</td><td>$10,125</td><td>Taxes:<br>$118/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=842' target='_blank'>Available<div style="color: #797979; font-size: 13px; padding-top: 5px;">🔥 Value Pick</div></a></td></tr>
+<tr><td>846. San Miguel</td><td>386070</td><td>5.00 Acres</td><td>San Miguel</td><td>NM</td><td>$6,495</td><td>Taxes:<br>$5/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=846' target='_blank'>Available</a></td></tr>
+<tr><td>847. Luna (Ojo Rd)</td><td>3032140182429</td><td>0.50 Acres</td><td>Luna</td><td>NM</td><td>$1,497</td><td>Taxes:<br>$14/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=847' target='_blank'>Available</a></td></tr>
+<tr><td>848. Luna (Lemitar Rd)</td><td>3032140206280</td><td>0.54 Acres</td><td>Luna</td><td>NM</td><td>$1,497</td><td>Taxes:<br>$14/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=848' target='_blank'>Available</a></td></tr>
+<tr><td>849. Luna (Lemitar Rd)</td><td>3032140194280</td><td>0.54 Acres</td><td>Luna</td><td>NM</td><td>$1,497</td><td>Taxes:<br>$14/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=849' target='_blank'>Available</a></td></tr>
+<tr><td>850. Luna (Rosa Rd)</td><td>3032140229410</td><td>0.50 Acres</td><td>Luna</td><td>NM</td><td>$1,497</td><td>Taxes:<br>$14/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=850' target='_blank'>Available</a></td></tr>
+<tr><td>851. Luna (Ojo Rd)</td><td>3032140229429</td><td>0.50 Acres</td><td>Luna</td><td>NM</td><td>$1,497</td><td>Taxes:<br>$14/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=851' target='_blank'>Available</a></td></tr>
+<tr><td>853. Harrison (30th St)</td><td>0910N-05-043.000</td><td>0.33 Acres</td><td>Harrison</td><td>MS</td><td>$15,297</td><td>Taxes:<br>$169/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=853' target='_blank'>Available</a></td></tr>
+<tr><td>854. Pender (Garnet Rd)</td><td>3393-74-2765-0000</td><td>0.65 Acres</td><td>Pender</td><td>NC</td><td>$15,997</td><td>Taxes:<br>$58/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=854' target='_blank'>Available</a></td></tr>
+<tr><td>855. Washington (Abbot St)</td><td>00000000-02-0212-0007</td><td>0.26 Acres</td><td>Washington</td><td>FL</td><td>$8,097</td><td>Taxes:<br>$110/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=855' target='_blank'>Available</a></td></tr>
+<tr><td>856. Bamberg (Carolina Hwy)</td><td>0039-04-02-003</td><td>0.73 Acres</td><td>Bamberg</td><td>SC</td><td>$12,597</td><td>Taxes:<br>$206/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=856' target='_blank'>Available</a></td></tr>
+<tr><td>857. Bamberg (Price St)</td><td>0072-05-02-022</td><td>0.78 Acres</td><td>Bamberg</td><td>SC</td><td>$12,597</td><td>Taxes:<br>$184/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=857' target='_blank'>Available</a></td></tr>
+<tr><td>868. Bamberg (Hagood Ave)</td><td>0038-02-07-007</td><td>0.58 Acres</td><td>Bamberg</td><td>SC</td><td>$9,897</td><td>Taxes:<br>$243/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=868' target='_blank'>Available</a></td></tr>
+<tr><td>869. Harrison (Arcadia Farm Rd)</td><td>0311n-02-025.000</td><td>0.58 Acres</td><td>Harrison </td><td>MS</td><td>$16,197</td><td>Taxes:<br>$45/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=869' target='_blank'>Available</a></td></tr>
+<tr><td>870. Benton (Shultz Cir)</td><td>16-9.1-29-000-004-010.000, 16-9.1-29-000-004-006.000</td><td>8.29 Acres</td><td>Benton</td><td>MO</td><td>$14,497</td><td>Taxes:<br>$119/yr<br><br>HOA:<br>$390/yr</td><td><a style='color: #273248' href='https://gokcecapital.gokcap.com/property?pn=870' target='_blank'>On Hold</a></td></tr>
+<tr><td>872. Putnam (Baxter Ave)</td><td>23-10-24-4064-0050-0090</td><td>0.66 Acres</td><td>Putnam</td><td>FL</td><td>$17,997</td><td>Taxes:<br>$227/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=872' target='_blank'>Available<div style="color: #797979; font-size: 13px; padding-top: 5px;">#2 Most Viewed</div><div style="color: #797979; font-size: 13px; padding-top: 5px;">🔥 Most Leads</div></a></td></tr>
+<tr><td>873. Marion (Fisher Trail)</td><td>9037-1195-19 </td><td>0.32 Acres</td><td>Marion</td><td>FL</td><td>$19,997</td><td>Taxes:<br>$147/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=873' target='_blank'>Available</a></td></tr>
+<tr><td>874. Benton (Dunn Dr)</td><td>16-7.1-25-000-002-002.000</td><td>5.41 Acres</td><td>Benton</td><td>MO</td><td>$12,497</td><td>Taxes:<br>$53/yr<br><br>HOA:<br>$195/yr</td><td><a href='https://gokcecapital.gokcap.com/property?pn=874' target='_blank'>Available</a></td></tr>
+<tr><td>876. Putnam (Hawknest Rd)</td><td>11-11-26-8243-0260-0180</td><td>0.52 Acres</td><td>Putnam</td><td>FL</td><td>$14,497</td><td>Taxes:<br>$48/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=876' target='_blank'>Available</a></td></tr>
+<tr><td>879. Iron (N 9100 W)</td><td>02-143-84</td><td>4.54 Acres</td><td> Iron</td><td>UT</td><td>$13,997</td><td>Taxes:<br>$55/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=879' target='_blank'>Available</a></td></tr>
+<tr><td>880. Iron (N 8800 W)</td><td>04-921-05</td><td>1.11 Acres</td><td> Iron</td><td>UT</td><td>$4,497</td><td>Taxes:<br>$12/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=880' target='_blank'>Available</a></td></tr>
+<tr><td>881. Putnam (Illinois Ave)</td><td>12-10-23-1600-0090-0280</td><td>0.40 Acres</td><td>Putnam</td><td>FL</td><td>$13,497</td><td>Taxes:<br>$81/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=881' target='_blank'>Available</a></td></tr>
+<tr><td>882. Marion (Sequoia Loop Dr)</td><td>9044-1569-06</td><td>0.24 Acres</td><td>Marion</td><td>FL</td><td>$18,497</td><td>Taxes:<br>$137/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=882' target='_blank'>Available</a></td></tr>
+<tr><td>883. Marion (Fisher Run)</td><td>9037-1192-15</td><td>0.26 Acres</td><td>Marion</td><td>FL</td><td>$18,497</td><td>Taxes:<br>$147/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=883' target='_blank'>Available<div style="color: #797979; font-size: 13px; padding-top: 5px;">#3 Value Pick</div></a></td></tr>
+<tr><td>884. Marion (Fisher Run)</td><td>9037-1192-19</td><td>0.24 Acres</td><td>Marion</td><td>FL</td><td>$18,497</td><td>Taxes:<br>$147/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=884' target='_blank'>Available</a></td></tr>
+<tr><td>885. Jackson (Los Padres Ave)</td><td>02-2N-11-0086-1000-0110</td><td>1.15 Acres</td><td>Jackson</td><td>FL</td><td>$14,997</td><td>Taxes:<br>$83/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=885' target='_blank'>Available<div style="color: #797979; font-size: 13px; padding-top: 5px;">🔥 Most Viewed</div><div style="color: #797979; font-size: 13px; padding-top: 5px;">#3 Most Leads</div></a></td></tr>
+<tr><td>886. Putnam (SW 59th Ave)</td><td>07-10-24-7072-0170-0450</td><td>0.24 Acres</td><td>Putnam</td><td>FL</td><td>$6,995</td><td>Taxes:<br>$105/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=886' target='_blank'>Available<div style="color: #797979; font-size: 13px; padding-top: 5px;">#3 Most Viewed</div><div style="color: #797979; font-size: 13px; padding-top: 5px;">#2 Most Leads</div></a></td></tr>
+<tr><td>888. Jackson (Coronado Ave)</td><td>02-2N-11-0086-1100-0090</td><td>1.02 Acres</td><td>Jackson</td><td>FL</td><td>$15,997</td><td>Taxes:<br>$83/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=888' target='_blank'>Available</a></td></tr>
+<tr><td>889. Jackson (Lakepoint Rd)</td><td>02-2N-11-0095-2140-0080</td><td>1.04 Acres</td><td>Jackson</td><td>FL</td><td>$19,997</td><td>Taxes:<br>$111/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=889' target='_blank'>Available</a></td></tr>
+<tr><td>890. Jackson (Trenton Ave)</td><td>02-2N-11-0095-2400-0030</td><td>1.04 Acres</td><td>Jackson</td><td>FL</td><td>$15,997</td><td>Taxes:<br>$79/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=890' target='_blank'>Available</a></td></tr>
+<tr><td>891. Jackson (Pike Pond Rd)</td><td>02-2N-11-0095-2760-0050</td><td>1.21 Acres</td><td>Jackson</td><td>FL</td><td>$20,997</td><td>Taxes:<br>$93/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=891' target='_blank'>Available</a></td></tr>
+<tr><td>892. Jackson (McDuff Dr)</td><td>05-2N-11-0200-00B0-0141</td><td>1.33 Acres</td><td>Jackson</td><td>FL</td><td>$15,997</td><td>Taxes:<br>$86/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=892' target='_blank'>Available</a></td></tr>
+<tr><td>893. Iron (W 5200 N)</td><td>E-1714-0196-0001-01</td><td>4.14 Acres</td><td>Iron</td><td>UT</td><td>$13,497</td><td>Taxes:<br>$50/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=893' target='_blank'>Available</a></td></tr>
+<tr><td>894. Iron</td><td>E-1372-0001-0001</td><td>1.13 Acres</td><td>Iron</td><td>UT</td><td>$1,097</td><td>Taxes:<br>$13/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=894' target='_blank'>Available</a></td></tr>
+<tr><td>895. Jackson (Tanager Ct)</td><td>02-2N-11-0084-0380-0410</td><td>1.13 Acres</td><td>Jackson</td><td>FL</td><td>$15,997</td><td>Taxes:<br>$76/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=895' target='_blank'>Available</a></td></tr>
+<tr><td>896. Jackson (Blue Jay Ave)</td><td>02-2N-11-0084-0400-0040</td><td>1.39 Acres</td><td>Jackson</td><td>FL</td><td>$15,997</td><td>Taxes:<br>$76/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=896' target='_blank'>Available</a></td></tr>
+<tr><td>897. Jackson (Los Padres Ave)</td><td>02-2N-11-0086-1120-0150</td><td>1.09 Acres</td><td>Jackson</td><td>FL</td><td>$16,497</td><td>Taxes:<br>$71/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=897' target='_blank'>Available</a></td></tr>
+<tr><td>898. Jackson (Tipaquan St)</td><td>02-2N-11-0084-0470-0100</td><td>1.16 Acres</td><td>Jackson</td><td>FL</td><td>$15,997</td><td>Taxes:<br>$76/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=898' target='_blank'>Available</a></td></tr>
+<tr><td>899. Jackson (Dorcas Rd)</td><td>02-2N-11-0084-0500-0350</td><td>1.33 Acres</td><td>Jackson</td><td>FL</td><td>$15,997</td><td>Taxes:<br>$76/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=899' target='_blank'>Available</a></td></tr>
+<tr><td>900. Jackson (Quail Rd)</td><td>02-2N-11-0084-0360-0160</td><td>1.21 Acres</td><td>Jackson</td><td>FL</td><td>$15,997</td><td>Taxes:<br>$76/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=900' target='_blank'>Available</a></td></tr>
+<tr><td>901. Jackson (Mayflower Dr)</td><td>02-2N-11-0084-0560-1070</td><td>1.22 Acres</td><td>Jackson</td><td>FL</td><td>$15,997</td><td>Taxes:<br>$76/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=901' target='_blank'>Available</a></td></tr>
+<tr><td>902. Jackson (Woodland Rd)</td><td> 02-2N-11-0083-00R0-0050</td><td>1.14 Acres</td><td>Jackson</td><td>FL</td><td>$15,997</td><td>Taxes:<br>$81/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=902' target='_blank'>Available</a></td></tr>
+<tr><td>903. Jackson (Hillside Dr)</td><td>02-2N-11-0084-0640-0080</td><td>1.15 Acres</td><td>Jackson</td><td>FL</td><td>$15,997</td><td>Taxes:<br>$76/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=903' target='_blank'>Available</a></td></tr>
+<tr><td>904. Jackson (Joy Ave)</td><td>02-2N-11-0084-0650-0030</td><td>1.15 Acres</td><td>Jackson</td><td>FL</td><td>$15,997</td><td>Taxes:<br>$76/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=904' target='_blank'>Available</a></td></tr>
+<tr><td>905. Jackson (Battlefield Ave)</td><td>02-2N-11-0087-1570-0030</td><td>1.13 Acres</td><td>Jackson</td><td>FL</td><td>$15,997</td><td>Taxes:<br>$78/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=905' target='_blank'>Available</a></td></tr>
+<tr><td>906. Jackson (Cabrillo Ave)</td><td>02-2N-11-0087-1590-0040</td><td>1.16 Acres</td><td>Jackson</td><td>FL</td><td>$15,997</td><td>Taxes:<br>$78/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=906' target='_blank'>Available</a></td></tr>
+<tr><td>907. Jackson (Nortek Blvd)</td><td>02-2N-11-0087-1940-0070</td><td>1.21 Acres</td><td>Jackson</td><td>FL</td><td>$15,997</td><td>Taxes:<br>$96/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=907' target='_blank'>Available</a></td></tr>
+<tr><td>908. Jackson (Benton Ave)</td><td>02-2N-11-0087-1960-0040</td><td>1.15 Acres</td><td>Jackson</td><td>FL</td><td>$15,997</td><td>Taxes:<br>$78/yr<br><br>No HOA</td><td><a href='https://gokcecapital.gokcap.com/property?pn=908' target='_blank'>Available</a></td></tr>
+
+</table>
+
+<br><br>
+<h2>Never Miss a Property Again — Sign Up for Text Alerts</h2>
+<br><br>
+<p style="text-align: center;">
+  <a class="button" href="https://gokcap.com/notify" target="_blank" rel="noopener">Be the first to know!</a>
+  <br>
+</p>
+
+<br><br><br><br><br>
+
+<h2 class="listings-stats">PROPERTY STATS</h2>
+<p id="blurb" class="listings-stats">
+Page Views per Property (Last 7 Days)
+</p>
+<br><br><br>
+<img class="listings-stats" src="https://s3.amazonaws.com/stats.gokcap.com/listings.jpg" 
+alt="Listings Stats" width="100%" loading="lazy">
+
+<br><br><br><br><br><br>
+
+<p id="blurb" class="listings-stats">
+Unique visitors per Day (Last 30 Days)
+</p>
+<br><br><br>
+<img class="listings-stats" src="https://s3.amazonaws.com/stats.gokcap.com/unique_visitors_30_days.jpg" 
+alt="Listings Stats" width="100%" loading="lazy">
+
+<br><br><br><br><br><br>
+
+<p id="blurb" class="listings-stats">
+Unique Visitors per Month (Last 12 Months)
+</p>
+<br><br><br>
+<img class="listings-stats" src="https://s3.amazonaws.com/stats.gokcap.com/unique_visitors_6_months.jpg" 
+alt="Listings Stats" width="100%" loading="lazy">
+
+<br><br><br><br><br><br>
+
+<h2>I’ve helped over 700 people across the country become 
+landowners and live their version of the American Dream 🇺🇸</h2>
+
+<img id="erika" loading="lazy" src="https://d35sqbuxm7djsy.cloudfront.net/erika.png">
+<p id="blurb">
+You deserve to own land and live free.
+<br><br>
+If you’ve been priced out, stuck renting, or confused by the land-buying process—I’m here to change that.
+<br><br>
+I’m Erika, former Affordable Housing Director for the City of New York, now a full-time land investor.
+<br><br>
+I’m not a real estate agent—I own every property I sell. 
+<br><br>
+I’ve helped over 700 people across the country become landowners and live their version of the American Dream.
+<br><br>
+Whether you’re buying land for the first time, planning a future home, or building a legacy—I’ll help you find land 
+that fits your vision and your budget. 
+<br><br>
+✅ Easy financing
+<br><br>
+✅ No middlemen
+<br><br>
+✅ Real land you can actually own
+</p>
+
+
+<br><br><br>
+<h2>We Turned 700+ People Into Landowners—See Why They Trust Gokce Capital</h2>
+
+<br><iframe data-src="https://www.youtube.com/embed/Jy2oSZAPiq4?si=O00EOTo4TMASQpUk" 
+width="900" height="400" 
+frameborder="0" loading="lazy" allowfullscreen="allowfullscreen" data-mce-fragment="1" 
+src="https://www.youtube.com/embed/Jy2oSZAPiq4?si=O00EOTo4TMASQpUk"></iframe><br>
+<br><br>
+
+<br><iframe data-src="https://www.youtube.com/embed/7EtCobZdtjQ?si=NO8t6uUakEMDSA84" 
+width="900" height="400" 
+frameborder="0" loading="lazy" allowfullscreen="allowfullscreen" data-mce-fragment="1" 
+src="https://www.youtube.com/embed/7EtCobZdtjQ?si=NO8t6uUakEMDSA84"></iframe><br>
+<br><br>
+
+<br><iframe data-src="https://www.youtube.com/embed/kX4DSan76u8?si=W5kNVH_Yxn3KRsSw" 
+width="900" height="400" 
+frameborder="0" loading="lazy" allowfullscreen="allowfullscreen" data-mce-fragment="1" 
+src="https://www.youtube.com/embed/kX4DSan76u8?si=W5kNVH_Yxn3KRsSw"></iframe><br>
+<br><br>
+
+<br><iframe data-src="https://www.youtube.com/embed/njsykDmWlEo?si=DOinT69tmpDsNKCL" 
+width="900" height="400" 
+frameborder="0" loading="lazy" allowfullscreen="allowfullscreen" data-mce-fragment="1" 
+src="https://www.youtube.com/embed/njsykDmWlEo?si=DOinT69tmpDsNKCL"></iframe><br>
+<br><br>
+
+<br><iframe data-src="https://www.youtube.com/embed/vnlaf2BXX8E?si=gklAYPYa8whs6z0V" 
+width="900" height="400" 
+frameborder="0" loading="lazy" allowfullscreen="allowfullscreen" data-mce-fragment="1" 
+src="https://www.youtube.com/embed/vnlaf2BXX8E?si=gklAYPYa8whs6z0V"></iframe><br>
+<br><br>
+
+<br><iframe data-src="https://www.youtube.com/embed/rIzgbMGMiVA?si=DPbvR0StKnGGn_w2" 
+width="900" height="400" 
+frameborder="0" loading="lazy" allowfullscreen="allowfullscreen" data-mce-fragment="1" 
+src="https://www.youtube.com/embed/rIzgbMGMiVA?si=DPbvR0StKnGGn_w2"></iframe><br>
+<br><br>
+
+<br><iframe data-src="https://www.youtube.com/embed/S4hoc908zT8?si=4Fu9dJzSyA5zjmHb" 
+width="900" height="400" 
+frameborder="0" loading="lazy" allowfullscreen="allowfullscreen" data-mce-fragment="1" 
+src="https://www.youtube.com/embed/S4hoc908zT8?si=4Fu9dJzSyA5zjmHb"></iframe><br>
+<br><br>
+
+<br><iframe data-src="https://www.youtube.com/embed/-pPM-y9CPfE?si=9XyIF2ffgX5bb7LW" 
+width="900" height="400" 
+frameborder="0" loading="lazy" allowfullscreen="allowfullscreen" data-mce-fragment="1" 
+src="https://www.youtube.com/embed/-pPM-y9CPfE?si=9XyIF2ffgX5bb7LW"></iframe><br>
+<br><br>
+
+<br><iframe data-src="https://www.youtube.com/embed/DTVV8MWDEzg?si=xbYb2HOev0u5ZcXf" 
+width="900" height="400" 
+frameborder="0" loading="lazy" allowfullscreen="allowfullscreen" data-mce-fragment="1" 
+src="https://www.youtube.com/embed/DTVV8MWDEzg?si=xbYb2HOev0u5ZcXf"></iframe><br>
+<br><br>
+
+<br><iframe data-src="https://www.youtube.com/embed/SX-F90nYbvc?si=hoVrIgm4-G3JKbhc" 
+width="900" height="400" 
+frameborder="0" loading="lazy" allowfullscreen="allowfullscreen" data-mce-fragment="1" 
+src="https://www.youtube.com/embed/SX-F90nYbvc?si=hoVrIgm4-G3JKbhc"></iframe><br>
+<br><br>
+
+<br><iframe data-src="https://www.youtube.com/embed/AbjS7T0t7K4?si=UygMajnpiBM1ce8B" 
+width="900" height="400" 
+frameborder="0" loading="lazy" allowfullscreen="allowfullscreen" data-mce-fragment="1" 
+src="https://www.youtube.com/embed/AbjS7T0t7K4?si=UygMajnpiBM1ce8B"></iframe><br>
+<br><br>
+
+<br><iframe data-src="https://www.youtube.com/embed/eMKaBs64_eI?si=kuT2RabEOzRYEQpr" 
+width="900" height="400" 
+frameborder="0" loading="lazy" allowfullscreen="allowfullscreen" data-mce-fragment="1" 
+src="https://www.youtube.com/embed/eMKaBs64_eI?si=kuT2RabEOzRYEQpr"></iframe><br>
+<br><br>
+
+<!-- LEADS Non-Interview Testimonials -->
+
+<br><iframe data-src="https://www.youtube.com/embed/f4X8Rvm1a2c?si=P8vhb4DPYqb4hq4i" 
+width="900" height="400" 
+frameborder="0" loading="lazy" allowfullscreen="allowfullscreen" data-mce-fragment="1" 
+src="https://www.youtube.com/embed/f4X8Rvm1a2c?si=P8vhb4DPYqb4hq4i"></iframe><br>
+<br><br>
+
+<br><iframe data-src="https://www.youtube.com/embed/c5NAsYgA7u8?si=D9-NneAtZzURhUO1" 
+width="900" height="400" 
+frameborder="0" loading="lazy" allowfullscreen="allowfullscreen" data-mce-fragment="1" 
+src="https://www.youtube.com/embed/c5NAsYgA7u8?si=D9-NneAtZzURhUO1"></iframe><br>
+<br><br>
+
+<br><iframe data-src="https://www.youtube.com/embed/L-9yIIKxHwg?si=waXo2ZcSrApvgIlN" 
+width="900" height="400" 
+frameborder="0" loading="lazy" allowfullscreen="allowfullscreen" data-mce-fragment="1" 
+src="https://www.youtube.com/embed/L-9yIIKxHwg?si=waXo2ZcSrApvgIlN"></iframe><br>
+<br><br>
+
+<br><iframe data-src="https://www.youtube.com/embed/xTATi1t7CmA?si=NwVBjS6uSGh0C71g" 
+width="900" height="400" 
+frameborder="0" loading="lazy" allowfullscreen="allowfullscreen" data-mce-fragment="1" 
+src="https://www.youtube.com/embed/xTATi1t7CmA?si=NwVBjS6uSGh0C71g"></iframe><br>
+<br><br>
+
+<br><iframe data-src="https://youtube.com/embed/JrvoNqDLyIk?si=INfYRR0pfVXlNmib" width="900" height="400" 
+frameborder="0" loading="lazy" allowfullscreen="allowfullscreen" data-mce-fragment="1" 
+src="https://youtube.com/embed/JrvoNqDLyIk?si=INfYRR0pfVXlNmib"></iframe><br>
+<br><br>
+<br><iframe data-src="https://www.youtube.com/embed/6TuEb00TN0M?si=6IwHUjVaCimAOg-M" width="900" height="400" 
+frameborder="0" loading="lazy" allowfullscreen="allowfullscreen" data-mce-fragment="1" 
+src="https://www.youtube.com/embed/6TuEb00TN0M?si=6IwHUjVaCimAOg-M"></iframe><br>
+<br><br>
+<br><iframe data-src="https://www.youtube.com/embed/YaznYE3XUm8?si=XC602R7VtIbODmce" width="900" height="400" 
+frameborder="0" loading="lazy" allowfullscreen="allowfullscreen" data-mce-fragment="1" 
+src="https://www.youtube.com/embed/YaznYE3XUm8?si=XC602R7VtIbODmce"></iframe><br>
+<br><br>
+<br><iframe data-src="https://www.youtube.com/embed/OrwCs7zBysw?si=-_wOjWJi0ngl77QJ" width="900" height="400" 
+frameborder="0" loading="lazy" allowfullscreen="allowfullscreen" data-mce-fragment="1" 
+src="https://www.youtube.com/embed/OrwCs7zBysw?si=-_wOjWJi0ngl77QJ"></iframe><br>
+<br><br>
+<br><iframe data-src="https://www.youtube.com/embed/YnycK-VJOPQ?si=DNeSb-k4AdB6X5Sq" width="900" height="400" 
+frameborder="0" loading="lazy" allowfullscreen="allowfullscreen" data-mce-fragment="1" 
+src="https://www.youtube.com/embed/YnycK-VJOPQ?si=DNeSb-k4AdB6X5Sq"></iframe><br>
+<br><br>
+<br><iframe data-src="https://www.youtube.com/embed/p797IqjPPbg?si=Cu6ok9VH5UvEO9hj" width="900" height="400" 
+frameborder="0" loading="lazy" allowfullscreen="allowfullscreen" data-mce-fragment="1" 
+src="https://www.youtube.com/embed/p797IqjPPbg?si=Cu6ok9VH5UvEO9hj"></iframe><br>
+<br><br>
+<br><iframe data-src="https://www.youtube.com/embed/I2MGZfVBhX0?si=tR3h8hUKhwr6Fvfi" width="900" height="400" 
+frameborder="0" loading="lazy" allowfullscreen="allowfullscreen" data-mce-fragment="1" 
+src="https://www.youtube.com/embed/I2MGZfVBhX0?si=tR3h8hUKhwr6Fvfi"></iframe><br>
+<br><br>
+<br><iframe data-src="https://www.youtube.com/embed/UqXNADLaYhk?si=ObOEauG3cUTDTgfy" width="900" height="400" 
+frameborder="0" loading="lazy" allowfullscreen="allowfullscreen" data-mce-fragment="1" 
+src="https://www.youtube.com/embed/UqXNADLaYhk?si=ObOEauG3cUTDTgfy"></iframe><br>
+<br><br>
+<br><iframe data-src="https://www.youtube.com/embed/ovccIcpOIh8?si=O85s4lseP6UQl5Dh" width="900" height="400" 
+frameborder="0" loading="lazy" allowfullscreen="allowfullscreen" data-mce-fragment="1" 
+src="https://www.youtube.com/embed/ovccIcpOIh8?si=O85s4lseP6UQl5Dh"></iframe><br>
+<br><br>
+<br><iframe data-src="https://www.youtube.com/embed/QnwGElkqr7s?si=dUHzvpUYYDj7cId8" width="900" height="400" 
+frameborder="0" loading="lazy" allowfullscreen="allowfullscreen" data-mce-fragment="1" 
+src="https://www.youtube.com/embed/QnwGElkqr7s?si=dUHzvpUYYDj7cId8"></iframe><br>
+<br><br>
+<br><iframe data-src="https://www.youtube.com/embed/LEXd5UTL5Sw?si=fk-0P-A08yRA-GnG" width="900" height="400" 
+frameborder="0" loading="lazy" allowfullscreen="allowfullscreen" data-mce-fragment="1" 
+src="https://www.youtube.com/embed/LEXd5UTL5Sw?si=fk-0P-A08yRA-GnG"></iframe><br>
+<br><br>
+<br><iframe data-src="https://www.youtube.com/embed/IW-HphYFmp0?si=4RjdEYXw1gbRskdm" width="900" height="400" 
+frameborder="0" loading="lazy" allowfullscreen="allowfullscreen" data-mce-fragment="1" 
+src="https://www.youtube.com/embed/IW-HphYFmp0?si=4RjdEYXw1gbRskdm"></iframe><br>
+<br><br>
+<br><iframe data-src="https://www.youtube.com/embed/JCIlIEg_raA?si=wybgbJIhk9TC-OdO" width="900" height="400" 
+frameborder="0" loading="lazy" allowfullscreen="allowfullscreen" data-mce-fragment="1" 
+src="https://www.youtube.com/embed/JCIlIEg_raA?si=wybgbJIhk9TC-OdO"></iframe><br>
+<br><br>
+<br><iframe data-src="https://www.youtube.com/embed/Wmos9cscNKg?si=-4HUXJQrkQvTr6Ua" width="900" height="400" 
+frameborder="0" loading="lazy" allowfullscreen="allowfullscreen" data-mce-fragment="1" 
+src="https://www.youtube.com/embed/Wmos9cscNKg?si=-4HUXJQrkQvTr6Ua"></iframe><br>
+<br><br>
+<br><iframe data-src="https://www.youtube.com/embed/I1BndgptiKA?si=6CNsdzWHlk9i2_x7" width="900" height="400" 
+frameborder="0" loading="lazy" allowfullscreen="allowfullscreen" data-mce-fragment="1" 
+src="https://www.youtube.com/embed/I1BndgptiKA?si=6CNsdzWHlk9i2_x7"></iframe><br>
+<br><br>
+<br><iframe data-src="https://www.youtube.com/embed/R1m_pCGjmpM?si=M15GFI7yyQUKnpOd" width="900" height="400" 
+frameborder="0" loading="lazy" allowfullscreen="allowfullscreen" data-mce-fragment="1" 
+src="https://www.youtube.com/embed/R1m_pCGjmpM?si=M15GFI7yyQUKnpOd"></iframe><br>
+<br><br>
+<br><iframe data-src="https://www.youtube.com/embed/N2DOKT3OhCc?si=rejnsYWDBFd-JG1B" width="900" height="400" 
+frameborder="0" loading="lazy" allowfullscreen="allowfullscreen" data-mce-fragment="1" 
+src="https://www.youtube.com/embed/N2DOKT3OhCc?si=rejnsYWDBFd-JG1B"></iframe><br>
+<br><br>
+
+<!-- ACQ Testimonials -->
+<br><iframe data-src="https://www.youtube.com/embed/EcTmnRnawB0?si=gCDM5DekkRAKSCxL" width="900" height="400" 
+frameborder="0" loading="lazy" allowfullscreen="allowfullscreen" data-mce-fragment="1" 
+src="https://www.youtube.com/embed/EcTmnRnawB0?si=gCDM5DekkRAKSCxL"></iframe><br>
+<br><br>
+<br><iframe data-src="https://www.youtube.com/embed/BfkHt6yFGnk?si=_o4bDT1TOxJWm9Ip" width="900" height="400" 
+frameborder="0" loading="lazy" allowfullscreen="allowfullscreen" data-mce-fragment="1" 
+src="https://www.youtube.com/embed/BfkHt6yFGnk?si=_o4bDT1TOxJWm9Ip"></iframe><br>
+<br><br>
+<br><iframe data-src="https://www.youtube.com/embed/Briod5XDKU0?si=3DY77znVoao5hTYf" width="900" height="400" 
+frameborder="0" loading="lazy" allowfullscreen="allowfullscreen" data-mce-fragment="1" 
+src="https://www.youtube.com/embed/Briod5XDKU0?si=3DY77znVoao5hTYf"></iframe><br>
+<br><br>
+<br><iframe data-src="https://www.youtube.com/embed/NvdRNLaLGy8?si=X7Pp1GdsvoOKZSdV" width="900" height="400" 
+frameborder="0" loading="lazy" allowfullscreen="allowfullscreen" data-mce-fragment="1" 
+src="https://www.youtube.com/embed/NvdRNLaLGy8?si=X7Pp1GdsvoOKZSdV"></iframe><br>
+<br><br>
+<br><iframe data-src="https://www.youtube.com/embed/nyxtbqbZybw?si=mdww_qsQwwjVRqS0" width="900" height="400" 
+frameborder="0" loading="lazy" allowfullscreen="allowfullscreen" data-mce-fragment="1" 
+src="https://www.youtube.com/embed/nyxtbqbZybw?si=mdww_qsQwwjVRqS0"></iframe><br>
+<br><br>
+<img id="testimonial" loading="lazy" src="https://d35sqbuxm7djsy.cloudfront.net/testimonials/1.jpg">
+<br>
+<img id="testimonial" loading="lazy" src="https://d35sqbuxm7djsy.cloudfront.net/testimonials/2.jpg">
+<br>
+<img id="testimonial" loading="lazy" src="https://d35sqbuxm7djsy.cloudfront.net/testimonials/3.jpg">
+<br>
+<img id="testimonial" loading="lazy" src="https://d35sqbuxm7djsy.cloudfront.net/testimonials/4.jpg">
+<br>
+<img id="testimonial" loading="lazy" src="https://d35sqbuxm7djsy.cloudfront.net/testimonials/5.jpg">
+<br>
+<img id="testimonial" loading="lazy" src="https://d35sqbuxm7djsy.cloudfront.net/testimonials/6.jpg">
+<br>
+<img id="testimonial" loading="lazy" src="https://d35sqbuxm7djsy.cloudfront.net/testimonials/7.jpg">
+<br>
+<img id="testimonial" loading="lazy" src="https://d35sqbuxm7djsy.cloudfront.net/testimonials/8.jpg">
+<br>
+<img id="testimonial" loading="lazy" src="https://d35sqbuxm7djsy.cloudfront.net/testimonials/9.jpg">
+<br>
+<img id="testimonial" loading="lazy" src="https://d35sqbuxm7djsy.cloudfront.net/testimonials/10.jpg">
+<br>
+<img id="testimonial" loading="lazy" src="https://d35sqbuxm7djsy.cloudfront.net/testimonials/11.jpg">
+<br>
+<img id="testimonial" loading="lazy" src="https://d35sqbuxm7djsy.cloudfront.net/testimonials/12.jpg">
+<br>
+<img id="testimonial" loading="lazy" src="https://d35sqbuxm7djsy.cloudfront.net/testimonials/13.jpg">
+<br>
+<img id="testimonial" loading="lazy" src="https://d35sqbuxm7djsy.cloudfront.net/testimonials/14.jpg">
+<br>
+<img id="testimonial" loading="lazy" src="https://d35sqbuxm7djsy.cloudfront.net/testimonials/15.jpg">
+<br>
+<img id="testimonial" loading="lazy" src="https://d35sqbuxm7djsy.cloudfront.net/testimonials/16.jpg">
+<br>
+<img id="testimonial" loading="lazy" src="https://d35sqbuxm7djsy.cloudfront.net/testimonials/17.jpg">
+<br>
+<img id="testimonial" loading="lazy" src="https://d35sqbuxm7djsy.cloudfront.net/testimonials/18.jpg">
+<br>
+<img id="testimonial" loading="lazy" src="https://d35sqbuxm7djsy.cloudfront.net/testimonials/19.jpg">
+<br>
+<img id="testimonial" loading="lazy" src="https://d35sqbuxm7djsy.cloudfront.net/testimonials/20.jpg">
+<br>
+<img id="testimonial" loading="lazy" src="https://d35sqbuxm7djsy.cloudfront.net/testimonials/21.jpg">
+<br>
+<img id="testimonial" loading="lazy" src="https://d35sqbuxm7djsy.cloudfront.net/testimonials/22.jpg">
+<br>
+<img id="testimonial" loading="lazy" src="https://d35sqbuxm7djsy.cloudfront.net/testimonials/23.jpg">
+<br>
+<img id="testimonial" loading="lazy" src="https://d35sqbuxm7djsy.cloudfront.net/testimonials/24.jpg">
+<br>
+<img id="testimonial" loading="lazy" src="https://d35sqbuxm7djsy.cloudfront.net/testimonials/25.jpg">
+<br>
+<img id="testimonial" loading="lazy" src="https://d35sqbuxm7djsy.cloudfront.net/testimonials/26.jpg">
+<br>
+<img id="testimonial" loading="lazy" src="https://d35sqbuxm7djsy.cloudfront.net/testimonials/27.jpg">
+<br>
+<img id="testimonial" loading="lazy" src="https://d35sqbuxm7djsy.cloudfront.net/testimonials/28.jpg">
+<br>
+<img id="testimonial" loading="lazy" src="https://d35sqbuxm7djsy.cloudfront.net/testimonials/29.jpg">
+<br>
+<img id="testimonial" loading="lazy" src="https://d35sqbuxm7djsy.cloudfront.net/testimonials/30.jpg">
+<br>
+<img id="testimonial" loading="lazy" src="https://d35sqbuxm7djsy.cloudfront.net/testimonials/31.jpg">
+<br>
+<img id="testimonial" loading="lazy" src="https://d35sqbuxm7djsy.cloudfront.net/testimonials/32.jpg">
+<br>
+<img id="testimonial" loading="lazy" src="https://d35sqbuxm7djsy.cloudfront.net/testimonials/33.jpg">
+<br>
+<img id="testimonial" loading="lazy" src="https://d35sqbuxm7djsy.cloudfront.net/testimonials/34.jpg">
+<br>
+<img id="testimonial" loading="lazy" src="https://d35sqbuxm7djsy.cloudfront.net/testimonials/35.jpg">
+<br>
+<img id="testimonial" loading="lazy" src="https://d35sqbuxm7djsy.cloudfront.net/testimonials/36.jpg">
+<br>
+<img id="testimonial" loading="lazy" src="https://d35sqbuxm7djsy.cloudfront.net/testimonials/37.jpg">
+<br>
+<img id="testimonial" loading="lazy" src="https://d35sqbuxm7djsy.cloudfront.net/testimonials/38.jpg">
+<br>
+<img id="testimonial" loading="lazy" src="https://d35sqbuxm7djsy.cloudfront.net/testimonials/39.jpg">
+<br>
+<br>
+
+
+<br>
+<div id="footer">
+©  
+<a href="https://gokcecapital.com" target="_blank" rel="noopener">Gokce Capital</a>
+&emsp; 
+<a href="https://gokcecapital.com/privacy-policy/" target="_blank" rel="noopener">Privacy</a>
+&emsp; 
+<a href="https://gokcecapital.com/terms-of-use/" target="_blank" rel="noopener">Terms of Service</a>
+<br><br>
+</div>
+
+<div id="footer-cta">
+ <div id="footer-bar">
+ <font color='black'>19 people are viewing listings—<a 
+ href="https://call.gokcap.com">Book Your Free Land Strategy Call</a> to save thousands.</font></div>
+
+ <img id="footer-close-image"
+ src="https://d35sqbuxm7djsy.cloudfront.net/close.png" 
+ width="10" height="10" alt="Close"></img>
+
+</div>
+
+<script async defer 
+src=
+"https://maps.googleapis.com/maps/api/js?key=AIzaSyApMqfx4X769Ym62qsxAd9SkzOqrYwiJnM&callback=initMap&v=weekly">
+</script>
+
+<!-- The Modal -->
+<div id="modalDialog" class="modal">
+  <div class="modal-content">
+      <div class="modal-header">
+          <h5 class="modal-title">Hey, Wait! Before You Go...</h5>
+          <button type="button" class="close">
+              <span aria-hidden="true">x</span>
+          </button>
+      </div>
+      <div class="modal-body">
+         <p>
+          In just 15 minutes, this <i>free land strategy call</i> could save you thousands!
+          <br><br>
+            <p style="text-align: center;">
+              <a class="button" 
+              href="https://call.gokcap.com">
+              BOOK YOUR FREE CALL</a>
+              <br><br>
+            </p>
+          </p>
+      </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const table = document.getElementById("listings");
+    const headers = table.querySelectorAll("th");
+    const tbody = table.querySelector("tbody") || table;
+
+    headers.forEach((header, index) => {
+        header.style.cursor = "pointer";
+
+        header.addEventListener("click", function () {
+            const rows = Array.from(tbody.querySelectorAll("tr")).slice(1);
+            const isAsc = header.classList.contains("asc");
+
+            rows.sort((rowA, rowB) => {
+                const cellA = rowA.children[index].innerText.trim();
+                const cellB = rowB.children[index].innerText.trim();
+
+                const numA = parseFloat(cellA.replace(/[^0-9.-]+/g, ""));
+                const numB = parseFloat(cellB.replace(/[^0-9.-]+/g, ""));
+
+                if (!isNaN(numA) && !isNaN(numB)) {
+                    return isAsc ? numA - numB : numB - numA;
+                }
+
+                return isAsc
+                    ? cellA.localeCompare(cellB)
+                    : cellB.localeCompare(cellA);
+            });
+
+            headers.forEach(h => h.classList.remove("asc", "desc"));
+            header.classList.add(isAsc ? "desc" : "asc");
+            rows.forEach(row => tbody.appendChild(row));
+        });
+    });
+});
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const filterInput = document.getElementById("tableFilter");
+    const table = document.getElementById("listings");
+    const rows = Array.from(table.querySelectorAll("tr")).slice(1); // skip header
+
+    // Remove highlights without touching HTML structure
+    function removeHighlights(element) {
+        const highlights = element.querySelectorAll("span.highlight");
+        highlights.forEach(span => {
+            span.outerHTML = span.innerText; // unwrap
+        });
+    }
+
+    // Recursively highlight inside text nodes only, keeping links safe
+    function highlightNode(node, query) {
+        if (node.nodeType === 3) { 
+            const text = node.nodeValue;
+            const regex = new RegExp(`(${query})`, "gi");
+
+            if (regex.test(text)) {
+                const span = document.createElement("span");
+                span.innerHTML = text.replace(regex, `<span class="highlight">$1</span>`);
+                node.replaceWith(span);
+            }
+        } else if (node.nodeType === 1 && node.childNodes) {
+            node.childNodes.forEach(child => highlightNode(child, query));
+        }
+    }
+
+    filterInput.addEventListener("keyup", function () {
+        const query = filterInput.value.trim().toLowerCase();
+
+        rows.forEach(row => {
+            const rowText = row.innerText.toLowerCase();
+            const cells = Array.from(row.children);
+
+            // Show/hide row
+            row.style.display = rowText.includes(query) ? "" : "none";
+
+            // Remove old highlights
+            cells.forEach(cell => removeHighlights(cell));
+
+            // Add new highlights safely
+            if (query !== "" && row.style.display !== "none") {
+                cells.forEach(cell => highlightNode(cell, query));
+            }
+        });
+    });
+});
+</script>
+
+
+</body>
+</html>
