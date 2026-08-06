@@ -4,7 +4,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {
   suzgec, halkaMerkezi, degerBandi, absenteeMi,
-  ACRE_MIN, ACRE_MAX, DEGER_MIN, DEGER_MAX, UCUZ_BANT_MAX,
+  ACRE_MIN, ACRE_MAX, DEGER_MIN, DEGER_MAX, UCUZ_BANT_MAX, ORTA_BANT_MAX,
 } from "./filtreli-hasat.mjs";
 
 /** Süzgeçten GEÇEN referans satır — testler bunun tek alanını bozar. */
@@ -57,13 +57,29 @@ test("absenteeMi: eyalet içi false, eyalet dışı true, büyük/küçük harfe
   assert.equal(absenteeMi(null, "MS"), false);
 });
 
-test("değer bandı ETİKETİ: ucuz / buyuk-bilet / bilinmiyor", () => {
+test("değer bandı ETİKETİ: ucuz / buyuk-bilet / premium / bilinmiyor", () => {
   assert.equal(degerBandi(DEGER_MIN), "ucuz");
   assert.equal(degerBandi(UCUZ_BANT_MAX), "ucuz");
   assert.equal(degerBandi(UCUZ_BANT_MAX + 1), "buyuk-bilet");
-  assert.equal(degerBandi(DEGER_MAX), "buyuk-bilet");
+  assert.equal(degerBandi(ORTA_BANT_MAX), "buyuk-bilet");
+  // 2026-08-06: 75.000 $ üstü artık ELENMİYOR, "premium" etiketi alıyor.
+  assert.equal(degerBandi(ORTA_BANT_MAX + 1), "premium");
+  assert.equal(degerBandi(DEGER_MAX), "premium");
   assert.equal(degerBandi(null), "bilinmiyor");
   assert.equal(degerBandi("abc"), "bilinmiyor");
+});
+
+test("75.000 $ üstü / 1.000.000 $ altı parsel artık GEÇER (premium bant)", () => {
+  const r = saglam();
+  r.land_value = 420000;
+  assert.equal(suzgec(r, "MS"), null);
+  assert.equal(degerBandi(r.land_value), "premium");
+});
+
+test("1.000.000 $ üstü parsel kapsam dışı — elenir", () => {
+  const r = saglam();
+  r.land_value = DEGER_MAX + 1;
+  assert.equal(suzgec(r, "MS").kural, "deger-bandi");
 });
 
 test("20.000 $ üstü ama 75.000 $ altı parsel artık GEÇER (büyük bilet)", () => {

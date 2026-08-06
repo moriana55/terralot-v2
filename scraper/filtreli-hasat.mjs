@@ -48,11 +48,17 @@
 // hesaplanıp `absentee` kolonuna yazılır (eskiden sabit `true` yazılıyordu —
 // süzgeç zaten elediği için doğruydu, artık değil).
 //
-// ── DEĞER BANDI: TAVAN 20.000 → 75.000 $ (2026-07-29) ───────────────────────
-// 18.734 aday sırf "20 bin doların üstünde" diye eleniyordu. Tavan 75.000 $'a
-// açıldı; ayırt edilebilsin diye bant `value_band` kolonuna yazılır:
-//   ucuz         → 300 ≤ değer ≤ 20.000  (projenin klasik ucuz-lot bandı)
+// ── DEĞER BANDI: TAVAN 75.000 → 1.000.000 $ (2026-08-06) ────────────────────
+// Yiğit kuralı (2026-08-04): "arsa ucuzlukçuluğu BIRAKILDI — 1 milyon dolara
+// kadar her band kovalanır (pahalıda al-sat değil KOMİSYON modeli). Değere göre
+// ELEME yapma, sadece band etiketi koy." Motor bu karardan sonra da 75.000 $
+// tavanını uygulamaya devam ediyordu: birikmiş turlarda 291.701 aday sırf değer
+// bandından elendi (çekilen 2.269.184 satırın %12,9'u) — yeni stratejide tam da
+// kovalanması gereken parseller. Tavan 1.000.000 $'a çıkarıldı; üstü kapsam
+// dışı sayılır (komisyon modeli o bandı hedeflemiyor).
+//   ucuz         → 300 ≤ değer ≤ 20.000     (projenin klasik ucuz-lot bandı)
 //   buyuk-bilet  → 20.000 < değer ≤ 75.000
+//   premium      → 75.000 < değer ≤ 1.000.000  (2026-08-06 ile açıldı)
 //   bilinmiyor   → kaynakta değer alanı yok (WV / WY Carbon / MT Sanders)
 // Böylece sonradan "ucuz bant / büyük bilet" diye süzülebilir.
 // NOT: `price_basis` kolonu BAŞKA bir işi tutuyor (eksik-raporu.mjs teklif
@@ -83,8 +89,9 @@ export const HEDEF_EYALETLER = ["MS", "WV", "MT", "NC", "AL", "ID", "WY"];
 export const ACRE_MIN = 0.25;   // grade-core acresPoints: altı "satışı zor"
 export const ACRE_MAX = 640;    // grade-core MAX_GRADABLE_ACRES
 export const DEGER_MIN = 300;   // projenin ucuz-lot bandı taban
-export const DEGER_MAX = 75000; // 2026-07-29: 20.000 → 75.000 (büyük bilet dahil)
+export const DEGER_MAX = 1000000; // 2026-08-06: 75.000 → 1.000.000 (aşağıya bak)
 export const UCUZ_BANT_MAX = 20000; // eski tavan — artık eleme değil, ETİKET sınırı
+export const ORTA_BANT_MAX = 75000; // 29 Tem tavanı — yine eleme değil, ETİKET sınırı
 
 const TAVAN_GB = Number(process.env.HASAT_TAVAN_GB || 2.5);
 // FL hasadı bitti — kapsam ölçer de (dashboard/scripts/kapsam-olc.mjs) atlıyor.
@@ -108,7 +115,8 @@ export function degerBandi(v) {
   if (v == null || !Number.isFinite(Number(v))) return "bilinmiyor";
   const n = Number(v);
   if (n <= UCUZ_BANT_MAX) return "ucuz";
-  return "buyuk-bilet";
+  if (n <= ORTA_BANT_MAX) return "buyuk-bilet";
+  return "premium";
 }
 
 /** Posta eyaleti parselin eyaletinden farklıysa sahip uzakta = absentee. */
