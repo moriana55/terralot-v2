@@ -27,22 +27,22 @@ import pg from "pg";
 import { dbUrl } from "./grade-offmarket.mjs";
 
 const DRY = process.argv.includes("--dry");
-const FIXED_COST = 2000;
+export const FIXED_COST = 2000;
 
 // Dönüm bandı → (min çarpan, üst sınır dönüm). Küçük işlem daha yüksek çarpan ister.
-const BANDS = [
+export const BANDS = [
   { ad: "0-0,25 ac", lo: 0.001, hi: 0.25, carpan: 2.5 },
   { ad: "0,25-0,5", lo: 0.25, hi: 0.5, carpan: 2.3 },
   { ad: "0,5-1,5", lo: 0.5, hi: 1.5, carpan: 2.0 },
 ];
-const MIN_COMP = 8;      // banda güvenmek için gereken gerçek satış sayısı
-const MIN_TEKLIF = 500;  // altına düşen teklif gönderilmez (posta masrafını çıkarmaz)
+export const MIN_COMP = 8;      // banda güvenmek için gereken gerçek satış sayısı
+export const MIN_TEKLIF = 500;  // altına düşen teklif gönderilmez (posta masrafını çıkarmaz)
 // AKIL SAĞLIĞI FRENİ: bant medyanı o parselin kendi assessed değeriyle
 // tutarsızsa comp havuzuna yabancı ürün karışmış demektir (Bay=Panama City
 // Beach sahil lotları $351K, Alachua=Gainesville şehir içi $305K çıkıyordu —
 // çeyrek dönüme $138.600 teklif mektubu gidecekti). Teklif, parselin KENDİ
 // assessed değerinin bu katını aşamaz; aşarsa lead atlanır (uydurma yok).
-const ASSESSED_TAVAN = 2.0;
+export const ASSESSED_TAVAN = 2.0;
 
 const med = (a) => { if (!a.length) return null; const b = [...a].sort((x, y) => x - y); const m = b.length >> 1; return b.length % 2 ? b[m] : (b[m - 1] + b[m]) / 2; };
 const pct = (a, p) => { if (!a.length) return null; const b = [...a].sort((x, y) => x - y); return b[Math.min(b.length - 1, Math.floor(p * b.length))]; };
