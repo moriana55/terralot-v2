@@ -1,94 +1,94 @@
 {
- "uretildi": "2026-08-03T03:18:45.593Z",
- "veriAni": "2026-08-03T02:45:51.870Z",
- "toplamLead": 921271,
- "countyN": 234,
- "eyaletN": 25,
- "aplusA": 48879,
+ "uretildi": "2026-08-07T12:23:45.492Z",
+ "veriAni": "2026-08-07T12:23:36.646Z",
+ "toplamLead": 1250859,
+ "countyN": 70,
+ "eyaletN": 27,
+ "aplusA": 49965,
  "dagilim": [
   {
    "ad": "Yatak bölgesi (şehre komşu)",
-   "parsel": 257555,
-   "county": 46,
+   "parsel": 238780,
+   "county": 12,
    "renk": "#0891b2",
-   "pay": 28
+   "pay": 19
   },
   {
    "ad": "Emeklilik bölgesi",
-   "parsel": 185626,
-   "county": 34,
+   "parsel": 167747,
+   "county": 13,
    "renk": "#a21caf",
-   "pay": 20
+   "pay": 13
   },
   {
    "ad": "Tarım · çiftçilik",
-   "parsel": 124873,
-   "county": 22,
+   "parsel": 121240,
+   "county": 8,
    "renk": "#65a30d",
-   "pay": 14
+   "pay": 10
   },
   {
    "ad": "Madencilik · enerji",
-   "parsel": 112437,
-   "county": 50,
+   "parsel": 87988,
+   "county": 8,
    "renk": "#7c2d12",
-   "pay": 12
-  },
-  {
-   "ad": "Kırsal · karma",
-   "parsel": 64938,
-   "county": 34,
-   "renk": "#64748b",
    "pay": 7
   },
   {
-   "ad": "Turizm · ikinci ev",
-   "parsel": 54376,
-   "county": 15,
-   "renk": "#c2410c",
+   "ad": "Kırsal · karma",
+   "parsel": 72164,
+   "county": 11,
+   "renk": "#64748b",
    "pay": 6
+  },
+  {
+   "ad": "Turizm · ikinci ev",
+   "parsel": 59417,
+   "county": 4,
+   "renk": "#c2410c",
+   "pay": 5
   },
   {
    "ad": "İmalat · lojistik",
-   "parsel": 50814,
-   "county": 19,
+   "parsel": 58758,
+   "county": 9,
    "renk": "#b45309",
-   "pay": 6
+   "pay": 5
   },
   {
    "ad": "Askeri / federal üs",
-   "parsel": 27994,
-   "county": 6,
+   "parsel": 30777,
+   "county": 4,
    "renk": "#1d4ed8",
-   "pay": 3
+   "pay": 2
   },
   {
    "ad": "Üniversite kasabası",
-   "parsel": 25008,
-   "county": 8,
+   "parsel": 20978,
+   "county": 1,
    "renk": "#4f46e5",
-   "pay": 3
+   "pay": 2
   }
  ],
- "ilkIkiPay": 48,
+ "ilkIkiPay": 32,
  "alici": {
   "biriktirici": 300,
   "aktif": 200,
   "postali": 474,
-  "kurumsalParsel": 178859,
-  "kurumsalSahip": 56191,
+  "kurumsalParsel": 178861,
+  "kurumsalSahip": 56189,
   "enIyiKesisim": [
    {
-    "owner": "GOKCE CAPITAL LLC",
-    "kesisim": 13670
+    "owner": "ONLINE LAND SALES LLC",
+    "kesisim": 14380
    },
    {
-    "owner": "ONLINE LAND SALES LLC",
-    "kesisim": 13529
+    "owner": "GOKCE CAPITAL LLC",
+    "kesisim": 13714
    },
    {
     "owner": "WP RE VENTURES 1 LLC",
-    "kesisim": 12901
+    "kesisim": 12892
    }
   ]
  },
@@ -96,36 +96,36 @@
   {
    "ad": "NM/Valencia",
    "lead": 139526,
-   "aplus": 8596,
+   "aplus": 8607,
    "sinif": "Yatak bölgesi (şehre komşu)"
   },
   {
    "ad": "NV/Nye",
    "lead": 52097,
-   "aplus": 2688,
+   "aplus": 2692,
    "sinif": "Madencilik · enerji"
   },
   {
    "ad": "OR/Klamath",
    "lead": 37983,
-   "aplus": 2376,
+   "aplus": 2580,
    "sinif": "Tarım · çiftçilik"
+  },
+  {
+   "ad": "NC/Brunswick",
+   "lead": 35331,
+   "aplus": 2247,
+   "sinif": "Turizm · ikinci ev"
   },
   {
    "ad": "CO/Costilla",
    "lead": 33153,
    "aplus": 1670,
    "sinif": "Tarım · çiftçilik"
-  },
-  {
-   "ad": "AR/Sharp",
-   "lead": 31996,
-   "aplus": 1726,
-   "sinif": "Emeklilik bölgesi"
   }
  ],
  "skiptrace": {
-  "dosya": "scraper/out/skiptrace-2026-08-03-23194.csv",
-  "kisi": 23194
+  "dosya": "scraper/out/skiptrace-2026-08-03-24243.csv",
+  "kisi": 24243
  }
 }
