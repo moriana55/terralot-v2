@@ -95,17 +95,39 @@ export async function GET(req: NextRequest) {
   // veriyordu ve TÜM sayfa 500'e düşüyordu — huni ve matris hazır olmasına
   // rağmen ekran boş kalıyordu. Artık kart hatası sayfayı düşürmez: sayılar
   // gösterilir, kart bölümü kendi durumunu dürüstçe söyler.
+  //
+  // SAYFALAMA (2026-08-07): eskiden sabit 30 kart dönüyordu — vitrin 361 binlik
+  // A+/A havuzunun yalnız ilk 30'unu gösteriyordu. Artık `sayfa` + `eyalet`
+  // parametreleriyle tüm havuz gezilebilir (müşteriye kanıt olarak gösterilir).
+  // TOPLAM SAYI için ayrı count sorgusu ATILMAZ: 1,2M satırda exact count
+  // statement timeout veriyor. Sayı zaten matristen türetiliyor (aynı kaynak).
   type Kart = Record<string, unknown> & { state?: unknown; county?: unknown; region?: unknown };
+  const SAYFA_BOY = 24;
+  const sp = req.nextUrl.searchParams;
+  const eyaletSuz = (sp.get("eyalet") ?? "").trim().toUpperCase().slice(0, 2);
+  const sayfa = Math.max(1, Math.min(9999, parseInt(sp.get("sayfa") ?? "1", 10) || 1));
+  const bas = (sayfa - 1) * SAYFA_BOY;
+
+  // Filtreye uyan toplam kayıt — matristen (ek sorgu yok, aynı doğruluk).
+  const toplamKart = matrix
+    .filter((r) => (r.grade === "A+" || r.grade === "A") && (!eyaletSuz || r.state === eyaletSuz))
+    .reduce((t, r) => t + r.n, 0);
+  const toplamSayfa = Math.max(1, Math.ceil(toplamKart / SAYFA_BOY));
+
   let cards: Kart[] = [];
   let kartHatasi: string | null = null;
   let kartKaynagi: "canli" | "snapshot" = "canli";
   {
-    const { data, error } = await s
+    let q = s
       .from("offmarket_leads")
       .select(CARD_COLS)
-      .in("grade", ["A+", "A"])
+      .in("grade", ["A+", "A"]);
+    if (eyaletSuz) q = q.eq("state", eyaletSuz);
+    const { data, error } = await q
       .order("grade_score", { ascending: false })
-      .limit(30);
+      // İkincil sıra: eşit skorlarda sayfalar arası kayma olmasın (kararlı sıra).
+      .order("lead_id", { ascending: true })
+      .range(bas, bas + SAYFA_BOY - 1);
     if (error) {
       kartHatasi = error.message;
       // Canlı sorgu düştü → snapshot kartlarına düş. Sayfanın görsel kısmı
@@ -143,5 +165,9 @@ export async function GET(req: NextRequest) {
     };
   });
 
-  return NextResponse.json({ schemaReady: true, funnel, matrix, cards: withComp, matrisKaynagi, snapshotAni, kartHatasi, kartKaynagi });
+  return NextResponse.json({
+    schemaReady: true, funnel, matrix, cards: withComp,
+    matrisKaynagi, snapshotAni, kartHatasi, kartKaynagi,
+    sayfalama: { sayfa, sayfaBoy: SAYFA_BOY, toplamKart, toplamSayfa, eyalet: eyaletSuz || null },
+  });
 }

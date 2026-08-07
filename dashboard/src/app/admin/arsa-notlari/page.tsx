@@ -40,6 +40,7 @@ type Payload = {
   kartHatasi?: string | null;
   snapshotAni?: string | null;
   matrix?: MxRow[]; cards?: Card[];
+  sayfalama?: { sayfa: number; sayfaBoy: number; toplamKart: number; toplamSayfa: number; eyalet: string | null };
 };
 
 const usd = (n: number | null | undefined) =>
@@ -50,13 +51,28 @@ export default function ArsaNotlari() {
   const [data, setData] = useState<Payload | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [stFilter, setStFilter] = useState<string>("");
+  // SAYFALAMA (2026-08-07): vitrin artık ilk 30 kartla sınırlı değil — 361 binlik
+  // A+/A havuzu sayfa sayfa gezilir. Filtre ve sayfa SUNUCUYA gider (istemcide
+  // süzmek yalnız o sayfadaki 24 kaydı süzerdi, yanıltıcı olurdu).
+  const [sayfa, setSayfa] = useState(1);
+  const [yukleniyor, setYukleniyor] = useState(false);
 
   useEffect(() => {
-    fetch("/api/admin/arsa-notlari")
+    setYukleniyor(true);
+    const qs = new URLSearchParams({ sayfa: String(sayfa) });
+    if (stFilter) qs.set("eyalet", stFilter);
+    fetch(`/api/admin/arsa-notlari?${qs}`)
       .then((r) => r.json())
       .then((d: Payload) => (d.error ? setErr(d.error) : setData(d)))
-      .catch(() => setErr("ağ hatası"));
-  }, []);
+      .catch(() => setErr("ağ hatası"))
+      .finally(() => setYukleniyor(false));
+  }, [sayfa, stFilter]);
+
+  /** Eyalet değişince 1. sayfaya dön — 40. sayfada filtre değiştirip boş ekran görme. */
+  function eyaletSec(st: string) {
+    setStFilter(st);
+    setSayfa(1);
+  }
 
   const matrix = useMemo(() => {
     const by = new Map<string, Record<string, number>>();
@@ -68,12 +84,12 @@ export default function ArsaNotlari() {
     return [...by.entries()].sort((a, b) => a[0].localeCompare(b[0]));
   }, [data]);
 
-  const cards = useMemo(
-    () => (data?.cards ?? []).filter((c) => !stFilter || c.state === stFilter),
-    [data, stFilter]
-  );
+  // Kartlar zaten sunucuda süzülüp sayfalandı — burada tekrar süzme.
+  const cards = data?.cards ?? [];
+  // Eyalet listesi MATRİSTEN gelir: o anki sayfadaki kartlardan türetmek,
+  // A+/A'sı olan eyaletlerin çoğunu düğme listesinden düşürüyordu.
   const cardStates = useMemo(
-    () => [...new Set((data?.cards ?? []).map((c) => c.state))].sort(),
+    () => [...new Set((data?.matrix ?? []).filter((r) => r.grade === "A+" || r.grade === "A").map((r) => r.state))].sort(),
     [data]
   );
 
@@ -146,7 +162,20 @@ export default function ArsaNotlari() {
 
       {/* Canlı RPC timeout aldıysa yedeğe düşüldü — sayı gerçek ama biraz eski.
           Sessizce eski sayı göstermek yanlış olurdu; kaynağı açıkça söyle. */}
-      {(data.matrisKaynagi === "snapshot" || data.kartKaynagi === "snapshot") && (
+      {/* Yedekten gelindiğinde: yedek TAZE ise sessiz bir bilgi satırı, ESKİ ise
+          dikkat çeken uyarı. Her açılışta turuncu şerit göstermek yanlıştı —
+          921K satırlık canlı tarama zaten sık sık zaman aşımına uğruyor ve
+          yedek her not turundan sonra yeniden üretiliyor, yani rakam güncel. */}
+      {(data.matrisKaynagi === "snapshot" || data.kartKaynagi === "snapshot") &&
+        data.snapshotAni && Date.now() - new Date(data.snapshotAni).getTime() < 12 * 3600 * 1000 && (
+        <div className="mt-4 text-[12px] flex items-center gap-1.5" style={{ color: "var(--muted)" }}>
+          <Layers size={13} /> Rakamlar {new Date(data.snapshotAni).toLocaleString("tr-TR")} anındaki
+          ölçümden — not motorunun son turu.
+        </div>
+      )}
+
+      {(data.matrisKaynagi === "snapshot" || data.kartKaynagi === "snapshot") &&
+        (!data.snapshotAni || Date.now() - new Date(data.snapshotAni).getTime() >= 12 * 3600 * 1000) && (
         <div className="mt-4 rounded-lg px-4 py-3 text-sm flex items-center gap-2" style={{ border: "1.5px solid #d9770655", background: "#d977060f", color: "#b45309" }}>
           <Layers size={15} /> Canlı sorgu zaman aşımına uğradı (veritabanı şu an ağır yazma altında) —
           rakamlar {data.snapshotAni ? new Date(data.snapshotAni).toLocaleString("tr-TR") : "son"} anındaki
@@ -204,12 +233,19 @@ export default function ArsaNotlari() {
 
       {/* Vitrin kartları */}
       <div className="mt-8 flex flex-wrap items-center justify-between gap-3">
-        <h2 className="text-lg font-bold">A+ / A vitrin kartları</h2>
+        <h2 className="text-lg font-bold">
+          A+ / A vitrin kartları
+          {data.sayfalama && (
+            <span className="ml-2 text-sm font-normal" style={{ color: "var(--muted)" }}>
+              {fmt(data.sayfalama.toplamKart)} arsa{stFilter ? ` · ${stFilter}` : ""} · sayfa {fmt(data.sayfalama.sayfa)}/{fmt(data.sayfalama.toplamSayfa)}
+            </span>
+          )}
+        </h2>
         <div className="flex flex-wrap items-center gap-1.5 text-xs">
           <Filter size={13} style={{ color: "var(--muted)" }} />
-          <button onClick={() => setStFilter("")} className="rounded-full px-3 py-1.5 font-bold" style={{ border: `1.5px solid ${!stFilter ? ACCENT : "var(--outline)"}`, color: !stFilter ? ACCENT : "var(--muted)" }}>Tümü</button>
+          <button onClick={() => eyaletSec("")} className="rounded-full px-3 py-1.5 font-bold" style={{ border: `1.5px solid ${!stFilter ? ACCENT : "var(--outline)"}`, color: !stFilter ? ACCENT : "var(--muted)" }}>Tümü</button>
           {cardStates.map((st) => (
-            <button key={st} onClick={() => setStFilter(st)} className="rounded-full px-3 py-1.5 font-bold" style={{ border: `1.5px solid ${stFilter === st ? ACCENT : "var(--outline)"}`, color: stFilter === st ? ACCENT : "var(--muted)" }}>{st}</button>
+            <button key={st} onClick={() => eyaletSec(st)} className="rounded-full px-3 py-1.5 font-bold" style={{ border: `1.5px solid ${stFilter === st ? ACCENT : "var(--outline)"}`, color: stFilter === st ? ACCENT : "var(--muted)" }}>{st}</button>
           ))}
         </div>
       </div>
@@ -281,20 +317,60 @@ export default function ArsaNotlari() {
 
                 <div className="mt-auto flex items-center justify-between text-[11px]" style={{ color: "var(--muted)" }}>
                   <span>{c.situs || c.use || ""}</span>
+                  {/* PİN + UYDU (2026-08-07): eski bağlantı `/maps/@lat,lng` idi —
+                      görüntüyü koordinata ortalıyor ama İŞARETÇİ koymuyordu,
+                      "arsa tam olarak hangisi" belli olmuyordu. `/maps/place/`
+                      biçimi pin düşürür, `data=!3m1!1e3` uydu katmanını açar. */}
                   {c.lat != null && c.lng != null && (
                     <a
                       className="inline-flex items-center gap-1 font-bold"
                       style={{ color: ACCENT }}
-                      href={`https://www.google.com/maps/@${c.lat},${c.lng},1200m/data=!3m1!1e3`}
+                      href={`https://www.google.com/maps/place/${c.lat},${c.lng}/@${c.lat},${c.lng},1200m/data=!3m1!1e3`}
                       target="_blank" rel="noreferrer"
+                      title={`${c.lat}, ${c.lng} — pinli uydu görüntüsü`}
                     >
-                      <MapPin size={12} /> uydu görüntüsü
+                      <MapPin size={12} /> arsaya git (pinli uydu)
                     </a>
                   )}
                 </div>
               </div>
             );
           })}
+        </div>
+      )}
+
+      {/* Sayfa gezinme — havuzun tamamı gösterilebilsin (müşteriye kanıt). */}
+      {data.sayfalama && data.sayfalama.toplamSayfa > 1 && (
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
+          <button
+            onClick={() => setSayfa(1)}
+            disabled={sayfa === 1 || yukleniyor}
+            className="rounded-lg px-3 py-2 text-sm font-bold disabled:opacity-40"
+            style={{ border: "1.5px solid var(--outline)", color: "var(--muted)" }}
+          >İlk</button>
+          <button
+            onClick={() => setSayfa((s) => Math.max(1, s - 1))}
+            disabled={sayfa === 1 || yukleniyor}
+            className="rounded-lg px-4 py-2 text-sm font-bold disabled:opacity-40"
+            style={{ border: `1.5px solid ${ACCENT}`, color: ACCENT }}
+          >← Önceki</button>
+
+          <span className="px-3 text-sm tabular-nums font-bold">
+            {yukleniyor ? <Loader2 size={15} className="animate-spin inline" /> : `${fmt(sayfa)} / ${fmt(data.sayfalama.toplamSayfa)}`}
+          </span>
+
+          <button
+            onClick={() => setSayfa((s) => Math.min(data.sayfalama!.toplamSayfa, s + 1))}
+            disabled={sayfa >= data.sayfalama.toplamSayfa || yukleniyor}
+            className="rounded-lg px-4 py-2 text-sm font-bold disabled:opacity-40"
+            style={{ border: `1.5px solid ${ACCENT}`, color: ACCENT }}
+          >Sonraki →</button>
+          <button
+            onClick={() => setSayfa(data.sayfalama!.toplamSayfa)}
+            disabled={sayfa >= data.sayfalama.toplamSayfa || yukleniyor}
+            className="rounded-lg px-3 py-2 text-sm font-bold disabled:opacity-40"
+            style={{ border: "1.5px solid var(--outline)", color: "var(--muted)" }}
+          >Son</button>
         </div>
       )}
 
