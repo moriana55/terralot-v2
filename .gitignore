@@ -18,3 +18,4 @@ scraper/logs/gizli-a-*.log
 
 # ulusal hasat çıktısı (ham veri repoya girmez, kaynaktan yeniden çekilebilir)
 scraper/ulusal/veri/
+scraper/data/pazaryeri-islenen.txt
