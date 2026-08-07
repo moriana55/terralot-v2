@@ -1,76 +1,76 @@
 {
- "uretildi": "2026-08-07T12:23:45.492Z",
- "veriAni": "2026-08-07T12:23:36.646Z",
+ "uretildi": "2026-08-07T12:34:33.472Z",
+ "veriAni": "2026-08-07T12:34:33.364Z",
  "toplamLead": 1250859,
- "countyN": 70,
- "eyaletN": 27,
- "aplusA": 49965,
+ "countyN": 321,
+ "eyaletN": 34,
+ "aplusA": 35114,
  "dagilim": [
   {
-   "ad": "Yatak bölgesi (şehre komşu)",
-   "parsel": 238780,
-   "county": 12,
-   "renk": "#0891b2",
-   "pay": 19
-  },
-  {
    "ad": "Emeklilik bölgesi",
-   "parsel": 167747,
-   "county": 13,
+   "parsel": 159496,
+   "county": 51,
    "renk": "#a21caf",
    "pay": 13
   },
   {
-   "ad": "Tarım · çiftçilik",
-   "parsel": 121240,
-   "county": 8,
-   "renk": "#65a30d",
-   "pay": 10
-  },
-  {
-   "ad": "Madencilik · enerji",
-   "parsel": 87988,
-   "county": 8,
-   "renk": "#7c2d12",
-   "pay": 7
-  },
-  {
    "ad": "Kırsal · karma",
-   "parsel": 72164,
-   "county": 11,
+   "parsel": 94446,
+   "county": 56,
    "renk": "#64748b",
-   "pay": 6
-  },
-  {
-   "ad": "Turizm · ikinci ev",
-   "parsel": 59417,
-   "county": 4,
-   "renk": "#c2410c",
-   "pay": 5
+   "pay": 8
   },
   {
    "ad": "İmalat · lojistik",
-   "parsel": 58758,
-   "county": 9,
+   "parsel": 85853,
+   "county": 48,
    "renk": "#b45309",
+   "pay": 7
+  },
+  {
+   "ad": "Yatak bölgesi (şehre komşu)",
+   "parsel": 78612,
+   "county": 44,
+   "renk": "#0891b2",
+   "pay": 6
+  },
+  {
+   "ad": "Madencilik · enerji",
+   "parsel": 70684,
+   "county": 45,
+   "renk": "#7c2d12",
+   "pay": 6
+  },
+  {
+   "ad": "Tarım · çiftçilik",
+   "parsel": 63115,
+   "county": 23,
+   "renk": "#65a30d",
    "pay": 5
   },
   {
+   "ad": "Turizm · ikinci ev",
+   "parsel": 49354,
+   "county": 32,
+   "renk": "#c2410c",
+   "pay": 4
+  },
+  {
    "ad": "Askeri / federal üs",
-   "parsel": 30777,
-   "county": 4,
+   "parsel": 33305,
+   "county": 8,
    "renk": "#1d4ed8",
-   "pay": 2
+   "pay": 3
   },
   {
    "ad": "Üniversite kasabası",
-   "parsel": 20978,
-   "county": 1,
+   "parsel": 9124,
+   "county": 14,
    "renk": "#4f46e5",
-   "pay": 2
+   "pay": 1
   }
  ],
- "ilkIkiPay": 32,
+ "ilkIkiPay": 21,
  "alici": {
   "biriktirici": 300,
   "aktif": 200,
@@ -94,34 +94,34 @@
  },
  "enBuyukCounty": [
   {
-   "ad": "NM/Valencia",
-   "lead": 139526,
-   "aplus": 8607,
-   "sinif": "Yatak bölgesi (şehre komşu)"
+   "ad": "AR/Izard",
+   "lead": 20464,
+   "aplus": 555,
+   "sinif": "Emeklilik bölgesi"
   },
   {
-   "ad": "NV/Nye",
-   "lead": 52097,
-   "aplus": 2692,
-   "sinif": "Madencilik · enerji"
+   "ad": "AZ/Mohave",
+   "lead": 19942,
+   "aplus": 1252,
+   "sinif": "Emeklilik bölgesi"
   },
   {
-   "ad": "OR/Klamath",
-   "lead": 37983,
-   "aplus": 2580,
-   "sinif": "Tarım · çiftçilik"
+   "ad": "AR/Van Buren",
+   "lead": 19125,
+   "aplus": 376,
+   "sinif": "Emeklilik bölgesi"
   },
   {
-   "ad": "NC/Brunswick",
-   "lead": 35331,
-   "aplus": 2247,
-   "sinif": "Turizm · ikinci ev"
+   "ad": "NC/Northampton",
+   "lead": 18784,
+   "aplus": 1134,
+   "sinif": "Emeklilik bölgesi"
   },
   {
-   "ad": "CO/Costilla",
-   "lead": 33153,
-   "aplus": 1670,
-   "sinif": "Tarım · çiftçilik"
+   "ad": "FL/Charlotte",
+   "lead": 16494,
+   "aplus": 1096,
+   "sinif": "Emeklilik bölgesi"
   }
  ],
  "skiptrace": {
