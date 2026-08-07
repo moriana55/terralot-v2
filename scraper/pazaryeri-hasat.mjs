@@ -164,14 +164,16 @@ async function main() {
         return `($${o + 1},$${o + 2},$${o + 3},$${o + 4},$${o + 5},$${o + 6},$${o + 7},$${o + 8},$${o + 9},now())`;
       }).join(",");
       const p = parti.flatMap((r) => [r.competitor, r.title, r.state, r.county, r.acres, r.price, r.raw_url, r.lat, r.lng]);
-      // Tabloda uniq_competitor_url (competitor, raw_url) kısıtı var: aynı ilan
-      // tekrar hasat edilirse ÇAKIŞMA değil GÜNCELLEME olmalı — ilan fiyatı
-      // zamanla değişir, güncel hali geçerlidir.
+      // Tabloda uniq_competitor_url kısıtı var: aynı ilan tekrar hasat edilirse
+      // ÇAKIŞMA değil GÜNCELLEME olmalı — ilan fiyatı zamanla değişir.
+      // ⚠ Kısıt KISMİ indeks: `... (competitor, raw_url) WHERE raw_url IS NOT NULL`.
+      // ON CONFLICT kısmi indeksle ancak AYNI koşul yazılırsa eşleşir; koşulsuz
+      // hali "no unique or exclusion constraint matching" hatası veriyordu.
       await db.query(
         `insert into competitor_listings
            (competitor,title,state,county,acres,price,raw_url,lat,lng,scraped_at)
          values ${v}
-         on conflict (competitor, raw_url) do update set
+         on conflict (competitor, raw_url) where raw_url is not null do update set
            title = excluded.title, state = excluded.state, county = excluded.county,
            acres = excluded.acres, price = excluded.price,
            lat = excluded.lat, lng = excluded.lng, scraped_at = excluded.scraped_at`,
