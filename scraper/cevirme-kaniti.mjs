@@ -52,9 +52,12 @@ export function alimSatim(a) {
   return { alim, satim, carpan: satim.fiyat / alim.fiyat, ayFark };
 }
 
-async function sayfaCek(offset) {
+async function sayfaCek(offset, co) {
   const p = new URLSearchParams({
-    where: "QUAL_CD1 = '01' AND QUAL_CD2 = '01' AND VI_CD1 = 'V' AND VI_CD2 = 'V' AND SALE_PRC1 > 1000 AND SALE_PRC2 > 1000 AND SALE_YR1 >= 2020 AND SALE_YR2 >= 2020",
+    // COUNTY COUNTY (2026-08-07 düzeltmesi): tek sorguyla tüm eyaleti gezerken
+    // sayfalama erken kesiliyordu ve rapor yalnız CO_NO 11-19'u kapsıyordu
+    // (Putnam=64 hiç görünmedi). Her county ayrı sorgulanır.
+    where: `CO_NO = ${co} AND QUAL_CD1 = '01' AND QUAL_CD2 = '01' AND VI_CD1 = 'V' AND VI_CD2 = 'V' AND SALE_PRC1 > 1000 AND SALE_PRC2 > 1000 AND SALE_YR1 >= 2020 AND SALE_YR2 >= 2020`,
     outFields: "CO_NO,PARCEL_ID,SALE_PRC1,SALE_YR1,SALE_MO1,SALE_PRC2,SALE_YR2,SALE_MO2,LND_SQFOOT",
     returnGeometry: "false", resultOffset: String(offset), resultRecordCount: String(SAYFA), f: "json",
   });
@@ -78,9 +81,11 @@ async function sayfaCek(offset) {
 
 async function main() {
   const cift = [];
-  let offset = 0, belirsiz = 0;
-  for (let tur = 0; tur < 60; tur++) {
-    const fs = await sayfaCek(offset);
+  let belirsiz = 0;
+  for (const co of Object.keys(FL_COUNTY).map(Number)) {
+   let offset = 0;
+   for (let tur = 0; tur < 40; tur++) {
+    const fs = await sayfaCek(offset, co);
     if (!fs.length) break;
     for (const f of fs) {
       const r = alimSatim(f.attributes);
@@ -93,9 +98,10 @@ async function main() {
       });
     }
     offset += fs.length;
-    process.stdout.write(`\r  çekilen ${offset} · çift ${cift.length} · sırası belirsiz ${belirsiz}`);
+    process.stdout.write(`\r  county ${co} · çift ${cift.length} · belirsiz ${belirsiz}   `);
     if (fs.length < SAYFA) break;
-    await sleep(300);
+    await sleep(250);
+   }
   }
   console.log(`\n`);
   if (!cift.length) { console.log("çift bulunamadı."); return; }

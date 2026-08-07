@@ -20,7 +20,7 @@ import {
   MailPlus, PhoneCall, Send, Mail, Handshake, Users,
   Sparkles, MessageSquare, CircleDollarSign, CreditCard,
   Database, Swords, Radar, BarChart3, Cpu, Rocket, Copy, Tv, LayoutDashboard,
-  Building2, Gavel,
+  Building2, Gavel, Receipt,
 } from "lucide-react";
 
 export type MenuItem = {
@@ -254,6 +254,13 @@ export const MENU: MenuGroup[] = [
           "toplu alici", "kurumsal", "sirket", "bulk buyer", "land banker",
           "ev uretici", "builder", "b2b", "toplu pazarlama", "toplu teklif",
         ],
+      },
+      {
+        href: "/admin/cevirme-kaniti",
+        label: "Çevirme Kanıtı",
+        icon: Receipt,
+        hint: "Aynı parselin tapu sicilindeki ALIM ve SATIM fiyatı — kaça alınıp kaça satılıyor, kaç ayda",
+        alias: ["cevirme", "flip", "alim satim", "kaca aldi kaca satti", "carpan", "marj kanit", "tapu cifti"],
       },
       {
         href: "/admin/rakip-kanit",
