@@ -73,17 +73,47 @@ async function main() {
   );
   await db.end();
 
+  /**
+   * PropStream satırı REDDEDER (yükleme o satırda durur) eğer posta alanları
+   * eksikse ya da posta kodu sayı değilse. Tek bir bozuk satır tüm yüklemeyi
+   * durdurduğu için burada elenirler — 4.318 kayıtta 15 civarı, ihmal edilebilir.
+   */
+  const yuklenebilir = (r) => {
+    const dolu = (v) => String(v ?? "").trim().length > 0;
+    if (!dolu(r.mailing_address) || !dolu(r.mailing_city) || !dolu(r.mailing_state) || !dolu(r.mailing_zip)) return false;
+    if (!/^\d{5}(-\d{4})?$/.test(String(r.mailing_zip).trim())) return false;
+    return true;
+  };
+  const elenen = rows.length - rows.filter(yuklenebilir).length;
+
   const kisi = [], kurum = [];
-  for (const r of rows) (kurumKaydiMi(r.owner) ? kurum : kisi).push(r);
+  for (const r of rows.filter(yuklenebilir)) (kurumKaydiMi(r.owner) ? kurum : kisi).push(r);
+
+  /**
+   * `situs` her zaman sokak adresi DEĞİL — county kütüklerinde sık sık TAPU
+   * TARİFİ oluyor: "BEG SW COR OF SE1/4 OF NE1/4 TH 335.4'(D) … TO POB".
+   * PropStream Street Address alanına 200 karakterden uzun değer kabul
+   * etmiyor ve yükleme o satırda hata verip duruyor. Tarif metni zaten adres
+   * olarak işe yaramaz (skip trace posta adresiyle eşleştiriyor) → boş bırak.
+   */
+  const sokakAdresi = (situs) => {
+    const s = String(situs ?? "").trim();
+    if (!s || s.length > 120) return "";
+    // Tapu tarifi işaretleri: metes-and-bounds dili ve kesirli parsel kodları.
+    if (/\b(BEG|POB|TH\b|SEC\b|TWP|RNG|LOT\s+\d+\s+BLK|1\/4|N1\/2|S1\/2|E1\/2|W1\/2)\b/i.test(s)) return "";
+    return s;
+  };
 
   const satirla = (r, kurumMu) => {
     const { ad, soyad } = adAyir(r.owner);
     return csvSatir([
       kurumMu ? "" : ad,
       kurumMu ? "" : soyad,
-      kurumMu ? String(r.owner).trim() : "",
+      // PropStream hiçbir alanda 200 karakteri kabul etmiyor; birkaç kurum
+      // adı (birleşik tröst adları) bunu aşıyor → kırpılır.
+      kurumMu ? String(r.owner).trim().slice(0, 200) : "",
       // Parsel adresi — boş arsada olmayabilir; UYDURULMAZ.
-      r.situs ?? "", "", r.state, "",
+      sokakAdresi(r.situs), "", r.state, "",
       // Posta adresi — skip trace asıl bunu kullanıyor, %100 dolu.
       r.mailing_address, r.mailing_city, r.mailing_state, r.mailing_zip,
     ]);
@@ -101,6 +131,7 @@ async function main() {
   const y2 = kurum.length ? yaz(`propstream-KURUM-${kurum.length}-${t}.csv`, kurum, true) : null;
 
   console.log(`A+ tekil kişi (ad + posta adresi benzersiz): ${rows.length.toLocaleString("tr-TR")}`);
+  console.log(`  elenen (posta alanı eksik / posta kodu geçersiz): ${elenen}`);
   console.log(`  şahıs : ${kisi.length.toLocaleString("tr-TR")}`);
   console.log(`  kurum : ${kurum.length.toLocaleString("tr-TR")}`);
   console.log(`\n✔ ${y1}    ← ÖNCE BUNU YÜKLE`);
