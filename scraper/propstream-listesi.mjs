@@ -34,17 +34,41 @@ export const kurumMu = (ad) =>
   /\b(LLC|L\.L\.C|INC|CORP|CO|COMPANY|TRUST|TR|ESTATE|LP|LLP|PARTNERSHIP|HOLDINGS|PROPERTIES|INVESTMENTS|BANK|CHURCH|ASSOCIATION|HOA|CITY OF|COUNTY OF|STATE OF)\b/i
     .test(String(ad ?? ""));
 
-/** "SOYAD, AD ORTA" → {ad, soyad}. Virgül yoksa bölme (yanlış bölme riski). */
+/**
+ * Kütük adından ad/soyad çıkar.
+ *
+ * ⚠ CANLI DERS (2026-08-08): önce "virgül yoksa bölme" diye tedbirli
+ * davranmıştım. Sonuç: 1.817 kaydın yalnız 135'inde First/Last doluydu ve
+ * PropStream **ad/soyad'ı boş olan satırları içeri almadı** — 1.817 yükleme
+ * 106 kayda düştü. Birleşik "Owner Name" alanını kullanmıyor. Yani burada
+ * bölmemek "güvenli" değil, işi tamamen durduran seçenekti.
+ *
+ * County kütüklerinin biçimi belli: "SOYAD AD ORTA" (virgülsüz) ya da
+ * "SOYAD, AD ORTA" (virgüllü). Önce rol/sıfat ekleri temizlenir:
+ * TRUSTEE, ETUX, ETAL, HEIRS, JR/SR/II/III, "&" sonrası ikinci sahip.
+ */
+const ROL_EKLERI = /\b(TRUSTEES?|TTEE|TR|ETUX|ETVIR|ETAL|ET AL|HEIRS?|ESTATE OF|ESTATE|LIFE|REVOCABLE|LIVING|FAMILY|TRUST|DECD|DECEASED|SURVIVOR|JT|JTWROS)\b/gi;
+const KUYRUK_EKLERI = /\b(JR|SR|II|III|IV|MD|DDS|ESQ)\b\.?/gi;
+
 export function adAyir(tam) {
-  const s = String(tam ?? "").trim();
+  let s = String(tam ?? "").trim();
   if (!s) return { ad: "", soyad: "", tam: "" };
+  const ham = s;
+  // Ortak sahiplerde ilkini al — skip trace tek kişiye bakıyor.
+  s = s.split(/\s*&\s*|\s*;\s*/)[0];
+  s = s.replace(ROL_EKLERI, " ").replace(KUYRUK_EKLERI, " ")
+       .replace(/["']/g, " ").replace(/\s+/g, " ").trim();
+
   const i = s.indexOf(",");
   if (i > 0) {
     const soyad = s.slice(0, i).trim();
-    const ad = s.slice(i + 1).trim();
-    if (soyad && ad) return { ad, soyad, tam: `${ad} ${soyad}` };
+    const ad = s.slice(i + 1).trim().split(" ")[0];
+    if (soyad && ad) return { ad, soyad, tam: ham };
   }
-  return { ad: "", soyad: "", tam: s };
+  // Virgülsüz kütük biçimi: İLK kelime soyadı, İKİNCİ kelime ad.
+  const p = s.split(" ").filter(Boolean);
+  if (p.length >= 2) return { ad: p[1], soyad: p[0], tam: ham };
+  return { ad: "", soyad: p[0] ?? "", tam: ham };
 }
 
 const BASLIK = [
