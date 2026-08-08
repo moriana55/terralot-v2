@@ -79,7 +79,7 @@ async function main() {
             owner, mailing_address, mailing_city, mailing_state, mailing_zip,
             est_offer, est_retail, price_basis
        from offmarket_leads
-      where grade = 'A+'
+      where grade in ('A+','A')
         and owner is not null and mailing_address is not null
         and mailing_city is not null and mailing_state is not null and mailing_zip is not null
         and price_basis is not null and price_basis <> 'dayanak-yok'
@@ -94,21 +94,23 @@ async function main() {
   if (!existsSync(CIKTI)) mkdirSync(CIKTI, { recursive: true });
   const t = new Date().toISOString().slice(0, 10);
 
-  const test = kisi.slice(0, N);
-  const y1 = yaz(`propstream-TEST-${N}-${t}.csv`, test.map(satirla));
-  const y2 = yaz(`propstream-Aplus-${kisi.length}-${t}.csv`, kisi.map(satirla));
+  // Skip trace bu hesapta ÜCRETSİZ (Pro planı: 50.000/ay, 48.632 kalan) —
+  // küçük test dosyasına gerek yok, tüm çalışılabilir havuz yüklenir.
+  // Kurum sahipliler yine AYRI dosyada: kredi derdi yok ama cep numarası
+  // beklentisi düşük, sonuç oranını bulandırmasın diye karıştırılmıyor.
+  const aplus = kisi.filter((r) => r.grade === "A+");
+  const y1 = yaz(`propstream-SAHIS-Aplus-${aplus.length}-${t}.csv`, aplus.map(satirla));
+  const y2 = yaz(`propstream-SAHIS-TUM-${kisi.length}-${t}.csv`, kisi.map(satirla));
   const y3 = kurum.length ? yaz(`propstream-KURUM-${kurum.length}-${t}.csv`, kurum.map(satirla)) : null;
 
-  const usd = (n) => "$" + Math.round(n).toLocaleString("en-US");
-  console.log(`A+ toplam (çalışılabilir) : ${rows.length.toLocaleString("tr-TR")}`);
+    console.log(`A+ toplam (çalışılabilir) : ${rows.length.toLocaleString("tr-TR")}`);
   console.log(`  şahıs sahipli           : ${kisi.length.toLocaleString("tr-TR")}   ← skip trace bunlara`);
   console.log(`  kurum sahipli (LLC/TRUST): ${kurum.length.toLocaleString("tr-TR")}   ← cep çıkmaz, ayrı dosya`);
   console.log();
-  console.log(`✔ TEST  (${test.length})  → ${y1}`);
-  console.log(`   tahmini skip trace maliyeti: ${usd(test.length * 0.12)} – ${usd(test.length * 0.15)}`);
-  console.log(`✔ TAM A+ (${kisi.length}) → ${y2}`);
-  console.log(`   tahmini: ${usd(kisi.length * 0.12)} – ${usd(kisi.length * 0.15)}`);
-  if (y3) console.log(`✔ KURUM (${kurum.length}) → ${y3}   (şimdilik yükleme)`);
+  console.log(`✔ ŞAHIS · A+  (${aplus.length})   → ${y1}   ← önce bunu yükle`);
+  console.log(`✔ ŞAHIS · A+/A (${kisi.length}) → ${y2}`);
+  if (y3) console.log(`✔ KURUM       (${kurum.length}) → ${y3}   (ayrı yükle, cep beklentisi düşük)`);
+  console.log(`\n  toplam ${rows.length} kayıt · skip trace hakkı 48.632 → hepsi ücretsiz`);
   console.log();
   console.log("PropStream'de: List Automator → Import List → CSV yükle → sütunları eşle → Skip Trace.");
   console.log("⚠ Skip trace ayarında CEP/SABİT ayrımını ve DNC bayrağını AÇIK bırak (SMS için şart).");
