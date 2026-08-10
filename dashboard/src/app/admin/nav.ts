@@ -246,6 +246,16 @@ export const MENU: MenuGroup[] = [
     label: "5 · Pazar & rakip",
     items: [
       {
+        href: "/admin/rakip-haritasi",
+        label: "Rakip Haritası",
+        icon: Radar,
+        hint: "ÜST GÖRÜNÜM — piyasada kim var, nerede, ne büyüklükte + bizim aynı bölgedeki envanterimiz",
+        alias: [
+          "rakip haritasi", "piyasa haritasi", "kim var", "rekabet", "landscape",
+          "gokce", "discount lots", "landio", "rina land", "olcek kiyasi",
+        ],
+      },
+      {
         href: "/admin/toplu-alicilar",
         label: "Toplu Alıcılar",
         icon: Building2,
