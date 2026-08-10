@@ -123,10 +123,14 @@ function sunumAdimlari(canliEyalet: number | null, canliAplus: number | null, ca
       rakam: `%${SUNUM.ilkIkiPay}`,
     },
     {
-      href: "/admin/arama",
+      // ⚠ /admin/arama'ya BAĞLANMAZ. Numaralar PropStream hesabında duruyor,
+      // panelin offmarket_leads.phone alanı hâlâ boş — arama kuyruğu bu yüzden
+      // boş açılıyor. Toplantıda boş ekran göstermemek için bu satır envantere
+      // gider; numaralar DB'ye aktarılınca /admin/arama'ya çevrilecek.
+      href: "/admin/off-market-envanter",
       icon: PhoneCall,
       ad: "7 · BU HAFTA — sahiplerin telefonu çıktı",
-      cumle: '"4.060 arsa sahibinin telefonu ve e-postası elimizde, kişi başına 2-4 numara. Maliyeti sıfır." Envanter aşamasından temas aşamasına geçtik.',
+      cumle: '"4.060 arsa sahibinin telefonu ve e-postası çıkarıldı, kişi başına 2-4 numara, maliyeti sıfır." Numaralar PropStream\'de — panele aktarımı sıradaki iş, EKRANDA GÖSTERME.',
       rakam: "4.060",
     },
   ];
