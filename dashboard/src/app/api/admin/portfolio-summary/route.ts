@@ -61,9 +61,22 @@ export async function GET(req: NextRequest) {
   try {
     const s = supabaseAdmin();
 
-    // 1) Ham kaynak sayıları (cheap head-count).
-    const offmarket = await headCount(s, "offmarket_leads");
-    if (offmarket.missing) notes.push("offmarket_leads tablosu yok.");
+    // 1) Ham kaynak sayıları.
+    //
+    // offmarket_leads için head-count KULLANILMAZ: 1,25 milyon satırda
+    // `count:"exact"` zaman aşımına düşüyor ve sayı sessizce null dönüyordu —
+    // Portföy ekranı envanteri boş gösteriyordu. Eleme Hunisi ve Rakip
+    // Haritası'nın okuduğu aynı toplayıcı RPC kullanılıyor (~250 ms), böylece
+    // üç ekran aynı rakamı verir.
+    const offmarket = await (async () => {
+      const { data, error } = await s.rpc("offmarket_grade_matrix");
+      if (error) {
+        notes.push(`offmarket sayımı okunamadı: ${error.message}`);
+        return { count: null as number | null, missing: false };
+      }
+      const satirlar = (data ?? []) as { n: number }[];
+      return { count: satirlar.reduce((t, r) => t + r.n, 0) || null, missing: false };
+    })();
     const tax = await headCount(s, "tax_delinquent_properties");
     if (tax.missing) notes.push("tax_delinquent_properties tablosu yok.");
 

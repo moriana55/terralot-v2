@@ -107,7 +107,7 @@ export default function ModOffmarketVitrin() {
             </span>
             <div className="leading-tight min-w-0">
               <div className="text-[14px] font-extrabold tracking-tight text-white truncate">
-                Terra<span style={{ color: "#8ed1df" }}>Lot</span>
+                Vega<span style={{ color: "#8ed1df" }}>Land</span>
                 <span className="ml-2 hidden sm:inline text-[12px] font-semibold" style={{ color: "#c6d3e6" }}>
                   {OFFMARKET_STATES.length} Eyalet · {total.toLocaleString("en-US")} Off-Market Lead
                 </span>

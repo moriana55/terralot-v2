@@ -100,21 +100,46 @@ export async function GET(req: NextRequest) {
       ...new Set(mx.filter((r) => r.grade === "A+" || r.grade === "A").map((r) => r.state)),
     ];
 
-    const [toplamRes, mektupRes, geoNullRes, ...dealRes] = await Promise.all([
-      tablo(),
-      mektupFiltresi(tablo()),
-      tablo().is("geo_enriched_at", null),
-      ...notluEyaletler.map((st) => mektupFiltresi(tablo().in("grade", ["A+", "A"])).eq("state", st)),
-    ]);
-
-    kayitli = toplamRes.count ?? null;
+    // Toplam ve geo sayıları AYRI SORGU İSTEMEZ: matris zaten eyalet × not
+    // kırılımında n (satır) ve geo_n (koordinatı çözülmüş) taşıyor.
+    //
+    // Önceden bunlar filtresiz `count:"exact"` ile sayılıyordu. 1,25 milyon
+    // satırda o sayım zaman aşımına düşüyor, üç değer birden null kalıyor ve
+    // huni ekranı ana rakamlarını "—" gösteriyordu — yani sunumda "kaç parsel
+    // taradık" sorusunun cevabı boştu. Toplama artık burada yapılıyor: sorgu
+    // yok, zaman aşımı yok, üstelik ekrandaki eyalet sayısıyla aynı kaynak.
+    kayitli = mx.reduce((t, r) => t + r.n, 0) || null;
+    geoDogrulanmis = mx.reduce((t, r) => t + r.geo_n, 0) || null;
+    geoBekleyen = kayitli != null && geoDogrulanmis != null ? kayitli - geoDogrulanmis : null;
     eyaletSayisi = eyaletKodlari.length || null;
-    mektupAtilabilir = mektupRes.count ?? null;
-    geoBekleyen = geoNullRes.count ?? null;
-    geoDogrulanmis = kayitli != null && geoBekleyen != null ? kayitli - geoBekleyen : null;
 
-    dealler = notluEyaletler
-      .map((state, i) => ({ state, adet: dealRes[i]?.count ?? 0 }))
+    // Tüm envanterin mektup atılabilirliği BİLEREK sorulmuyor.
+    //
+    // Beş alanlı bu filtrenin indeksi yok; 1,25M satırda tam tarama ~11 sn ve
+    // PostgREST üstünde zaten zaman aşımına düşüyordu (değer hep null'dı, yani
+    // ekranda kimse doğru sayıyı hiç görmedi). Filtreye özel kısmi dizin de
+    // denendi: planlayıcı dizin taramasını seçip süreyi 41 sn'ye ÇIKARDI —
+    // dizin kaldırıldı.
+    //
+    // Asıl sebep: temas kanalı mektup değil SMS. Anlamlı ölçü sahibin posta
+    // adresi değil TELEFONU ve o sayı şu an sıfır (skip trace hiç koşmadı).
+    // Bu adım, telefon alanı dolmaya başladığında telefon üstünden yeniden
+    // kurulacak. O zamana kadar null → UI "—" gösterir, 0 uydurmaz.
+    mektupAtilabilir = null;
+
+    // A+/A dağılımı da matristen. Önceden eyalet başına ayrı sayım sorgusu
+    // atılıyordu ve `?? 0` ile düşen sorgu SESSİZCE SIFIR sayılıyordu: aynı
+    // ekran arka arkaya 29.425 ve 38.244 gösterebiliyordu — hangisinin doğru
+    // olduğu belli değildi, ikisi de değildi. Üstelik bu sayım "A+/A ve mektup
+    // atılabilir" demekti, dolayısıyla Arsa Notları ve Rakip Haritası'ndaki
+    // A+/A rakamıyla çelişiyordu. Artık tek kaynak: matris.
+    dealler = Object.entries(
+      mx.reduce<Record<string, number>>((acc, r) => {
+        if ((r.grade === "A+" || r.grade === "A") && r.state) acc[r.state] = (acc[r.state] ?? 0) + r.n;
+        return acc;
+      }, {}),
+    )
+      .map(([state, adet]) => ({ state, adet }))
       .filter((d) => d.adet > 0)
       .sort((a, b) => b.adet - a.adet);
     yatirimaUygun = dealler.reduce((s0, d) => s0 + d.adet, 0);

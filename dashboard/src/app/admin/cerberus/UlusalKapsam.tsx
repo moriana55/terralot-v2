@@ -105,6 +105,24 @@ export function UlusalKapsam() {
             kendi not sistemi (A-F) ile buradaki sınıflar farklı ölçeklerdi; toplamak yerine
             hepsi yeniden puanlandı.
           </p>
+
+          {/*
+            BU KART PANELİN VERİTABANINI ANLATMIYOR — bunu yazmazsak ekranlar
+            birbiriyle çelişiyor. Buradaki 12,7 milyon, ulusal boru hattının
+            SUNUCUDAKİ DOSYA çıktısı (/root/ulusal/veri, ~18 GB). Panelin
+            veritabanına bunun yalnız bir bölümü yüklendi; Envanter, Arsa
+            Notları, Eleme Hunisi ve Rakip Haritası hep o yüklü bölümü sayar.
+            İki rakam farklı şeyleri ölçüyor, biri diğerini yanlışlamıyor.
+          */}
+          <p
+            className="text-xs mb-3 rounded-md px-3 py-2"
+            style={{ background: "#d977060f", border: "1px solid #d9770655", color: "var(--foreground)" }}
+          >
+            <b>Bu rakamlar sunucudaki dosya çıktısıdır, panelin veritabanı değildir.</b>{" "}
+            Boru hattı bu kadarını işleyip puanladı; panele yüklenen bölüm daha küçük.
+            Envanter, Arsa Notları ve Eleme Hunisi ekranlarındaki sayı <i>yüklü</i> olanı
+            gösterir — ikisi farklı şeyi ölçer.
+          </p>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
             <Kutu2 baslik="Arsa" deger={bin(huni.birlesik.arsa)} alt={`${huni.birlesik.eyalet} eyalet`} />
             <Kutu2 baslik="Puanlanan" deger={bin(huni.birlesik.puanlanan)} alt={`${bin(huni.birlesik.kamuElendi)} kamu elendi`} />

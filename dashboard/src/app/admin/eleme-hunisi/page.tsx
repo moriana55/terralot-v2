@@ -618,7 +618,7 @@ function ElemeHunisiIcerik() {
                 4 · Eyalet bazında yatırımlık deal
               </h2>
               <p className="mt-1 text-[13px]" style={{ color: "var(--muted)" }}>
-                A+/A notlu ve mektup atılabilir parseller — toplam {N(havuz.yatirimaUygun)}.
+                A+/A notlu parseller — toplam {N(havuz.yatirimaUygun)}.
               </p>
             </div>
             {!sunum && (

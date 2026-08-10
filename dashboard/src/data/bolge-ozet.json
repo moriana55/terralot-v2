@@ -1,0 +1,53 @@
+{
+ "uretildi": "2026-08-07T12:34:33.360Z",
+ "countyN": 321,
+ "toplamLead": 1250859,
+ "kapsananLead": 1187402,
+ "eyaletN": 34,
+ "toplamUstNot": 35114,
+ "countyDagilim": {
+  "Emeklilik bölgesi": 51,
+  "Tarım · çiftçilik": 23,
+  "İmalat · lojistik": 48,
+  "Yatak bölgesi (şehre komşu)": 44,
+  "Kırsal · karma": 56,
+  "Turizm · ikinci ev": 32,
+  "Askeri / federal üs": 8,
+  "Madencilik · enerji": 45,
+  "Üniversite kasabası": 14
+ },
+ "parselDagilim": {
+  "Emeklilik bölgesi": 159496,
+  "Tarım · çiftçilik": 63115,
+  "İmalat · lojistik": 85853,
+  "Yatak bölgesi (şehre komşu)": 78612,
+  "Kırsal · karma": 94446,
+  "Turizm · ikinci ev": 49354,
+  "Askeri / federal üs": 33305,
+  "Madencilik · enerji": 70684,
+  "Üniversite kasabası": 9124
+ },
+ "enBuyuk": [
+  {
+   "state": "AR",
+   "county": "Izard",
+   "lead": 20464,
+   "aplus": 555,
+   "sinif": "Emeklilik bölgesi"
+  },
+  {
+   "state": "AZ",
+   "county": "Mohave",
+   "lead": 19942,
+   "aplus": 1252,
+   "sinif": "Emeklilik bölgesi"
+  },
+  {
+   "state": "AR",
+   "county": "Van Buren",
+   "lead": 19125,
+   "aplus": 376,
+   "sinif": "Emeklilik bölgesi"
+  }
+ ]
+}
