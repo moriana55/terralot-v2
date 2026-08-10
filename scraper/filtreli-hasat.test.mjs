@@ -57,6 +57,26 @@ test("absenteeMi: eyalet içi false, eyalet dışı true, büyük/küçük harfe
   assert.equal(absenteeMi(null, "MS"), false);
 });
 
+test("dönümü BİLİNMEYEN parsel elenmez (değer kuralıyla aynı ilke)", () => {
+  // 2026-08-10: eskiden acre'i boş gelen parsel doğrudan atılıyordu; değer
+  // kuralında "bilinmeyen elenmez" denirken acre'de tersi uygulanıyordu.
+  const r = saglam();
+  r.acres = null;
+  assert.equal(suzgec(r, "MS"), null);
+  r.acres = 0;
+  assert.equal(suzgec(r, "MS"), null);
+  r.acres = undefined;
+  assert.equal(suzgec(r, "MS"), null);
+});
+
+test("dönümü BİLİNEN ama bant dışı parsel yine elenir", () => {
+  const r = saglam();
+  r.acres = 0.1;                       // ACRE_MIN altı
+  assert.equal(suzgec(r, "MS").kural, "acre-bandi");
+  r.acres = 900;                       // ACRE_MAX üstü
+  assert.equal(suzgec(r, "MS").kural, "acre-bandi");
+});
+
 test("değer bandı ETİKETİ: ucuz / buyuk-bilet / premium / bilinmiyor", () => {
   assert.equal(degerBandi(DEGER_MIN), "ucuz");
   assert.equal(degerBandi(UCUZ_BANT_MAX), "ucuz");
@@ -101,8 +121,10 @@ test("template sahip adı mektup-eksik sayılır", () => {
   assert.equal(suzgec(r, "MS").kural, "mektup-eksik");
 });
 
-test("acre bandı: alt sınır altı, üst sınır üstü ve veri yok elenir", () => {
-  for (const a of [null, 0, -1, ACRE_MIN - 0.01, ACRE_MAX + 1]) {
+test("acre bandı: alt sınır altı ve üst sınır üstü elenir", () => {
+  // 2026-08-10: null/0 buradan ÇIKARILDI — dönümü bilinmeyen parsel artık
+  // elenmiyor (değer kuralıyla aynı ilke). Ayrı testi yukarıda.
+  for (const a of [ACRE_MIN - 0.01, ACRE_MAX + 1]) {
     const r = saglam();
     r.acres = a;
     assert.equal(suzgec(r, "MS").kural, "acre-bandi", `acres=${a}`);

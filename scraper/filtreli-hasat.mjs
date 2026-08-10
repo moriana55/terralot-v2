@@ -143,10 +143,23 @@ export function suzgec(r, eyalet) {
   const inel = checkEligibility({ owner: r.owner, acres: r.acres });
   if (inel && inel.reason === "gov_owner") return { kural: "kamu-sahipli", ayrinti: inel.flag };
   if (inel && inel.reason === "owner_missing") return { kural: "mektup-eksik", ayrinti: inel.flag };
+  // ── DÖNÜMÜ BİLİNMEYEN PARSEL ARTIK ELENMİYOR (2026-08-10) ──────────────────
+  // Değer kuralının ilkesi zaten şuydu: "değeri YOK" ile "değeri aralık DIŞI"
+  // farklı şeylerdir; bilinmeyen elenmez. Acre'de bu ilke uygulanmamıştı —
+  // dönümü boş gelen parsel doğrudan atılıyordu. Aynı mantıkla kalmalı:
+  // kaynakta alan yok diye parsel yok sayılmaz. Notlandırmada dönüm puanı
+  // alamayacağı için A+ çıkmaz; envanterde durur, dönüm verisi sonradan
+  // geldiğinde (backfill) değerlenir. Şu an tamamen kayboluyordu.
+  //
+  // Eleme sebebi de AYRIŞTIRILDI: "acre-bandi" artık yalnız GERÇEKTEN bant
+  // dışı parseller içindir. Böylece bir sonraki turda kaç kaydın veri
+  // eksikliğinden, kaç kaydın gerçek bant ihlalinden elendiği log'dan görülür.
   const a = Number(r.acres);
-  if (!Number.isFinite(a) || a <= 0) return { kural: "acre-bandi", ayrinti: "acre verisi yok" };
-  if (a < ACRE_MIN) return { kural: "acre-bandi", ayrinti: `${a} ac < ${ACRE_MIN}` };
-  if (a > ACRE_MAX) return { kural: "acre-bandi", ayrinti: `${a} ac > ${ACRE_MAX}` };
+  const acreBilinmiyor = !Number.isFinite(a) || a <= 0;
+  if (!acreBilinmiyor) {
+    if (a < ACRE_MIN) return { kural: "acre-bandi", ayrinti: `${a} ac < ${ACRE_MIN}` };
+    if (a > ACRE_MAX) return { kural: "acre-bandi", ayrinti: `${a} ac > ${ACRE_MAX}` };
+  }
   const v = r.land_value;
   // Değeri BİLİNMEYEN parsel elenmez (WV/WY Carbon/MT Sanders'ta değer alanı yok).
   if (v != null && Number.isFinite(Number(v))) {
