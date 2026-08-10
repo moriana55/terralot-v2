@@ -145,6 +145,29 @@ export default function BugunEkrani() {
   const [hat, setHat] = useState<Sayac>(bekle);
   const [eyaletSayisi, setEyaletSayisi] = useState<number | null>(null);
 
+  // Sunum şeridinin rakamları — HIZLI ve TEK kaynak.
+  //
+  // Aşağıdaki envanter/A+ sayaçları `offmarket-breakdown` (16 sn) ve
+  // `arsa-notlari` (9 sn) uçlarından gelir. O saniyeler boyunca şerit
+  // snapshot'a düşüyor ve ekranda 34 eyalet · 35.114 A+/A yazıyordu —
+  // yani sunumun ilk ekranında yanlış rakam duruyordu. Eleme Hunisi ucu
+  // aynı toplayıcı RPC'yi ~0,1 sn'de döndürür; şerit artık onu bekler.
+  const [hizliOlcu, setHizliOlcu] = useState<{ lead: number; eyalet: number; aplus: number } | null>(null);
+
+  useEffect(() => {
+    let canli = true;
+    al<{ havuz?: { kayitli: number | null; eyaletSayisi: number | null; yatirimaUygun: number | null } }>(
+      "/api/admin/eleme-hunisi",
+    ).then((d) => {
+      const h = d?.havuz;
+      if (!canli || !h) return;
+      if (h.kayitli != null && h.eyaletSayisi != null && h.yatirimaUygun != null) {
+        setHizliOlcu({ lead: h.kayitli, eyalet: h.eyaletSayisi, aplus: h.yatirimaUygun });
+      }
+    });
+    return () => { canli = false; };
+  }, []);
+
   useEffect(() => {
     let canli = true;
 
@@ -232,17 +255,17 @@ export default function BugunEkrani() {
           <Presentation className="w-4 h-4" style={{ color: "var(--accent-ink)" }} />
           <h2 className="font-bold text-sm">Sunum · sırayla aç</h2>
           <span className="text-[11px]" style={{ color: "var(--muted)" }}>
-            · {eyaletSayisi ?? SUNUM.eyaletN} eyalet
-            · {tr(envanter.durum === "hazir" ? envanter.deger : SUNUM.toplamLead)} parsel
-            · {tr(aPlus.durum === "hazir" ? aPlus.deger : SUNUM.aplusA)} A+/A
+            {hizliOlcu
+              ? `· ${hizliOlcu.eyalet} eyalet · ${tr(hizliOlcu.lead)} parsel · ${tr(hizliOlcu.aplus)} A+/A`
+              : "· ölçülüyor…"}
           </span>
         </div>
 
         <ul>
           {sunumAdimlari(
-            eyaletSayisi,
-            aPlus.durum === "hazir" ? aPlus.deger : null,
-            envanter.durum === "hazir" ? envanter.deger : null,
+            hizliOlcu?.eyalet ?? null,
+            hizliOlcu?.aplus ?? null,
+            hizliOlcu?.lead ?? null,
           ).map((a, i) => (
             <li key={a.href} className="border-t first:border-t-0" style={{ borderColor: "var(--surface-high)" }}>
               <Link href={a.href} className="flex items-center gap-4 px-5 py-3 transition-colors hover:bg-[var(--surface-low)]">
