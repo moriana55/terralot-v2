@@ -62,50 +62,75 @@ const SUNUM = sunumOzet as {
   skiptrace: { dosya: string; kisi: number } | null;
 };
 
-const SUNUM_ADIMLARI = [
-  {
-    href: "/admin/sunum-ulusal",
-    icon: Presentation,
-    ad: "Açılış — ulusal operasyon",
-    cumle: "Beş adımda hikâyenin tamamı; buradan başla, alt linklerden derine in.",
-    rakam: `${SUNUM.eyaletN} eyalet`,
-  },
-  {
-    href: "/admin/harita",
-    icon: Map,
-    ad: "Envanter — haritada göster",
-    cumle: `${SUNUM.countyN} county'ye dağılmış off-market parsellerin tamamı, tek ekranda.`,
-    rakam: tr(SUNUM.toplamLead),
-  },
-  {
-    href: "/admin/arsa-notlari",
-    icon: Award,
-    ad: "Kalite — satışa hazır olanlar",
-    cumle: "Yol, elektrik, su, kasaba mesafesi ölçülmemiş parsel A+/A olamaz.",
-    rakam: tr(SUNUM.aplusA),
-  },
-  {
-    href: "/admin/bolge-profili",
-    icon: Users,
-    ad: "Alıcı kim — neden orada yaşıyorlar",
-    cumle: `${SUNUM.dagilim[0]?.ad} + ${SUNUM.dagilim[1]?.ad} = envanterin %${SUNUM.ilkIkiPay}'i. İki mektup şablonu yarısını karşılıyor.`,
-    rakam: `%${SUNUM.ilkIkiPay}`,
-  },
-  {
-    href: "/admin/toplu-alicilar",
-    icon: Building2,
-    ad: "Toplu satış kanalı — kurumsal alıcılar",
-    cumle: `Bizim county'lerimizde arsa toplayan şirketler; ${SUNUM.alici.postali} tanesinin posta adresi elimizde.`,
-    rakam: tr(SUNUM.alici.biriktirici + SUNUM.alici.aktif),
-  },
-  {
-    href: "/admin/arama",
-    icon: FileText,
-    ad: "Sıradaki adım — sahiplere ulaşma",
-    cumle: "Skip-trace listesi kişi bazında tekilleştirildi; sağlayıcı seçimi bekliyor.",
-    rakam: SUNUM.skiptrace ? tr(SUNUM.skiptrace.kisi) : "—",
-  },
-];
+/**
+ * SUNUM ŞERİDİ — toplantıda tak tak açılacak sıra.
+ *
+ * Her satır TEK BİR CÜMLE taşır: o ekran açıldığında ağızdan çıkacak söz.
+ * Amaç "hangi sayfaydı" diye aranmamak ve rakamı yanlış söylememek.
+ *
+ * ⚠ RAKAMLAR CANLI: eskiden `sunum-ozet.json` snapshot'ından geliyordu ve
+ * orası yalnız PROFİLLENMİŞ alt kümeyi sayıyor (34 eyalet · 35.114 A+/A).
+ * Ekranda tüm operasyon gibi görünüyor, ağızdan çıkan 43 eyalet · 69.511 ile
+ * çelişiyordu. Artık canlı sayaçlar basılır; sayaç gelmeden snapshot'a düşer
+ * (asla boş kalmaz), profil verisi ise ait olduğu satırda kalır.
+ */
+function sunumAdimlari(canliEyalet: number | null, canliAplus: number | null, canliLead: number | null) {
+  const eyalet = canliEyalet ?? SUNUM.eyaletN;
+  const aplus = canliAplus ?? SUNUM.aplusA;
+  const lead = canliLead ?? SUNUM.toplamLead;
+
+  return [
+    {
+      href: "/admin/eleme-hunisi",
+      icon: Presentation,
+      ad: "1 · Açılış — milyonlardan bir avuca",
+      cumle: `"69 milyon parsele erişimimiz var, 3 milyonunu işledik, ${tr(lead)}'i envantere aldık." Huninin tepesi ile tabanı bir arada.`,
+      rakam: `${eyalet} eyalet`,
+    },
+    {
+      href: "/admin/arsa-notlari",
+      icon: Award,
+      ad: "2 · Kalite — satılabilir olanlar",
+      cumle: `"Hepsini kalite notuna ayırdık; en üst dilimde ${tr(aplus)} parsel var." Yol, elektrik, su, kasaba mesafesi ölçülmeden A+/A olmaz.`,
+      rakam: tr(aplus),
+    },
+    {
+      href: "/admin/cevirme-kaniti",
+      icon: FileText,
+      ad: "3 · Kanıt — bu arsalar satılıyor mu?",
+      cumle: '"363 parselde tapu sicilinden hem alım hem satım fiyatı çıkardık: medyan x1,39, medyan 4 ay." Ekranı paylaş, link verme.',
+      rakam: "x1,39",
+    },
+    {
+      href: "/admin/rakip-haritasi",
+      icon: Radar,
+      ad: "4 · Rakip — piyasada kim var",
+      cumle: '"En yakın rakibin 68 parseli var; girdiği her bölgede bizim 238.042 parselimiz duruyor." Ölçek kıyası, satış kıyası değil.',
+      rakam: "238.042",
+    },
+    {
+      href: "/admin/toplu-alicilar",
+      icon: Building2,
+      ad: "5 · Alıcı — kime toplu satarız",
+      cumle: `"Aynı county'lerde arsa biriktiren şirketler var, ${SUNUM.alici.postali} tanesinin posta adresi elimizde." Çıkış kapısı tek tek alıcı değil.`,
+      rakam: tr(SUNUM.alici.biriktirici + SUNUM.alici.aktif),
+    },
+    {
+      href: "/admin/bolge-profili",
+      icon: Users,
+      ad: "6 · Bu bölgelerde neden yaşıyorlar",
+      cumle: `${SUNUM.dagilim[0]?.ad} + ${SUNUM.dagilim[1]?.ad} = profillenen envanterin %${SUNUM.ilkIkiPay}'i. Mesajı buna göre yazıyoruz.`,
+      rakam: `%${SUNUM.ilkIkiPay}`,
+    },
+    {
+      href: "/admin/arama",
+      icon: PhoneCall,
+      ad: "7 · BU HAFTA — sahiplerin telefonu çıktı",
+      cumle: '"4.060 arsa sahibinin telefonu ve e-postası elimizde, kişi başına 2-4 numara. Maliyeti sıfır." Envanter aşamasından temas aşamasına geçtik.',
+      rakam: "4.060",
+    },
+  ];
+}
 
 export default function BugunEkrani() {
   const [envanter, setEnvanter] = useState<Sayac>(bekle);
@@ -203,12 +228,18 @@ export default function BugunEkrani() {
           <Presentation className="w-4 h-4" style={{ color: "var(--accent-ink)" }} />
           <h2 className="font-bold text-sm">Sunum · sırayla aç</h2>
           <span className="text-[11px]" style={{ color: "var(--muted)" }}>
-            · {SUNUM.eyaletN} eyalet · {tr(SUNUM.toplamLead)} parsel · {tr(SUNUM.aplusA)} A+/A
+            · {eyaletSayisi ?? SUNUM.eyaletN} eyalet
+            · {tr(envanter.durum === "hazir" ? envanter.deger : SUNUM.toplamLead)} parsel
+            · {tr(aPlus.durum === "hazir" ? aPlus.deger : SUNUM.aplusA)} A+/A
           </span>
         </div>
 
         <ul>
-          {SUNUM_ADIMLARI.map((a, i) => (
+          {sunumAdimlari(
+            eyaletSayisi,
+            aPlus.durum === "hazir" ? aPlus.deger : null,
+            envanter.durum === "hazir" ? envanter.deger : null,
+          ).map((a, i) => (
             <li key={a.href} className="border-t first:border-t-0" style={{ borderColor: "var(--surface-high)" }}>
               <Link href={a.href} className="flex items-center gap-4 px-5 py-3 transition-colors hover:bg-[var(--surface-low)]">
                 <span className="w-5 shrink-0 text-[11px] font-bold font-mono" style={{ color: "var(--muted)" }}>
@@ -229,9 +260,14 @@ export default function BugunEkrani() {
         </ul>
 
         <div className="px-5 py-3 border-t text-[11px]" style={{ borderColor: "var(--surface-high)", color: "var(--muted)" }}>
-          <b style={{ color: "var(--warn)" }}>Söyleme:</b> &quot;telefonlar hazır&quot; — liste hazır, numaralar değil.
-          {SUNUM.skiptrace && <> Dosya: <code>{SUNUM.skiptrace.dosya}</code></>}
-          {" · "}Veri anı: {new Date(SUNUM.veriAni).toLocaleString("tr-TR")}
+          <b style={{ color: "var(--warn)" }}>Söyleme:</b>{" "}
+          &quot;yarın SMS atıyoruz&quot; — numaraların çoğu DNC (arama yasak) kaydında, önce ayıklama gerek ·{" "}
+          &quot;50 eyalet&quot; — 43&apos;te veri var, 34&apos;ü profilli ·{" "}
+          &quot;rakip ucuza alıp pahalıya satıyor&quot; — doğrulanmadı, quit-claim kayıtları
+          <br />
+          <b>Bu hafta:</b> fiyat denetimi · not motoru düzeltildi · rakip haritası kuruldu ·
+          4.060 sahibin telefonu çıkarıldı{" "}
+          {SUNUM.skiptrace && <>· eski liste: <code>{SUNUM.skiptrace.dosya}</code></>}
         </div>
       </section>
 
