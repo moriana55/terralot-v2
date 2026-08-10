@@ -77,7 +77,7 @@ export default function RakipKanitPage() {
       </div>
 
       {/* ── 1) TAPU KANITI ─────────────────────────────────────────────── */}
-      <h2 className="text-[18px] font-bold flex items-center gap-2 mb-1"><Gavel size={18} /> Tapu kanıtı — {S.marjRakipler.join(", ")}: kaça alıyor, kaça satıyor</h2>
+      <h2 className="text-[18px] font-bold flex items-center gap-2 mb-1"><Gavel size={18} /> Tapu kanıtı — {S.marjRakipler.join(", ")}: tapudaki bedel ile İSTEDİĞİ fiyat</h2>
       <p className="text-[12px] mb-3 max-w-3xl" style={{ color: "var(--muted)" }}>
 Eşleşmelerin tamamı <b style={{ color: "var(--foreground)" }}>{S.marjRakipler.join(", ")}</b> ilanlarından —
         tapu verimiz FL/CO'yu kapsadığı için yalnız oradaki ilanlar eşleşebiliyor.

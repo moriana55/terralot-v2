@@ -58,6 +58,33 @@ export default function ModOffmarketVitrin() {
   // katman açılıp hiçbir şey çıkmayınca "bozuk" sanılıyordu; oysa elimizdeki
   // koordinatlı ilanlar sadece birkaç county'de.
   const [compSayisi, setCompSayisi] = useState<number | null>(null);
+
+  // Başlıktaki envanter ölçüsü — TEK DOĞRU KAYNAK.
+  //
+  // Önceden `OFFMARKET_STATES.length` (elle yazılmış 48'lik eyalet listesi) ve
+  // `useOffmarketStats().total` basılıyordu. İkisi de gerçeği vermiyordu:
+  // liste veri gelmeyen eyaletleri de sayıyor, total ise API düşünce elle
+  // yazılmış fallback toplamına (4.107.717) kaçıyordu. Veritabanının gerçeği
+  // 1.250.859 parsel / 43 eyalet — harita başlığı müşterinin gördüğü ilk yer
+  // olduğu için buradaki şişkinlik en pahalı hataydı.
+  //
+  // Eleme Hunisi ucu aynı toplayıcı RPC'yi okur (~0,1 sn) ve Bugün, Arsa
+  // Notları, Rakip Haritası ekranlarıyla birebir aynı sayıyı verir.
+  const [canliOlcu, setCanliOlcu] = useState<{ lead: number; eyalet: number } | null>(null);
+  useEffect(() => {
+    let canli = true;
+    fetch("/api/admin/eleme-hunisi")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        const h = d?.havuz;
+        if (canli && h && typeof h.kayitli === "number" && typeof h.eyaletSayisi === "number") {
+          setCanliOlcu({ lead: h.kayitli, eyalet: h.eyaletSayisi });
+        }
+      })
+      .catch(() => {});
+    return () => { canli = false; };
+  }, []);
+
   useEffect(() => {
     let canli = true;
     fetch("/api/admin/competitor-map")
@@ -109,11 +136,11 @@ export default function ModOffmarketVitrin() {
               <div className="text-[14px] font-extrabold tracking-tight text-white truncate">
                 Vega<span style={{ color: "#8ed1df" }}>Land</span>
                 <span className="ml-2 hidden sm:inline text-[12px] font-semibold" style={{ color: "#c6d3e6" }}>
-                  {OFFMARKET_STATES.length} Eyalet · {total.toLocaleString("en-US")} Off-Market Lead
+                  {canliOlcu ? `${canliOlcu.eyalet} Eyalet · ${canliOlcu.lead.toLocaleString("en-US")} Off-Market Lead` : "ölçülüyor…"}
                 </span>
               </div>
               <div className="sm:hidden text-[11px] font-medium" style={{ color: "#c6d3e6" }}>
-                {OFFMARKET_STATES.length} Eyalet · {total.toLocaleString("en-US")} lead
+                {canliOlcu ? `${canliOlcu.eyalet} Eyalet · ${canliOlcu.lead.toLocaleString("en-US")} lead` : "ölçülüyor…"}
               </div>
             </div>
           </div>
