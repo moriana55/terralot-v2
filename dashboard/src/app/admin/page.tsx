@@ -123,14 +123,18 @@ function sunumAdimlari(canliEyalet: number | null, canliAplus: number | null, ca
       rakam: `%${SUNUM.ilkIkiPay}`,
     },
     {
-      // ⚠ /admin/arama'ya BAĞLANMAZ. Numaralar PropStream hesabında duruyor,
-      // panelin offmarket_leads.phone alanı hâlâ boş — arama kuyruğu bu yüzden
-      // boş açılıyor. Toplantıda boş ekran göstermemek için bu satır envantere
-      // gider; numaralar DB'ye aktarılınca /admin/arama'ya çevrilecek.
-      href: "/admin/off-market-envanter",
+      // ⚠ PANELE DEĞİL, PROPSTREAM'E GİDER — kanıt orada.
+      //
+      // Skip trace 4.060 kişide çalıştı ama sonuç sağlayıcının hesabında duruyor;
+      // offmarket_leads.phone hâlâ boş. Satır panel içinde bir yere bağlanınca
+      // (arama kuyruğu boş, envanterde telefon sütunu yok) "telefon çıktı" diyip
+      // telefonsuz ekran açıyordu. Numaralar DB'ye aktarılınca /admin/arama'ya
+      // çevrilecek; o zamana kadar tıklayınca gerçek listeyi açar.
+      href: "https://app.propstream.com/contact/0",
+      dis: true,
       icon: PhoneCall,
       ad: "7 · BU HAFTA — sahiplerin telefonu çıktı",
-      cumle: '"4.060 arsa sahibinin telefonu ve e-postası çıkarıldı, kişi başına 2-4 numara, maliyeti sıfır." Numaralar PropStream\'de — panele aktarımı sıradaki iş, EKRANDA GÖSTERME.',
+      cumle: '"4.060 arsa sahibinin telefonu ve e-postası çıkarıldı, kişi başına 2-4 numara, maliyeti sıfır." Tıkla → PropStream açılır, liste orada. Panele aktarım sıradaki iş.',
       rakam: "4.060",
     },
   ];
@@ -268,7 +272,13 @@ export default function BugunEkrani() {
             hizliOlcu?.lead ?? null,
           ).map((a, i) => (
             <li key={a.href} className="border-t first:border-t-0" style={{ borderColor: "var(--surface-high)" }}>
-              <Link href={a.href} className="flex items-center gap-4 px-5 py-3 transition-colors hover:bg-[var(--surface-low)]">
+              {/* Panel dışına giden satır yeni sekmede açılır — sunum sırasında
+                  paneli kaybetmemek için (geri tuşuna basma telaşı olmasın). */}
+              <Link
+                href={a.href}
+                {...("dis" in a && a.dis ? { target: "_blank", rel: "noreferrer" } : {})}
+                className="flex items-center gap-4 px-5 py-3 transition-colors hover:bg-[var(--surface-low)]"
+              >
                 <span className="w-5 shrink-0 text-[11px] font-bold font-mono" style={{ color: "var(--muted)" }}>
                   {String(i + 1).padStart(2, "0")}
                 </span>
