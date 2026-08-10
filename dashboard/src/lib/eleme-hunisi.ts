@@ -300,7 +300,70 @@ export const EYALET_KATMANLARI: EyaletKatmani[] = [
   },
 ];
 
-export const EYALET_KATMANLARI_TOPLAM = EYALET_KATMANLARI.reduce((s, k) => s + k.parsel, 0);
+/**
+ * 4 Ağustos 2026'da CANLI DOĞRULANMIŞ eyalet geneli kaynak kaydı.
+ *
+ * Yukarıdaki elle yazılmış üç katman (MS, WV, WY) o günden önce kalma ve
+ * ERİŞİLEBİLİR adımını 3,7 milyonda gösteriyordu. Oysa ulusal keşif 21 eyalette
+ * 67,8 milyon parsele tek uçtan erişim ölçtü — huninin tepesi, veritabanındaki
+ * 1,25 milyondan KÜÇÜK görünüyordu, yani huni ters duruyordu.
+ *
+ * Bu liste `data/ulusal-kaynaklar.json`'dan türetilir; her satır o gün servise
+ * gerçek sorgu atılarak (alan listesi + returnCountOnly) doğrulandı. Elle yazılan
+ * katmanlardan yalnız kayıtta OLMAYANLAR korunur (WV) — çakışanlar iki kez sayılmaz.
+ *
+ * ⚠ Hâlâ "taranmış" DEĞİL: servisin bildirdiği toplam kayıt sayısı, yani
+ * sorgulayabildiğimiz havuz. İncelenen/kayıtlı sayılarla ASLA toplanmaz.
+ */
+const DURUM_NOTU: Record<string, string> = {
+  hazir: "Sahip + posta alanı doğrulandı, hasada hazır.",
+  "sahip-adi-yok": "Sahip adı alanı yok — mektup/SMS hattına giremez, yalnız parsel sayımı.",
+  "posta-yok": "Sahip adı var ama posta adresi yok — temas için skip trace şart.",
+  "yanlis-pozitif": "Alan eşlemesi güvenilmez çıktı; hasada alınmadan önce yeniden doğrulanmalı.",
+};
+
+/** `data/ulusal-kaynaklar.json` satırının okuduğumuz kısmı. */
+export interface UlusalKaynakSatiri {
+  eyalet: string;
+  ad: string;
+  parsel: number | null;
+  posta: boolean;
+  durum: string;
+  not?: string;
+}
+
+/**
+ * Ulusal kaynak kaydını erişilebilir katman listesine çevirir — SAF fonksiyon.
+ *
+ * JSON'u bu dosya İÇE AKTARMAZ: burası bilerek dosya/DB dokunmayan hesap
+ * katmanı (dosyanın başlığına bakın), çağıran taraf veriyi getirir.
+ *
+ * Parsel sayısı okunamayan kaynaklar (ör. NY) DIŞARIDA bırakılır — sayısı
+ * bilinmeyen bir kaynağı "erişilebilir havuz"a katmak toplamı uydurmak olur.
+ */
+export function ulusalKatmanlar(kayit: Record<string, unknown> | null | undefined): EyaletKatmani[] {
+  return Object.entries(kayit ?? {})
+    .filter(([k]) => k !== "_not")
+    .map(([, v]) => v as UlusalKaynakSatiri)
+    .filter((r) => r && typeof r.parsel === "number" && r.parsel > 0)
+    .map((r) => ({
+      state: r.eyalet,
+      ad: r.ad,
+      parsel: r.parsel as number,
+      mektupAlaniVar: Boolean(r.posta),
+      not: r.not?.trim() || DURUM_NOTU[r.durum] || `Durum: ${r.durum}.`,
+      kayit: "ulusal-kaynaklar.json · 2026-08-04 canlı doğrulama",
+    }));
+}
+
+/** Ulusal kayıt + yalnız orada bulunmayan elle yazılmış katmanlar. */
+export function erisilebilirKatmanlar(kayit: Record<string, unknown> | null | undefined): EyaletKatmani[] {
+  const ulusal = ulusalKatmanlar(kayit);
+  return [...ulusal, ...EYALET_KATMANLARI.filter((k) => !ulusal.some((u) => u.state === k.state))];
+}
+
+/** Katman listesinin toplamı — elle yazılmaz, kalemlerden türetilir. */
+export const katmanToplami = (k: EyaletKatmani[]) => k.reduce((s, x) => s + x.parsel, 0);
 
 // ── Huni kademeleri ─────────────────────────────────────────────────────────
 

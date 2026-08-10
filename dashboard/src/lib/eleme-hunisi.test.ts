@@ -17,7 +17,9 @@ import {
   huniKur,
   barGenislikleri,
   EYALET_KATMANLARI,
-  EYALET_KATMANLARI_TOPLAM,
+  erisilebilirKatmanlar,
+  ulusalKatmanlar,
+  katmanToplami,
   type BirikimTuru,
   type FiltreliHasatLog,
 } from "./eleme-hunisi.ts";
@@ -237,16 +239,55 @@ test("kapsamOzeti: dosya yoksa sıfır + tahmin yok", () => {
 
 // ── Eyalet geneli katmanlar: ERİŞİLEBİLİR, taranmış DEĞİL ───────────────────
 
-test("EYALET_KATMANLARI: toplam elle yazılmaz, kalemlerden türetilir", () => {
-  assert.equal(
-    EYALET_KATMANLARI_TOPLAM,
-    EYALET_KATMANLARI.reduce((s, k) => s + k.parsel, 0)
-  );
-  assert.ok(EYALET_KATMANLARI.length >= 2);
+// Gerçek kayıt yerine KÜÇÜK BİR ÖRNEK kullanılır: test veri dosyası büyüdükçe
+// kırılmasın, kuralı ölçsün. Kaydın kendisi 4 Ağustos'ta canlı doğrulandı.
+const ORNEK_KAYIT = {
+  _not: "açıklama satırı — katman değildir",
+  TX: { eyalet: "TX", ad: "Texas StratMap", parsel: 14_333_926, posta: true, durum: "hazir" },
+  MS: { eyalet: "MS", ad: "Mississippi Statewide", parsel: 1_981_235, posta: true, durum: "hazir" },
+  OH: { eyalet: "OH", ad: "Ohio Statewide", parsel: 6_313_610, posta: false, durum: "sahip-adi-yok" },
+  NY: { eyalet: "NY", ad: "NYS Tax Parcels", parsel: null, posta: true, durum: "hazir" },
+};
+
+test("ulusalKatmanlar: _not satırı ve sayısı bilinmeyen kaynak DIŞARIDA kalır", () => {
+  const k = ulusalKatmanlar(ORNEK_KAYIT);
+  const eyaletler = k.map((x) => x.state);
+  assert.ok(!eyaletler.includes("NY"), "parsel sayısı null olan kaynak katmana girdi");
+  assert.equal(k.length, 3, "_not satırı katman sayıldı");
+  assert.equal(katmanToplami(k), 14_333_926 + 1_981_235 + 6_313_610);
 });
 
-test("EYALET_KATMANLARI: her katmanın kaynağı ve dürüstlük notu var", () => {
-  for (const k of EYALET_KATMANLARI) {
+test("ulusalKatmanlar: posta alanı olmayan kaynak işaretlenir, atılmaz", () => {
+  const oh = ulusalKatmanlar(ORNEK_KAYIT).find((x) => x.state === "OH");
+  assert.ok(oh, "OH düştü");
+  assert.equal(oh.mektupAlaniVar, false);
+  assert.ok(oh.not.length > 0, "durum notu boş");
+});
+
+test("erisilebilirKatmanlar: aynı eyalet İKİ KEZ sayılmaz", () => {
+  // MS hem elle yazılmış listede hem ulusal kayıtta var — havuz şişmemeli.
+  const k = erisilebilirKatmanlar(ORNEK_KAYIT);
+  const eyaletler = k.map((x) => x.state);
+  assert.equal(eyaletler.length, new Set(eyaletler).size, "eyalet mükerrer");
+  assert.equal(eyaletler.filter((s) => s === "MS").length, 1);
+});
+
+test("erisilebilirKatmanlar: ulusal kayıtta olmayan elle yazılmış katman korunur", () => {
+  const eyaletler = erisilebilirKatmanlar(ORNEK_KAYIT).map((x) => x.state);
+  for (const el of EYALET_KATMANLARI) {
+    if (!["TX", "MS", "OH"].includes(el.state)) {
+      assert.ok(eyaletler.includes(el.state), `${el.state} düştü`);
+    }
+  }
+});
+
+test("erisilebilirKatmanlar: kayıt yok/bozuksa elle yazılmış listeye düşer", () => {
+  assert.deepEqual(erisilebilirKatmanlar(null), EYALET_KATMANLARI);
+  assert.equal(katmanToplami(erisilebilirKatmanlar(null)), katmanToplami(EYALET_KATMANLARI));
+});
+
+test("erisilebilirKatmanlar: her katmanın kaynağı ve dürüstlük notu var", () => {
+  for (const k of erisilebilirKatmanlar(ORNEK_KAYIT)) {
     assert.ok(k.kayit.length > 0, `${k.state} kaynaksız`);
     assert.ok(k.not.length > 0, `${k.state} notsuz`);
     assert.ok(k.parsel > 0, `${k.state} parsel yok`);

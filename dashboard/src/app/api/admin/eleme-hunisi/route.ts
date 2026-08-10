@@ -2,12 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { supabaseAdmin } from "@/lib/supabase";
+import ulusalKaynaklar from "@/data/ulusal-kaynaklar.json";
 import { enforceRateLimit, requireGate } from "@/lib/api-guard";
 import {
   birikimOzeti,
   kapsamOzeti,
-  EYALET_KATMANLARI,
-  EYALET_KATMANLARI_TOPLAM,
+  erisilebilirKatmanlar,
+  katmanToplami,
   type BirikimDosyasi,
 } from "@/lib/eleme-hunisi";
 
@@ -74,6 +75,9 @@ export async function GET(req: NextRequest) {
   ]);
 
   const kapsam = kapsamOzeti(kapsamHam);
+  // Erişilebilir eyalet katmanları: 4 Ağustos'ta canlı doğrulanmış ulusal kayıt
+  // + o kayıtta olmayan elle yazılmış katmanlar (WV).
+  const katmanlar = erisilebilirKatmanlar(ulusalKaynaklar as Record<string, unknown>);
   const birikim = birikimOzeti(birikimHam);
 
   // ── 2) Canlı DB ───────────────────────────────────────────────────────────
@@ -151,8 +155,8 @@ export async function GET(req: NextRequest) {
   return NextResponse.json({
     erisim: {
       kapsam,
-      katmanlar: EYALET_KATMANLARI,
-      katmanToplam: EYALET_KATMANLARI_TOPLAM,
+      katmanlar,
+      katmanToplam: katmanToplami(katmanlar),
       // FL kapsam ölçümünde atlanıyor (hasadı bitti) — dipnot olarak gösterilir.
       dipnot:
         "Kapsam ölçümü çalışan county'leri tek tek sorgular; Florida ölçüme dahil " +
