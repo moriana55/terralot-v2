@@ -37,6 +37,42 @@ export async function GET(req: NextRequest) {
   try {
     const s = supabaseAdmin();
 
+    // ── ÖNCE ÖZET TABLO (2026-08-12) ─────────────────────────────────────────
+    // Aşağıdaki yol 44 paralel `count: exact` head-count atıyor; bunlardan biri
+    // FİLTRESİZ toplam ve 1,27M satırda tam tarama demek. Ölçüldü: uç 16,7 sn
+    // sürüyordu ve "Bugün" ekranının ilk kartı o kadar süre dönüyordu — yani
+    // sunumun açılış ekranı boş başlıyordu. `offmarket_grade_summary` aynı
+    // sayıları eyalet kırılımında tutuyor (notlandırma turu her gece yazar),
+    // 40 küsur satır: 16,7 sn -> ~0,2 sn. Huni ve A+ vitrini de aynı kaynağı
+    // okuduğu için üç ekranın rakamı artık BİREBİR aynı.
+    {
+      const ozet = await s.from("offmarket_grade_summary").select("state,n");
+      const satirlar = (ozet.data ?? []) as { state: string; n: number }[];
+      if (!ozet.error && satirlar.length) {
+        const sayim = new Map<string, number>();
+        for (const r of satirlar) {
+          if (!r?.state) continue;
+          sayim.set(r.state, (sayim.get(r.state) ?? 0) + (Number(r.n) || 0));
+        }
+        // VERİSİ OLMAYAN eyalet listeye girmez: `byState.length` ekranlarda
+        // "kaç eyalette varız" olarak kullanılıyor, sıfırlar sayılırsa 43 yerine
+        // 48 der ve ağızdan çıkan rakamla çelişirdi.
+        const byState = STATES.map((st) => ({
+          state: st.code, label: st.label, region: st.region, color: st.color,
+          count: sayim.get(st.code) ?? 0,
+        }))
+          .filter((x) => x.count > 0)
+          .sort((a, b) => b.count - a.count);
+        // Toplam, özetin TAMAMIDIR — STATES listesinde olmayan eyalet de sayılır,
+        // yoksa "43 eyalet" derken toplamdan eyalet düşerdi.
+        const total = [...sayim.values()].reduce((t, n) => t + n, 0);
+        return NextResponse.json({
+          total, byState, states: byState.length,
+          tahminiEyaletler: [], olcumTam: true, kaynak: "ozet",
+        });
+      }
+    }
+
     // Toplam (state filtresiz) + eyalet başına head-count paralel.
     const totalP = s.from("offmarket_leads").select("state", { count: "exact", head: true });
     const stateP = STATES.map((st) =>
