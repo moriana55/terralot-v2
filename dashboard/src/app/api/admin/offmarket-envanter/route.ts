@@ -37,6 +37,13 @@ const SAYFA = 1000;
 const VARSAYILAN_LIMIT = 300;
 const AZAMI_LIMIT = 2000;
 
+/** `offmarket_envanter_ozet_mv` görünümünün okuduğumuz kolonları. */
+type OzetSatir = {
+  state: string; county: string | null; lead_sayisi: number;
+  koordinatli: number; postalanabilir: number; absentee: number;
+  acre_bilinen: number; ort_acre: number | null; bolge_sayisi: number;
+};
+
 type EnvanterSatiri = ScoreRow & {
   lead_id: string;
   apn: string | null;
@@ -86,10 +93,27 @@ export async function GET(req: NextRequest) {
   const s = supabaseAdmin();
 
   // ── Her istekte eyalet/county kırılımı (açılır listeler + sayaçlar) ─────────
-  const { data: ozetSatir, error: ozetHata } = await s
-    .from("offmarket_envanter_ozet_mv")
-    .select("state,county,lead_sayisi,koordinatli,postalanabilir,absentee,acre_bilinen,ort_acre,bolge_sayisi")
-    .order("lead_sayisi", { ascending: false });
+  //
+  // SAYFALAMA ŞART (2026-08-12): PostgREST varsayılan satır tavanı 1000.
+  // Görünümde 1.462 county satırı var; tek istekte yalnız 1000'i geliyordu ve
+  // ekran "1.270.048 lead · 42 eyalet · 1000 county" yazıyordu — gerçek
+  // 1.272.766 · 43 · 1.462. Eksik 462 county sessizce düşüyordu.
+  const OZET_SAYFA = 1000;
+  const ozetToplu: OzetSatir[] = [];
+  let ozetHata: { message: string } | null = null;
+  for (let bas = 0; ; bas += OZET_SAYFA) {
+    const { data, error } = await s
+      .from("offmarket_envanter_ozet_mv")
+      .select("state,county,lead_sayisi,koordinatli,postalanabilir,absentee,acre_bilinen,ort_acre,bolge_sayisi")
+      .order("lead_sayisi", { ascending: false })
+      .range(bas, bas + OZET_SAYFA - 1);
+    if (error) { ozetHata = error; break; }
+    const parca = (data ?? []) as OzetSatir[];
+    ozetToplu.push(...parca);
+    if (parca.length < OZET_SAYFA) break;
+    if (bas > 50_000) break; // güvenlik freni — sonsuz döngü olmasın
+  }
+  const ozetSatir = ozetToplu;
 
   if (ozetHata && eksikTablo(ozetHata.message)) {
     return NextResponse.json(
