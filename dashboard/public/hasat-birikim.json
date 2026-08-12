@@ -1,16 +1,16 @@
 {
   "surum": 2,
-  "guncelleme": "2026-08-12T11:02:25.923Z",
+  "guncelleme": "2026-08-12T12:46:07.868Z",
   "kapsam": [
     {
       "key": "al-cullman",
       "eyalet": "AL",
-      "kaynak": "filtreli-hasat-2026-08-12-AL-ID-MS-MT-NC-WV-WY.json",
-      "zaman": "2026-08-12T04:21:06.444Z",
+      "kaynak": "filtreli-hasat-2026-08-12-AL.json",
+      "zaman": "2026-08-12T11:50:37.543Z",
       "aday": 18958,
-      "yazilan": 17464,
+      "yazilan": 17465,
       "elenen": {
-        "acre-bandi": 608,
+        "acre-bandi": 607,
         "deger-bandi": 103,
         "kamu-sahipli": 336,
         "mukerrer": 436,
@@ -1326,6 +1326,23 @@
         "deger-bandi": 6091,
         "mektup-eksik": 3223,
         "mukerrer": 2287
+      }
+    },
+    {
+      "kaynak": "filtreli-hasat-2026-08-12-AL.json",
+      "baslangic": "2026-08-12T11:49:03.499Z",
+      "bitis": "2026-08-12T11:50:37.543Z",
+      "eyaletler": [
+        "AL"
+      ],
+      "aday": 18958,
+      "yazilan": 17465,
+      "elenen": {
+        "acre-bandi": 607,
+        "deger-bandi": 103,
+        "kamu-sahipli": 336,
+        "mukerrer": 436,
+        "mektup-eksik": 11
       }
     }
   ]

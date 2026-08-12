@@ -1,53 +1,53 @@
 {
- "uretildi": "2026-08-07T12:34:33.360Z",
- "countyN": 321,
- "toplamLead": 1250859,
- "kapsananLead": 1187402,
- "eyaletN": 34,
- "toplamUstNot": 35114,
+ "uretildi": "2026-08-12T12:40:46.320Z",
+ "countyN": 332,
+ "toplamLead": 1272766,
+ "kapsananLead": 1209309,
+ "eyaletN": 36,
+ "toplamUstNot": 56370,
  "countyDagilim": {
-  "Emeklilik bölgesi": 51,
-  "Tarım · çiftçilik": 23,
+  "Yatak bölgesi (şehre komşu)": 47,
+  "Madencilik · enerji": 46,
+  "Tarım · çiftçilik": 25,
+  "Turizm · ikinci ev": 33,
+  "Emeklilik bölgesi": 53,
+  "Üniversite kasabası": 15,
   "İmalat · lojistik": 48,
-  "Yatak bölgesi (şehre komşu)": 44,
-  "Kırsal · karma": 56,
-  "Turizm · ikinci ev": 32,
-  "Askeri / federal üs": 8,
-  "Madencilik · enerji": 45,
-  "Üniversite kasabası": 14
+  "Kırsal · karma": 57,
+  "Askeri / federal üs": 8
  },
  "parselDagilim": {
-  "Emeklilik bölgesi": 159496,
-  "Tarım · çiftçilik": 63115,
-  "İmalat · lojistik": 85853,
-  "Yatak bölgesi (şehre komşu)": 78612,
-  "Kırsal · karma": 94446,
-  "Turizm · ikinci ev": 49354,
-  "Askeri / federal üs": 33305,
-  "Madencilik · enerji": 70684,
-  "Üniversite kasabası": 9124
+  "Yatak bölgesi (şehre komşu)": 271942,
+  "Madencilik · enerji": 123141,
+  "Tarım · çiftçilik": 134255,
+  "Turizm · ikinci ev": 87071,
+  "Emeklilik bölgesi": 205211,
+  "Üniversite kasabası": 30102,
+  "İmalat · lojistik": 98687,
+  "Kırsal · karma": 106617,
+  "Askeri / federal üs": 35539
  },
  "enBuyuk": [
   {
-   "state": "AR",
-   "county": "Izard",
-   "lead": 20464,
-   "aplus": 555,
-   "sinif": "Emeklilik bölgesi"
+   "state": "NM",
+   "county": "Valencia",
+   "lead": 139526,
+   "aplus": 7964,
+   "sinif": "Yatak bölgesi (şehre komşu)"
   },
   {
-   "state": "AZ",
-   "county": "Mohave",
-   "lead": 19942,
-   "aplus": 1252,
-   "sinif": "Emeklilik bölgesi"
+   "state": "NV",
+   "county": "Nye",
+   "lead": 52097,
+   "aplus": 2998,
+   "sinif": "Madencilik · enerji"
   },
   {
-   "state": "AR",
-   "county": "Van Buren",
-   "lead": 19125,
-   "aplus": 376,
-   "sinif": "Emeklilik bölgesi"
+   "state": "OR",
+   "county": "Klamath",
+   "lead": 37983,
+   "aplus": 2033,
+   "sinif": "Tarım · çiftçilik"
   }
  ]
 }

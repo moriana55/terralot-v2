@@ -6,6 +6,14 @@
 #   SKIP_ZILLOW=1 ./run-all.sh   # skip the (paid) RapidAPI Zillow crawl
 #   SKIP_TAX=1 ./run-all.sh      # skip the live county tax-roll crawls
 #
+#   SKIP_DD=1 ./run-all.sh       # dd-enrich adımını atla (~63 dk)
+#   SKIP_HASAT=1 ./run-all.sh    # filtreli hasadı atla (~16 dk)
+#
+# Bu iki anahtar 2026-08-12'de eklendi: turun ÇALIŞTIĞINI hızlıca doğrulamak
+# için. Onarım sonrası "gerçekten yeşile döndü mü" sorusunun cevabı 2 saat
+# beklemeden alınabilsin diye — yeni veri getirmeyen ama en uzun süren iki adım
+# atlanabiliyor. GECE TURUNDA KULLANILMAZ; orada ikisi de koşar.
+#
 set -uo pipefail
 cd "$(dirname "$0")"
 mkdir -p logs
@@ -91,13 +99,13 @@ step node govease-harvest.js
 step node snapshot-deals.js
 
 # 3c) Due-diligence enrichment on top deals (road/flood -> final_score)
-step node dd-enrich.js
+[ "${SKIP_DD:-0}" = "1" ] || step node dd-enrich.js
 
 # 3d) FİLTRELİ HASAT — kayıt defterindeki hedef eyaletlerden SÜZGEÇTEN geçen
 # boş arsaları offmarket_leads'e UPSERT eder (mektup atılabilir + absentee +
 # acre/değer bandı). Eyalet listesi HASAT_EYALETLER ile daraltılabilir.
 # Yazma yalnızca ON CONFLICT DO UPDATE; DB 2 GB tavanını aşarsa kendi durur.
-step node filtreli-hasat.mjs ${HASAT_EYALETLER:-}
+[ "${SKIP_HASAT:-0}" = "1" ] || step node filtreli-hasat.mjs ${HASAT_EYALETLER:-}
 
 # 3d2) BİRİKİMLİ SAYAÇ — bu turda İNCELENEN parsel sayısını kalıcı deftere ekle
 # (dashboard/public/hasat-birikim.json). /admin/eleme-hunisi bu defteri okur.

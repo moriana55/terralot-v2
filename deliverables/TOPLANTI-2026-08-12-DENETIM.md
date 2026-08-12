@@ -22,7 +22,8 @@
 | Süzgeçten geçen | **550.591** | Aynı defter |
 | Rakip ilanı | **41.464** | `competitor_listings` + `competitor_intel` (bugün tazelendi) |
 | Satış comp'ı | **208.442** | `land_comps` — county sicillerinden gerçekleşmiş boş arsa satışları |
-| **Telefon (skip trace)** | **0** | Henüz çekilmedi. PropStream listesi hazır, indirme Yiğit'te. |
+| **Telefonu olan parsel** | **16.376** | PropStream skip trace çıktısı bugün yüklendi (`telefon-aktar.mjs`) |
+| Telefonu olan A+/A | **6.802** | Sıcak Arama kuyruğu marj sırasına göre dolu |
 
 ---
 
@@ -110,12 +111,12 @@ söylemek zorunda değilsin (müşteriye giden veriye hiç dokunmadı) ama **sen
 
 | Konu | Durum |
 |---|---|
-| **Skip trace / telefon** | **0 numara.** Bugüne kadar tek temas yok. PropStream listesi hazır, Yiğit indirecek, yükleyici (`telefon-aktar.mjs`) hazır bekliyor. |
+| **İlk temas** | Numaralar geldi (16.376 parsel · 6.802 A+/A) ama **hâlâ tek arama yapılmadı, tek mektup gitmedi.** Sıradaki iş bu. |
 | **Montana (47.768 lead)** | Eyalet kadastro servisi 10 Ağustos'tan beri sorguya JSON yerine HTML dönüyor. 5 county "servis-kapalı" olarak işaretlendi. Elimizdeki MT verisi **29 Temmuz** hasadından, tazelenmiyor. |
-| **Teklif hesaplanmış A+/A** | ~15.600 (A+/A'nın ~%24'ü). Kalanında fiyat dayanağı henüz yok. |
+| **Teklif hesaplanmış A+/A** | ~15.600. Ama bu bir eksik DEĞİL: A+/A'nın **%59'u (38.873) 1,5 dönüm üstü** ve orada al-sat yapmıyoruz — komisyon modeli, değer var teklif yok. Gerçek boşluk ~10.000 parsel. |
 | **Vergi verisi bayat** | TAX kaynağı 8 gün, ZILLOW 59 gün eski — denetçi artık bunu her gece bildiriyor. |
 | **Mac + sunucu çift koşuyor** | İkisi de aynı gece turunu aynı veritabanına koşuyor. Zarar yok (üzerine yazıyor) ama gereksiz; sunucu bir gece temiz döndükten sonra Mac'teki kapatılmalı. |
-| **Alabama'da mükerrer county** | "DeKalb" (14.154) ve "De Kalb" (850) ayrı sayılıyor — birleştirilecek. |
+| ~~Alabama'da mükerrer county~~ | ✅ Çözüldü: "De Kalb" bayat görünümden geliyormuş, tazeleyince kalktı (tek satır: DeKalb 18.325). |
 
 ---
 
@@ -125,7 +126,7 @@ söylemek zorunda değilsin (müşteriye giden veriye hiç dokunmadı) ama **sen
 |---|---|
 | "3,5 milyon parsel inceledik" | Şişikti, düzeltildi. Doğrusu **989.227**. |
 | "1,25 milyonun hepsi A+ adayı" | A+ **14.586**, A **51.073**. |
-| Herhangi bir temas/telefon/satış rakamı | Sıfır. Tek mektup gitmedi, tek numara çekilmedi. |
+| "Şu kadar sahiple görüştük" | **Tek arama yapılmadı, tek mektup gitmedi.** Elimizdeki 16.376 numara bir KUYRUK, sonuç değil. |
 | "Rakip ucuza alıp pahalıya satıyor" | Doğrulanmadı, çöktü (Gokce Putnam'da piyasa medyanına yakın ödemiş). |
 | "50 eyalet" | 43'te veri var. Eksik 7: AK, DE, LA, NH, NJ, PA, RI. |
 | "Florida'da çevirme kanıtı topladık" | 9 county tarandı, eyalet geneli değil. |
@@ -139,4 +140,5 @@ söylemek zorunda değilsin (müşteriye giden veriye hiç dokunmadı) ama **sen
 2. `/admin/cevirme-kaniti` — aynı parselin alım→satım fiyatı, APN'lerle
 3. `/admin/harita` — 43 eyalette gerçek nokta
 4. `/admin/eleme-hunisi` — düzeltilmiş huni
-5. `/admin/sunum` — üst düzey özet
+5. `/admin/arama` — **Sıcak Arama Kokpiti: marj sıralı arama kuyruğu, numaralarıyla**
+6. `/admin/sunum-ulusal` — üst düzey özet (⚠ `/admin/sunum` ESKİ Mohave demosudur, açma)

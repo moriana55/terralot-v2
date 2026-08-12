@@ -27,6 +27,8 @@ type County = {
 };
 type Bolge = {
   uretildi: string; countyN: number; toplamLead: number; kapsananLead: number;
+  /** Envanterin TAMAMI kaç eyalette (profillenen eyalet sayısıyla karıştırma). */
+  eyaletToplam?: number;
   dagilim: Record<string, number>; county: County[];
 };
 type Alici = {
@@ -87,7 +89,10 @@ export default function SunumUlusalPage() {
         VEGALAND · ULUSAL OPERASYON
       </div>
       <h1 className="mt-2 text-[34px] font-bold leading-tight">
-        {eyaletler.length} eyalette {n(B.toplamLead)} arsa —<br />hangisi satılır, kime satılır
+        {/* Başlıkta ENVANTERİN eyalet sayısı durur (43). `eyaletler.length`
+            yalnız profillenen county'lerin eyaletidir (36) ve parsel sayısı
+            envanterin tamamı olduğu için ikisi tek cümlede çelişiyordu. */}
+        {B.eyaletToplam ?? eyaletler.length} eyalette {n(B.toplamLead)} arsa —<br />hangisi satılır, kime satılır
       </h1>
       <p className="mt-3 text-[15px] max-w-3xl" style={{ color: "var(--muted)" }}>
         Her rakam kamu tapu kaydından ve ücretsiz ABD kamu verisinden ölçüldü. Tahmin, yuvarlama ya da
@@ -98,11 +103,11 @@ export default function SunumUlusalPage() {
       <Bolum
         no={1}
         baslik="Ne kadar arsamız var, nerede"
-        ozet={`${eyaletler.length} eyalet, ${B.countyN} county. Hepsi off-market: sahibi ilana çıkarmamış, rakip görmemiş parseller.`}
+        ozet={`${B.eyaletToplam ?? eyaletler.length} eyalet. Bölge profili ${B.countyN} county için hazır (${eyaletler.length} eyalet) — envanterin %${Math.round((B.kapsananLead / B.toplamLead) * 100)}'i. Hepsi off-market: sahibi ilana çıkarmamış, rakip görmemiş parseller.`}
       >
         <div className="grid sm:grid-cols-3 gap-4">
           <Buyuk deger={n(B.toplamLead)} etiket="Off-market parsel" alt="sahibi belirlenmiş, haritada işaretli" />
-          <Buyuk deger={String(eyaletler.length)} etiket="Eyalet" alt={`${B.countyN} county'de dağılmış`} />
+          <Buyuk deger={String(B.eyaletToplam ?? eyaletler.length)} etiket="Eyalet" alt={`${B.countyN} county profillendi`} />
           <Buyuk deger={n(A.sayac.kurumsal_sahip_n)} etiket="Ayrı şirket sahip" alt={`${n(A.sayac.lead_kurumsal)} parsel kurumsal elde`} />
         </div>
         <div className="mt-4 rounded-xl border p-4" style={{ borderColor: "var(--border, #e2e8f0)", background: "var(--surface-2, #f8fafc)" }}>

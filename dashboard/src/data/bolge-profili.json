@@ -1,30 +1,1023 @@
 {
- "uretildi": "2026-08-07T12:34:33.364Z",
+ "uretildi": "2026-08-12T12:40:46.325Z",
  "qcewYil": "2024",
- "countyN": 321,
+ "countyN": 332,
  "fipsYok": 59,
- "hataN": 11,
- "kapsananLead": 1187402,
- "toplamLead": 1250859,
+ "hataN": 0,
+ "kapsananLead": 1209309,
+ "toplamLead": 1272766,
  "dagilim": {
-  "Emeklilik bölgesi": 51,
-  "Tarım · çiftçilik": 23,
+  "Yatak bölgesi (şehre komşu)": 47,
+  "Madencilik · enerji": 46,
+  "Tarım · çiftçilik": 25,
+  "Turizm · ikinci ev": 33,
+  "Emeklilik bölgesi": 53,
+  "Üniversite kasabası": 15,
   "İmalat · lojistik": 48,
-  "Yatak bölgesi (şehre komşu)": 44,
-  "Kırsal · karma": 56,
-  "Turizm · ikinci ev": 32,
-  "Askeri / federal üs": 8,
-  "Madencilik · enerji": 45,
-  "Üniversite kasabası": 14
+  "Kırsal · karma": 57,
+  "Askeri / federal üs": 8
  },
  "county": [
+  {
+   "state": "NM",
+   "county": "Valencia",
+   "altBolge": [],
+   "fips": "35061",
+   "lead": 139526,
+   "aplus": 7964,
+   "ortDonum": 1.6,
+   "nufus": 77382,
+   "medyanYas": 39,
+   "buyume5": 0.0563,
+   "gelir": 58333,
+   "zhvi": 316213,
+   "izin": 282,
+   "toplamEmp": 17446,
+   "isNufusOran": 0.225,
+   "sahiplik": [
+    {
+     "ad": "Federal devlet",
+     "emp": 110
+    },
+    {
+     "ad": "Eyalet devleti",
+     "emp": 943
+    },
+    {
+     "ad": "Yerel yönetim",
+     "emp": 2798
+    },
+    {
+     "ad": "Özel sektör",
+     "emp": 13596
+    }
+   ],
+   "enBuyukSektor": [
+    {
+     "kod": "62",
+     "ad": "Sağlık · sosyal hizmet",
+     "emp": 3060,
+     "isyeri": 324,
+     "maas": 33125,
+     "lq": 1.22
+    },
+    {
+     "kod": "44-45",
+     "ad": "Perakende",
+     "emp": 2707,
+     "isyeri": 156,
+     "maas": 36750,
+     "lq": 1.55
+    },
+    {
+     "kod": "23",
+     "ad": "İnşaat",
+     "emp": 2020,
+     "isyeri": 200,
+     "maas": 74505,
+     "lq": 2.21
+    },
+    {
+     "kod": "72",
+     "ad": "Konaklama · yeme-içme",
+     "emp": 1587,
+     "isyeri": 100,
+     "maas": 22255,
+     "lq": 1
+    },
+    {
+     "kod": "48-49",
+     "ad": "Ulaştırma · depolama",
+     "emp": 1228,
+     "isyeri": 46,
+     "maas": 53424,
+     "lq": 1.66
+    }
+   ],
+   "enYogunSektor": [
+    {
+     "kod": "23",
+     "ad": "İnşaat",
+     "emp": 2020,
+     "isyeri": 200,
+     "maas": 74505,
+     "lq": 2.21
+    },
+    {
+     "kod": "48-49",
+     "ad": "Ulaştırma · depolama",
+     "emp": 1228,
+     "isyeri": 46,
+     "maas": 53424,
+     "lq": 1.66
+    },
+    {
+     "kod": "44-45",
+     "ad": "Perakende",
+     "emp": 2707,
+     "isyeri": 156,
+     "maas": 36750,
+     "lq": 1.55
+    },
+    {
+     "kod": "62",
+     "ad": "Sağlık · sosyal hizmet",
+     "emp": 3060,
+     "isyeri": 324,
+     "maas": 33125,
+     "lq": 1.22
+    }
+   ],
+   "sinif": "Yatak bölgesi (şehre komşu)",
+   "sinifRenk": "#0891b2",
+   "neden": "Nüfus 77,382 ama county içinde sadece 17,446 iş (oran %23) — çalışanlar dışarı gidiyor.",
+   "ikincil": []
+  },
+  {
+   "state": "NV",
+   "county": "Nye",
+   "altBolge": [],
+   "fips": "32023",
+   "lead": 52097,
+   "aplus": 2998,
+   "ortDonum": 3.1,
+   "nufus": 53207,
+   "medyanYas": 52.4,
+   "buyume5": 0.0773,
+   "gelir": 55975,
+   "zhvi": 362472,
+   "izin": null,
+   "toplamEmp": 13764,
+   "isNufusOran": 0.259,
+   "sahiplik": [
+    {
+     "ad": "Federal devlet",
+     "emp": 131
+    },
+    {
+     "ad": "Eyalet devleti",
+     "emp": 205
+    },
+    {
+     "ad": "Yerel yönetim",
+     "emp": 1747
+    },
+    {
+     "ad": "Özel sektör",
+     "emp": 11681
+    }
+   ],
+   "enBuyukSektor": [
+    {
+     "kod": "54",
+     "ad": "Profesyonel · teknik hizmet",
+     "emp": 2186,
+     "isyeri": 99,
+     "maas": 123939,
+     "lq": 2.28
+    },
+    {
+     "kod": "44-45",
+     "ad": "Perakende",
+     "emp": 1772,
+     "isyeri": 112,
+     "maas": 37878,
+     "lq": 1.29
+    },
+    {
+     "kod": "72",
+     "ad": "Konaklama · yeme-içme",
+     "emp": 1619,
+     "isyeri": 98,
+     "maas": 26961,
+     "lq": 1.29
+    },
+    {
+     "kod": "21",
+     "ad": "Madencilik · petrol · gaz",
+     "emp": 1008,
+     "isyeri": 20,
+     "maas": 117653,
+     "lq": 19.36
+    },
+    {
+     "kod": "56",
+     "ad": "İdari · destek · atık",
+     "emp": 825,
+     "isyeri": 66,
+     "maas": 85500,
+     "lq": 1.02
+    }
+   ],
+   "enYogunSektor": [
+    {
+     "kod": "21",
+     "ad": "Madencilik · petrol · gaz",
+     "emp": 1008,
+     "isyeri": 20,
+     "maas": 117653,
+     "lq": 19.36
+    },
+    {
+     "kod": "22",
+     "ad": "Enerji/su altyapısı",
+     "emp": 224,
+     "isyeri": 10,
+     "maas": 118613,
+     "lq": 4.28
+    },
+    {
+     "kod": "11",
+     "ad": "Tarım · ormancılık · balıkçılık",
+     "emp": 356,
+     "isyeri": 19,
+     "maas": 45696,
+     "lq": 3.2
+    },
+    {
+     "kod": "71",
+     "ad": "Sanat · eğlence · rekreasyon",
+     "emp": 541,
+     "isyeri": 20,
+     "maas": 40660,
+     "lq": 2.34
+    },
+    {
+     "kod": "54",
+     "ad": "Profesyonel · teknik hizmet",
+     "emp": 2186,
+     "isyeri": 99,
+     "maas": 123939,
+     "lq": 2.28
+    }
+   ],
+   "sinif": "Madencilik · enerji",
+   "sinifRenk": "#7c2d12",
+   "neden": "Madencilik/enerji yoğunluğu ülke ortalamasının 19.4 katı.",
+   "ikincil": [
+    "Turizm · ikinci ev",
+    "Emeklilik bölgesi",
+    "Yatak bölgesi (şehre komşu)"
+   ]
+  },
+  {
+   "state": "OR",
+   "county": "Klamath",
+   "altBolge": [],
+   "fips": "41035",
+   "lead": 37983,
+   "aplus": 2033,
+   "ortDonum": 8.6,
+   "nufus": 69812,
+   "medyanYas": 41.3,
+   "buyume5": 0.0116,
+   "gelir": 59353,
+   "zhvi": 313636,
+   "izin": 232,
+   "toplamEmp": 23856,
+   "isNufusOran": 0.342,
+   "sahiplik": [
+    {
+     "ad": "Federal devlet",
+     "emp": 752
+    },
+    {
+     "ad": "Eyalet devleti",
+     "emp": 607
+    },
+    {
+     "ad": "Yerel yönetim",
+     "emp": 3587
+    },
+    {
+     "ad": "Özel sektör",
+     "emp": 18909
+    }
+   ],
+   "enBuyukSektor": [
+    {
+     "kod": "62",
+     "ad": "Sağlık · sosyal hizmet",
+     "emp": 4551,
+     "isyeri": 361,
+     "maas": 61309,
+     "lq": 1.33
+    },
+    {
+     "kod": "44-45",
+     "ad": "Perakende",
+     "emp": 3089,
+     "isyeri": 215,
+     "maas": 35140,
+     "lq": 1.3
+    },
+    {
+     "kod": "72",
+     "ad": "Konaklama · yeme-içme",
+     "emp": 2424,
+     "isyeri": 202,
+     "maas": 26162,
+     "lq": 1.12
+    },
+    {
+     "kod": "31-33",
+     "ad": "İmalat",
+     "emp": 1604,
+     "isyeri": 52,
+     "maas": 62486,
+     "lq": 0.82
+    },
+    {
+     "kod": "23",
+     "ad": "İnşaat",
+     "emp": 1193,
+     "isyeri": 257,
+     "maas": 59012,
+     "lq": 0.95
+    }
+   ],
+   "enYogunSektor": [
+    {
+     "kod": "11",
+     "ad": "Tarım · ormancılık · balıkçılık",
+     "emp": 938,
+     "isyeri": 130,
+     "maas": 54021,
+     "lq": 4.86
+    },
+    {
+     "kod": "62",
+     "ad": "Sağlık · sosyal hizmet",
+     "emp": 4551,
+     "isyeri": 361,
+     "maas": 61309,
+     "lq": 1.33
+    },
+    {
+     "kod": "81",
+     "ad": "Diğer hizmetler",
+     "emp": 946,
+     "isyeri": 246,
+     "maas": 30065,
+     "lq": 1.32
+    },
+    {
+     "kod": "44-45",
+     "ad": "Perakende",
+     "emp": 3089,
+     "isyeri": 215,
+     "maas": 35140,
+     "lq": 1.3
+    }
+   ],
+   "sinif": "Tarım · çiftçilik",
+   "sinifRenk": "#65a30d",
+   "neden": "Tarım/ormancılık yoğunluğu ülke ortalamasının 4.9 katı.",
+   "ikincil": []
+  },
+  {
+   "state": "NC",
+   "county": "Brunswick",
+   "altBolge": [],
+   "fips": "37019",
+   "lead": 35335,
+   "aplus": 1772,
+   "ortDonum": 5,
+   "nufus": 145889,
+   "medyanYas": 56.1,
+   "buyume5": 0.2095,
+   "gelir": 74034,
+   "zhvi": 408938,
+   "izin": 6093,
+   "toplamEmp": 41268,
+   "isNufusOran": 0.283,
+   "sahiplik": [
+    {
+     "ad": "Federal devlet",
+     "emp": 563
+    },
+    {
+     "ad": "Eyalet devleti",
+     "emp": 743
+    },
+    {
+     "ad": "Yerel yönetim",
+     "emp": 4762
+    },
+    {
+     "ad": "Özel sektör",
+     "emp": 35200
+    }
+   ],
+   "enBuyukSektor": [
+    {
+     "kod": "44-45",
+     "ad": "Perakende",
+     "emp": 6624,
+     "isyeri": 526,
+     "maas": 32812,
+     "lq": 1.61
+    },
+    {
+     "kod": "72",
+     "ad": "Konaklama · yeme-içme",
+     "emp": 6289,
+     "isyeri": 386,
+     "maas": 25227,
+     "lq": 1.68
+    },
+    {
+     "kod": "62",
+     "ad": "Sağlık · sosyal hizmet",
+     "emp": 4901,
+     "isyeri": 363,
+     "maas": 60594,
+     "lq": 0.83
+    },
+    {
+     "kod": "23",
+     "ad": "İnşaat",
+     "emp": 3150,
+     "isyeri": 631,
+     "maas": 64079,
+     "lq": 1.45
+    },
+    {
+     "kod": "56",
+     "ad": "İdari · destek · atık",
+     "emp": 2005,
+     "isyeri": 369,
+     "maas": 45808,
+     "lq": 0.83
+    }
+   ],
+   "enYogunSektor": [
+    {
+     "kod": "22",
+     "ad": "Enerji/su altyapısı",
+     "emp": 964,
+     "isyeri": 14,
+     "maas": 143932,
+     "lq": 6.14
+    },
+    {
+     "kod": "71",
+     "ad": "Sanat · eğlence · rekreasyon",
+     "emp": 1844,
+     "isyeri": 86,
+     "maas": 29674,
+     "lq": 2.66
+    },
+    {
+     "kod": "72",
+     "ad": "Konaklama · yeme-içme",
+     "emp": 6289,
+     "isyeri": 386,
+     "maas": 25227,
+     "lq": 1.68
+    },
+    {
+     "kod": "44-45",
+     "ad": "Perakende",
+     "emp": 6624,
+     "isyeri": 526,
+     "maas": 32812,
+     "lq": 1.61
+    },
+    {
+     "kod": "53",
+     "ad": "Gayrimenkul · kiralama",
+     "emp": 1003,
+     "isyeri": 281,
+     "maas": 50803,
+     "lq": 1.57
+    }
+   ],
+   "sinif": "Turizm · ikinci ev",
+   "sinifRenk": "#c2410c",
+   "neden": "Rekreasyon LQ 2.7, konaklama/yeme-içme LQ 1.7 — ziyaretçi ekonomisi.",
+   "ikincil": [
+    "Emeklilik bölgesi",
+    "Yatak bölgesi (şehre komşu)"
+   ]
+  },
+  {
+   "state": "CO",
+   "county": "Costilla",
+   "altBolge": [],
+   "fips": "08023",
+   "lead": 33153,
+   "aplus": 1808,
+   "ortDonum": 41.7,
+   "nufus": 3571,
+   "medyanYas": 50.7,
+   "buyume5": 0.0528,
+   "gelir": 36519,
+   "zhvi": 182456,
+   "izin": 145,
+   "toplamEmp": 962,
+   "isNufusOran": 0.269,
+   "sahiplik": [
+    {
+     "ad": "Federal devlet",
+     "emp": 7
+    },
+    {
+     "ad": "Eyalet devleti",
+     "emp": 15
+    },
+    {
+     "ad": "Yerel yönetim",
+     "emp": 321
+    },
+    {
+     "ad": "Özel sektör",
+     "emp": 619
+    }
+   ],
+   "enBuyukSektor": [
+    {
+     "kod": "11",
+     "ad": "Tarım · ormancılık · balıkçılık",
+     "emp": 135,
+     "isyeri": 14,
+     "maas": 48897,
+     "lq": 17.34
+    },
+    {
+     "kod": "44-45",
+     "ad": "Perakende",
+     "emp": 78,
+     "isyeri": 14,
+     "maas": 22889,
+     "lq": 0.81
+    }
+   ],
+   "enYogunSektor": [
+    {
+     "kod": "11",
+     "ad": "Tarım · ormancılık · balıkçılık",
+     "emp": 135,
+     "isyeri": 14,
+     "maas": 48897,
+     "lq": 17.34
+    }
+   ],
+   "sinif": "Tarım · çiftçilik",
+   "sinifRenk": "#65a30d",
+   "neden": "Tarım/ormancılık yoğunluğu ülke ortalamasının 17.3 katı.",
+   "ikincil": [
+    "Emeklilik bölgesi",
+    "Yatak bölgesi (şehre komşu)"
+   ]
+  },
+  {
+   "state": "AR",
+   "county": "Sharp",
+   "altBolge": [],
+   "fips": "05135",
+   "lead": 31996,
+   "aplus": 0,
+   "ortDonum": null,
+   "nufus": 17597,
+   "medyanYas": 47.5,
+   "buyume5": 0.0471,
+   "gelir": 42950,
+   "zhvi": 149609,
+   "izin": 26,
+   "toplamEmp": 3954,
+   "isNufusOran": 0.225,
+   "sahiplik": [
+    {
+     "ad": "Federal devlet",
+     "emp": 50
+    },
+    {
+     "ad": "Eyalet devleti",
+     "emp": 52
+    },
+    {
+     "ad": "Yerel yönetim",
+     "emp": 768
+    },
+    {
+     "ad": "Özel sektör",
+     "emp": 3083
+    }
+   ],
+   "enBuyukSektor": [
+    {
+     "kod": "44-45",
+     "ad": "Perakende",
+     "emp": 740,
+     "isyeri": 65,
+     "maas": 28392,
+     "lq": 1.87
+    },
+    {
+     "kod": "31-33",
+     "ad": "İmalat",
+     "emp": 292,
+     "isyeri": 14,
+     "maas": 46773,
+     "lq": 0.9
+    },
+    {
+     "kod": "52",
+     "ad": "Finans · sigorta",
+     "emp": 158,
+     "isyeri": 26,
+     "maas": 71706,
+     "lq": 0.98
+    },
+    {
+     "kod": "23",
+     "ad": "İnşaat",
+     "emp": 112,
+     "isyeri": 29,
+     "maas": 48246,
+     "lq": 0.54
+    },
+    {
+     "kod": "81",
+     "ad": "Diğer hizmetler",
+     "emp": 84,
+     "isyeri": 28,
+     "maas": 32944,
+     "lq": 0.71
+    }
+   ],
+   "enYogunSektor": [
+    {
+     "kod": "44-45",
+     "ad": "Perakende",
+     "emp": 740,
+     "isyeri": 65,
+     "maas": 28392,
+     "lq": 1.87
+    }
+   ],
+   "sinif": "Emeklilik bölgesi",
+   "sinifRenk": "#a21caf",
+   "neden": "Medyan yaş 47.5 — emekli ağırlıklı nüfus.",
+   "ikincil": [
+    "Yatak bölgesi (şehre komşu)"
+   ]
+  },
+  {
+   "state": "TX",
+   "county": "Liberty",
+   "altBolge": [],
+   "fips": "48291",
+   "lead": 30719,
+   "aplus": 1551,
+   "ortDonum": 1.4,
+   "nufus": 97993,
+   "medyanYas": 33.3,
+   "buyume5": 0.2436,
+   "gelir": 64773,
+   "zhvi": 239364,
+   "izin": 1321,
+   "toplamEmp": 20119,
+   "isNufusOran": 0.205,
+   "sahiplik": [
+    {
+     "ad": "Federal devlet",
+     "emp": 137
+    },
+    {
+     "ad": "Eyalet devleti",
+     "emp": 1164
+    },
+    {
+     "ad": "Yerel yönetim",
+     "emp": 5246
+    },
+    {
+     "ad": "Özel sektör",
+     "emp": 13572
+    }
+   ],
+   "enBuyukSektor": [
+    {
+     "kod": "44-45",
+     "ad": "Perakende",
+     "emp": 2663,
+     "isyeri": 197,
+     "maas": 35537,
+     "lq": 1.33
+    },
+    {
+     "kod": "23",
+     "ad": "İnşaat",
+     "emp": 2246,
+     "isyeri": 145,
+     "maas": 80850,
+     "lq": 2.13
+    },
+    {
+     "kod": "31-33",
+     "ad": "İmalat",
+     "emp": 1246,
+     "isyeri": 60,
+     "maas": 73414,
+     "lq": 0.75
+    },
+    {
+     "kod": "48-49",
+     "ad": "Ulaştırma · depolama",
+     "emp": 1024,
+     "isyeri": 66,
+     "maas": 89712,
+     "lq": 1.2
+    },
+    {
+     "kod": "56",
+     "ad": "İdari · destek · atık",
+     "emp": 482,
+     "isyeri": 44,
+     "maas": 58674,
+     "lq": 0.41
+    }
+   ],
+   "enYogunSektor": [
+    {
+     "kod": "21",
+     "ad": "Madencilik · petrol · gaz",
+     "emp": 232,
+     "isyeri": 27,
+     "maas": 88790,
+     "lq": 3.05
+    },
+    {
+     "kod": "23",
+     "ad": "İnşaat",
+     "emp": 2246,
+     "isyeri": 145,
+     "maas": 80850,
+     "lq": 2.13
+    },
+    {
+     "kod": "22",
+     "ad": "Enerji/su altyapısı",
+     "emp": 110,
+     "isyeri": 9,
+     "maas": 93292,
+     "lq": 1.44
+    },
+    {
+     "kod": "44-45",
+     "ad": "Perakende",
+     "emp": 2663,
+     "isyeri": 197,
+     "maas": 35537,
+     "lq": 1.33
+    },
+    {
+     "kod": "48-49",
+     "ad": "Ulaştırma · depolama",
+     "emp": 1024,
+     "isyeri": 66,
+     "maas": 89712,
+     "lq": 1.2
+    }
+   ],
+   "sinif": "Yatak bölgesi (şehre komşu)",
+   "sinifRenk": "#0891b2",
+   "neden": "Nüfus 97,993 ama county içinde sadece 20,119 iş (oran %21) — çalışanlar dışarı gidiyor.",
+   "ikincil": []
+  },
+  {
+   "state": "NC",
+   "county": "Rutherford",
+   "altBolge": [],
+   "fips": "37161",
+   "lead": 22121,
+   "aplus": 1193,
+   "ortDonum": 6.6,
+   "nufus": 64850,
+   "medyanYas": 45.3,
+   "buyume5": 0.0191,
+   "gelir": 49771,
+   "zhvi": 223473,
+   "izin": 193,
+   "toplamEmp": 17994,
+   "isNufusOran": 0.277,
+   "sahiplik": [
+    {
+     "ad": "Federal devlet",
+     "emp": 124
+    },
+    {
+     "ad": "Eyalet devleti",
+     "emp": 615
+    },
+    {
+     "ad": "Yerel yönetim",
+     "emp": 2520
+    },
+    {
+     "ad": "Özel sektör",
+     "emp": 14735
+    }
+   ],
+   "enBuyukSektor": [
+    {
+     "kod": "44-45",
+     "ad": "Perakende",
+     "emp": 2680,
+     "isyeri": 232,
+     "maas": 31264,
+     "lq": 1.49
+    },
+    {
+     "kod": "31-33",
+     "ad": "İmalat",
+     "emp": 2560,
+     "isyeri": 83,
+     "maas": 62182,
+     "lq": 1.73
+    },
+    {
+     "kod": "62",
+     "ad": "Sağlık · sosyal hizmet",
+     "emp": 2126,
+     "isyeri": 145,
+     "maas": 48671,
+     "lq": 0.82
+    },
+    {
+     "kod": "72",
+     "ad": "Konaklama · yeme-içme",
+     "emp": 1900,
+     "isyeri": 132,
+     "maas": 23259,
+     "lq": 1.16
+    },
+    {
+     "kod": "23",
+     "ad": "İnşaat",
+     "emp": 1362,
+     "isyeri": 152,
+     "maas": 71962,
+     "lq": 1.44
+    }
+   ],
+   "enYogunSektor": [
+    {
+     "kod": "51",
+     "ad": "Bilgi · medya",
+     "emp": 617,
+     "isyeri": 27,
+     "maas": 64666,
+     "lq": 1.83
+    },
+    {
+     "kod": "31-33",
+     "ad": "İmalat",
+     "emp": 2560,
+     "isyeri": 83,
+     "maas": 62182,
+     "lq": 1.73
+    },
+    {
+     "kod": "44-45",
+     "ad": "Perakende",
+     "emp": 2680,
+     "isyeri": 232,
+     "maas": 31264,
+     "lq": 1.49
+    },
+    {
+     "kod": "23",
+     "ad": "İnşaat",
+     "emp": 1362,
+     "isyeri": 152,
+     "maas": 71962,
+     "lq": 1.44
+    }
+   ],
+   "sinif": "Yatak bölgesi (şehre komşu)",
+   "sinifRenk": "#0891b2",
+   "neden": "Nüfus 64,850 ama county içinde sadece 17,994 iş (oran %28) — çalışanlar dışarı gidiyor.",
+   "ikincil": [
+    "İmalat · lojistik"
+   ]
+  },
+  {
+   "state": "KS",
+   "county": "Douglas",
+   "altBolge": [],
+   "fips": "20045",
+   "lead": 20978,
+   "aplus": 1162,
+   "ortDonum": 12.2,
+   "nufus": 119547,
+   "medyanYas": 31.3,
+   "buyume5": 0.027,
+   "gelir": 68756,
+   "zhvi": 340690,
+   "izin": 247,
+   "toplamEmp": 50969,
+   "isNufusOran": 0.426,
+   "sahiplik": [
+    {
+     "ad": "Federal devlet",
+     "emp": 497
+    },
+    {
+     "ad": "Eyalet devleti",
+     "emp": 5337
+    },
+    {
+     "ad": "Yerel yönetim",
+     "emp": 6787
+    },
+    {
+     "ad": "Özel sektör",
+     "emp": 38348
+    }
+   ],
+   "enBuyukSektor": [
+    {
+     "kod": "72",
+     "ad": "Konaklama · yeme-içme",
+     "emp": 7198,
+     "isyeri": 344,
+     "maas": 20846,
+     "lq": 1.55
+    },
+    {
+     "kod": "44-45",
+     "ad": "Perakende",
+     "emp": 5648,
+     "isyeri": 313,
+     "maas": 32192,
+     "lq": 1.11
+    },
+    {
+     "kod": "31-33",
+     "ad": "İmalat",
+     "emp": 5107,
+     "isyeri": 107,
+     "maas": 66179,
+     "lq": 1.22
+    },
+    {
+     "kod": "62",
+     "ad": "Sağlık · sosyal hizmet",
+     "emp": 4842,
+     "isyeri": 371,
+     "maas": 45906,
+     "lq": 0.66
+    },
+    {
+     "kod": "54",
+     "ad": "Profesyonel · teknik hizmet",
+     "emp": 3526,
+     "isyeri": 685,
+     "maas": 85176,
+     "lq": 0.99
+    }
+   ],
+   "enYogunSektor": [
+    {
+     "kod": "72",
+     "ad": "Konaklama · yeme-içme",
+     "emp": 7198,
+     "isyeri": 344,
+     "maas": 20846,
+     "lq": 1.55
+    },
+    {
+     "kod": "81",
+     "ad": "Diğer hizmetler",
+     "emp": 2290,
+     "isyeri": 258,
+     "maas": 50259,
+     "lq": 1.49
+    },
+    {
+     "kod": "31-33",
+     "ad": "İmalat",
+     "emp": 5107,
+     "isyeri": 107,
+     "maas": 66179,
+     "lq": 1.22
+    }
+   ],
+   "sinif": "Üniversite kasabası",
+   "sinifRenk": "#4f46e5",
+   "neden": "İstihdamın %10'i eyalet kurumu (5,337 kişi), medyan yaş 31.3 — kamu üniversitesi.",
+   "ikincil": []
+  },
   {
    "state": "AR",
    "county": "Izard",
    "altBolge": [],
    "fips": "05065",
    "lead": 20464,
-   "aplus": 555,
+   "aplus": 0,
    "ortDonum": null,
    "nufus": 13866,
    "medyanYas": 47.5,
@@ -120,6 +1113,105 @@
    ]
   },
   {
+   "state": "AL",
+   "county": "Talladega",
+   "altBolge": [],
+   "fips": "01121",
+   "lead": 20282,
+   "aplus": 1160,
+   "ortDonum": 17.4,
+   "nufus": 81170,
+   "medyanYas": 42.2,
+   "buyume5": -0.0005,
+   "gelir": 56249,
+   "zhvi": 182858,
+   "izin": 195,
+   "toplamEmp": 31690,
+   "isNufusOran": 0.39,
+   "sahiplik": [
+    {
+     "ad": "Federal devlet",
+     "emp": 438
+    },
+    {
+     "ad": "Eyalet devleti",
+     "emp": 1588
+    },
+    {
+     "ad": "Yerel yönetim",
+     "emp": 2785
+    },
+    {
+     "ad": "Özel sektör",
+     "emp": 26878
+    }
+   ],
+   "enBuyukSektor": [
+    {
+     "kod": "31-33",
+     "ad": "İmalat",
+     "emp": 10421,
+     "isyeri": 107,
+     "maas": 78776,
+     "lq": 4
+    },
+    {
+     "kod": "44-45",
+     "ad": "Perakende",
+     "emp": 2724,
+     "isyeri": 265,
+     "maas": 30748,
+     "lq": 0.86
+    },
+    {
+     "kod": "72",
+     "ad": "Konaklama · yeme-içme",
+     "emp": 2067,
+     "isyeri": 146,
+     "maas": 21338,
+     "lq": 0.72
+    },
+    {
+     "kod": "48-49",
+     "ad": "Ulaştırma · depolama",
+     "emp": 1912,
+     "isyeri": 56,
+     "maas": 58253,
+     "lq": 1.42
+    },
+    {
+     "kod": "56",
+     "ad": "İdari · destek · atık",
+     "emp": 1860,
+     "isyeri": 62,
+     "maas": 41442,
+     "lq": 1
+    }
+   ],
+   "enYogunSektor": [
+    {
+     "kod": "31-33",
+     "ad": "İmalat",
+     "emp": 10421,
+     "isyeri": 107,
+     "maas": 78776,
+     "lq": 4
+    },
+    {
+     "kod": "48-49",
+     "ad": "Ulaştırma · depolama",
+     "emp": 1912,
+     "isyeri": 56,
+     "maas": 58253,
+     "lq": 1.42
+    }
+   ],
+   "sinif": "İmalat · lojistik",
+   "sinifRenk": "#b45309",
+   "neden": "İmalat LQ 4.0, ulaştırma/depolama LQ 1.4.",
+   "ikincil": []
+  },
+  {
    "state": "AZ",
    "county": "Mohave",
    "altBolge": [
@@ -131,7 +1223,7 @@
    ],
    "fips": "04015",
    "lead": 19942,
-   "aplus": 1252,
+   "aplus": 139,
    "ortDonum": 1.5,
    "nufus": 217420,
    "medyanYas": 53.2,
@@ -248,7 +1340,7 @@
    "altBolge": [],
    "fips": "05141",
    "lead": 19125,
-   "aplus": 376,
+   "aplus": 0,
    "ortDonum": null,
    "nufus": 15936,
    "medyanYas": 49.6,
@@ -365,8 +1457,8 @@
    "county": "Northampton",
    "altBolge": [],
    "fips": "37131",
-   "lead": 18784,
-   "aplus": 1134,
+   "lead": 18930,
+   "aplus": 1121,
    "ortDonum": 15.5,
    "nufus": 17212,
    "medyanYas": 51.6,
@@ -462,12 +1554,127 @@
    ]
   },
   {
+   "state": "AL",
+   "county": "Cullman",
+   "altBolge": [],
+   "fips": "01043",
+   "lead": 17634,
+   "aplus": 883,
+   "ortDonum": 15,
+   "nufus": 89463,
+   "medyanYas": 41.1,
+   "buyume5": 0.0506,
+   "gelir": 60916,
+   "zhvi": 258586,
+   "izin": 177,
+   "toplamEmp": 31068,
+   "isNufusOran": 0.347,
+   "sahiplik": [
+    {
+     "ad": "Federal devlet",
+     "emp": 188
+    },
+    {
+     "ad": "Eyalet devleti",
+     "emp": 719
+    },
+    {
+     "ad": "Yerel yönetim",
+     "emp": 3587
+    },
+    {
+     "ad": "Özel sektör",
+     "emp": 26574
+    }
+   ],
+   "enBuyukSektor": [
+    {
+     "kod": "31-33",
+     "ad": "İmalat",
+     "emp": 6533,
+     "isyeri": 150,
+     "maas": 62080,
+     "lq": 2.56
+    },
+    {
+     "kod": "44-45",
+     "ad": "Perakende",
+     "emp": 4224,
+     "isyeri": 378,
+     "maas": 37103,
+     "lq": 1.36
+    },
+    {
+     "kod": "62",
+     "ad": "Sağlık · sosyal hizmet",
+     "emp": 4153,
+     "isyeri": 344,
+     "maas": 56921,
+     "lq": 0.93
+    },
+    {
+     "kod": "72",
+     "ad": "Konaklama · yeme-içme",
+     "emp": 2803,
+     "isyeri": 164,
+     "maas": 21548,
+     "lq": 0.99
+    },
+    {
+     "kod": "48-49",
+     "ad": "Ulaştırma · depolama",
+     "emp": 2107,
+     "isyeri": 99,
+     "maas": 62121,
+     "lq": 1.6
+    }
+   ],
+   "enYogunSektor": [
+    {
+     "kod": "31-33",
+     "ad": "İmalat",
+     "emp": 6533,
+     "isyeri": 150,
+     "maas": 62080,
+     "lq": 2.56
+    },
+    {
+     "kod": "48-49",
+     "ad": "Ulaştırma · depolama",
+     "emp": 2107,
+     "isyeri": 99,
+     "maas": 62121,
+     "lq": 1.6
+    },
+    {
+     "kod": "44-45",
+     "ad": "Perakende",
+     "emp": 4224,
+     "isyeri": 378,
+     "maas": 37103,
+     "lq": 1.36
+    },
+    {
+     "kod": "22",
+     "ad": "Enerji/su altyapısı",
+     "emp": 146,
+     "isyeri": 5,
+     "maas": 95098,
+     "lq": 1.24
+    }
+   ],
+   "sinif": "İmalat · lojistik",
+   "sinifRenk": "#b45309",
+   "neden": "İmalat LQ 2.6, ulaştırma/depolama LQ 1.6.",
+   "ikincil": []
+  },
+  {
    "state": "FL",
    "county": "Charlotte",
    "altBolge": [],
    "fips": "12015",
    "lead": 16494,
-   "aplus": 1096,
+   "aplus": 1121,
    "ortDonum": 0.3,
    "nufus": 195083,
    "medyanYas": 60,
@@ -592,7 +1799,7 @@
    "altBolge": [],
    "fips": "12107",
    "lead": 14541,
-   "aplus": 324,
+   "aplus": 728,
    "ortDonum": 0.3,
    "nufus": 74235,
    "medyanYas": 45,
@@ -712,218 +1919,129 @@
    ]
   },
   {
-   "state": "AL",
-   "county": "Cullman",
+   "state": "FL",
+   "county": "Highlands",
    "altBolge": [],
-   "fips": "01043",
-   "lead": 12729,
-   "aplus": 1261,
-   "ortDonum": 15,
-   "nufus": 89463,
-   "medyanYas": 41.1,
-   "buyume5": 0.0506,
-   "gelir": 60916,
-   "zhvi": 258586,
-   "izin": 177,
-   "toplamEmp": 31068,
-   "isNufusOran": 0.347,
+   "fips": "12055",
+   "lead": 13573,
+   "aplus": 819,
+   "ortDonum": 0.3,
+   "nufus": 103808,
+   "medyanYas": 54.2,
+   "buyume5": 0.0833,
+   "gelir": 55581,
+   "zhvi": 236074,
+   "izin": 980,
+   "toplamEmp": 28823,
+   "isNufusOran": 0.278,
    "sahiplik": [
     {
      "ad": "Federal devlet",
-     "emp": 188
+     "emp": 283
     },
     {
      "ad": "Eyalet devleti",
-     "emp": 719
+     "emp": 703
     },
     {
      "ad": "Yerel yönetim",
-     "emp": 3587
+     "emp": 3413
     },
     {
      "ad": "Özel sektör",
-     "emp": 26574
+     "emp": 24423
     }
    ],
    "enBuyukSektor": [
-    {
-     "kod": "31-33",
-     "ad": "İmalat",
-     "emp": 6533,
-     "isyeri": 150,
-     "maas": 62080,
-     "lq": 2.56
-    },
-    {
-     "kod": "44-45",
-     "ad": "Perakende",
-     "emp": 4224,
-     "isyeri": 378,
-     "maas": 37103,
-     "lq": 1.36
-    },
     {
      "kod": "62",
      "ad": "Sağlık · sosyal hizmet",
-     "emp": 4153,
-     "isyeri": 344,
-     "maas": 56921,
-     "lq": 0.93
-    },
-    {
-     "kod": "72",
-     "ad": "Konaklama · yeme-içme",
-     "emp": 2803,
-     "isyeri": 164,
-     "maas": 21548,
-     "lq": 0.99
-    },
-    {
-     "kod": "48-49",
-     "ad": "Ulaştırma · depolama",
-     "emp": 2107,
-     "isyeri": 99,
-     "maas": 62121,
-     "lq": 1.6
-    }
-   ],
-   "enYogunSektor": [
-    {
-     "kod": "31-33",
-     "ad": "İmalat",
-     "emp": 6533,
-     "isyeri": 150,
-     "maas": 62080,
-     "lq": 2.56
-    },
-    {
-     "kod": "48-49",
-     "ad": "Ulaştırma · depolama",
-     "emp": 2107,
-     "isyeri": 99,
-     "maas": 62121,
-     "lq": 1.6
+     "emp": 6506,
+     "isyeri": 420,
+     "maas": 62018,
+     "lq": 1.57
     },
     {
      "kod": "44-45",
      "ad": "Perakende",
-     "emp": 4224,
-     "isyeri": 378,
-     "maas": 37103,
-     "lq": 1.36
-    },
-    {
-     "kod": "22",
-     "ad": "Enerji/su altyapısı",
-     "emp": 146,
-     "isyeri": 5,
-     "maas": 95098,
-     "lq": 1.24
-    }
-   ],
-   "sinif": "İmalat · lojistik",
-   "sinifRenk": "#b45309",
-   "neden": "İmalat LQ 2.6, ulaştırma/depolama LQ 1.6.",
-   "ikincil": []
-  },
-  {
-   "state": "AL",
-   "county": "Talladega",
-   "altBolge": [],
-   "fips": "01121",
-   "lead": 12353,
-   "aplus": 823,
-   "ortDonum": 17.4,
-   "nufus": 81170,
-   "medyanYas": 42.2,
-   "buyume5": -0.0005,
-   "gelir": 56249,
-   "zhvi": 182858,
-   "izin": 195,
-   "toplamEmp": 31690,
-   "isNufusOran": 0.39,
-   "sahiplik": [
-    {
-     "ad": "Federal devlet",
-     "emp": 438
-    },
-    {
-     "ad": "Eyalet devleti",
-     "emp": 1588
-    },
-    {
-     "ad": "Yerel yönetim",
-     "emp": 2785
-    },
-    {
-     "ad": "Özel sektör",
-     "emp": 26878
-    }
-   ],
-   "enBuyukSektor": [
-    {
-     "kod": "31-33",
-     "ad": "İmalat",
-     "emp": 10421,
-     "isyeri": 107,
-     "maas": 78776,
-     "lq": 4
-    },
-    {
-     "kod": "44-45",
-     "ad": "Perakende",
-     "emp": 2724,
-     "isyeri": 265,
-     "maas": 30748,
-     "lq": 0.86
+     "emp": 4783,
+     "isyeri": 359,
+     "maas": 35182,
+     "lq": 1.66
     },
     {
      "kod": "72",
      "ad": "Konaklama · yeme-içme",
-     "emp": 2067,
-     "isyeri": 146,
-     "maas": 21338,
-     "lq": 0.72
+     "emp": 3142,
+     "isyeri": 185,
+     "maas": 25039,
+     "lq": 1.2
     },
     {
-     "kod": "48-49",
-     "ad": "Ulaştırma · depolama",
-     "emp": 1912,
-     "isyeri": 56,
-     "maas": 58253,
-     "lq": 1.42
+     "kod": "23",
+     "ad": "İnşaat",
+     "emp": 1848,
+     "isyeri": 301,
+     "maas": 51807,
+     "lq": 1.22
     },
     {
      "kod": "56",
      "ad": "İdari · destek · atık",
-     "emp": 1860,
-     "isyeri": 62,
-     "maas": 41442,
-     "lq": 1
+     "emp": 1162,
+     "isyeri": 185,
+     "maas": 42018,
+     "lq": 0.68
     }
    ],
    "enYogunSektor": [
     {
-     "kod": "31-33",
-     "ad": "İmalat",
-     "emp": 10421,
-     "isyeri": 107,
-     "maas": 78776,
-     "lq": 4
+     "kod": "44-45",
+     "ad": "Perakende",
+     "emp": 4783,
+     "isyeri": 359,
+     "maas": 35182,
+     "lq": 1.66
     },
     {
-     "kod": "48-49",
-     "ad": "Ulaştırma · depolama",
-     "emp": 1912,
-     "isyeri": 56,
-     "maas": 58253,
-     "lq": 1.42
+     "kod": "62",
+     "ad": "Sağlık · sosyal hizmet",
+     "emp": 6506,
+     "isyeri": 420,
+     "maas": 62018,
+     "lq": 1.57
+    },
+    {
+     "kod": "71",
+     "ad": "Sanat · eğlence · rekreasyon",
+     "emp": 629,
+     "isyeri": 36,
+     "maas": 22986,
+     "lq": 1.3
+    },
+    {
+     "kod": "23",
+     "ad": "İnşaat",
+     "emp": 1848,
+     "isyeri": 301,
+     "maas": 51807,
+     "lq": 1.22
+    },
+    {
+     "kod": "72",
+     "ad": "Konaklama · yeme-içme",
+     "emp": 3142,
+     "isyeri": 185,
+     "maas": 25039,
+     "lq": 1.2
     }
    ],
-   "sinif": "İmalat · lojistik",
-   "sinifRenk": "#b45309",
-   "neden": "İmalat LQ 4.0, ulaştırma/depolama LQ 1.4.",
-   "ikincil": []
+   "sinif": "Emeklilik bölgesi",
+   "sinifRenk": "#a21caf",
+   "neden": "Medyan yaş 54.2, sağlık istihdamı LQ 1.6 — emekli ağırlıklı nüfus.",
+   "ikincil": [
+    "Yatak bölgesi (şehre komşu)"
+   ]
   },
   {
    "state": "SC",
@@ -931,7 +2049,7 @@
    "altBolge": [],
    "fips": "45029",
    "lead": 11958,
-   "aplus": 623,
+   "aplus": 778,
    "ortDonum": 74.9,
    "nufus": 38623,
    "medyanYas": 42.2,
@@ -1033,12 +2151,135 @@
    "ikincil": []
   },
   {
+   "state": "AZ",
+   "county": "Maricopa",
+   "altBolge": [],
+   "fips": "04013",
+   "lead": 11629,
+   "aplus": 506,
+   "ortDonum": 11.9,
+   "nufus": 4491987,
+   "medyanYas": 37.5,
+   "buyume5": 0.0512,
+   "gelir": 85518,
+   "zhvi": 462851,
+   "izin": 36380,
+   "toplamEmp": 2280645,
+   "isNufusOran": 0.508,
+   "sahiplik": [
+    {
+     "ad": "Federal devlet",
+     "emp": 22300
+    },
+    {
+     "ad": "Eyalet devleti",
+     "emp": 41194
+    },
+    {
+     "ad": "Yerel yönetim",
+     "emp": 153949
+    },
+    {
+     "ad": "Özel sektör",
+     "emp": 2063202
+    }
+   ],
+   "enBuyukSektor": [
+    {
+     "kod": "62",
+     "ad": "Sağlık · sosyal hizmet",
+     "emp": 335894,
+     "isyeri": 15402,
+     "maas": 69242,
+     "lq": 1.03
+    },
+    {
+     "kod": "44-45",
+     "ad": "Perakende",
+     "emp": 236403,
+     "isyeri": 10846,
+     "maas": 49682,
+     "lq": 1.04
+    },
+    {
+     "kod": "72",
+     "ad": "Konaklama · yeme-içme",
+     "emp": 210601,
+     "isyeri": 8808,
+     "maas": 32478,
+     "lq": 1.02
+    },
+    {
+     "kod": "56",
+     "ad": "İdari · destek · atık",
+     "emp": 185155,
+     "isyeri": 9418,
+     "maas": 56121,
+     "lq": 1.38
+    },
+    {
+     "kod": "23",
+     "ad": "İnşaat",
+     "emp": 174553,
+     "isyeri": 11365,
+     "maas": 84124,
+     "lq": 1.46
+    }
+   ],
+   "enYogunSektor": [
+    {
+     "kod": "52",
+     "ad": "Finans · sigorta",
+     "emp": 141344,
+     "isyeri": 9342,
+     "maas": 106212,
+     "lq": 1.53
+    },
+    {
+     "kod": "23",
+     "ad": "İnşaat",
+     "emp": 174553,
+     "isyeri": 11365,
+     "maas": 84124,
+     "lq": 1.46
+    },
+    {
+     "kod": "56",
+     "ad": "İdari · destek · atık",
+     "emp": 185155,
+     "isyeri": 9418,
+     "maas": 56121,
+     "lq": 1.38
+    },
+    {
+     "kod": "53",
+     "ad": "Gayrimenkul · kiralama",
+     "emp": 46785,
+     "isyeri": 9468,
+     "maas": 79540,
+     "lq": 1.32
+    },
+    {
+     "kod": "61",
+     "ad": "Eğitim (özel)",
+     "emp": 57657,
+     "isyeri": 2367,
+     "maas": 53902,
+     "lq": 1.22
+    }
+   ],
+   "sinif": "Kırsal · karma",
+   "sinifRenk": "#64748b",
+   "neden": "Belirgin bir sektör yoğunlaşması yok; en büyük işveren Sağlık · sosyal hizmet.",
+   "ikincil": []
+  },
+  {
    "state": "GA",
    "county": "Bibb",
    "altBolge": [],
    "fips": "13021",
    "lead": 11322,
-   "aplus": 652,
+   "aplus": 567,
    "ortDonum": 1.6,
    "nufus": 156543,
    "medyanYas": 36.6,
@@ -1153,7 +2394,7 @@
    "altBolge": [],
    "fips": "48073",
    "lead": 10470,
-   "aplus": 886,
+   "aplus": 635,
    "ortDonum": 3.5,
    "nufus": 51143,
    "medyanYas": 38.2,
@@ -1263,7 +2504,7 @@
    "altBolge": [],
    "fips": "29029",
    "lead": 10353,
-   "aplus": 604,
+   "aplus": 365,
    "ortDonum": 0.5,
    "nufus": 43416,
    "medyanYas": 53,
@@ -1388,7 +2629,7 @@
    "altBolge": [],
    "fips": "12017",
    "lead": 10291,
-   "aplus": 674,
+   "aplus": 1152,
    "ortDonum": 0.3,
    "nufus": 158693,
    "medyanYas": 56.9,
@@ -1513,7 +2754,7 @@
    "altBolge": [],
    "fips": "48039",
    "lead": 10271,
-   "aplus": 536,
+   "aplus": 624,
    "ortDonum": 3.2,
    "nufus": 381650,
    "medyanYas": 36.5,
@@ -1636,7 +2877,7 @@
    "altBolge": [],
    "fips": "48229",
    "lead": 10259,
-   "aplus": 514,
+   "aplus": 587,
    "ortDonum": 33.3,
    "nufus": 3331,
    "medyanYas": 33.2,
@@ -1694,7 +2935,7 @@
    "altBolge": [],
    "fips": "48043",
    "lead": 10221,
-   "aplus": 643,
+   "aplus": 746,
    "ortDonum": 21.3,
    "nufus": 9464,
    "medyanYas": 42.2,
@@ -1817,7 +3058,7 @@
    "altBolge": [],
    "fips": "48203",
    "lead": 9655,
-   "aplus": 740,
+   "aplus": 855,
    "ortDonum": 10.7,
    "nufus": 69584,
    "medyanYas": 38.9,
@@ -1928,8 +3169,8 @@
     "AMITE"
    ],
    "fips": "28005",
-   "lead": 8899,
-   "aplus": 515,
+   "lead": 9254,
+   "aplus": 456,
    "ortDonum": 34.5,
    "nufus": 12611,
    "medyanYas": 48.8,
@@ -2051,12 +3292,105 @@
    ]
   },
   {
+   "state": "AL",
+   "county": "Macon",
+   "altBolge": [],
+   "fips": "01087",
+   "lead": 9152,
+   "aplus": 591,
+   "ortDonum": 29.7,
+   "nufus": 18951,
+   "medyanYas": 37.8,
+   "buyume5": -0.0674,
+   "gelir": 45951,
+   "zhvi": 133165,
+   "izin": 6,
+   "toplamEmp": 4827,
+   "isNufusOran": 0.255,
+   "sahiplik": [
+    {
+     "ad": "Federal devlet",
+     "emp": 939
+    },
+    {
+     "ad": "Eyalet devleti",
+     "emp": 790
+    },
+    {
+     "ad": "Yerel yönetim",
+     "emp": 793
+    },
+    {
+     "ad": "Özel sektör",
+     "emp": 2305
+    }
+   ],
+   "enBuyukSektor": [
+    {
+     "kod": "44-45",
+     "ad": "Perakende",
+     "emp": 360,
+     "isyeri": 45,
+     "maas": 25630,
+     "lq": 0.75
+    },
+    {
+     "kod": "62",
+     "ad": "Sağlık · sosyal hizmet",
+     "emp": 266,
+     "isyeri": 77,
+     "maas": 39147,
+     "lq": 0.38
+    },
+    {
+     "kod": "23",
+     "ad": "İnşaat",
+     "emp": 88,
+     "isyeri": 11,
+     "maas": 86410,
+     "lq": 0.35
+    },
+    {
+     "kod": "53",
+     "ad": "Gayrimenkul · kiralama",
+     "emp": 81,
+     "isyeri": 10,
+     "maas": 35476,
+     "lq": 1.08
+    },
+    {
+     "kod": "52",
+     "ad": "Finans · sigorta",
+     "emp": 65,
+     "isyeri": 10,
+     "maas": 67132,
+     "lq": 0.33
+    }
+   ],
+   "enYogunSektor": [
+    {
+     "kod": "11",
+     "ad": "Tarım · ormancılık · balıkçılık",
+     "emp": 63,
+     "isyeri": 5,
+     "maas": 53745,
+     "lq": 1.61
+    }
+   ],
+   "sinif": "Askeri / federal üs",
+   "sinifRenk": "#1d4ed8",
+   "neden": "İstihdamın %19'i federal (939 kişi) — üs/hapishane/federal tesis göstergesi.",
+   "ikincil": [
+    "Yatak bölgesi (şehre komşu)"
+   ]
+  },
+  {
    "state": "FL",
    "county": "Marion",
    "altBolge": [],
    "fips": "12083",
    "lead": 8202,
-   "aplus": 558,
+   "aplus": 435,
    "ortDonum": 0.3,
    "nufus": 387697,
    "medyanYas": 48.2,
@@ -2171,7 +3505,7 @@
    "altBolge": [],
    "fips": "48377",
    "lead": 7842,
-   "aplus": 463,
+   "aplus": 486,
    "ortDonum": 117.3,
    "nufus": 6043,
    "medyanYas": 42,
@@ -2281,7 +3615,7 @@
    "altBolge": [],
    "fips": "26143",
    "lead": 7210,
-   "aplus": 360,
+   "aplus": 407,
    "ortDonum": 8,
    "nufus": 23639,
    "medyanYas": 57.4,
@@ -2393,7 +3727,7 @@
     "KEMPER"
    ],
    "fips": "28069",
-   "lead": 7030,
+   "lead": 7034,
    "aplus": 431,
    "ortDonum": 53.9,
    "nufus": 8855,
@@ -2499,105 +3833,12 @@
    ]
   },
   {
-   "state": "AL",
-   "county": "Macon",
-   "altBolge": [],
-   "fips": "01087",
-   "lead": 6927,
-   "aplus": 478,
-   "ortDonum": 29.7,
-   "nufus": 18951,
-   "medyanYas": 37.8,
-   "buyume5": -0.0674,
-   "gelir": 45951,
-   "zhvi": 133165,
-   "izin": 6,
-   "toplamEmp": 4827,
-   "isNufusOran": 0.255,
-   "sahiplik": [
-    {
-     "ad": "Federal devlet",
-     "emp": 939
-    },
-    {
-     "ad": "Eyalet devleti",
-     "emp": 790
-    },
-    {
-     "ad": "Yerel yönetim",
-     "emp": 793
-    },
-    {
-     "ad": "Özel sektör",
-     "emp": 2305
-    }
-   ],
-   "enBuyukSektor": [
-    {
-     "kod": "44-45",
-     "ad": "Perakende",
-     "emp": 360,
-     "isyeri": 45,
-     "maas": 25630,
-     "lq": 0.75
-    },
-    {
-     "kod": "62",
-     "ad": "Sağlık · sosyal hizmet",
-     "emp": 266,
-     "isyeri": 77,
-     "maas": 39147,
-     "lq": 0.38
-    },
-    {
-     "kod": "23",
-     "ad": "İnşaat",
-     "emp": 88,
-     "isyeri": 11,
-     "maas": 86410,
-     "lq": 0.35
-    },
-    {
-     "kod": "53",
-     "ad": "Gayrimenkul · kiralama",
-     "emp": 81,
-     "isyeri": 10,
-     "maas": 35476,
-     "lq": 1.08
-    },
-    {
-     "kod": "52",
-     "ad": "Finans · sigorta",
-     "emp": 65,
-     "isyeri": 10,
-     "maas": 67132,
-     "lq": 0.33
-    }
-   ],
-   "enYogunSektor": [
-    {
-     "kod": "11",
-     "ad": "Tarım · ormancılık · balıkçılık",
-     "emp": 63,
-     "isyeri": 5,
-     "maas": 53745,
-     "lq": 1.61
-    }
-   ],
-   "sinif": "Askeri / federal üs",
-   "sinifRenk": "#1d4ed8",
-   "neden": "İstihdamın %19'i federal (939 kişi) — üs/hapishane/federal tesis göstergesi.",
-   "ikincil": [
-    "Yatak bölgesi (şehre komşu)"
-   ]
-  },
-  {
    "state": "ME",
    "county": "York",
    "altBolge": [],
    "fips": "23031",
    "lead": 6764,
-   "aplus": 341,
+   "aplus": 344,
    "ortDonum": 30.1,
    "nufus": 214731,
    "medyanYas": 45.3,
@@ -2826,8 +4067,8 @@
    "county": "Greene",
    "altBolge": [],
    "fips": "01063",
-   "lead": 6523,
-   "aplus": 385,
+   "lead": 6528,
+   "aplus": 334,
    "ortDonum": 46.8,
    "nufus": 7589,
    "medyanYas": 44.4,
@@ -3062,7 +4303,7 @@
    "altBolge": [],
    "fips": "39171",
    "lead": 6333,
-   "aplus": 328,
+   "aplus": 360,
    "ortDonum": 58.7,
    "nufus": 36862,
    "medyanYas": 41.8,
@@ -3161,7 +4402,7 @@
    "altBolge": [],
    "fips": "41037",
    "lead": 6263,
-   "aplus": 360,
+   "aplus": 333,
    "ortDonum": 10.7,
    "nufus": 8254,
    "medyanYas": 45.9,
@@ -3244,6 +4485,108 @@
    "sinif": "Tarım · çiftçilik",
    "sinifRenk": "#65a30d",
    "neden": "Tarım/ormancılık yoğunluğu ülke ortalamasının 17.7 katı.",
+   "ikincil": []
+  },
+  {
+   "state": "MS",
+   "county": "Wilkinson",
+   "altBolge": [
+    "Wilkinson",
+    "WILKINSON"
+   ],
+   "fips": "28157",
+   "lead": 6189,
+   "aplus": 338,
+   "ortDonum": 60.9,
+   "nufus": 8376,
+   "medyanYas": 39.1,
+   "buyume5": -0.0826,
+   "gelir": 35930,
+   "zhvi": 118798,
+   "izin": 0,
+   "toplamEmp": 1440,
+   "isNufusOran": 0.172,
+   "sahiplik": [
+    {
+     "ad": "Federal devlet",
+     "emp": 10
+    },
+    {
+     "ad": "Eyalet devleti",
+     "emp": 34
+    },
+    {
+     "ad": "Yerel yönetim",
+     "emp": 449
+    },
+    {
+     "ad": "Özel sektör",
+     "emp": 948
+    }
+   ],
+   "enBuyukSektor": [
+    {
+     "kod": "44-45",
+     "ad": "Perakende",
+     "emp": 153,
+     "isyeri": 21,
+     "maas": 24789,
+     "lq": 1.06
+    },
+    {
+     "kod": "31-33",
+     "ad": "İmalat",
+     "emp": 119,
+     "isyeri": 3,
+     "maas": 50445,
+     "lq": 1.01
+    },
+    {
+     "kod": "48-49",
+     "ad": "Ulaştırma · depolama",
+     "emp": 70,
+     "isyeri": 7,
+     "maas": 51358,
+     "lq": 1.15
+    },
+    {
+     "kod": "11",
+     "ad": "Tarım · ormancılık · balıkçılık",
+     "emp": 35,
+     "isyeri": 6,
+     "maas": 46605,
+     "lq": 3
+    },
+    {
+     "kod": "42",
+     "ad": "Toptan ticaret",
+     "emp": 33,
+     "isyeri": 5,
+     "maas": 48870,
+     "lq": 0.58
+    }
+   ],
+   "enYogunSektor": [
+    {
+     "kod": "22",
+     "ad": "Enerji/su altyapısı",
+     "emp": 20,
+     "isyeri": 5,
+     "maas": 20247,
+     "lq": 3.65
+    },
+    {
+     "kod": "11",
+     "ad": "Tarım · ormancılık · balıkçılık",
+     "emp": 35,
+     "isyeri": 6,
+     "maas": 46605,
+     "lq": 3
+    }
+   ],
+   "sinif": "Yatak bölgesi (şehre komşu)",
+   "sinifRenk": "#0891b2",
+   "neden": "Nüfus 8,376 ama county içinde sadece 1,440 iş (oran %17) — çalışanlar dışarı gidiyor.",
    "ikincil": []
   },
   {
@@ -3359,7 +4702,7 @@
    "altBolge": [],
    "fips": "12009",
    "lead": 5941,
-   "aplus": 382,
+   "aplus": 460,
    "ortDonum": 0.9,
    "nufus": 620533,
    "medyanYas": 46.8,
@@ -3458,7 +4801,7 @@
    "altBolge": [],
    "fips": "30071",
    "lead": 5936,
-   "aplus": 299,
+   "aplus": 343,
    "ortDonum": 206,
    "nufus": 4224,
    "medyanYas": 44.9,
@@ -3556,8 +4899,8 @@
    "county": "Elmore",
    "altBolge": [],
    "fips": "16039",
-   "lead": 5749,
-   "aplus": 304,
+   "lead": 5758,
+   "aplus": 337,
    "ortDonum": 60.7,
    "nufus": 29046,
    "medyanYas": 32.5,
@@ -3666,7 +5009,7 @@
    "altBolge": [],
    "fips": "16031",
    "lead": 5709,
-   "aplus": 369,
+   "aplus": 361,
    "ortDonum": 93.8,
    "nufus": 25165,
    "medyanYas": 33.1,
@@ -3783,7 +5126,7 @@
    "altBolge": [],
    "fips": "48361",
    "lead": 5635,
-   "aplus": 269,
+   "aplus": 280,
    "ortDonum": 1.7,
    "nufus": 84993,
    "medyanYas": 37.9,
@@ -3895,114 +5238,12 @@
    ]
   },
   {
-   "state": "MS",
-   "county": "Wilkinson",
-   "altBolge": [
-    "Wilkinson",
-    "WILKINSON"
-   ],
-   "fips": "28157",
-   "lead": 5469,
-   "aplus": 328,
-   "ortDonum": 60.9,
-   "nufus": 8376,
-   "medyanYas": 39.1,
-   "buyume5": -0.0826,
-   "gelir": 35930,
-   "zhvi": 118798,
-   "izin": 0,
-   "toplamEmp": 1440,
-   "isNufusOran": 0.172,
-   "sahiplik": [
-    {
-     "ad": "Federal devlet",
-     "emp": 10
-    },
-    {
-     "ad": "Eyalet devleti",
-     "emp": 34
-    },
-    {
-     "ad": "Yerel yönetim",
-     "emp": 449
-    },
-    {
-     "ad": "Özel sektör",
-     "emp": 948
-    }
-   ],
-   "enBuyukSektor": [
-    {
-     "kod": "44-45",
-     "ad": "Perakende",
-     "emp": 153,
-     "isyeri": 21,
-     "maas": 24789,
-     "lq": 1.06
-    },
-    {
-     "kod": "31-33",
-     "ad": "İmalat",
-     "emp": 119,
-     "isyeri": 3,
-     "maas": 50445,
-     "lq": 1.01
-    },
-    {
-     "kod": "48-49",
-     "ad": "Ulaştırma · depolama",
-     "emp": 70,
-     "isyeri": 7,
-     "maas": 51358,
-     "lq": 1.15
-    },
-    {
-     "kod": "11",
-     "ad": "Tarım · ormancılık · balıkçılık",
-     "emp": 35,
-     "isyeri": 6,
-     "maas": 46605,
-     "lq": 3
-    },
-    {
-     "kod": "42",
-     "ad": "Toptan ticaret",
-     "emp": 33,
-     "isyeri": 5,
-     "maas": 48870,
-     "lq": 0.58
-    }
-   ],
-   "enYogunSektor": [
-    {
-     "kod": "22",
-     "ad": "Enerji/su altyapısı",
-     "emp": 20,
-     "isyeri": 5,
-     "maas": 20247,
-     "lq": 3.65
-    },
-    {
-     "kod": "11",
-     "ad": "Tarım · ormancılık · balıkçılık",
-     "emp": 35,
-     "isyeri": 6,
-     "maas": 46605,
-     "lq": 3
-    }
-   ],
-   "sinif": "Yatak bölgesi (şehre komşu)",
-   "sinifRenk": "#0891b2",
-   "neden": "Nüfus 8,376 ama county içinde sadece 1,440 iş (oran %17) — çalışanlar dışarı gidiyor.",
-   "ikincil": []
-  },
-  {
    "state": "GA",
    "county": "Chatham",
    "altBolge": [],
    "fips": "13051",
    "lead": 5449,
-   "aplus": 357,
+   "aplus": 372,
    "ortDonum": 6.4,
    "nufus": 298143,
    "medyanYas": 37.1,
@@ -4112,56 +5353,6 @@
    "ikincil": []
   },
   {
-   "state": "MT",
-   "county": "Garfield",
-   "altBolge": [],
-   "fips": "30033",
-   "lead": 5078,
-   "aplus": 412,
-   "ortDonum": 328.5,
-   "nufus": 938,
-   "medyanYas": 43.9,
-   "buyume5": 0.0085,
-   "gelir": 61750,
-   "zhvi": 323620,
-   "izin": 0,
-   "toplamEmp": 322,
-   "isNufusOran": 0.343,
-   "sahiplik": [
-    {
-     "ad": "Federal devlet",
-     "emp": 19
-    },
-    {
-     "ad": "Eyalet devleti",
-     "emp": 5
-    },
-    {
-     "ad": "Yerel yönetim",
-     "emp": 131
-    },
-    {
-     "ad": "Özel sektör",
-     "emp": 167
-    }
-   ],
-   "enBuyukSektor": [
-    {
-     "kod": "81",
-     "ad": "Diğer hizmetler",
-     "emp": 10,
-     "isyeri": 3,
-     "maas": 28838,
-     "lq": 1.03
-    }
-   ],
-   "enYogunSektor": [],
-   "sinif": "Kırsal · karma",
-   "sinifRenk": "#64748b",
-   "neden": "Belirgin bir sektör yoğunlaşması yok; en büyük işveren Diğer hizmetler.",
-   "ikincil": []
-  },
-  {
    "state": "MS",
    "county": "Jefferson",
    "altBolge": [
@@ -4169,8 +5360,8 @@
     "JEFFERSON"
    ],
    "fips": "28063",
-   "lead": 4910,
-   "aplus": 295,
+   "lead": 5154,
+   "aplus": 320,
    "ortDonum": 54.6,
    "nufus": 7127,
    "medyanYas": 43,
@@ -4233,11 +5424,61 @@
   },
   {
    "state": "MT",
+   "county": "Garfield",
+   "altBolge": [],
+   "fips": "30033",
+   "lead": 5078,
+   "aplus": 412,
+   "ortDonum": 328.5,
+   "nufus": 938,
+   "medyanYas": 43.9,
+   "buyume5": 0.0085,
+   "gelir": 61750,
+   "zhvi": 323620,
+   "izin": 0,
+   "toplamEmp": 322,
+   "isNufusOran": 0.343,
+   "sahiplik": [
+    {
+     "ad": "Federal devlet",
+     "emp": 19
+    },
+    {
+     "ad": "Eyalet devleti",
+     "emp": 5
+    },
+    {
+     "ad": "Yerel yönetim",
+     "emp": 131
+    },
+    {
+     "ad": "Özel sektör",
+     "emp": 167
+    }
+   ],
+   "enBuyukSektor": [
+    {
+     "kod": "81",
+     "ad": "Diğer hizmetler",
+     "emp": 10,
+     "isyeri": 3,
+     "maas": 28838,
+     "lq": 1.03
+    }
+   ],
+   "enYogunSektor": [],
+   "sinif": "Kırsal · karma",
+   "sinifRenk": "#64748b",
+   "neden": "Belirgin bir sektör yoğunlaşması yok; en büyük işveren Diğer hizmetler.",
+   "ikincil": []
+  },
+  {
+   "state": "MT",
    "county": "Hill",
    "altBolge": [],
    "fips": "30041",
    "lead": 4886,
-   "aplus": 252,
+   "aplus": 330,
    "ortDonum": 148.3,
    "nufus": 16260,
    "medyanYas": 34,
@@ -4355,12 +5596,137 @@
    "ikincil": []
   },
   {
+   "state": "ID",
+   "county": "Lemhi",
+   "altBolge": [],
+   "fips": "16059",
+   "lead": 4519,
+   "aplus": 342,
+   "ortDonum": 47,
+   "nufus": 8166,
+   "medyanYas": 53.1,
+   "buyume5": 0.0552,
+   "gelir": 52057,
+   "zhvi": 390457,
+   "izin": 45,
+   "toplamEmp": 2720,
+   "isNufusOran": 0.333,
+   "sahiplik": [
+    {
+     "ad": "Federal devlet",
+     "emp": 234
+    },
+    {
+     "ad": "Eyalet devleti",
+     "emp": 82
+    },
+    {
+     "ad": "Yerel yönetim",
+     "emp": 497
+    },
+    {
+     "ad": "Özel sektör",
+     "emp": 1907
+    }
+   ],
+   "enBuyukSektor": [
+    {
+     "kod": "44-45",
+     "ad": "Perakende",
+     "emp": 377,
+     "isyeri": 42,
+     "maas": 29579,
+     "lq": 1.39
+    },
+    {
+     "kod": "72",
+     "ad": "Konaklama · yeme-içme",
+     "emp": 270,
+     "isyeri": 48,
+     "maas": 18706,
+     "lq": 1.09
+    },
+    {
+     "kod": "23",
+     "ad": "İnşaat",
+     "emp": 207,
+     "isyeri": 58,
+     "maas": 53000,
+     "lq": 1.45
+    },
+    {
+     "kod": "71",
+     "ad": "Sanat · eğlence · rekreasyon",
+     "emp": 99,
+     "isyeri": 34,
+     "maas": 31671,
+     "lq": 2.17
+    },
+    {
+     "kod": "54",
+     "ad": "Profesyonel · teknik hizmet",
+     "emp": 96,
+     "isyeri": 34,
+     "maas": 124063,
+     "lq": 0.51
+    }
+   ],
+   "enYogunSektor": [
+    {
+     "kod": "21",
+     "ad": "Madencilik · petrol · gaz",
+     "emp": 36,
+     "isyeri": 9,
+     "maas": 104507,
+     "lq": 3.5
+    },
+    {
+     "kod": "11",
+     "ad": "Tarım · ormancılık · balıkçılık",
+     "emp": 73,
+     "isyeri": 20,
+     "maas": 34960,
+     "lq": 3.32
+    },
+    {
+     "kod": "71",
+     "ad": "Sanat · eğlence · rekreasyon",
+     "emp": 99,
+     "isyeri": 34,
+     "maas": 31671,
+     "lq": 2.17
+    },
+    {
+     "kod": "23",
+     "ad": "İnşaat",
+     "emp": 207,
+     "isyeri": 58,
+     "maas": 53000,
+     "lq": 1.45
+    },
+    {
+     "kod": "44-45",
+     "ad": "Perakende",
+     "emp": 377,
+     "isyeri": 42,
+     "maas": 29579,
+     "lq": 1.39
+    }
+   ],
+   "sinif": "Turizm · ikinci ev",
+   "sinifRenk": "#c2410c",
+   "neden": "Rekreasyon LQ 2.2, konaklama/yeme-içme LQ 1.1 — ziyaretçi ekonomisi.",
+   "ikincil": [
+    "Emeklilik bölgesi"
+   ]
+  },
+  {
    "state": "TX",
    "county": "Polk",
    "altBolge": [],
    "fips": "48373",
    "lead": 4497,
-   "aplus": 156,
+   "aplus": 378,
    "ortDonum": 0.6,
    "nufus": 51780,
    "medyanYas": 43.9,
@@ -4485,7 +5851,7 @@
    "altBolge": [],
    "fips": "16073",
    "lead": 3787,
-   "aplus": 193,
+   "aplus": 190,
    "ortDonum": 115.2,
    "nufus": 12284,
    "medyanYas": 38.3,
@@ -4559,6 +5925,121 @@
    "sinif": "Yatak bölgesi (şehre komşu)",
    "sinifRenk": "#0891b2",
    "neden": "Nüfus 12,284 ama county içinde sadece 3,544 iş (oran %29) — çalışanlar dışarı gidiyor.",
+   "ikincil": []
+  },
+  {
+   "state": "WY",
+   "county": "Lincoln",
+   "altBolge": [],
+   "fips": "56023",
+   "lead": 3733,
+   "aplus": 363,
+   "ortDonum": 6.5,
+   "nufus": 20158,
+   "medyanYas": 41.2,
+   "buyume5": 0.0683,
+   "gelir": 86092,
+   "zhvi": 501355,
+   "izin": 202,
+   "toplamEmp": 7295,
+   "isNufusOran": 0.362,
+   "sahiplik": [
+    {
+     "ad": "Federal devlet",
+     "emp": 133
+    },
+    {
+     "ad": "Eyalet devleti",
+     "emp": 108
+    },
+    {
+     "ad": "Yerel yönetim",
+     "emp": 1770
+    },
+    {
+     "ad": "Özel sektör",
+     "emp": 5284
+    }
+   ],
+   "enBuyukSektor": [
+    {
+     "kod": "23",
+     "ad": "İnşaat",
+     "emp": 1039,
+     "isyeri": 244,
+     "maas": 57955,
+     "lq": 2.71
+    },
+    {
+     "kod": "44-45",
+     "ad": "Perakende",
+     "emp": 915,
+     "isyeri": 90,
+     "maas": 35213,
+     "lq": 1.26
+    },
+    {
+     "kod": "21",
+     "ad": "Madencilik · petrol · gaz",
+     "emp": 606,
+     "isyeri": 19,
+     "maas": 121863,
+     "lq": 21.96
+    },
+    {
+     "kod": "72",
+     "ad": "Konaklama · yeme-içme",
+     "emp": 603,
+     "isyeri": 72,
+     "maas": 22137,
+     "lq": 0.91
+    },
+    {
+     "kod": "62",
+     "ad": "Sağlık · sosyal hizmet",
+     "emp": 422,
+     "isyeri": 134,
+     "maas": 31675,
+     "lq": 0.4
+    }
+   ],
+   "enYogunSektor": [
+    {
+     "kod": "21",
+     "ad": "Madencilik · petrol · gaz",
+     "emp": 606,
+     "isyeri": 19,
+     "maas": 121863,
+     "lq": 21.96
+    },
+    {
+     "kod": "22",
+     "ad": "Enerji/su altyapısı",
+     "emp": 150,
+     "isyeri": 8,
+     "maas": 120496,
+     "lq": 5.41
+    },
+    {
+     "kod": "23",
+     "ad": "İnşaat",
+     "emp": 1039,
+     "isyeri": 244,
+     "maas": 57955,
+     "lq": 2.71
+    },
+    {
+     "kod": "44-45",
+     "ad": "Perakende",
+     "emp": 915,
+     "isyeri": 90,
+     "maas": 35213,
+     "lq": 1.26
+    }
+   ],
+   "sinif": "Madencilik · enerji",
+   "sinifRenk": "#7c2d12",
+   "neden": "Madencilik/enerji yoğunluğu ülke ortalamasının 22.0 katı.",
    "ikincil": []
   },
   {
@@ -4685,127 +6166,12 @@
    "ikincil": []
   },
   {
-   "state": "WY",
-   "county": "Lincoln",
-   "altBolge": [],
-   "fips": "56023",
-   "lead": 3729,
-   "aplus": 363,
-   "ortDonum": 6.5,
-   "nufus": 20158,
-   "medyanYas": 41.2,
-   "buyume5": 0.0683,
-   "gelir": 86092,
-   "zhvi": 501355,
-   "izin": 202,
-   "toplamEmp": 7295,
-   "isNufusOran": 0.362,
-   "sahiplik": [
-    {
-     "ad": "Federal devlet",
-     "emp": 133
-    },
-    {
-     "ad": "Eyalet devleti",
-     "emp": 108
-    },
-    {
-     "ad": "Yerel yönetim",
-     "emp": 1770
-    },
-    {
-     "ad": "Özel sektör",
-     "emp": 5284
-    }
-   ],
-   "enBuyukSektor": [
-    {
-     "kod": "23",
-     "ad": "İnşaat",
-     "emp": 1039,
-     "isyeri": 244,
-     "maas": 57955,
-     "lq": 2.71
-    },
-    {
-     "kod": "44-45",
-     "ad": "Perakende",
-     "emp": 915,
-     "isyeri": 90,
-     "maas": 35213,
-     "lq": 1.26
-    },
-    {
-     "kod": "21",
-     "ad": "Madencilik · petrol · gaz",
-     "emp": 606,
-     "isyeri": 19,
-     "maas": 121863,
-     "lq": 21.96
-    },
-    {
-     "kod": "72",
-     "ad": "Konaklama · yeme-içme",
-     "emp": 603,
-     "isyeri": 72,
-     "maas": 22137,
-     "lq": 0.91
-    },
-    {
-     "kod": "62",
-     "ad": "Sağlık · sosyal hizmet",
-     "emp": 422,
-     "isyeri": 134,
-     "maas": 31675,
-     "lq": 0.4
-    }
-   ],
-   "enYogunSektor": [
-    {
-     "kod": "21",
-     "ad": "Madencilik · petrol · gaz",
-     "emp": 606,
-     "isyeri": 19,
-     "maas": 121863,
-     "lq": 21.96
-    },
-    {
-     "kod": "22",
-     "ad": "Enerji/su altyapısı",
-     "emp": 150,
-     "isyeri": 8,
-     "maas": 120496,
-     "lq": 5.41
-    },
-    {
-     "kod": "23",
-     "ad": "İnşaat",
-     "emp": 1039,
-     "isyeri": 244,
-     "maas": 57955,
-     "lq": 2.71
-    },
-    {
-     "kod": "44-45",
-     "ad": "Perakende",
-     "emp": 915,
-     "isyeri": 90,
-     "maas": 35213,
-     "lq": 1.26
-    }
-   ],
-   "sinif": "Madencilik · enerji",
-   "sinifRenk": "#7c2d12",
-   "neden": "Madencilik/enerji yoğunluğu ülke ortalamasının 22.0 katı.",
-   "ikincil": []
-  },
-  {
    "state": "TN",
    "county": "Sullivan",
    "altBolge": [],
    "fips": "47163",
    "lead": 3656,
-   "aplus": 488,
+   "aplus": 0,
    "ortDonum": null,
    "nufus": 159693,
    "medyanYas": 45,
@@ -4912,7 +6278,7 @@
    "altBolge": [],
    "fips": "12075",
    "lead": 3536,
-   "aplus": 212,
+   "aplus": 195,
    "ortDonum": 0.5,
    "nufus": 44276,
    "medyanYas": 47.1,
@@ -5021,7 +6387,7 @@
    "altBolge": [],
    "fips": "48005",
    "lead": 3386,
-   "aplus": 214,
+   "aplus": 215,
    "ortDonum": 1.2,
    "nufus": 86791,
    "medyanYas": 37.8,
@@ -5128,7 +6494,7 @@
    "altBolge": [],
    "fips": "12053",
    "lead": 3046,
-   "aplus": 156,
+   "aplus": 199,
    "ortDonum": 0.3,
    "nufus": 201512,
    "medyanYas": 48.1,
@@ -5360,7 +6726,7 @@
    "altBolge": [],
    "fips": "48213",
    "lead": 2938,
-   "aplus": 179,
+   "aplus": 182,
    "ortDonum": 1.7,
    "nufus": 83658,
    "medyanYas": 43.8,
@@ -5485,7 +6851,7 @@
    "altBolge": [],
    "fips": "48199",
    "lead": 2927,
-   "aplus": 173,
+   "aplus": 170,
    "ortDonum": 1,
    "nufus": 57126,
    "medyanYas": 39.3,
@@ -5610,7 +6976,7 @@
    "altBolge": [],
    "fips": "30089",
    "lead": 2919,
-   "aplus": 203,
+   "aplus": 187,
    "ortDonum": 60,
    "nufus": 12936,
    "medyanYas": 54.6,
@@ -5734,8 +7100,8 @@
    "county": "Fremont",
    "altBolge": [],
    "fips": "56013",
-   "lead": 2728,
-   "aplus": 144,
+   "lead": 2729,
+   "aplus": 148,
    "ortDonum": 18.2,
    "nufus": 39472,
    "medyanYas": 39.4,
@@ -5845,12 +7211,89 @@
    "ikincil": []
   },
   {
+   "state": "MS",
+   "county": "Claiborne",
+   "altBolge": [
+    "Claiborne",
+    "CLAIBORNE"
+   ],
+   "fips": "28021",
+   "lead": 2728,
+   "aplus": 139,
+   "ortDonum": 86,
+   "nufus": 8908,
+   "medyanYas": 33.8,
+   "buyume5": -0.1071,
+   "gelir": 34371,
+   "zhvi": 96050,
+   "izin": 0,
+   "toplamEmp": 3256,
+   "isNufusOran": 0.366,
+   "sahiplik": [
+    {
+     "ad": "Federal devlet",
+     "emp": 23
+    },
+    {
+     "ad": "Eyalet devleti",
+     "emp": 625
+    },
+    {
+     "ad": "Yerel yönetim",
+     "emp": 543
+    },
+    {
+     "ad": "Özel sektör",
+     "emp": 2065
+    }
+   ],
+   "enBuyukSektor": [
+    {
+     "kod": "31-33",
+     "ad": "İmalat",
+     "emp": 131,
+     "isyeri": 6,
+     "maas": 69565,
+     "lq": 0.49
+    },
+    {
+     "kod": "44-45",
+     "ad": "Perakende",
+     "emp": 113,
+     "isyeri": 24,
+     "maas": 29698,
+     "lq": 0.35
+    },
+    {
+     "kod": "52",
+     "ad": "Finans · sigorta",
+     "emp": 29,
+     "isyeri": 6,
+     "maas": 49828,
+     "lq": 0.22
+    },
+    {
+     "kod": "48-49",
+     "ad": "Ulaştırma · depolama",
+     "emp": 23,
+     "isyeri": 7,
+     "maas": 55678,
+     "lq": 0.17
+    }
+   ],
+   "enYogunSektor": [],
+   "sinif": "Kırsal · karma",
+   "sinifRenk": "#64748b",
+   "neden": "Belirgin bir sektör yoğunlaşması yok; en büyük işveren İmalat.",
+   "ikincil": []
+  },
+  {
    "state": "TX",
    "county": "Cass",
    "altBolge": [],
    "fips": "48067",
    "lead": 2682,
-   "aplus": 195,
+   "aplus": 182,
    "ortDonum": 1.4,
    "nufus": 28582,
    "medyanYas": 43.8,
@@ -5959,7 +7402,7 @@
    "altBolge": [],
    "fips": "48217",
    "lead": 2541,
-   "aplus": 131,
+   "aplus": 170,
    "ortDonum": 0.8,
    "nufus": 36664,
    "medyanYas": 40.8,
@@ -6074,7 +7517,7 @@
    "altBolge": [],
    "fips": "45091",
    "lead": 2483,
-   "aplus": 89,
+   "aplus": 92,
    "ortDonum": 54.7,
    "nufus": 288559,
    "medyanYas": 39.4,
@@ -6312,7 +7755,7 @@
    "altBolge": [],
    "fips": "38105",
    "lead": 2370,
-   "aplus": 163,
+   "aplus": 127,
    "ortDonum": 39.7,
    "nufus": 39368,
    "medyanYas": 32.3,
@@ -6435,7 +7878,7 @@
    "altBolge": [],
    "fips": "54105",
    "lead": 2344,
-   "aplus": 119,
+   "aplus": 146,
    "ortDonum": 43.1,
    "nufus": 5131,
    "medyanYas": 46.2,
@@ -6528,7 +7971,7 @@
    "altBolge": [],
    "fips": "48407",
    "lead": 2295,
-   "aplus": 114,
+   "aplus": 131,
    "ortDonum": 0.7,
    "nufus": 27983,
    "medyanYas": 45,
@@ -6756,214 +8199,12 @@
    ]
   },
   {
-   "state": "MS",
-   "county": "Claiborne",
-   "altBolge": [
-    "Claiborne",
-    "CLAIBORNE"
-   ],
-   "fips": "28021",
-   "lead": 2189,
-   "aplus": 118,
-   "ortDonum": 86,
-   "nufus": 8908,
-   "medyanYas": 33.8,
-   "buyume5": -0.1071,
-   "gelir": 34371,
-   "zhvi": 96050,
-   "izin": 0,
-   "toplamEmp": 3256,
-   "isNufusOran": 0.366,
-   "sahiplik": [
-    {
-     "ad": "Federal devlet",
-     "emp": 23
-    },
-    {
-     "ad": "Eyalet devleti",
-     "emp": 625
-    },
-    {
-     "ad": "Yerel yönetim",
-     "emp": 543
-    },
-    {
-     "ad": "Özel sektör",
-     "emp": 2065
-    }
-   ],
-   "enBuyukSektor": [
-    {
-     "kod": "31-33",
-     "ad": "İmalat",
-     "emp": 131,
-     "isyeri": 6,
-     "maas": 69565,
-     "lq": 0.49
-    },
-    {
-     "kod": "44-45",
-     "ad": "Perakende",
-     "emp": 113,
-     "isyeri": 24,
-     "maas": 29698,
-     "lq": 0.35
-    },
-    {
-     "kod": "52",
-     "ad": "Finans · sigorta",
-     "emp": 29,
-     "isyeri": 6,
-     "maas": 49828,
-     "lq": 0.22
-    },
-    {
-     "kod": "48-49",
-     "ad": "Ulaştırma · depolama",
-     "emp": 23,
-     "isyeri": 7,
-     "maas": 55678,
-     "lq": 0.17
-    }
-   ],
-   "enYogunSektor": [],
-   "sinif": "Kırsal · karma",
-   "sinifRenk": "#64748b",
-   "neden": "Belirgin bir sektör yoğunlaşması yok; en büyük işveren İmalat.",
-   "ikincil": []
-  },
-  {
-   "state": "ID",
-   "county": "Lemhi",
-   "altBolge": [],
-   "fips": "16059",
-   "lead": 2142,
-   "aplus": 172,
-   "ortDonum": 47,
-   "nufus": 8166,
-   "medyanYas": 53.1,
-   "buyume5": 0.0552,
-   "gelir": 52057,
-   "zhvi": 390457,
-   "izin": 45,
-   "toplamEmp": 2720,
-   "isNufusOran": 0.333,
-   "sahiplik": [
-    {
-     "ad": "Federal devlet",
-     "emp": 234
-    },
-    {
-     "ad": "Eyalet devleti",
-     "emp": 82
-    },
-    {
-     "ad": "Yerel yönetim",
-     "emp": 497
-    },
-    {
-     "ad": "Özel sektör",
-     "emp": 1907
-    }
-   ],
-   "enBuyukSektor": [
-    {
-     "kod": "44-45",
-     "ad": "Perakende",
-     "emp": 377,
-     "isyeri": 42,
-     "maas": 29579,
-     "lq": 1.39
-    },
-    {
-     "kod": "72",
-     "ad": "Konaklama · yeme-içme",
-     "emp": 270,
-     "isyeri": 48,
-     "maas": 18706,
-     "lq": 1.09
-    },
-    {
-     "kod": "23",
-     "ad": "İnşaat",
-     "emp": 207,
-     "isyeri": 58,
-     "maas": 53000,
-     "lq": 1.45
-    },
-    {
-     "kod": "71",
-     "ad": "Sanat · eğlence · rekreasyon",
-     "emp": 99,
-     "isyeri": 34,
-     "maas": 31671,
-     "lq": 2.17
-    },
-    {
-     "kod": "54",
-     "ad": "Profesyonel · teknik hizmet",
-     "emp": 96,
-     "isyeri": 34,
-     "maas": 124063,
-     "lq": 0.51
-    }
-   ],
-   "enYogunSektor": [
-    {
-     "kod": "21",
-     "ad": "Madencilik · petrol · gaz",
-     "emp": 36,
-     "isyeri": 9,
-     "maas": 104507,
-     "lq": 3.5
-    },
-    {
-     "kod": "11",
-     "ad": "Tarım · ormancılık · balıkçılık",
-     "emp": 73,
-     "isyeri": 20,
-     "maas": 34960,
-     "lq": 3.32
-    },
-    {
-     "kod": "71",
-     "ad": "Sanat · eğlence · rekreasyon",
-     "emp": 99,
-     "isyeri": 34,
-     "maas": 31671,
-     "lq": 2.17
-    },
-    {
-     "kod": "23",
-     "ad": "İnşaat",
-     "emp": 207,
-     "isyeri": 58,
-     "maas": 53000,
-     "lq": 1.45
-    },
-    {
-     "kod": "44-45",
-     "ad": "Perakende",
-     "emp": 377,
-     "isyeri": 42,
-     "maas": 29579,
-     "lq": 1.39
-    }
-   ],
-   "sinif": "Turizm · ikinci ev",
-   "sinifRenk": "#c2410c",
-   "neden": "Rekreasyon LQ 2.2, konaklama/yeme-içme LQ 1.1 — ziyaretçi ekonomisi.",
-   "ikincil": [
-    "Emeklilik bölgesi"
-   ]
-  },
-  {
    "state": "TX",
    "county": "Wood",
    "altBolge": [],
    "fips": "48499",
    "lead": 2140,
-   "aplus": 115,
+   "aplus": 113,
    "ortDonum": 1.7,
    "nufus": 46094,
    "medyanYas": 48.4,
@@ -7088,7 +8329,7 @@
    "altBolge": [],
    "fips": "48329",
    "lead": 2133,
-   "aplus": 124,
+   "aplus": 133,
    "ortDonum": 1.8,
    "nufus": 171496,
    "medyanYas": 32.6,
@@ -7211,7 +8452,7 @@
    "altBolge": [],
    "fips": "08093",
    "lead": 2022,
-   "aplus": 158,
+   "aplus": 141,
    "ortDonum": 9.2,
    "nufus": 17739,
    "medyanYas": 51.7,
@@ -7336,7 +8577,7 @@
    "altBolge": [],
    "fips": "48351",
    "lead": 2001,
-   "aplus": 148,
+   "aplus": 114,
    "ortDonum": 1.7,
    "nufus": 12193,
    "medyanYas": 45.8,
@@ -7445,8 +8686,8 @@
    "county": "Carbon",
    "altBolge": [],
    "fips": "56007",
-   "lead": 1998,
-   "aplus": 107,
+   "lead": 2001,
+   "aplus": 127,
    "ortDonum": 32.4,
    "nufus": 14549,
    "medyanYas": 40.4,
@@ -7791,7 +9032,7 @@
    "altBolge": [],
    "fips": "48183",
    "lead": 1921,
-   "aplus": 140,
+   "aplus": 95,
    "ortDonum": 1.9,
    "nufus": 124860,
    "medyanYas": 35.9,
@@ -7906,7 +9147,7 @@
    "altBolge": [],
    "fips": "48241",
    "lead": 1910,
-   "aplus": 98,
+   "aplus": 132,
    "ortDonum": 1.1,
    "nufus": 32807,
    "medyanYas": 42.5,
@@ -8015,7 +9256,7 @@
    "altBolge": [],
    "fips": "48455",
    "lead": 1863,
-   "aplus": 106,
+   "aplus": 99,
    "ortDonum": 0.8,
    "nufus": 13850,
    "medyanYas": 49.8,
@@ -8091,7 +9332,7 @@
    "altBolge": [],
    "fips": "28047",
    "lead": 1841,
-   "aplus": 89,
+   "aplus": 95,
    "ortDonum": 4.6,
    "nufus": 209443,
    "medyanYas": 38.1,
@@ -8198,7 +9439,7 @@
    "altBolge": [],
    "fips": "48457",
    "lead": 1787,
-   "aplus": 103,
+   "aplus": 159,
    "ortDonum": 1.2,
    "nufus": 20084,
    "medyanYas": 42.5,
@@ -8315,7 +9556,7 @@
    "altBolge": [],
    "fips": "08123",
    "lead": 1750,
-   "aplus": 97,
+   "aplus": 96,
    "ortDonum": 56.8,
    "nufus": 340711,
    "medyanYas": 35.2,
@@ -8432,7 +9673,7 @@
    "altBolge": [],
    "fips": "48027",
    "lead": 1739,
-   "aplus": 89,
+   "aplus": 85,
    "ortDonum": 1.2,
    "nufus": 379811,
    "medyanYas": 32.1,
@@ -8531,7 +9772,7 @@
    "altBolge": [],
    "fips": "48049",
    "lead": 1705,
-   "aplus": 83,
+   "aplus": 104,
    "ortDonum": 0.7,
    "nufus": 38294,
    "medyanYas": 41.4,
@@ -8646,7 +9887,7 @@
    "altBolge": [],
    "fips": "48079",
    "lead": 1704,
-   "aplus": 105,
+   "aplus": 99,
    "ortDonum": 33.3,
    "nufus": 2520,
    "medyanYas": 38.7,
@@ -8737,7 +9978,7 @@
    "altBolge": [],
    "fips": "12071",
    "lead": 1700,
-   "aplus": 14,
+   "aplus": 85,
    "ortDonum": 0.2,
    "nufus": 792692,
    "medyanYas": 49.3,
@@ -8860,7 +10101,7 @@
    "altBolge": [],
    "fips": "21077",
    "lead": 1691,
-   "aplus": 80,
+   "aplus": 74,
    "ortDonum": 173.6,
    "nufus": 8749,
    "medyanYas": 39.7,
@@ -8926,7 +10167,7 @@
    "altBolge": [],
    "fips": "17059",
    "lead": 1678,
-   "aplus": 80,
+   "aplus": 74,
    "ortDonum": 172.6,
    "nufus": 4857,
    "medyanYas": 47.3,
@@ -9281,7 +10522,7 @@
    "altBolge": [],
    "fips": "48187",
    "lead": 1627,
-   "aplus": 96,
+   "aplus": 93,
    "ortDonum": 2.1,
    "nufus": 178368,
    "medyanYas": 37.5,
@@ -9654,7 +10895,7 @@
    "altBolge": [],
    "fips": "30057",
    "lead": 1515,
-   "aplus": 75,
+   "aplus": 77,
    "ortDonum": 143.6,
    "nufus": 8975,
    "medyanYas": 54.1,
@@ -9772,7 +11013,7 @@
    "altBolge": [],
    "fips": "48459",
    "lead": 1459,
-   "aplus": 86,
+   "aplus": 153,
    "ortDonum": 1.4,
    "nufus": 41864,
    "medyanYas": 40.3,
@@ -9879,7 +11120,7 @@
    "altBolge": [],
    "fips": "20129",
    "lead": 1441,
-   "aplus": 75,
+   "aplus": 65,
    "ortDonum": 114.3,
    "nufus": 2647,
    "medyanYas": 43.7,
@@ -9988,7 +11229,7 @@
    "altBolge": [],
    "fips": "48019",
    "lead": 1435,
-   "aplus": 91,
+   "aplus": 74,
    "ortDonum": 1.1,
    "nufus": 21589,
    "medyanYas": 53.4,
@@ -10171,7 +11412,7 @@
    "altBolge": [],
    "fips": "54015",
    "lead": 1401,
-   "aplus": 97,
+   "aplus": 101,
    "ortDonum": 20,
    "nufus": 7946,
    "medyanYas": 45.3,
@@ -10264,7 +11505,7 @@
    "altBolge": [],
    "fips": "55031",
    "lead": 1400,
-   "aplus": 89,
+   "aplus": 101,
    "ortDonum": 17.6,
    "nufus": 44197,
    "medyanYas": 42.8,
@@ -10510,7 +11751,7 @@
    "altBolge": [],
    "fips": "28059",
    "lead": 1368,
-   "aplus": 78,
+   "aplus": 71,
    "ortDonum": 35.3,
    "nufus": 144437,
    "medyanYas": 39.7,
@@ -10609,7 +11850,7 @@
    "altBolge": [],
    "fips": "55113",
    "lead": 1365,
-   "aplus": 70,
+   "aplus": 77,
    "ortDonum": 18.6,
    "nufus": 18243,
    "medyanYas": 52.2,
@@ -10708,7 +11949,7 @@
    "altBolge": [],
    "fips": "48277",
    "lead": 1361,
-   "aplus": 75,
+   "aplus": 93,
    "ortDonum": 1.7,
    "nufus": 50421,
    "medyanYas": 40,
@@ -10815,7 +12056,7 @@
    "altBolge": [],
    "fips": "55007",
    "lead": 1343,
-   "aplus": 74,
+   "aplus": 71,
    "ortDonum": 24.4,
    "nufus": 16410,
    "medyanYas": 54.1,
@@ -11349,7 +12590,7 @@
    "altBolge": [],
    "fips": "48265",
    "lead": 1317,
-   "aplus": 65,
+   "aplus": 106,
    "ortDonum": 1.8,
    "nufus": 53166,
    "medyanYas": 48.6,
@@ -11456,7 +12697,7 @@
    "altBolge": [],
    "fips": "48257",
    "lead": 1313,
-   "aplus": 66,
+   "aplus": 73,
    "ortDonum": 2.3,
    "nufus": 160718,
    "medyanYas": 34.2,
@@ -11688,7 +12929,7 @@
    "altBolge": [],
    "fips": "48467",
    "lead": 1308,
-   "aplus": 67,
+   "aplus": 76,
    "ortDonum": 3.3,
    "nufus": 61323,
    "medyanYas": 42.1,
@@ -12132,7 +13373,7 @@
    "altBolge": [],
    "fips": "54013",
    "lead": 1240,
-   "aplus": 65,
+   "aplus": 102,
    "ortDonum": 16.5,
    "nufus": 6158,
    "medyanYas": 48.1,
@@ -12217,7 +13458,7 @@
    "altBolge": [],
    "fips": "48427",
    "lead": 1180,
-   "aplus": 66,
+   "aplus": 94,
    "ortDonum": 1.5,
    "nufus": 65809,
    "medyanYas": 29.1,
@@ -12316,7 +13557,7 @@
    "altBolge": [],
    "fips": "55001",
    "lead": 1174,
-   "aplus": 74,
+   "aplus": 82,
    "ortDonum": 20.5,
    "nufus": 20928,
    "medyanYas": 55.5,
@@ -12427,7 +13668,7 @@
    "altBolge": [],
    "fips": "30003",
    "lead": 1144,
-   "aplus": 54,
+   "aplus": 53,
    "ortDonum": 258.7,
    "nufus": 12963,
    "medyanYas": 32.3,
@@ -12530,7 +13771,7 @@
    "altBolge": [],
    "fips": "48299",
    "lead": 1143,
-   "aplus": 60,
+   "aplus": 76,
    "ortDonum": 1.4,
    "nufus": 22011,
    "medyanYas": 57.5,
@@ -12656,7 +13897,7 @@
    "altBolge": [],
    "fips": "40027",
    "lead": 1133,
-   "aplus": 55,
+   "aplus": 56,
    "ortDonum": 0.9,
    "nufus": 297545,
    "medyanYas": 35.1,
@@ -12763,7 +14004,7 @@
    "altBolge": [],
    "fips": "05025",
    "lead": 1133,
-   "aplus": 71,
+   "aplus": 70,
    "ortDonum": 0.9,
    "nufus": 7491,
    "medyanYas": 43.7,
@@ -12846,7 +14087,7 @@
    "altBolge": [],
    "fips": "48471",
    "lead": 1128,
-   "aplus": 68,
+   "aplus": 63,
    "ortDonum": 1.2,
    "nufus": 78292,
    "medyanYas": 37.1,
@@ -12937,7 +14178,7 @@
    "altBolge": [],
    "fips": "48419",
    "lead": 1123,
-   "aplus": 55,
+   "aplus": 58,
    "ortDonum": 1.2,
    "nufus": 24108,
    "medyanYas": 40,
@@ -13063,7 +14304,7 @@
    "altBolge": [],
    "fips": "48227",
    "lead": 1119,
-   "aplus": 54,
+   "aplus": 66,
    "ortDonum": 2.1,
    "nufus": 33127,
    "medyanYas": 37,
@@ -13170,7 +14411,7 @@
    "altBolge": [],
    "fips": "48325",
    "lead": 1107,
-   "aplus": 71,
+   "aplus": 63,
    "ortDonum": 1.7,
    "nufus": 52419,
    "medyanYas": 39.6,
@@ -13285,7 +14526,7 @@
    "altBolge": [],
    "fips": "48481",
    "lead": 1097,
-   "aplus": 77,
+   "aplus": 70,
    "ortDonum": 2.2,
    "nufus": 41651,
    "medyanYas": 38.4,
@@ -13410,7 +14651,7 @@
    "altBolge": [],
    "fips": "48021",
    "lead": 1083,
-   "aplus": 57,
+   "aplus": 53,
    "ortDonum": 1.5,
    "nufus": 102370,
    "medyanYas": 37.5,
@@ -13533,7 +14774,7 @@
    "altBolge": [],
    "fips": "48321",
    "lead": 1076,
-   "aplus": 74,
+   "aplus": 61,
    "ortDonum": 2.2,
    "nufus": 36274,
    "medyanYas": 37.5,
@@ -13634,7 +14875,7 @@
    "altBolge": [],
    "fips": "08035",
    "lead": 1069,
-   "aplus": 49,
+   "aplus": 53,
    "ortDonum": 26,
    "nufus": 368283,
    "medyanYas": 39.5,
@@ -13757,7 +14998,7 @@
    "altBolge": [],
    "fips": "36103",
    "lead": 1063,
-   "aplus": 48,
+   "aplus": 51,
    "ortDonum": 3.9,
    "nufus": 1525680,
    "medyanYas": 41.7,
@@ -13864,7 +15105,7 @@
    "altBolge": [],
    "fips": "55043",
    "lead": 1058,
-   "aplus": 51,
+   "aplus": 54,
    "ortDonum": 23.4,
    "nufus": 51678,
    "medyanYas": 36.9,
@@ -14070,7 +15311,7 @@
    "altBolge": [],
    "fips": "48451",
    "lead": 1037,
-   "aplus": 61,
+   "aplus": 70,
    "ortDonum": 1.3,
    "nufus": 119398,
    "medyanYas": 35.8,
@@ -14284,7 +15525,7 @@
    "altBolge": [],
    "fips": "48473",
    "lead": 982,
-   "aplus": 77,
+   "aplus": 50,
    "ortDonum": 3.3,
    "nufus": 59455,
    "medyanYas": 30.8,
@@ -14742,7 +15983,7 @@
    "altBolge": [],
    "fips": "48025",
    "lead": 956,
-   "aplus": 50,
+   "aplus": 51,
    "ortDonum": 1,
    "nufus": 31000,
    "medyanYas": 35.8,
@@ -14844,7 +16085,7 @@
    "altBolge": [],
    "fips": "48063",
    "lead": 953,
-   "aplus": 44,
+   "aplus": 86,
    "ortDonum": 0.9,
    "nufus": 12652,
    "medyanYas": 38.7,
@@ -14951,7 +16192,7 @@
    "altBolge": [],
    "fips": "48355",
    "lead": 940,
-   "aplus": 41,
+   "aplus": 44,
    "ortDonum": 2.7,
    "nufus": 352829,
    "medyanYas": 36.8,
@@ -15074,7 +16315,7 @@
    "altBolge": [],
    "fips": "12129",
    "lead": 926,
-   "aplus": 68,
+   "aplus": 58,
    "ortDonum": 0.3,
    "nufus": 34608,
    "medyanYas": 42.5,
@@ -15298,7 +16539,7 @@
    "altBolge": [],
    "fips": "48449",
    "lead": 893,
-   "aplus": 45,
+   "aplus": 63,
    "ortDonum": 1.2,
    "nufus": 31284,
    "medyanYas": 34.7,
@@ -15397,7 +16638,7 @@
    "altBolge": [],
    "fips": "30067",
    "lead": 890,
-   "aplus": 46,
+   "aplus": 44,
    "ortDonum": 187.7,
    "nufus": 17484,
    "medyanYas": 46.2,
@@ -15859,7 +17100,7 @@
    "altBolge": [],
    "fips": "30027",
    "lead": 859,
-   "aplus": 37,
+   "aplus": 38,
    "ortDonum": 174.8,
    "nufus": 11581,
    "medyanYas": 45.3,
@@ -15958,7 +17199,7 @@
    "altBolge": [],
    "fips": "12029",
    "lead": 859,
-   "aplus": 61,
+   "aplus": 54,
    "ortDonum": 0.3,
    "nufus": 16952,
    "medyanYas": 45.8,
@@ -16183,7 +17424,7 @@
    "altBolge": [],
    "fips": "08001",
    "lead": 842,
-   "aplus": 22,
+   "aplus": 42,
    "ortDonum": 41.2,
    "nufus": 524408,
    "medyanYas": 34.6,
@@ -16407,7 +17648,7 @@
    "altBolge": [],
    "fips": "30081",
    "lead": 826,
-   "aplus": 46,
+   "aplus": 53,
    "ortDonum": 43,
    "nufus": 45807,
    "medyanYas": 48.9,
@@ -16532,7 +17773,7 @@
    "altBolge": [],
    "fips": "48093",
    "lead": 819,
-   "aplus": 49,
+   "aplus": 51,
    "ortDonum": 1.2,
    "nufus": 13786,
    "medyanYas": 43.7,
@@ -16647,7 +17888,7 @@
    "altBolge": [],
    "fips": "47149",
    "lead": 803,
-   "aplus": 42,
+   "aplus": 39,
    "ortDonum": 8.4,
    "nufus": 351591,
    "medyanYas": 34,
@@ -16746,7 +17987,7 @@
    "altBolge": [],
    "fips": "48259",
    "lead": 801,
-   "aplus": 66,
+   "aplus": 41,
    "ortDonum": 2.3,
    "nufus": 46971,
    "medyanYas": 43.1,
@@ -17200,7 +18441,7 @@
    "altBolge": [],
    "fips": "48131",
    "lead": 766,
-   "aplus": 44,
+   "aplus": 43,
    "ortDonum": 3,
    "nufus": 9824,
    "medyanYas": 35.9,
@@ -17307,7 +18548,7 @@
    "altBolge": [],
    "fips": "48293",
    "lead": 755,
-   "aplus": 41,
+   "aplus": 49,
    "ortDonum": 1.3,
    "nufus": 22185,
    "medyanYas": 42,
@@ -17398,7 +18639,7 @@
    "altBolge": [],
    "fips": "51041",
    "lead": 754,
-   "aplus": 32,
+   "aplus": 37,
    "ortDonum": 9.4,
    "nufus": 371610,
    "medyanYas": 38.9,
@@ -17830,7 +19071,7 @@
    "altBolge": [],
    "fips": "48013",
    "lead": 749,
-   "aplus": 37,
+   "aplus": 70,
    "ortDonum": 1.9,
    "nufus": 50058,
    "medyanYas": 36.1,
@@ -17955,7 +19196,7 @@
    "altBolge": [],
    "fips": "30063",
    "lead": 742,
-   "aplus": 39,
+   "aplus": 37,
    "ortDonum": 40.5,
    "nufus": 119639,
    "medyanYas": 37,
@@ -18070,7 +19311,7 @@
    "altBolge": [],
    "fips": "48341",
    "lead": 739,
-   "aplus": 36,
+   "aplus": 37,
    "ortDonum": 4.1,
    "nufus": 21234,
    "medyanYas": 30.6,
@@ -18187,7 +19428,7 @@
    "altBolge": [],
    "fips": "12005",
    "lead": 731,
-   "aplus": 38,
+   "aplus": 46,
    "ortDonum": 0.9,
    "nufus": 181368,
    "medyanYas": 41.4,
@@ -18409,7 +19650,7 @@
    "altBolge": [],
    "fips": "48179",
    "lead": 728,
-   "aplus": 37,
+   "aplus": 35,
    "ortDonum": 2.3,
    "nufus": 21131,
    "medyanYas": 36.8,
@@ -18535,7 +19776,7 @@
    "altBolge": [],
    "fips": "48219",
    "lead": 726,
-   "aplus": 50,
+   "aplus": 46,
    "ortDonum": 3.2,
    "nufus": 21455,
    "medyanYas": 35.8,
@@ -18642,7 +19883,7 @@
    "altBolge": [],
    "fips": "48127",
    "lead": 717,
-   "aplus": 43,
+   "aplus": 42,
    "ortDonum": 2.9,
    "nufus": 8507,
    "medyanYas": 36.3,
@@ -18973,7 +20214,7 @@
    "altBolge": [],
    "fips": "48497",
    "lead": 695,
-   "aplus": 39,
+   "aplus": 35,
    "ortDonum": 1.2,
    "nufus": 72359,
    "medyanYas": 40,
@@ -19091,7 +20332,7 @@
    "altBolge": [],
    "fips": "48315",
    "lead": 690,
-   "aplus": 42,
+   "aplus": 54,
    "ortDonum": 3.5,
    "nufus": 9631,
    "medyanYas": 50.6,
@@ -19193,7 +20434,7 @@
    "altBolge": [],
    "fips": "48057",
    "lead": 676,
-   "aplus": 34,
+   "aplus": 37,
    "ortDonum": 3.1,
    "nufus": 19921,
    "medyanYas": 39.9,
@@ -19292,7 +20533,7 @@
    "altBolge": [],
    "fips": "48145",
    "lead": 674,
-   "aplus": 33,
+   "aplus": 38,
    "ortDonum": 1.2,
    "nufus": 17063,
    "medyanYas": 41.5,
@@ -19482,7 +20723,7 @@
    "altBolge": [],
    "fips": "55107",
    "lead": 668,
-   "aplus": 38,
+   "aplus": 34,
    "ortDonum": 30.4,
    "nufus": 14146,
    "medyanYas": 49.1,
@@ -19690,7 +20931,7 @@
    "altBolge": [],
    "fips": "48095",
    "lead": 662,
-   "aplus": 35,
+   "aplus": 51,
    "ortDonum": 1.4,
    "nufus": 3301,
    "medyanYas": 45.3,
@@ -19896,7 +21137,7 @@
    "altBolge": [],
    "fips": "48239",
    "lead": 659,
-   "aplus": 48,
+   "aplus": 51,
    "ortDonum": 1.3,
    "nufus": 15081,
    "medyanYas": 42.1,
@@ -19987,7 +21228,7 @@
    "altBolge": [],
    "fips": "48081",
    "lead": 650,
-   "aplus": 40,
+   "aplus": 34,
    "ortDonum": 1.7,
    "nufus": 3315,
    "medyanYas": 47.2,
@@ -20078,7 +21319,7 @@
    "altBolge": [],
    "fips": "30015",
    "lead": 641,
-   "aplus": 34,
+   "aplus": 32,
    "ortDonum": 196.3,
    "nufus": 5888,
    "medyanYas": 42.9,
@@ -20593,7 +21834,7 @@
    "altBolge": [],
    "fips": "08067",
    "lead": 610,
-   "aplus": 17,
+   "aplus": 33,
    "ortDonum": 23.3,
    "nufus": 56088,
    "medyanYas": 42.3,
@@ -20997,7 +22238,7 @@
    "altBolge": [],
    "fips": "36119",
    "lead": 587,
-   "aplus": 20,
+   "aplus": 22,
    "ortDonum": 7.2,
    "nufus": 996888,
    "medyanYas": 41.5,
@@ -21120,7 +22361,7 @@
    "altBolge": [],
    "fips": "48507",
    "lead": 587,
-   "aplus": 35,
+   "aplus": 30,
    "ortDonum": 1.9,
    "nufus": 9532,
    "medyanYas": 32.5,
@@ -21454,7 +22695,7 @@
    "altBolge": [],
    "fips": "48503",
    "lead": 583,
-   "aplus": 28,
+   "aplus": 34,
    "ortDonum": 1.1,
    "nufus": 17963,
    "medyanYas": 40.7,
@@ -21563,7 +22804,7 @@
    "altBolge": [],
    "fips": "48367",
    "lead": 580,
-   "aplus": 32,
+   "aplus": 46,
    "ortDonum": 1.9,
    "nufus": 158079,
    "medyanYas": 39.3,
@@ -21795,7 +23036,7 @@
    "altBolge": [],
    "fips": "55093",
    "lead": 578,
-   "aplus": 29,
+   "aplus": 30,
    "ortDonum": 22.4,
    "nufus": 42351,
    "medyanYas": 38.4,
@@ -22003,7 +23244,7 @@
    "altBolge": [],
    "fips": "48283",
    "lead": 572,
-   "aplus": 42,
+   "aplus": 38,
    "ortDonum": 1.9,
    "nufus": 6946,
    "medyanYas": 38.8,
@@ -22102,7 +23343,7 @@
    "altBolge": [],
    "fips": "48099",
    "lead": 570,
-   "aplus": 29,
+   "aplus": 48,
    "ortDonum": 1.5,
    "nufus": 83772,
    "medyanYas": 32.4,
@@ -22203,7 +23444,7 @@
    "altBolge": [],
    "fips": "55075",
    "lead": 569,
-   "aplus": 35,
+   "aplus": 52,
    "ortDonum": 20.9,
    "nufus": 41907,
    "medyanYas": 48.8,
@@ -22312,7 +23553,7 @@
    "altBolge": [],
    "fips": "48051",
    "lead": 567,
-   "aplus": 26,
+   "aplus": 28,
    "ortDonum": 0.7,
    "nufus": 18327,
    "medyanYas": 44.3,
@@ -22561,7 +23802,7 @@
    "altBolge": [],
    "fips": "55137",
    "lead": 555,
-   "aplus": 28,
+   "aplus": 39,
    "ortDonum": 17.1,
    "nufus": 24752,
    "medyanYas": 49.9,
@@ -22672,7 +23913,7 @@
    "altBolge": [],
    "fips": "48505",
    "lead": 554,
-   "aplus": 32,
+   "aplus": 36,
    "ortDonum": 4.3,
    "nufus": 13855,
    "medyanYas": 31.5,
@@ -23014,7 +24255,7 @@
    "altBolge": [],
    "fips": "48189",
    "lead": 548,
-   "aplus": 27,
+   "aplus": 34,
    "ortDonum": 5.1,
    "nufus": 32247,
    "medyanYas": 34.1,
@@ -23121,7 +24362,7 @@
    "altBolge": [],
    "fips": "55081",
    "lead": 547,
-   "aplus": 28,
+   "aplus": 35,
    "ortDonum": 15.6,
    "nufus": 46169,
    "medyanYas": 39.6,
@@ -23238,7 +24479,7 @@
    "altBolge": [],
    "fips": "30001",
    "lead": 531,
-   "aplus": 25,
+   "aplus": 26,
    "ortDonum": 167,
    "nufus": 9590,
    "medyanYas": 43.4,
@@ -23446,7 +24687,7 @@
    "altBolge": [],
    "fips": "48463",
    "lead": 523,
-   "aplus": 29,
+   "aplus": 28,
    "ortDonum": 2.1,
    "nufus": 24810,
    "medyanYas": 34.6,
@@ -23684,7 +24925,7 @@
    "altBolge": [],
    "fips": "36105",
    "lead": 522,
-   "aplus": 76,
+   "aplus": 74,
    "ortDonum": 10.8,
    "nufus": 79147,
    "medyanYas": 41.7,
@@ -23807,7 +25048,7 @@
    "altBolge": [],
    "fips": "12119",
    "lead": 522,
-   "aplus": 9,
+   "aplus": 8,
    "ortDonum": 0.5,
    "nufus": 137536,
    "medyanYas": 68.4,
@@ -23932,7 +25173,7 @@
    "altBolge": [],
    "fips": "48149",
    "lead": 518,
-   "aplus": 26,
+   "aplus": 47,
    "ortDonum": 0.8,
    "nufus": 24783,
    "medyanYas": 48.6,
@@ -24055,7 +25296,7 @@
    "altBolge": [],
    "fips": "08019",
    "lead": 514,
-   "aplus": 29,
+   "aplus": 26,
    "ortDonum": 6.5,
    "nufus": 9358,
    "medyanYas": 49.2,
@@ -24137,7 +25378,7 @@
    "altBolge": [],
    "fips": "48501",
    "lead": 512,
-   "aplus": 61,
+   "aplus": 16,
    "ortDonum": 8.8,
    "nufus": 7589,
    "medyanYas": 33,
@@ -24369,7 +25610,7 @@
    "altBolge": [],
    "fips": "48285",
    "lead": 506,
-   "aplus": 26,
+   "aplus": 35,
    "ortDonum": 1.2,
    "nufus": 20479,
    "medyanYas": 43.1,
@@ -24718,7 +25959,7 @@
    "altBolge": [],
    "fips": "48221",
    "lead": 500,
-   "aplus": 61,
+   "aplus": 29,
    "ortDonum": 2.9,
    "nufus": 64198,
    "medyanYas": 46.3,
@@ -25067,7 +26308,7 @@
    "altBolge": [],
    "fips": "08109",
    "lead": 499,
-   "aplus": 233,
+   "aplus": 216,
    "ortDonum": 22,
    "nufus": 6511,
    "medyanYas": 49.8,
@@ -25169,7 +26410,7 @@
    "altBolge": [],
    "fips": "30053",
    "lead": 497,
-   "aplus": 90,
+   "aplus": 102,
    "ortDonum": 41.8,
    "nufus": 20656,
    "medyanYas": 52.6,
@@ -25292,7 +26533,7 @@
    "altBolge": [],
    "fips": "38093",
    "lead": 496,
-   "aplus": 43,
+   "aplus": 7,
    "ortDonum": 112.5,
    "nufus": 21525,
    "medyanYas": 40.6,
@@ -25407,7 +26648,7 @@
    "altBolge": [],
    "fips": "12047",
    "lead": 491,
-   "aplus": 50,
+   "aplus": 199,
    "ortDonum": 1.2,
    "nufus": 13445,
    "medyanYas": 40.6,
@@ -25721,7 +26962,7 @@
    "altBolge": [],
    "fips": "48041",
    "lead": 474,
-   "aplus": 103,
+   "aplus": 30,
    "ortDonum": 2.9,
    "nufus": 237980,
    "medyanYas": 26.8,
@@ -26044,7 +27285,7 @@
    "altBolge": [],
    "fips": "48415",
    "lead": 470,
-   "aplus": 23,
+   "aplus": 9,
    "ortDonum": 3.4,
    "nufus": 16633,
    "medyanYas": 36.4,
@@ -26151,7 +27392,7 @@
    "altBolge": [],
    "fips": "55101",
    "lead": 469,
-   "aplus": 108,
+   "aplus": 6,
    "ortDonum": 12,
    "nufus": 196888,
    "medyanYas": 40.5,
@@ -26242,7 +27483,7 @@
    "altBolge": [],
    "fips": "48015",
    "lead": 467,
-   "aplus": 32,
+   "aplus": 47,
    "ortDonum": 6.4,
    "nufus": 30712,
    "medyanYas": 41.6,
@@ -26472,7 +27713,7 @@
    "altBolge": [],
    "fips": "48409",
    "lead": 465,
-   "aplus": 18,
+   "aplus": 0,
    "ortDonum": 2,
    "nufus": 69519,
    "medyanYas": 37.1,
@@ -26595,7 +27836,7 @@
    "altBolge": [],
    "fips": "48385",
    "lead": 462,
-   "aplus": 2,
+   "aplus": 5,
    "ortDonum": 2.6,
    "nufus": 2821,
    "medyanYas": 56.5,
@@ -26696,7 +27937,7 @@
    "altBolge": [],
    "fips": "55021",
    "lead": 459,
-   "aplus": 27,
+   "aplus": 28,
    "ortDonum": 19.6,
    "nufus": 58322,
    "medyanYas": 43.3,
@@ -26894,7 +28135,7 @@
    "altBolge": [],
    "fips": "36013",
    "lead": 457,
-   "aplus": 15,
+   "aplus": 13,
    "ortDonum": 23.2,
    "nufus": 126329,
    "medyanYas": 42.7,
@@ -27086,7 +28327,7 @@
    "altBolge": [],
    "fips": "55069",
    "lead": 453,
-   "aplus": 16,
+   "aplus": 9,
    "ortDonum": 28,
    "nufus": 28403,
    "medyanYas": 49.2,
@@ -27310,7 +28551,7 @@
    "altBolge": [],
    "fips": "55105",
    "lead": 441,
-   "aplus": 8,
+   "aplus": 6,
    "ortDonum": 22.1,
    "nufus": 163944,
    "medyanYas": 40.1,
@@ -27417,7 +28658,7 @@
    "altBolge": [],
    "fips": "48159",
    "lead": 439,
-   "aplus": 3,
+   "aplus": 5,
    "ortDonum": 1.4,
    "nufus": 10522,
    "medyanYas": 43.5,
@@ -27641,7 +28882,7 @@
    "altBolge": [],
    "fips": "12013",
    "lead": 439,
-   "aplus": 4,
+   "aplus": 6,
    "ortDonum": 1,
    "nufus": 13593,
    "medyanYas": 41.8,
@@ -27740,7 +28981,7 @@
    "altBolge": [],
    "fips": "30095",
    "lead": 438,
-   "aplus": 29,
+   "aplus": 30,
    "ortDonum": 205.7,
    "nufus": 9052,
    "medyanYas": 47.4,
@@ -28030,7 +29271,7 @@
    "altBolge": [],
    "fips": "28071",
    "lead": 434,
-   "aplus": 86,
+   "aplus": 83,
    "ortDonum": 27.4,
    "nufus": 56920,
    "medyanYas": 30.9,
@@ -28129,7 +29370,7 @@
    "altBolge": [],
    "fips": "08107",
    "lead": 434,
-   "aplus": 18,
+   "aplus": 16,
    "ortDonum": 46.6,
    "nufus": 24990,
    "medyanYas": 42.6,
@@ -28351,7 +29592,7 @@
    "altBolge": [],
    "fips": "48267",
    "lead": 431,
-   "aplus": 5,
+   "aplus": 10,
    "ortDonum": 1.7,
    "nufus": 4355,
    "medyanYas": 50.3,
@@ -28452,7 +29693,7 @@
    "altBolge": [],
    "fips": "48035",
    "lead": 429,
-   "aplus": 8,
+   "aplus": 33,
    "ortDonum": 1.1,
    "nufus": 18546,
    "medyanYas": 46.3,
@@ -28641,7 +29882,7 @@
    "altBolge": [],
    "fips": "55065",
    "lead": 426,
-   "aplus": 8,
+   "aplus": 11,
    "ortDonum": 32.8,
    "nufus": 16788,
    "medyanYas": 40.9,
@@ -28748,7 +29989,7 @@
    "altBolge": [],
    "fips": "12093",
    "lead": 425,
-   "aplus": 4,
+   "aplus": 2,
    "ortDonum": 1.2,
    "nufus": 40249,
    "medyanYas": 40.7,
@@ -28855,7 +30096,7 @@
    "altBolge": [],
    "fips": "55025",
    "lead": 424,
-   "aplus": 13,
+   "aplus": 16,
    "ortDonum": 15.2,
    "nufus": 564777,
    "medyanYas": 35.6,
@@ -28954,7 +30195,7 @@
    "altBolge": [],
    "fips": "48437",
    "lead": 423,
-   "aplus": 13,
+   "aplus": 0,
    "ortDonum": 4.9,
    "nufus": 6981,
    "medyanYas": 36.5,
@@ -29172,7 +30413,7 @@
    "altBolge": [],
    "fips": "55121",
    "lead": 417,
-   "aplus": 15,
+   "aplus": 12,
    "ortDonum": 25.2,
    "nufus": 30786,
    "medyanYas": 39.8,
@@ -29469,7 +30710,7 @@
    "altBolge": [],
    "fips": "30043",
    "lead": 415,
-   "aplus": 58,
+   "aplus": 66,
    "ortDonum": 73.2,
    "nufus": 12501,
    "medyanYas": 47.3,
@@ -29578,7 +30819,7 @@
    "altBolge": [],
    "fips": "55049",
    "lead": 414,
-   "aplus": 35,
+   "aplus": 10,
    "ortDonum": 22.4,
    "nufus": 23832,
    "medyanYas": 43.7,
@@ -29687,7 +30928,7 @@
    "altBolge": [],
    "fips": "55033",
    "lead": 413,
-   "aplus": 10,
+   "aplus": 9,
    "ortDonum": 25.9,
    "nufus": 45349,
    "medyanYas": 35.8,
@@ -29987,7 +31228,7 @@
    "altBolge": [],
    "fips": "48193",
    "lead": 403,
-   "aplus": 1,
+   "aplus": 8,
    "ortDonum": 1.7,
    "nufus": 8320,
    "medyanYas": 43.8,
@@ -30078,7 +31319,7 @@
    "altBolge": [],
    "fips": "48069",
    "lead": 401,
-   "aplus": 9,
+   "aplus": 8,
    "ortDonum": 3.3,
    "nufus": 7328,
    "medyanYas": 34.9,
@@ -30169,7 +31410,7 @@
    "altBolge": [],
    "fips": "28163",
    "lead": 398,
-   "aplus": 44,
+   "aplus": 43,
    "ortDonum": 65.7,
    "nufus": 26837,
    "medyanYas": 38.4,
@@ -30270,7 +31511,7 @@
    "altBolge": [],
    "fips": "48279",
    "lead": 398,
-   "aplus": 9,
+   "aplus": 2,
    "ortDonum": 7.4,
    "nufus": 12919,
    "medyanYas": 36.6,
@@ -30492,7 +31733,7 @@
    "altBolge": [],
    "fips": "55019",
    "lead": 392,
-   "aplus": 13,
+   "aplus": 16,
    "ortDonum": 26.7,
    "nufus": 34736,
    "medyanYas": 37,
@@ -30601,7 +31842,7 @@
    "altBolge": [],
    "fips": "12059",
    "lead": 392,
-   "aplus": 42,
+   "aplus": 62,
    "ortDonum": 0.9,
    "nufus": 19626,
    "medyanYas": 42.4,
@@ -30692,7 +31933,7 @@
    "altBolge": [],
    "fips": "30059",
    "lead": 390,
-   "aplus": 1,
+   "aplus": 6,
    "ortDonum": 332.4,
    "nufus": 1979,
    "medyanYas": 59.9,
@@ -30794,7 +32035,7 @@
    "altBolge": [],
    "fips": "48429",
    "lead": 388,
-   "aplus": 1,
+   "aplus": 11,
    "ortDonum": 1.1,
    "nufus": 9278,
    "medyanYas": 41.6,
@@ -30919,7 +32160,7 @@
    "altBolge": [],
    "fips": "55079",
    "lead": 378,
-   "aplus": 24,
+   "aplus": 17,
    "ortDonum": 5.7,
    "nufus": 927656,
    "medyanYas": 35.4,
@@ -31034,7 +32275,7 @@
    "altBolge": [],
    "fips": "48273",
    "lead": 375,
-   "aplus": 20,
+   "aplus": 1,
    "ortDonum": 2,
    "nufus": 30629,
    "medyanYas": 29.3,
@@ -31149,7 +32390,7 @@
    "altBolge": [],
    "fips": "48335",
    "lead": 373,
-   "aplus": 22,
+   "aplus": 4,
    "ortDonum": 2.4,
    "nufus": 8989,
    "medyanYas": 36.9,
@@ -31376,7 +32617,7 @@
    "altBolge": [],
    "fips": "55123",
    "lead": 360,
-   "aplus": 12,
+   "aplus": 29,
    "ortDonum": 22.5,
    "nufus": 30915,
    "medyanYas": 41.5,
@@ -31483,7 +32724,7 @@
    "altBolge": [],
    "fips": "36071",
    "lead": 358,
-   "aplus": 7,
+   "aplus": 67,
    "ortDonum": 11.6,
    "nufus": 403840,
    "medyanYas": 36.9,
@@ -31823,7 +33064,7 @@
    "altBolge": [],
    "fips": "28023",
    "lead": 356,
-   "aplus": 9,
+   "aplus": 6,
    "ortDonum": 67.4,
    "nufus": 15424,
    "medyanYas": 42.6,
@@ -31941,7 +33182,7 @@
    "altBolge": [],
    "fips": "08039",
    "lead": 353,
-   "aplus": 5,
+   "aplus": 7,
    "ortDonum": 100.9,
    "nufus": 27152,
    "medyanYas": 44.8,
@@ -32048,7 +33289,7 @@
    "altBolge": [],
    "fips": "48469",
    "lead": 349,
-   "aplus": 9,
+   "aplus": 27,
    "ortDonum": 1.9,
    "nufus": 91281,
    "medyanYas": 36.6,
@@ -32281,7 +33522,7 @@
    "altBolge": [],
    "fips": "30105",
    "lead": 346,
-   "aplus": 15,
+   "aplus": 11,
    "ortDonum": 106,
    "nufus": 7540,
    "medyanYas": 43.2,
@@ -32695,7 +33936,7 @@
    "altBolge": [],
    "fips": "48489",
    "lead": 340,
-   "aplus": 1,
+   "aplus": 0,
    "ortDonum": 6.9,
    "nufus": 20218,
    "medyanYas": 33.7,
@@ -32777,7 +34018,7 @@
    "altBolge": [],
    "fips": "30085",
    "lead": 338,
-   "aplus": 11,
+   "aplus": 10,
    "ortDonum": 122.3,
    "nufus": 10665,
    "medyanYas": 30.5,
@@ -32900,7 +34141,7 @@
    "altBolge": [],
    "fips": "48379",
    "lead": 338,
-   "aplus": 0,
+   "aplus": 3,
    "ortDonum": 0.9,
    "nufus": 12505,
    "medyanYas": 46.2,
@@ -33007,7 +34248,7 @@
    "altBolge": [],
    "fips": "36077",
    "lead": 335,
-   "aplus": 9,
+   "aplus": 53,
    "ortDonum": 23.3,
    "nufus": 59738,
    "medyanYas": 40.4,
@@ -33130,7 +34371,7 @@
    "altBolge": [],
    "fips": "48271",
    "lead": 334,
-   "aplus": 6,
+   "aplus": 9,
    "ortDonum": 5.6,
    "nufus": 3140,
    "medyanYas": 50.4,
@@ -33188,7 +34429,7 @@
    "altBolge": [],
    "fips": "55017",
    "lead": 331,
-   "aplus": 29,
+   "aplus": 11,
    "ortDonum": 19.8,
    "nufus": 66558,
    "medyanYas": 41.7,
@@ -33405,7 +34646,7 @@
    "altBolge": [],
    "fips": "36101",
    "lead": 327,
-   "aplus": 36,
+   "aplus": 28,
    "ortDonum": 31.9,
    "nufus": 93034,
    "medyanYas": 43.1,
@@ -33528,7 +34769,7 @@
    "altBolge": [],
    "fips": "48319",
    "lead": 326,
-   "aplus": 0,
+   "aplus": 9,
    "ortDonum": 1.5,
    "nufus": 3951,
    "medyanYas": 46.5,
@@ -33750,7 +34991,7 @@
    "altBolge": [],
    "fips": "48143",
    "lead": 325,
-   "aplus": 12,
+   "aplus": 25,
    "ortDonum": 1.5,
    "nufus": 43244,
    "medyanYas": 31.9,
@@ -33876,7 +35117,7 @@
    "altBolge": [],
    "fips": "48137",
    "lead": 324,
-   "aplus": 3,
+   "aplus": 12,
    "ortDonum": 3.9,
    "nufus": 1392,
    "medyanYas": 39.6,
@@ -34250,7 +35491,7 @@
    "altBolge": [],
    "fips": "55103",
    "lead": 317,
-   "aplus": 16,
+   "aplus": 19,
    "ortDonum": 25.4,
    "nufus": 17229,
    "medyanYas": 46.4,
@@ -34349,7 +35590,7 @@
    "altBolge": [],
    "fips": "55141",
    "lead": 317,
-   "aplus": 26,
+   "aplus": 17,
    "ortDonum": 18.8,
    "nufus": 74039,
    "medyanYas": 43.9,
@@ -34472,7 +35713,7 @@
    "altBolge": [],
    "fips": "30077",
    "lead": 312,
-   "aplus": 28,
+   "aplus": 30,
    "ortDonum": 179.6,
    "nufus": 7029,
    "medyanYas": 43.3,
@@ -34573,7 +35814,7 @@
    "altBolge": [],
    "fips": "55097",
    "lead": 310,
-   "aplus": 24,
+   "aplus": 20,
    "ortDonum": 26.4,
    "nufus": 70375,
    "medyanYas": 38.1,
@@ -34688,7 +35929,7 @@
    "altBolge": [],
    "fips": "55041",
    "lead": 310,
-   "aplus": 8,
+   "aplus": 3,
    "ortDonum": 25.6,
    "nufus": 9261,
    "medyanYas": 49.1,
@@ -34890,5 +36131,6 @@
     "Yatak bölgesi (şehre komşu)"
    ]
   }
- ]
+ ],
+ "eyaletToplam": 43
 }

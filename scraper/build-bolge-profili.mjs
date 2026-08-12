@@ -231,6 +231,13 @@ for (const h of hedefHam) {
 const hedef = [...birlesik.values()].sort((a, b) => b.lead - a.lead);
 
 const toplamLead = (await client.query(`select count(*)::int n from offmarket_leads`)).rows[0].n;
+// Envanterin TAMAMI kaç eyalette — profillenen eyalet sayısıyla KARIŞMASIN.
+// Sunum ekranı başlıkta "36 eyalette 1.272.766 arsa" diyordu: parsel sayısı
+// envanterin tamamı, eyalet sayısı ise yalnız profillenen county'lerinkiydi.
+// İki farklı kapsamdan tek cümle kurmak yatırımcıya açık veriyor.
+const eyaletToplam = (await client.query(
+  `select count(distinct state)::int n from offmarket_leads where state is not null`
+)).rows[0].n;
 const kapsanan = hedef.reduce((s, r) => s + r.lead, 0);
 console.log(`   ${hedef.length} county · envanterin %${Math.round((kapsanan / toplamLead) * 100)}'i`);
 await client.end();
@@ -322,6 +329,7 @@ for (const c of cikti) parselDagilim[c.sinif] = (parselDagilim[c.sinif] || 0) + 
 writeFileSync(OZET, JSON.stringify({
   uretildi: new Date().toISOString(),
   countyN: cikti.length,
+  eyaletToplam,
   toplamLead: toplamLead,
   kapsananLead: kapsanan,
   eyaletN: new Set(cikti.map((c) => c.state)).size,
@@ -335,6 +343,7 @@ writeFileSync(OUT, JSON.stringify({
   uretildi: new Date().toISOString(),
   qcewYil: YIL,
   countyN: cikti.length,
+  eyaletToplam,
   fipsYok,
   hataN,
   kapsananLead: kapsanan,

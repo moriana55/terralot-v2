@@ -127,5 +127,6 @@
  "skiptrace": {
   "dosya": "scraper/out/skiptrace-2026-08-03-24243.csv",
   "kisi": 24243
- }
+ },
+ "eyaletToplam": 43
 }
