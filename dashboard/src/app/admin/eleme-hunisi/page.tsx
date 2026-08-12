@@ -439,8 +439,8 @@ function ElemeHunisiIcerik() {
                     : `${tarih(is.ilkTur)} → ${tarih(is.sonTur)}.`}{" "}
                   {is.countySayisi > 0 ? (
                     <>
-                      Yukarıdaki sayı <strong>{is.countySayisi} tekil county</strong> üzerinden
-                      hesaplanır: aynı county gece gece yeniden taranıyor, her taramada
+                      Yukarıdaki sayı <strong>{is.countySayisi} tekil county</strong>{" "}
+                      üzerinden hesaplanır: aynı county gece gece yeniden taranıyor, her taramada
                       sayılsaydı rakam kendi kendine şişerdi — yalnızca her county&apos;nin{" "}
                       <em>en son</em> taraması sayılır.{" "}
                     </>

@@ -74,7 +74,12 @@ const SUNUM = sunumOzet as {
  * çelişiyordu. Artık canlı sayaçlar basılır; sayaç gelmeden snapshot'a düşer
  * (asla boş kalmaz), profil verisi ise ait olduğu satırda kalır.
  */
-function sunumAdimlari(canliEyalet: number | null, canliAplus: number | null, canliLead: number | null) {
+function sunumAdimlari(
+  canliEyalet: number | null,
+  canliAplus: number | null,
+  canliLead: number | null,
+  canliIncelenen: number | null,
+) {
   const eyalet = canliEyalet ?? SUNUM.eyaletN;
   const aplus = canliAplus ?? SUNUM.aplusA;
   const lead = canliLead ?? SUNUM.toplamLead;
@@ -84,7 +89,12 @@ function sunumAdimlari(canliEyalet: number | null, canliAplus: number | null, ca
       href: "/admin/eleme-hunisi",
       icon: Presentation,
       ad: "1 · Açılış — milyonlardan bir avuca",
-      cumle: `"69 milyon parsele erişimimiz var, 3 milyonunu işledik, ${tr(lead)}'i envantere aldık." Huninin tepesi ile tabanı bir arada.`,
+      // ⚠ "3 milyonunu işledik" YAZMA. O sayı hasat defterinin şişmiş halinden
+      // geliyordu (aynı county her gece yeniden sayılıyordu). Gerçek, tek tek
+      // süzgeçten geçirilmiş parsel sayısı huni ucundan CANLI gelir.
+      cumle: canliIncelenen
+        ? `"69 milyon parsele erişebiliyoruz, ${tr(canliIncelenen)} parseli tek tek süzgeçten geçirdik, envanterde ${tr(lead)} lead var." Huninin tepesi ile tabanı bir arada.`
+        : `"69 milyon parsele erişebiliyoruz, envanterde ${tr(lead)} lead var." Huninin tepesi ile tabanı bir arada.`,
       rakam: `${eyalet} eyalet`,
     },
     {
@@ -156,17 +166,26 @@ export default function BugunEkrani() {
   // snapshot'a düşüyor ve ekranda 34 eyalet · 35.114 A+/A yazıyordu —
   // yani sunumun ilk ekranında yanlış rakam duruyordu. Eleme Hunisi ucu
   // aynı toplayıcı RPC'yi ~0,1 sn'de döndürür; şerit artık onu bekler.
-  const [hizliOlcu, setHizliOlcu] = useState<{ lead: number; eyalet: number; aplus: number } | null>(null);
+  const [hizliOlcu, setHizliOlcu] = useState<{ lead: number; eyalet: number; aplus: number; incelenen: number | null } | null>(null);
 
   useEffect(() => {
     let canli = true;
-    al<{ havuz?: { kayitli: number | null; eyaletSayisi: number | null; yatirimaUygun: number | null } }>(
-      "/api/admin/eleme-hunisi",
-    ).then((d) => {
+    al<{
+      havuz?: { kayitli: number | null; eyaletSayisi: number | null; yatirimaUygun: number | null };
+      is?: { aday: number };
+    }>("/api/admin/eleme-hunisi").then((d) => {
       const h = d?.havuz;
       if (!canli || !h) return;
       if (h.kayitli != null && h.eyaletSayisi != null && h.yatirimaUygun != null) {
-        setHizliOlcu({ lead: h.kayitli, eyalet: h.eyaletSayisi, aplus: h.yatirimaUygun });
+        setHizliOlcu({
+          lead: h.kayitli,
+          eyalet: h.eyaletSayisi,
+          aplus: h.yatirimaUygun,
+          // "İncelenen" AYNI uçtan gelir ki şeritteki cümle ile huni ekranı
+          // birbirini tutsun. Eskiden buraya elle "3 milyon" yazılmıştı;
+          // o sayı, aynı county'nin her gece yeniden sayılmasından şişmişti.
+          incelenen: d?.is?.aday ?? null,
+        });
       }
     });
     return () => { canli = false; };
@@ -270,6 +289,7 @@ export default function BugunEkrani() {
             hizliOlcu?.eyalet ?? null,
             hizliOlcu?.aplus ?? null,
             hizliOlcu?.lead ?? null,
+            hizliOlcu?.incelenen ?? null,
           ).map((a, i) => (
             <li key={a.href} className="border-t first:border-t-0" style={{ borderColor: "var(--surface-high)" }}>
               {/* Panel dışına giden satır yeni sekmede açılır — sunum sırasında
@@ -302,8 +322,11 @@ export default function BugunEkrani() {
           &quot;50 eyalet&quot; — 43&apos;te veri var, 34&apos;ü profilli ·{" "}
           &quot;rakip ucuza alıp pahalıya satıyor&quot; — doğrulanmadı, quit-claim kayıtları
           <br />
-          <b>Bu hafta:</b> fiyat denetimi · not motoru düzeltildi · rakip haritası kuruldu ·
-          4.060 sahibin telefonu çıkarıldı{" "}
+          {/* 12 Ağustos denetim turu — hepsi ölçülmüş, hepsi savunulabilir. */}
+          <b>Bu hafta:</b> sistem denetimi · A+/A artık &quot;sahibine ulaşılabilir&quot;
+          şartına bağlı (4.466 parsel üst dilimden düştü) · huni sayacındaki tekrar
+          temizlendi · haritada görünmeyen 53.443 parselin pini geliyor ·
+          gece turu 9 gün sonra tekrar çalışıyor · 4.060 sahibin telefonu PropStream&apos;de{" "}
           {SUNUM.skiptrace && <>· eski liste: <code>{SUNUM.skiptrace.dosya}</code></>}
         </div>
       </section>

@@ -68,7 +68,18 @@ export async function GET(req: NextRequest) {
     // hasat) statement timeout veriyor ve sayfa TAMAMEN boş kalıyordu.
     // Sayı göstermemektense biraz eski ama gerçek sayıyı göster — kaynağı da
     // dürüstçe söyle. Snapshot: node scraper/build-not-matrisi.mjs
-    if (SNAP?.matrix?.length) {
+    // ── ÖNCE CANLI ÖZET TABLO (2026-08-12) ─────────────────────────────────
+    // RPC 1,27M satırı tarıyor ve veritabanı yazma altındayken düzenli olarak
+    // zaman aşımına düşüyordu. O anda ekranda turuncu "rakamlar yedekten
+    // gösteriliyor" şeridi çıkıyordu — sunumun ikinci ekranında görülecek en
+    // kötü şey. `offmarket_grade_summary` aynı kırılımı 40 küsur satırda
+    // tutuyor, notlandırma turu her gece yazıyor: tek ucuz sorgu, zaman aşımı
+    // yok ve rakam RPC ile birebir aynı. Bu bir "yedek" değil, aynı sayının
+    // ucuz yolu — bu yüzden kaynak "canli" kalır.
+    const ozet = await s.from("offmarket_grade_summary").select("state,grade,n,geo_n");
+    if (!ozet.error && (ozet.data?.length ?? 0) > 0) {
+      matrix = ozet.data as MxRow[];
+    } else if (SNAP?.matrix?.length) {
       matrix = SNAP.matrix;
       matrisKaynagi = "snapshot";
       snapshotAni = SNAP.uretildi;
@@ -124,7 +135,12 @@ export async function GET(req: NextRequest) {
       .in("grade", ["A+", "A"]);
     if (eyaletSuz) q = q.eq("state", eyaletSuz);
     const { data, error } = await q
-      .order("grade_score", { ascending: false })
+      // nullsFirst AÇIKÇA yazılır (2026-08-12): PostgREST'te `desc` varsayılanı
+      // NULLS FIRST'tür, indeksimiz ise `desc nulls last`. Bu tek fark yüzünden
+      // planlayıcı indeksi kullanamayıp 1,27M satırı tarıyor ve sorgu zaman
+      // aşımına düşüyordu (ekranda turuncu "yedekten gösteriliyor" şeridi).
+      // Aynı ifadeyle: 8,9 sn -> 16 ms.
+      .order("grade_score", { ascending: false, nullsFirst: false })
       // İkincil sıra: eşit skorlarda sayfalar arası kayma olmasın (kararlı sıra).
       .order("lead_id", { ascending: true })
       .range(bas, bas + SAYFA_BOY - 1);

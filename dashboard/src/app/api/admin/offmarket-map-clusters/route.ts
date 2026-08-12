@@ -24,7 +24,12 @@ export const dynamic = "force-dynamic";
 
 type PtsFile = { generatedAt: string; states: string[]; byState: Record<string, number>; pts: [number, number, number][] };
 
-const CLUSTER_RADIUS = 60; // px — AZ nokta yoğunluğunda okunur baloncuk
+// px — kümelenme yarıçapı. Kümeleme EYALET BAZINDA yapıldığı için (renkler
+// ayrışsın diye) komşu eyaletlerin baloncukları zaten birleşmiyor; yarıçap 60
+// iken baloncuk çapı 48-74 px'e çıkabildiğinden aynı eyalet içinde de üst üste
+// biniyor ve Teksas/güneydoğu okunmaz hale geliyordu. 90'a çıkarıldı: baloncuk
+// sayısı azalır, her biri okunur kalır (2026-08-12).
+const CLUSTER_RADIUS = 90;
 const CLUSTER_MAX_ZOOM = 14; // bu zoom'dan sonra HER kayıt tek tek nokta
 
 // Modül yüklenince BİR KEZ: gz oku → eyalet başına indeks kur (yüzbinlerce nokta).

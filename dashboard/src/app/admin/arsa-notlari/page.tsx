@@ -122,6 +122,7 @@ export default function ArsaNotlari() {
     );
 
   const f = data.funnel!;
+  const eyaletSayisi = new Set((data.matrix ?? []).map((r) => r.state).filter(Boolean)).size;
   const gradedPct = f.total ? Math.round((f.graded / f.total) * 100) : 0;
 
   return (
@@ -146,7 +147,9 @@ export default function ArsaNotlari() {
       {/* Huni şeridi */}
       <div className="mt-5 grid grid-cols-2 sm:grid-cols-5 gap-3">
         {[
-          ["Toplam lead", fmt(f.total), "25 eyalet, county kayıtlarından"],
+          // Eyalet sayısı ELLE YAZILMAZ — matristen sayılır. "25 eyalet" yazıyordu,
+          // gerçek 43'e çıkalı haftalar olmuştu ve kimse fark etmemişti.
+          ["Toplam lead", fmt(f.total), `${eyaletSayisi} eyalet, county kayıtlarından`],
           ["Puanlanan", `${fmt(f.graded)} (%${gradedPct})`, "not motoru — percentile eşikli"],
           ["Geo-doğrulanan", fmt(f.geoDone), "OSM yol/elektrik/su taraması"],
           ["A notu", fmt(f.a), GRADE_LABELS["A"]],
