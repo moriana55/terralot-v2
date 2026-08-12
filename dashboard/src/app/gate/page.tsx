@@ -47,12 +47,12 @@ function GateForm() {
           <Lock className="w-5 h-5" style={{ color: "var(--primary)" }} />
         </div>
         <div>
-          <h1 className="font-bold text-lg leading-tight">Admin Access</h1>
-          <p className="text-xs" style={{ color: "var(--muted)" }}>Protected area</p>
+          <h1 className="font-bold text-lg leading-tight">VegaLand Paneli</h1>
+          <p className="text-xs" style={{ color: "var(--muted)" }}>Yetkili giriş</p>
         </div>
       </div>
       <div>
-        <label className="block text-xs mb-1.5" style={{ color: "var(--muted)" }}>Password</label>
+        <label className="block text-xs mb-1.5" style={{ color: "var(--muted)" }}>Şifre</label>
         <input type="password" value={password} autoFocus onChange={(e) => setPassword(e.target.value)}
           className="w-full rounded-lg border px-3 py-2.5 text-sm outline-none"
           style={{ background: "var(--surface-low)", borderColor: "var(--outline)" }} />
@@ -62,7 +62,7 @@ function GateForm() {
         className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-semibold disabled:opacity-60"
         style={{ background: "var(--primary)", color: "#000" }}>
         {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Lock className="w-4 h-4" />}
-        Enter
+        Giriş
       </button>
     </form>
   );
