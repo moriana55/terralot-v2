@@ -212,10 +212,27 @@ async function yetenekOlc(src) {
   const temel = { outFields: src.outFields, returnGeometry: "true", outSR: "4326", geometryPrecision: "6", maxAllowableOffset: "0.0005" };
   for (const get of [false, true]) {
     // 1) Sayfalama + geometri
-    try {
-      const j = await arcgis(src, { where: src.baseWhere, ...temel, resultRecordCount: "1", resultOffset: "0" }, get);
-      if (j.features?.length) return { mod: "sayfali", get, geometri: true };
-    } catch { /* sonraki denemeye */ }
+    //
+    // ÜÇ DENEME (2026-08-12): burası tek denemeydi ve geometrili sorgu GEÇİCİ
+    // bir hatayla (timeout/5xx) düşerse akış sessizce 2. adıma —
+    // "geometri yok" moduna — kayıyordu. O county'nin TÜM hasadı koordinatsız
+    // yazılıyor, haritada hiç görünmüyordu: AL/Cullman'da 17.464 parselin
+    // tamamı böyle pinsiz kaldı (servis test edildi, geometriyi sorunsuz
+    // veriyor). Kalıcı olarak geometri vermeyen servis üç denemede de düşer,
+    // maliyet iki fazla istek.
+    for (let deneme = 1; deneme <= 3; deneme++) {
+      try {
+        const j = await arcgis(src, { where: src.baseWhere, ...temel, resultRecordCount: "1", resultOffset: "0" }, get);
+        if (j.features?.length) {
+          // "Özellik döndü" yetmez — geometri GERÇEKTEN geldi mi?
+          const geoVar = j.features.some((f) => f?.geometry);
+          return { mod: "sayfali", get, geometri: geoVar };
+        }
+        break; // sorgu çalıştı ama kayıt yok → tekrar denemenin anlamı yok
+      } catch {
+        if (deneme < 3) await sleep(2000 * deneme);
+      }
+    }
     // 2) Sayfalama, geometri yok
     try {
       const j = await arcgis(src, { where: src.baseWhere, outFields: src.outFields, returnGeometry: "false", resultRecordCount: "1", resultOffset: "0" }, get);
@@ -498,7 +515,17 @@ async function main() {
     ey.yazilan += yazilan;
     ey.aday += aday;
     for (const [k, v] of Object.entries(elenen)) ey.elenen[k] = (ey.elenen[k] ?? 0) + v;
-    rapor.county.push({ key, aday, yazilan, elenen, mod: yet.mod, sureSn: Math.round((Date.now() - t0) / 1000) });
+    rapor.county.push({
+      key, aday, yazilan, elenen, mod: yet.mod,
+      // Koordinat alındı mı — log'a YAZILIR. Eskiden görünmüyordu, bu yüzden
+      // koordinatsız hasat edilen county aylarca fark edilmeden haritadan
+      // eksik kaldı (AL/Cullman 17.464 parsel).
+      geometri: yet.geometri === true,
+      sureSn: Math.round((Date.now() - t0) / 1000),
+    });
+    if (yazilan > 0 && yet.geometri !== true) {
+      ey.sorun.push(`${key}: KOORDİNATSIZ hasat — ${yazilan} parsel haritada görünmeyecek (servis geometri döndürmedi)`);
+    }
 
     const elenenToplam = Object.values(elenen).reduce((a, b) => a + b, 0);
     const oran = aday ? Math.round((elenenToplam / aday) * 100) : 0;
