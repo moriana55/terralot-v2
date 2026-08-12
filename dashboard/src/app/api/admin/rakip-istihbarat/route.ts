@@ -249,40 +249,55 @@ export async function GET(req: NextRequest) {
 
     // ── BİZİM ENVANTER (offmarket_leads, SALT-OKUNUR) ────────────────────────────
     // Eyalet sayıları her zaman güvenilir; county sayıları en-iyi-çaba (ilike token).
-    const hotStates = [...new Set(rankedRegions.map((r) => r.state))];
+    // ── HIZ (2026-08-12) ─────────────────────────────────────────────────────
+    // Buradaki sayılar eskiden bölge başına AYRI `count exact` head-count ile
+    // alınıyordu; county eşleşmesi `ilike '%token%'` olduğu için hiçbir indeks
+    // kullanılamıyor, her sorgu 1,27M satırı tarıyordu. Uç 17,8 saniye
+    // sürüyordu. `offmarket_envanter_ozet_mv` aynı kırılımı 1.459 satırda
+    // tutuyor: TEK istekle çekilip eşleştirme bellekte yapılıyor. Token
+    // mantığı birebir korundu (aynı sonuç, sorgu yok).
     const stateLeadCounts: Record<string, number> = {};
+    const countyRows: { state: string; county: string | null; lead_sayisi: number }[] = [];
     let ourTableMissing = false;
-
-    await Promise.all(
-      hotStates.map(async (st) => {
-        const { count, error } = await s
-          .from("offmarket_leads")
-          .select("*", { count: "exact", head: true })
-          .eq("state", st.toUpperCase());
+    {
+      const SAYFA = 1000;
+      for (let bas = 0; ; bas += SAYFA) {
+        const { data, error } = await s
+          .from("offmarket_envanter_ozet_mv")
+          .select("state,county,lead_sayisi")
+          .range(bas, bas + SAYFA - 1);
         if (error) {
           if (isMissing(error.message)) ourTableMissing = true;
-          return;
+          break;
         }
-        stateLeadCounts[st] = count ?? 0;
-      })
-    );
-    if (ourTableMissing) notes.push("offmarket_leads tablosu yok — bizim lead sayıları gösterilemiyor.");
+        const parca = (data ?? []) as typeof countyRows;
+        countyRows.push(...parca);
+        if (parca.length < SAYFA) break;
+        if (bas > 50_000) break;
+      }
+      for (const r of countyRows) {
+        const st = String(r.state ?? "").toUpperCase();
+        if (!st) continue;
+        stateLeadCounts[st] = (stateLeadCounts[st] ?? 0) + (r.lead_sayisi ?? 0);
+      }
+    }
+    if (ourTableMissing) notes.push("offmarket_envanter_ozet_mv görünümü yok — bizim lead sayıları gösterilemiyor.");
 
-    // County-seviye lead sayısı: sıralı bölgeler için paralel head-count (ilike).
     if (!ourTableMissing) {
-      await Promise.all(
-        rankedRegions.map(async (r) => {
-          r.ourLeadsState = stateLeadCounts[r.state] ?? 0;
-          const tok = countyToken(r.countyNorm);
-          if (!tok || r.ourLeadsState === 0) return; // eyalette hiç lead yoksa county de 0
-          const { count, error } = await s
-            .from("offmarket_leads")
-            .select("*", { count: "exact", head: true })
-            .eq("state", r.state.toUpperCase())
-            .ilike("county", `%${tok}%`);
-          if (!error) r.ourLeadsCounty = count ?? 0;
-        })
-      );
+      for (const r of rankedRegions) {
+        const st = r.state.toUpperCase();
+        r.ourLeadsState = stateLeadCounts[st] ?? 0;
+        const tok = countyToken(r.countyNorm);
+        if (!tok || r.ourLeadsState === 0) continue;
+        const tokUp = tok.toUpperCase();
+        r.ourLeadsCounty = countyRows
+          .filter(
+            (x) =>
+              String(x.state ?? "").toUpperCase() === st &&
+              String(x.county ?? "").toUpperCase().includes(tokUp)
+          )
+          .reduce((t, x) => t + (x.lead_sayisi ?? 0), 0);
+      }
     }
 
     // ── Öncelik etiketi ──────────────────────────────────────────────────────────
