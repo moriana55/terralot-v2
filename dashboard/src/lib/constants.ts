@@ -6,7 +6,19 @@ export const GATE_RATE_MAX_ATTEMPTS = 8;
 
 // Generic API rate limiter defaults (src/lib/api-guard.ts)
 export const API_RATE_WINDOW_MS = 60_000; // 1 min
-export const API_RATE_LIMIT = 60; // requests/window/IP
+// İstek/dakika/IP. 60'tı — TEK KULLANICI için bile dardı: paneldeki bir sayfa
+// açılışta 8-10 uç birden çağırıyor, birkaç ekran gezince sınır doluyor ve
+// ekranda "Yüklenemedi: rate_limited" çıkıyordu (2026-08-12'de sunum
+// hazırlığında yaşandı).
+//
+// ⚠ Yerelde `x-forwarded-for` başlığı YOK → clientIp() "unknown" döner ve
+// TÜM istekler tek kovayı paylaşır; yani terminalden atılan test istekleri
+// tarayıcının hakkını yiyor. Üretimde (Vercel) başlık geldiği için kova
+// gerçekten IP başınadır.
+//
+// 300, şifre kapısının arkasındaki tek kullanıcıyı asla rahatsız etmez ama
+// betikle yapılan kaba kuvvet denemesini yine durdurur.
+export const API_RATE_LIMIT = 300; // requests/window/IP
 
 // Due-diligence external fetch timeouts (src/app/api/dd-check/route.ts)
 export const DD_FEMA_TIMEOUT_MS = 5000;

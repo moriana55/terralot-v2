@@ -19,6 +19,7 @@
     "express": "^5.2.1",
     "node-fetch": "^2.7.0",
     "pg": "^8.22.0",
+    "pg-copy-streams": "^7.0.0",
     "puppeteer": "^25.1.0",
     "puppeteer-extra": "^3.3.6",
     "puppeteer-extra-plugin-stealth": "^2.11.2",

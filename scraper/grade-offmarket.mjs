@@ -120,9 +120,50 @@ const COLS = `lead_id, state, county, region, apn, owner, mailing_address, maili
   dist_road_m, dist_power_m, dist_water_m, dist_town_m, geo_enriched_at,
   grade, grade_score, grade_reason, (grade_breakdown is not null) as has_breakdown`;
 
+/**
+ * Uzun koşuda kopan bağlantıya dayanıklı sorgu.
+ *
+ * NEDEN (2026-08-12): motor tek bir `pg.Client` kullanıyordu ve 1,27 milyon
+ * satırlık yazma aşaması saatler sürdüğü için Supabase bağlantıyı düşürüyordu.
+ * `pg.Client` bunu yakalanmamış `error` olayı olarak fırlatıyor → Node süreci
+ * SESSİZCE ölüyor: log son yazdığı sayıda donuyor, hata satırı yok, exit kodu
+ * yok. Bugün iki kez yaşandı (180.000 ve 806.000'de dondu) ve her ikisinde de
+ * yarım notlandırma bırakıp gitti.
+ *
+ * Aynı tuzağa `geo-enrich-offmarket.mjs` de düşmüştü; çözüm orada kanıtlandı:
+ * havuz + boşta-hata yutucu + yeniden deneme. Aynısı buraya uygulandı.
+ */
+const GECICI_RE = /Connection terminated|ECONNRESET|ETIMEDOUT|EPIPE|socket hang up|terminating connection|Client has encountered a connection error/i;
+
+async function sorgu(pool, sql, params) {
+  for (let deneme = 1; ; deneme++) {
+    try {
+      return await pool.query(sql, params);
+    } catch (e) {
+      const gecici = GECICI_RE.test(String(e?.message ?? ""));
+      if (!gecici || deneme >= 4) throw e;
+      const bekle = 3000 * deneme;
+      console.warn(`\npg: bağlantı koptu (${e.message}) — ${bekle / 1000}sn sonra ${deneme + 1}. deneme`);
+      await new Promise((r) => setTimeout(r, bekle));
+    }
+  }
+}
+
 async function main() {
-  const client = new pg.Client({ connectionString: dbUrl() });
-  await client.connect();
+  // pg.Client DEĞİL Pool: kopan bağlantıyı kendisi yeniler.
+  const pool = new pg.Pool({
+    connectionString: dbUrl(),
+    max: 2,
+    keepAlive: true,
+    idleTimeoutMillis: 0,
+    statement_timeout: 0,
+  });
+  // Boştaki bağlantı hatası süreci ÖLDÜRMESİN (asıl sessiz katil buydu).
+  pool.on("error", (e) => console.warn(`\npg boşta hata (yutuldu): ${e.message}`));
+  const client = {
+    query: (sql, params) => sorgu(pool, sql, params),
+    end: () => pool.end(),
+  };
   const ctx = await buildContext(client);
 
   // ── Tüm lead'leri keyset sayfalamayla çek + skorla.
