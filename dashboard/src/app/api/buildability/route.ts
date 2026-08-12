@@ -111,7 +111,7 @@ export async function POST(req: NextRequest) {
   const county = (lead?.county as string) ?? body.county ?? null;
   const lat = (lead?.lat as number) ?? body.lat ?? null;
   const lng = (lead?.lng as number) ?? body.lng ?? null;
-  let slopePct = (lead?.slope_pct as number) ?? body.slopePct ?? null;
+  const slopePct = (lead?.slope_pct as number) ?? body.slopePct ?? null;
   let floodScore = (lead?.flood_score as number) ?? null;
   let roadAccess = (lead?.road_access as string) ?? null;
 

@@ -111,13 +111,13 @@ function buildContracts(rows: PaymentRow[]): Contract[] {
 
 const money = (n: number | null | undefined) => (n == null ? "—" : `$${n.toLocaleString()}`);
 
-// 🔒 Kilitli — owner-finance modülü sonra aktif edilecek. Mevcut kod _FinancingPageImpl içinde korunuyor.
+// 🔒 Kilitli — owner-finance modülü sonra aktif edilecek. Mevcut kod FinancingPageImpl içinde korunuyor.
 export default function FinancingPage() {
   return <ComingSoon title="Owner Finance" />;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-function _FinancingPageImpl() {
+function FinancingPageImpl() {
   const [rows, setRows] = useState<PaymentRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

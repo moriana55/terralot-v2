@@ -10,14 +10,11 @@ interface Props {
 
 export default function ParcelMap({ lat, lng, title }: Props) {
   const mapContainer = useRef<HTMLDivElement>(null);
-  const [failed, setFailed] = useState(false);
   const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
+  const [failed, setFailed] = useState(!token || token.includes("your_mapbox"));
 
   useEffect(() => {
-    if (!token || token.includes("your_mapbox")) {
-      setFailed(true);
-      return;
-    }
+    if (!token || token.includes("your_mapbox")) return;
     let map: any;
     let cancelled = false;
 

@@ -1,24 +1,21 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
 
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-});
-
 export const metadata: Metadata = {
   title: {
-    default: "TerraLot — The All-in-One Platform for Land Flippers",
+    default: "TerraLot — Land Deal Research & Underwriting",
     template: "%s | TerraLot",
   },
-  description: "Find off-market deals, send direct mail, manage subdivisions, track owner financing, and close more land deals — all from one dashboard.",
+  description: "Research, enrich, score, and review off-market and tax-deed land opportunities in one operational dashboard.",
   keywords: ["land flipping software", "land investing platform", "owner financing management", "direct mail land", "land acquisition tool"],
 };
 
 // Placeholder key ile clerk-js yüklenemiyor — gerçek key gelince otomatik aktif olur
-const CLERK_ENABLED = !process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY?.includes("cGxhY2Vob2xkZXI");
+const clerkPublishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+const CLERK_ENABLED = Boolean(
+  clerkPublishableKey && !clerkPublishableKey.includes("cGxhY2Vob2xkZXI")
+);
 
 export default function RootLayout({
   children,
@@ -26,7 +23,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const inner = (
-    <html lang="en" className={inter.variable}>
+    <html lang="en">
       <body className="antialiased min-h-screen">{children}</body>
     </html>
   );

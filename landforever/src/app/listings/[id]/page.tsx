@@ -1,16 +1,9 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import dynamic from "next/dynamic";
+import ParcelMap from "@/components/ParcelMap";
 import PaymentCalculator from "@/components/PaymentCalculator";
 import listingsData from "@/data/listings.json";
-
-const ParcelMap = dynamic(() => import("@/components/ParcelMap"), {
-  ssr: false,
-  loading: () => (
-    <div className="w-full h-full rounded-2xl bg-forest/10 animate-pulse" />
-  ),
-});
 
 interface Listing {
   id: string;
@@ -37,8 +30,9 @@ export function generateStaticParams() {
   return listings.map((l) => ({ id: l.id }));
 }
 
-export function generateMetadata({ params }: { params: { id: string } }) {
-  const listing = listings.find((l) => l.id === params.id);
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const listing = listings.find((l) => l.id === id);
   if (!listing) return { title: "Parcel not found" };
   const title = `${listing.title} — ${listing.acreage} acres in ${listing.county}, ${listing.state}`;
   const description = `${listing.acreage} acres in ${listing.county}, ${listing.state}. From $${listing.downPayment} down, $${listing.monthly36}/mo. ${listing.description.slice(0, 120)}`;
@@ -56,12 +50,13 @@ export function generateMetadata({ params }: { params: { id: string } }) {
   };
 }
 
-export default function ListingDetail({
+export default async function ListingDetail({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
-  const listing = listings.find((l) => l.id === params.id);
+  const { id } = await params;
+  const listing = listings.find((l) => l.id === id);
   if (!listing) notFound();
 
   const facts = [

@@ -94,13 +94,13 @@ const typeConfig: Record<PartnerType, { label: string; color: string }> = {
   wholesaler: { label: "Wholesaler", color: "#50dc8c" },
 };
 
-// 🔒 Kilitli — referral modülü sonra aktif edilecek. Mevcut kod _ReferralsPageImpl içinde korunuyor.
+// 🔒 Kilitli — referral modülü sonra aktif edilecek. Mevcut kod ReferralsPageImpl içinde korunuyor.
 export default function ReferralsPage() {
   return <ComingSoon title="Referral Programı" />;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-function _ReferralsPageImpl() {
+function ReferralsPageImpl() {
   const [view, setView] = useState<"partners" | "referrals">("partners");
   const [selectedPartner, setSelectedPartner] = useState<string | null>(null);
   const [copied, setCopied] = useState<string | null>(null);

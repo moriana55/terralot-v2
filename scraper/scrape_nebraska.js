@@ -9,7 +9,7 @@
  *
  * Flow:
  *   1. GET the PAD list page, scrape every county .xlsx link for the year.
- *   2. Download + parse each workbook (sheetjs). Columns:
+ *   2. Download + parse each workbook (ExcelJS). Columns:
  *      COUNTY | COUNTY NUMBER | PARCEL(apn) | OWNERS NAME | SITUS(address) |
  *      LEGAL | TAX DUE.
  *   3. Optional Census geocode on SITUS → lat/lng for the map.
@@ -24,7 +24,7 @@ require('dotenv').config();
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
-const XLSX = require('xlsx');
+const ExcelJS = require('exceljs');
 const { liqFor, scoreDeal, extraScores, redemptionPenalty } = require('./scoring');
 
 const BASE = 'https://revenue.nebraska.gov';
@@ -63,13 +63,22 @@ async function fetchWorkbook(url) {
   const res = await fetch(url, { headers: { 'User-Agent': UA }, signal: AbortSignal.timeout(60000) });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const buf = Buffer.from(await res.arrayBuffer());
-  return XLSX.read(buf, { type: 'buffer' });
+  const workbook = new ExcelJS.Workbook();
+  await workbook.xlsx.load(buf);
+  return workbook;
 }
 
 // Locate header row and column indices (column order is stable but be defensive).
 function parseWorkbook(wb) {
-  const ws = wb.Sheets[wb.SheetNames[0]];
-  const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: null });
+  const ws = wb.worksheets[0];
+  const rows = [];
+  ws.eachRow({ includeEmpty: true }, (row) => {
+    const values = [];
+    row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+      values[colNumber - 1] = typeof cell.value === 'number' ? cell.value : (cell.text || null);
+    });
+    rows.push(values);
+  });
   let hi = rows.findIndex((r) => r && r.some((c) => /PARCEL/i.test(String(c || ''))) && r.some((c) => /TAX\s*DUE/i.test(String(c || ''))));
   if (hi < 0) hi = 0;
   const header = rows[hi].map((c) => clean(c).toUpperCase());
@@ -171,7 +180,7 @@ function mapRow(r, g, url) {
   for (const url of files) {
     const cty = (String(url).match(/\/?(\d{2})([A-Za-z]+)_delinq/) || [, '', '?'])[2];
     try {
-      const wb = LOCAL ? XLSX.readFile(url) : await fetchWorkbook(url);
+      const wb = LOCAL ? await new ExcelJS.Workbook().xlsx.readFile(url) : await fetchWorkbook(url);
       const srcUrl = LOCAL ? `${BASE}/sites/default/files/doc/pad/delinquent_real_prop/${YEAR}/${path.basename(url)}` : url;
       const rows = parseWorkbook(wb).map((r) => mapRow(r, null, srcUrl));
       if (rows.length) { console.log(`  ✓ ${cty} → ${rows.length} parsel`); all = all.concat(rows); }
