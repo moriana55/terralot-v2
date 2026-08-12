@@ -141,4 +141,6 @@ söylemek zorunda değilsin (müşteriye giden veriye hiç dokunmadı) ama **sen
 3. `/admin/harita` — 43 eyalette gerçek nokta
 4. `/admin/eleme-hunisi` — düzeltilmiş huni
 5. `/admin/arama` — **Sıcak Arama Kokpiti: marj sıralı arama kuyruğu, numaralarıyla**
-6. `/admin/sunum-ulusal` — üst düzey özet (⚠ `/admin/sunum` ESKİ Mohave demosudur, açma)
+6. `/admin/sunum-ulusal` — üst düzey özet
+
+> Eski Mohave sunumu artık yok: `/admin/sunum` bu sayfaya yönleniyor, menüden de kaldırıldı. Yanlış ekranı açma ihtimalin sıfır.

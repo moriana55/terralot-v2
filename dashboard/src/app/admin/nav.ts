@@ -426,13 +426,9 @@ export const MENU: MenuGroup[] = [
       // Mohave müşteri sunumu: tek county'lik (20.000 parsel) ESKİ anlatım.
       // Yerini /admin/sunum-ulusal aldı (25 eyalet · 921K). İkisi menüde yan yana
       // durunca hangisinin güncel olduğu karışıyordu.
-      {
-        href: "/admin/sunum",
-        label: "Müşteri Sunumu · Mohave",
-        icon: Tv,
-        hint: "Mohave operasyonunun 3 ekranlık canlı-veri demosu",
-        alias: ["sunum", "demo", "presentation"],
-      },
+      // KALDIRILDI (2026-08-12): "/admin/sunum" artık /admin/sunum-ulusal'a
+      // yönleniyor. Menüde ayrı satır olarak durması, sunum sırasında yanlış
+      // ekranın açılma riskini taşıyordu.
 
       // ── HAZİRAN 2026 PİLOT EKRANLARI (2026-08-03'te buraya taşındı) ────────
       //    Bunlar canlı `offmarket_leads` (921.271 parsel) tablosunu DEĞİL,
