@@ -357,3 +357,40 @@ test("barGenislikleri: tüm değerler 0/null → hepsi 0 (NaN genişlik yok)", (
   assert.deepEqual(g, [0, 0]);
   for (const x of g) assert.ok(Number.isFinite(x));
 });
+
+// ── kapsam (sürüm 2) — aynı county'nin tekrar taranması sayıyı ŞİŞİRMEZ ─────
+// Gerçek olay (2026-08-12): aynı 7 eyalet 10 gece üst üste tarandı, defter
+// dosya adına göre tekilleştirdiği için ekran 989.227 yerine 3.501.129 dedi.
+
+test("birikimOzeti: kapsam varsa county başına SON gözlem sayılır (tekrar şişirmez)", () => {
+  const o = birikimOzeti({
+    surum: 2,
+    kapsam: [
+      { key: "nc-brunswick", eyalet: "NC", zaman: "2026-08-11T00:00:00Z", aday: 54568, yazilan: 27830, elenen: { "acre-bandi": 21957 } },
+      { key: "nc-brunswick", eyalet: "NC", zaman: "2026-08-12T00:00:00Z", aday: 54568, yazilan: 27830, elenen: { "acre-bandi": 21957 } },
+      { key: "ms-amite", eyalet: "MS", zaman: "2026-08-12T00:00:00Z", aday: 9149, yazilan: 8682, elenen: { "deger-bandi": 334 } },
+    ],
+    turlar: [
+      { kaynak: "a.json", baslangic: null, bitis: "2026-08-11T00:00:00Z", eyaletler: ["NC", "MS"], aday: 63717, yazilan: 36512, elenen: {} },
+      { kaynak: "b.json", baslangic: null, bitis: "2026-08-12T00:00:00Z", eyaletler: ["NC", "MS"], aday: 63717, yazilan: 36512, elenen: {} },
+    ],
+  });
+  // İki tur × 63.717 = 127.434 DEĞİL; tekil county toplamı 63.717.
+  assert.equal(o.aday, 54568 + 9149);
+  assert.equal(o.yazilan, 27830 + 8682);
+  assert.equal(o.countySayisi, 2);
+  assert.equal(o.turSayisi, 2); // tur sayısı yine turlardan
+  assert.deepEqual(o.eyaletler, ["MS", "NC"]);
+});
+
+test("birikimOzeti: kapsam yoksa eski (tur bazlı) yola düşer — geriye uyumluluk", () => {
+  const o = birikimOzeti({
+    surum: 1,
+    turlar: [
+      { kaynak: "a.json", baslangic: null, bitis: null, eyaletler: ["NC"], aday: 100, yazilan: 40, elenen: { x: 60 } },
+      { kaynak: "b.json", baslangic: null, bitis: null, eyaletler: ["NC"], aday: 100, yazilan: 40, elenen: { x: 60 } },
+    ],
+  });
+  assert.equal(o.aday, 200);
+  assert.equal(o.countySayisi, 0);
+});

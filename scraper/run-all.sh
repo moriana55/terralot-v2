@@ -117,6 +117,11 @@ step env GEO_TOP="${GEO_TOP:-3000}" node geo-enrich-offmarket.mjs
 # 3f) NOTLANDIRMA — geo verisi tazelendikten sonra A+..F notlarını yeniden hesapla.
 step node grade-offmarket.mjs
 
+# 3g) ENVANTER ÖZETİ — /admin/off-market-envanter ekranının okuduğu materialized
+# view. Tura BAĞLI DEĞİLDİ: 3 Ağustos'tan beri tazelenmemişti ve ekran 921.324
+# lead gösteriyordu, gerçek sayı 1.272.766'ydı. Notlandırmadan sonra koşar.
+step node tazele-envanter-ozet.mjs
+
 # 4) Competitor retail listings -> Supabase (competitor_listings)
 step node competitor-scraper.js
 

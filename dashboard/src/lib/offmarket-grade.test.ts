@@ -93,13 +93,13 @@ test("winsorLandValue: $0/$1 placeholder değer yok sayılır", () => {
 
 test("assessed bazlı spread dürüstçe bayraklanır; outlier A+ alamaz", () => {
   const r = scoreLead(
-    { owner: "SMITH JOHN", state: "AZ", county: "Mohave", acres: 5, land_value: 9000, dist_road_m: 50 },
+    { owner: "SMITH JOHN", mailing_address: "123 MAIN ST", state: "AZ", county: "Mohave", acres: 5, land_value: 9000, dist_road_m: 50 },
     CTX
   );
   assert.ok(r.flags.some((f: string) => /assessed bazlı spread/.test(f)));
   // outlier: 5 ac × comp $4.000/ac medyanına karşı $2M assessed → kırpılır + A tavanı
   const out = scoreLead(
-    { owner: "SMITH JOHN", state: "AZ", county: "Mohave", acres: 5, land_value: 2000000, dist_road_m: 50 },
+    { owner: "SMITH JOHN", mailing_address: "123 MAIN ST", state: "AZ", county: "Mohave", acres: 5, land_value: 2000000, dist_road_m: 50 },
     CTX
   );
   assert.equal(out.grade_cap, "A");
@@ -162,7 +162,7 @@ test("scoreLead: mutlak dolar barajı YOK — getiri katı kararı verir; landlo
   // net = 8000-3000-2000 = 3000 (eski kuralda $5K altı → C). maliyet = 5000,
   // getiri = 0.6x → artık TAVAN YOK; satılabilirlik (yol) belirleyici.
   const low = scoreLead(
-    { owner: "SMITH JOHN", state: "AZ", county: "Mohave", acres: 5, est_retail: 8000, est_offer: 3000, dist_road_m: 50 },
+    { owner: "SMITH JOHN", mailing_address: "123 MAIN ST", state: "AZ", county: "Mohave", acres: 5, est_retail: 8000, est_offer: 3000, dist_road_m: 50 },
     CTX
   );
   assert.equal(low.grade_cap, null);
@@ -170,7 +170,7 @@ test("scoreLead: mutlak dolar barajı YOK — getiri katı kararı verir; landlo
   // Gerçek Mohave vakası: $900'e al, $5.998'e sat. net = 3098, maliyet = 2900,
   // getiri = 1.07x → tavan yok + "ucuz-çok-adet" bayrağı.
   const mohave = scoreLead(
-    { owner: "SMITH JOHN", state: "AZ", county: "Mohave", acres: 5, est_retail: 5998, est_offer: 900, dist_road_m: 95 },
+    { owner: "SMITH JOHN", mailing_address: "123 MAIN ST", state: "AZ", county: "Mohave", acres: 5, est_retail: 5998, est_offer: 900, dist_road_m: 95 },
     CTX
   );
   assert.equal(mohave.grade_cap, null);
@@ -178,7 +178,7 @@ test("scoreLead: mutlak dolar barajı YOK — getiri katı kararı verir; landlo
 
   // Para kazandırmayan parsel hâlâ elenir: net = 3000-2500-2000 < 0 → C tavanı.
   const losing = scoreLead(
-    { owner: "SMITH JOHN", state: "AZ", county: "Mohave", acres: 5, est_retail: 3000, est_offer: 2500, dist_road_m: 50 },
+    { owner: "SMITH JOHN", mailing_address: "123 MAIN ST", state: "AZ", county: "Mohave", acres: 5, est_retail: 3000, est_offer: 2500, dist_road_m: 50 },
     CTX
   );
   assert.equal(losing.grade_cap, "C");
@@ -231,4 +231,41 @@ test("görüntü yardımcıları: renk fallback + bayrak ayrıştırma", () => {
   const s = splitFlags(["🛣 yol ~50 m", "absentee sahip", "⚡ elektrik ~100 m"]);
   assert.deepEqual(s.appeal, ["🛣 yol ~50 m", "⚡ elektrik ~100 m"]);
   assert.deepEqual(s.other, ["absentee sahip"]);
+});
+
+// ── ULAŞILABİLİRLİK TAVANI (2026-08-12) ────────────────────────────────────
+// Gerçek olay: AR'de 4.047 A+/A'nın 3.977'sinde posta adresi yoktu — vitrinde
+// "sahibine ulaşılabilir" diye gösterilen parselin sahibine ulaşım yolu yoktu.
+
+test("posta adresi ve telefonu olmayan lead A+/A olamaz (B tavanı)", () => {
+  const temel = {
+    owner: "SMITH JOHN",
+    state: "AZ",
+    county: "Mohave",
+    acres: 5,
+    land_value: 9000,
+    dist_road_m: 50,
+    dist_power_m: 100,
+    dist_water_m: 200,
+    dist_town_m: 5000,
+  };
+  const ulasilamaz = scoreLead({ ...temel, mailing_address: null, phone: null }, CTX);
+  assert.equal(ulasilamaz.grade_cap, "B");
+  assert.ok(ulasilamaz.flags.some((f: string) => /sahibe ulaşım yolu yok/.test(f)));
+
+  // posta adresi varsa tavan yok
+  const postali = scoreLead({ ...temel, mailing_address: "123 MAIN ST", phone: null }, CTX);
+  assert.notEqual(postali.grade_cap, "B");
+  assert.ok(!postali.flags.some((f: string) => /sahibe ulaşım yolu yok/.test(f)));
+
+  // skip trace telefonu geldiyse posta adresi olmasa da tavan kalkar
+  const telefonlu = scoreLead({ ...temel, mailing_address: "  ", phone: "+15551234567" }, CTX);
+  assert.notEqual(telefonlu.grade_cap, "B");
+
+  // tavan B'nin altını EZMEZ: landlocked yine F kalır
+  const f = scoreLead(
+    { ...temel, dist_road_m: -1, dist_power_m: -1, dist_water_m: -1, dist_town_m: -1, mailing_address: null, phone: null },
+    CTX
+  );
+  assert.equal(f.grade_cap, "F");
 });

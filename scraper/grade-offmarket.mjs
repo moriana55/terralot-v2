@@ -115,6 +115,7 @@ async function buildContext(client) {
 }
 
 const COLS = `lead_id, state, county, region, apn, owner, mailing_address, mailing_state,
+  phone,
   situs, acres, land_value, est_offer, est_retail, est_margin, absentee,
   dist_road_m, dist_power_m, dist_water_m, dist_town_m, geo_enriched_at,
   grade, grade_score, grade_reason, (grade_breakdown is not null) as has_breakdown`;

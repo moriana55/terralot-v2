@@ -39,9 +39,32 @@ export interface BirikimTuru {
   elenen: Record<string, number>;
 }
 
+/**
+ * Tek bir COUNTY'nin en son hasat gözlemi — sürüm 2 defterinin asıl ölçüsü.
+ *
+ * NEDEN (2026-08-12): sürüm 1'de tekillik anahtarı log dosyasının adıydı ve
+ * dosya adında tarih olduğu için aynı 7 eyalet her gece yeniden sayılıyordu.
+ * Ekranda 3,5 milyon "incelenen" görünüyordu, gerçek tekil iş 989 bindi.
+ * Bir county'yi 10 gece taramak 10 kat parsel incelemek DEĞİLDİR.
+ */
+export interface BirikimKapsami {
+  /** county anahtarı (ör. "nc-brunswick") — TEKİLLİK ANAHTARI. */
+  key: string;
+  eyalet: string;
+  /** Bu gözlemin geldiği log dosyası (izlenebilirlik için). */
+  kaynak?: string;
+  /** Gözlem zamanı (ISO) — aynı county'de en yenisi kazanır. */
+  zaman?: string | null;
+  aday: number;
+  yazilan: number;
+  elenen: Record<string, number>;
+}
+
 export interface BirikimDosyasi {
   surum?: number;
   guncelleme?: string | null;
+  /** Sürüm 2: county başına son gözlem. Varsa toplamlar BUNDAN hesaplanır. */
+  kapsam?: BirikimKapsami[];
   turlar?: BirikimTuru[];
 }
 
@@ -56,6 +79,8 @@ export interface ElemeSatiri {
 export interface BirikimOzeti {
   /** Deftere giren tur (log dosyası) sayısı. */
   turSayisi: number;
+  /** Tekil taranan county sayısı (sürüm 2 defteri yoksa 0). */
+  countySayisi: number;
   /** Birikimli incelenen parsel. */
   aday: number;
   /** Birikimli süzgeçten geçen. */
@@ -91,7 +116,13 @@ function sayi(v: unknown): number {
 
 /**
  * Defteri özetler. Boş/bozuk defter → her şey 0, `eleme` boş dizi.
- * Aynı `kaynak` iki kez varsa YALNIZCA SONUNCUSU sayılır (idempotent okuma).
+ *
+ * SAYIM KURALI (2026-08-12'de değişti):
+ *  • Defterde `kapsam` varsa (sürüm 2) toplamlar COUNTY başına son gözlemden
+ *    hesaplanır — aynı county'nin her gece yeniden taranması sayıyı ŞİŞİRMEZ.
+ *  • Yoksa (eski defter) tur bazlı toplama düşülür; bu yol tekrarlı sayabilir,
+ *    sadece geriye dönük uyumluluk için duruyor.
+ * Tur sayısı ve ilk/son tarih her iki durumda da `turlar`dan okunur.
  */
 export function birikimOzeti(b: BirikimDosyasi | null | undefined): BirikimOzeti {
   const benzersiz = new Map<string, BirikimTuru>();
@@ -101,19 +132,41 @@ export function birikimOzeti(b: BirikimDosyasi | null | undefined): BirikimOzeti
   }
   const turlar = [...benzersiz.values()];
 
+  // county anahtarı → son gözlem (dosyada mükerrer varsa sonuncusu kazanır)
+  const kapsam = new Map<string, BirikimKapsami>();
+  for (const k of b?.kapsam ?? []) {
+    if (!k || typeof k.key !== "string" || !k.key) continue;
+    const eski = kapsam.get(k.key);
+    if (!eski || String(k.zaman ?? "") >= String(eski.zaman ?? "")) kapsam.set(k.key, k);
+  }
+  const kapsamVar = kapsam.size > 0;
+
   let aday = 0;
   let yazilan = 0;
   const elenen = new Map<string, number>();
   const eyaletler = new Set<string>();
   const zamanlar: number[] = [];
 
-  for (const t of turlar) {
-    aday += sayi(t.aday);
-    yazilan += sayi(t.yazilan);
-    for (const e of t.eyaletler ?? []) if (e) eyaletler.add(String(e).toUpperCase());
-    for (const [k, v] of Object.entries(t.elenen ?? {})) {
-      elenen.set(k, (elenen.get(k) ?? 0) + sayi(v));
+  if (kapsamVar) {
+    for (const k of kapsam.values()) {
+      aday += sayi(k.aday);
+      yazilan += sayi(k.yazilan);
+      if (k.eyalet) eyaletler.add(String(k.eyalet).toUpperCase());
+      for (const [ad, v] of Object.entries(k.elenen ?? {})) {
+        elenen.set(ad, (elenen.get(ad) ?? 0) + sayi(v));
+      }
     }
+  }
+
+  for (const t of turlar) {
+    if (!kapsamVar) {
+      aday += sayi(t.aday);
+      yazilan += sayi(t.yazilan);
+      for (const [k, v] of Object.entries(t.elenen ?? {})) {
+        elenen.set(k, (elenen.get(k) ?? 0) + sayi(v));
+      }
+    }
+    for (const e of t.eyaletler ?? []) if (e) eyaletler.add(String(e).toUpperCase());
     for (const ts of [t.baslangic, t.bitis]) {
       if (!ts) continue;
       const ms = new Date(ts).getTime();
@@ -127,6 +180,7 @@ export function birikimOzeti(b: BirikimDosyasi | null | undefined): BirikimOzeti
 
   return {
     turSayisi: turlar.length,
+    countySayisi: kapsam.size,
     aday,
     yazilan,
     elenenToplam: eleme.reduce((s, e) => s + e.adet, 0),

@@ -1,4 +1,6 @@
 const puppeteer = require('puppeteer');
+// Chrome yolu tek kaynaktan (bkz. lib/chrome-yolu.cjs — 2026-08-12 Chrome güncellemesi).
+const { launchAyarlari } = require('./lib/chrome-yolu.cjs');
 const fs = require('fs');
 const path = require('path');
 const readline = require('readline');
@@ -50,7 +52,8 @@ async function downloadFileWithPage(page, url, dest) {
   console.log('⏳ Puppeteer başlatılıyor...');
   const browser = await puppeteer.launch({ 
     headless: true,
-    args: ['--no-sandbox', '--disable-setuid-sandbox']
+    args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    ...launchAyarlari(),
   });
   const page = await browser.newPage();
   
@@ -166,9 +169,15 @@ async function downloadFileWithPage(page, url, dest) {
     transaction(topLeads);
     console.log(`✅ Travis County veritabanına aktarıldı: ${imported} yeni delinquent lead.`);
     
-    // Diğer county'ler için mock/seed borçlu verileri ekleyelim (Tarrant ve Montgomery için 25'er adet)
-    seedOtherCounties();
-    
+    // ── KALDIRILDI (2026-08-12): seedOtherCounties() ─────────────────────────
+    // Bu çağrı Tarrant ve Montgomery county'sine 25'er UYDURMA "vergi borçlusu"
+    // basıyordu — sahip adları House of Cards karakterleriydi (Frank Underwood,
+    // Doug Stamper…), borç ve değer Math.random() ile üretiliyordu. Kayıtlar
+    // yerel SQLite'a yazılıp migrate_to_supabase.js ile canlı tabloya geçiyordu,
+    // yani gerçek veriyle aynı havuzda duruyordu. Müşteriye gösterilen hiçbir
+    // sayının kaynağı belirsiz olamaz; üretim boru hattı örnek veri BASMAZ.
+    // Fonksiyon aşağıda duruyor ama artık çağrılmıyor (geçmiş kayıt).
+
   } catch (err) {
     console.error('Hata:', err.message);
   } finally {

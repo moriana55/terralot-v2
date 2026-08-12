@@ -1,4 +1,6 @@
 const puppeteer = require('puppeteer');
+// Chrome yolu tek kaynaktan (bkz. lib/chrome-yolu.cjs — 2026-08-12 Chrome güncellemesi).
+const { launchAyarlari } = require('./lib/chrome-yolu.cjs');
 const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
@@ -123,7 +125,8 @@ function parseMvbaPdf(pdfPath, countyName) {
   console.log('⏳ Puppeteer başlatılıyor...');
   const browser = await puppeteer.launch({ 
     headless: true,
-    args: ['--no-sandbox', '--disable-setuid-sandbox']
+    args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    ...launchAyarlari(),
   });
   const page = await browser.newPage();
   

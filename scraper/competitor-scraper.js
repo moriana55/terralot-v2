@@ -11,6 +11,7 @@
  * changes its markup. Each site is isolated, so one breaking won't stop others.
  */
 require("dotenv").config();
+const { chromeYolu } = require("./lib/chrome-yolu.cjs");
 const puppeteer = require("puppeteer");
 const { createClient } = require("@supabase/supabase-js");
 
@@ -191,9 +192,12 @@ async function scrapeSite(browser, site) {
 }
 
 (async () => {
+  const exe = chromeYolu();
+  if (exe) console.log(`Chrome: ${exe}`);
   const browser = await puppeteer.launch({
     headless: HEADLESS ? "new" : false,
     args: ["--no-sandbox", "--disable-setuid-sandbox"],
+    ...(exe ? { executablePath: exe } : {}),
   });
 
   let all = [];

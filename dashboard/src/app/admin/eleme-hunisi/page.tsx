@@ -83,6 +83,7 @@ interface Yanit {
   };
   is: {
     turSayisi: number;
+    countySayisi: number;
     aday: number;
     yazilan: number;
     elenenToplam: number;
@@ -436,6 +437,14 @@ function ElemeHunisiIcerik() {
                   {is.ilkTur === is.sonTur
                     ? `Tur tarihi: ${tarih(is.sonTur)}.`
                     : `${tarih(is.ilkTur)} → ${tarih(is.sonTur)}.`}{" "}
+                  {is.countySayisi > 0 ? (
+                    <>
+                      Yukarıdaki sayı <strong>{is.countySayisi} tekil county</strong> üzerinden
+                      hesaplanır: aynı county gece gece yeniden taranıyor, her taramada
+                      sayılsaydı rakam kendi kendine şişerdi — yalnızca her county&apos;nin{" "}
+                      <em>en son</em> taraması sayılır.{" "}
+                    </>
+                  ) : null}
                   Bundan önceki hasatların parsel bazlı logu tutulmuyordu; bu sayaç yalnızca
                   kanıtlanabilir turları sayar, geçmişi tahminle doldurmaz.
                 </>

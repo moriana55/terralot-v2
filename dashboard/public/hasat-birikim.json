@@ -1,6 +1,788 @@
 {
-  "surum": 1,
-  "guncelleme": "2026-08-03T03:59:29.901Z",
+  "surum": 2,
+  "guncelleme": "2026-08-12T11:02:25.923Z",
+  "kapsam": [
+    {
+      "key": "al-cullman",
+      "eyalet": "AL",
+      "kaynak": "filtreli-hasat-2026-08-12-AL-ID-MS-MT-NC-WV-WY.json",
+      "zaman": "2026-08-12T04:21:06.444Z",
+      "aday": 18958,
+      "yazilan": 17464,
+      "elenen": {
+        "acre-bandi": 608,
+        "deger-bandi": 103,
+        "kamu-sahipli": 336,
+        "mukerrer": 436,
+        "mektup-eksik": 11
+      }
+    },
+    {
+      "key": "al-dekalb",
+      "eyalet": "AL",
+      "kaynak": "filtreli-hasat-2026-08-12-AL-ID-MS-MT-NC-WV-WY.json",
+      "zaman": "2026-08-12T04:21:06.444Z",
+      "aday": 20291,
+      "yazilan": 18276,
+      "elenen": {
+        "deger-bandi": 517,
+        "acre-bandi": 557,
+        "mektup-eksik": 276,
+        "kamu-sahipli": 241,
+        "mukerrer": 424
+      }
+    },
+    {
+      "key": "al-greene",
+      "eyalet": "AL",
+      "kaynak": "filtreli-hasat-2026-08-12-AL-ID-MS-MT-NC-WV-WY.json",
+      "zaman": "2026-08-12T04:21:06.444Z",
+      "aday": 6583,
+      "yazilan": 6528,
+      "elenen": {
+        "acre-bandi": 40,
+        "deger-bandi": 8,
+        "mektup-eksik": 7
+      }
+    },
+    {
+      "key": "al-macon",
+      "eyalet": "AL",
+      "kaynak": "filtreli-hasat-2026-08-12-AL-ID-MS-MT-NC-WV-WY.json",
+      "zaman": "2026-08-12T04:21:06.444Z",
+      "aday": 10351,
+      "yazilan": 9152,
+      "elenen": {
+        "deger-bandi": 123,
+        "acre-bandi": 135,
+        "mektup-eksik": 904,
+        "kamu-sahipli": 26,
+        "mukerrer": 11
+      }
+    },
+    {
+      "key": "al-talladega",
+      "eyalet": "AL",
+      "kaynak": "filtreli-hasat-2026-08-12-AL-ID-MS-MT-NC-WV-WY.json",
+      "zaman": "2026-08-12T04:21:06.444Z",
+      "aday": 22245,
+      "yazilan": 20145,
+      "elenen": {
+        "kamu-sahipli": 1034,
+        "acre-bandi": 816,
+        "deger-bandi": 102,
+        "mektup-eksik": 12,
+        "mukerrer": 136
+      }
+    },
+    {
+      "key": "co-costilla",
+      "eyalet": "CO",
+      "kaynak": "filtreli-hasat-2026-07-29-CO.json",
+      "zaman": "2026-07-29T19:23:32.302Z",
+      "aday": 62087,
+      "yazilan": 3184,
+      "elenen": {
+        "acre-bandi": 56534,
+        "deger-bandi": 910,
+        "mektup-eksik": 80,
+        "kamu-sahipli": 381,
+        "mukerrer": 998
+      }
+    },
+    {
+      "key": "co-lasanimas",
+      "eyalet": "CO",
+      "kaynak": "filtreli-hasat-2026-07-29-CO.json",
+      "zaman": "2026-07-29T19:23:32.302Z",
+      "aday": 8365,
+      "yazilan": 6154,
+      "elenen": {
+        "acre-bandi": 1565,
+        "mukerrer": 636,
+        "kamu-sahipli": 9,
+        "mektup-eksik": 1
+      }
+    },
+    {
+      "key": "co-park",
+      "eyalet": "CO",
+      "kaynak": "filtreli-hasat-2026-07-29-CO.json",
+      "zaman": "2026-07-29T19:23:32.302Z",
+      "aday": 23055,
+      "yazilan": 557,
+      "elenen": {
+        "deger-bandi": 15803,
+        "acre-bandi": 3400,
+        "mektup-eksik": 3280,
+        "kamu-sahipli": 12,
+        "mukerrer": 3
+      }
+    },
+    {
+      "key": "ga-bibb",
+      "eyalet": "GA",
+      "kaynak": "filtreli-hasat-2026-07-29-GA.json",
+      "zaman": "2026-07-29T19:47:08.707Z",
+      "aday": 13171,
+      "yazilan": 6692,
+      "elenen": {
+        "acre-bandi": 5181,
+        "deger-bandi": 1206,
+        "kamu-sahipli": 89,
+        "mektup-eksik": 3
+      }
+    },
+    {
+      "key": "ga-chatham",
+      "eyalet": "GA",
+      "kaynak": "filtreli-hasat-2026-07-29-GA.json",
+      "zaman": "2026-07-29T19:47:08.707Z",
+      "aday": 16973,
+      "yazilan": 3359,
+      "elenen": {
+        "acre-bandi": 8520,
+        "deger-bandi": 4252,
+        "mektup-eksik": 97,
+        "kamu-sahipli": 703,
+        "mukerrer": 42
+      }
+    },
+    {
+      "key": "id-cassia",
+      "eyalet": "ID",
+      "kaynak": "filtreli-hasat-2026-08-12-AL-ID-MS-MT-NC-WV-WY.json",
+      "zaman": "2026-08-12T04:21:06.444Z",
+      "aday": 6786,
+      "yazilan": 5709,
+      "elenen": {
+        "acre-bandi": 510,
+        "deger-bandi": 271,
+        "kamu-sahipli": 4,
+        "mektup-eksik": 16,
+        "mukerrer": 276
+      }
+    },
+    {
+      "key": "id-elmore",
+      "eyalet": "ID",
+      "kaynak": "filtreli-hasat-2026-08-12-AL-ID-MS-MT-NC-WV-WY.json",
+      "zaman": "2026-08-12T04:21:06.444Z",
+      "aday": 6787,
+      "yazilan": 5758,
+      "elenen": {
+        "deger-bandi": 112,
+        "acre-bandi": 805,
+        "kamu-sahipli": 98,
+        "mukerrer": 14
+      }
+    },
+    {
+      "key": "id-lemhi",
+      "eyalet": "ID",
+      "kaynak": "filtreli-hasat-2026-08-12-AL-ID-MS-MT-NC-WV-WY.json",
+      "zaman": "2026-08-12T04:21:06.444Z",
+      "aday": 5129,
+      "yazilan": 4519,
+      "elenen": {
+        "deger-bandi": 107,
+        "acre-bandi": 346,
+        "mukerrer": 152,
+        "mektup-eksik": 4,
+        "kamu-sahipli": 1
+      }
+    },
+    {
+      "key": "id-owyhee",
+      "eyalet": "ID",
+      "kaynak": "filtreli-hasat-2026-08-12-AL-ID-MS-MT-NC-WV-WY.json",
+      "zaman": "2026-08-12T04:21:06.444Z",
+      "aday": 4270,
+      "yazilan": 3787,
+      "elenen": {
+        "acre-bandi": 247,
+        "deger-bandi": 96,
+        "mukerrer": 99,
+        "kamu-sahipli": 39,
+        "mektup-eksik": 2
+      }
+    },
+    {
+      "key": "ks-douglas",
+      "eyalet": "KS",
+      "kaynak": "filtreli-hasat-2026-07-29-KS.json",
+      "zaman": "2026-07-29T19:49:33.799Z",
+      "aday": 41695,
+      "yazilan": 20978,
+      "elenen": {
+        "acre-bandi": 20101,
+        "kamu-sahipli": 603,
+        "mektup-eksik": 7,
+        "mukerrer": 6
+      }
+    },
+    {
+      "key": "ky-campbell",
+      "eyalet": "KY",
+      "kaynak": "filtreli-hasat-2026-07-29-KY.json",
+      "zaman": "2026-07-29T19:48:07.375Z",
+      "aday": 6589,
+      "yazilan": 2393,
+      "elenen": {
+        "deger-bandi": 1263,
+        "acre-bandi": 2302,
+        "mektup-eksik": 75,
+        "kamu-sahipli": 552,
+        "mukerrer": 4
+      }
+    },
+    {
+      "key": "ky-pulaski",
+      "eyalet": "KY",
+      "kaynak": "filtreli-hasat-2026-07-29-KY.json",
+      "zaman": "2026-07-29T19:48:07.375Z",
+      "aday": 6678,
+      "yazilan": 3001,
+      "elenen": {
+        "mektup-eksik": 164,
+        "acre-bandi": 2670,
+        "deger-bandi": 750,
+        "kamu-sahipli": 93
+      }
+    },
+    {
+      "key": "mi-roscommon",
+      "eyalet": "MI",
+      "kaynak": "filtreli-hasat-2026-07-29-MI.json",
+      "zaman": "2026-07-29T19:47:37.855Z",
+      "aday": 7833,
+      "yazilan": 3156,
+      "elenen": {
+        "deger-bandi": 174,
+        "acre-bandi": 4434,
+        "kamu-sahipli": 51,
+        "mektup-eksik": 18
+      }
+    },
+    {
+      "key": "ms-amite",
+      "eyalet": "MS",
+      "kaynak": "filtreli-hasat-2026-08-12-AL-ID-MS-MT-NC-WV-WY.json",
+      "zaman": "2026-08-12T04:21:06.444Z",
+      "aday": 9149,
+      "yazilan": 8682,
+      "elenen": {
+        "deger-bandi": 334,
+        "acre-bandi": 105,
+        "mektup-eksik": 11,
+        "kamu-sahipli": 17
+      }
+    },
+    {
+      "key": "ms-claiborne",
+      "eyalet": "MS",
+      "kaynak": "filtreli-hasat-2026-08-12-AL-ID-MS-MT-NC-WV-WY.json",
+      "zaman": "2026-08-12T04:21:06.444Z",
+      "aday": 2777,
+      "yazilan": 2393,
+      "elenen": {
+        "deger-bandi": 261,
+        "acre-bandi": 63,
+        "mektup-eksik": 30,
+        "kamu-sahipli": 30
+      }
+    },
+    {
+      "key": "ms-jefferson",
+      "eyalet": "MS",
+      "kaynak": "filtreli-hasat-2026-08-12-AL-ID-MS-MT-NC-WV-WY.json",
+      "zaman": "2026-08-12T04:21:06.444Z",
+      "aday": 4731,
+      "yazilan": 4501,
+      "elenen": {
+        "acre-bandi": 75,
+        "deger-bandi": 81,
+        "kamu-sahipli": 64,
+        "mektup-eksik": 10
+      }
+    },
+    {
+      "key": "ms-kemper",
+      "eyalet": "MS",
+      "kaynak": "filtreli-hasat-2026-08-12-AL-ID-MS-MT-NC-WV-WY.json",
+      "zaman": "2026-08-12T04:21:06.444Z",
+      "aday": 7211,
+      "yazilan": 6689,
+      "elenen": {
+        "acre-bandi": 107,
+        "deger-bandi": 357,
+        "kamu-sahipli": 20,
+        "mektup-eksik": 38
+      }
+    },
+    {
+      "key": "ms-wilkinson",
+      "eyalet": "MS",
+      "kaynak": "filtreli-hasat-2026-08-12-AL-ID-MS-MT-NC-WV-WY.json",
+      "zaman": "2026-08-12T04:21:06.444Z",
+      "aday": 5868,
+      "yazilan": 5449,
+      "elenen": {
+        "kamu-sahipli": 20,
+        "deger-bandi": 313,
+        "acre-bandi": 79,
+        "mektup-eksik": 7
+      }
+    },
+    {
+      "key": "mt-blaine",
+      "eyalet": "MT",
+      "kaynak": "filtreli-hasat-2026-07-30-AL-ID-MS-MT-NC-WV-WY.json",
+      "zaman": "2026-07-30T04:56:46.573Z",
+      "aday": 7229,
+      "yazilan": 6109,
+      "elenen": {
+        "deger-bandi": 698,
+        "acre-bandi": 409,
+        "mektup-eksik": 13
+      }
+    },
+    {
+      "key": "mt-garfield",
+      "eyalet": "MT",
+      "kaynak": "filtreli-hasat-2026-07-30-AL-ID-MS-MT-NC-WV-WY.json",
+      "zaman": "2026-07-30T04:56:46.573Z",
+      "aday": 5530,
+      "yazilan": 4891,
+      "elenen": {
+        "deger-bandi": 369,
+        "acre-bandi": 270
+      }
+    },
+    {
+      "key": "mt-hill",
+      "eyalet": "MT",
+      "kaynak": "filtreli-hasat-2026-07-30-AL-ID-MS-MT-NC-WV-WY.json",
+      "zaman": "2026-07-30T04:56:46.573Z",
+      "aday": 6625,
+      "yazilan": 4634,
+      "elenen": {
+        "deger-bandi": 1551,
+        "acre-bandi": 391,
+        "kamu-sahipli": 44,
+        "mektup-eksik": 5
+      }
+    },
+    {
+      "key": "mt-phillips",
+      "eyalet": "MT",
+      "kaynak": "filtreli-hasat-2026-07-30-AL-ID-MS-MT-NC-WV-WY.json",
+      "zaman": "2026-07-30T04:56:46.573Z",
+      "aday": 6320,
+      "yazilan": 5574,
+      "elenen": {
+        "deger-bandi": 480,
+        "acre-bandi": 257,
+        "kamu-sahipli": 5,
+        "mektup-eksik": 4
+      }
+    },
+    {
+      "key": "mt-sanders",
+      "eyalet": "MT",
+      "kaynak": "filtreli-hasat-2026-07-30-AL-ID-MS-MT-NC-WV-WY.json",
+      "zaman": "2026-07-30T04:56:46.573Z",
+      "aday": 4684,
+      "yazilan": 2517,
+      "elenen": {
+        "deger-bandi": 1775,
+        "acre-bandi": 378,
+        "kamu-sahipli": 8,
+        "mektup-eksik": 6
+      }
+    },
+    {
+      "key": "nc-brunswick",
+      "eyalet": "NC",
+      "kaynak": "filtreli-hasat-2026-08-12-AL-ID-MS-MT-NC-WV-WY.json",
+      "zaman": "2026-08-12T04:21:06.444Z",
+      "aday": 54568,
+      "yazilan": 27830,
+      "elenen": {
+        "acre-bandi": 21957,
+        "kamu-sahipli": 1664,
+        "deger-bandi": 2926,
+        "mektup-eksik": 188,
+        "mukerrer": 3
+      }
+    },
+    {
+      "key": "nc-northampton",
+      "eyalet": "NC",
+      "kaynak": "filtreli-hasat-2026-08-12-AL-ID-MS-MT-NC-WV-WY.json",
+      "zaman": "2026-08-12T04:21:06.444Z",
+      "aday": 20248,
+      "yazilan": 17439,
+      "elenen": {
+        "acre-bandi": 1609,
+        "mektup-eksik": 854,
+        "deger-bandi": 106,
+        "kamu-sahipli": 173,
+        "mukerrer": 67
+      }
+    },
+    {
+      "key": "nc-rutherford",
+      "eyalet": "NC",
+      "kaynak": "filtreli-hasat-2026-08-12-AL-ID-MS-MT-NC-WV-WY.json",
+      "zaman": "2026-08-12T04:21:06.444Z",
+      "aday": 23129,
+      "yazilan": 20090,
+      "elenen": {
+        "acre-bandi": 2236,
+        "deger-bandi": 237,
+        "kamu-sahipli": 546,
+        "mukerrer": 7,
+        "mektup-eksik": 13
+      }
+    },
+    {
+      "key": "ne-cass",
+      "eyalet": "NE",
+      "kaynak": "filtreli-hasat-2026-07-29-NE.json",
+      "zaman": "2026-07-29T19:48:37.129Z",
+      "aday": 6687,
+      "yazilan": 757,
+      "elenen": {
+        "acre-bandi": 2217,
+        "kamu-sahipli": 222,
+        "deger-bandi": 3481,
+        "mektup-eksik": 10
+      }
+    },
+    {
+      "key": "nm-valencia",
+      "eyalet": "NM",
+      "kaynak": "filtreli-hasat-2026-07-29-NM.json",
+      "zaman": "2026-07-29T19:43:01.779Z",
+      "aday": 168831,
+      "yazilan": 130973,
+      "elenen": {
+        "mektup-eksik": 3381,
+        "deger-bandi": 27207,
+        "acre-bandi": 7219,
+        "kamu-sahipli": 49,
+        "mukerrer": 2
+      }
+    },
+    {
+      "key": "nv-nye",
+      "eyalet": "NV",
+      "kaynak": "filtreli-hasat-2026-07-29-NV.json",
+      "zaman": "2026-07-29T19:43:49.868Z",
+      "aday": 31280,
+      "yazilan": 21616,
+      "elenen": {
+        "deger-bandi": 237,
+        "acre-bandi": 9342,
+        "kamu-sahipli": 24,
+        "mektup-eksik": 11,
+        "mukerrer": 50
+      }
+    },
+    {
+      "key": "or-klamath",
+      "eyalet": "OR",
+      "kaynak": "filtreli-hasat-2026-07-29-OR.json",
+      "zaman": "2026-07-29T19:45:31.275Z",
+      "aday": 28390,
+      "yazilan": 20978,
+      "elenen": {
+        "acre-bandi": 3033,
+        "deger-bandi": 3563,
+        "kamu-sahipli": 731,
+        "mektup-eksik": 85
+      }
+    },
+    {
+      "key": "or-lake",
+      "eyalet": "OR",
+      "kaynak": "filtreli-hasat-2026-07-29-OR.json",
+      "zaman": "2026-07-29T19:45:31.275Z",
+      "aday": 6265,
+      "yazilan": 4996,
+      "elenen": {
+        "kamu-sahipli": 9,
+        "mektup-eksik": 2,
+        "acre-bandi": 1256,
+        "mukerrer": 2
+      }
+    },
+    {
+      "key": "sc-colleton",
+      "eyalet": "SC",
+      "kaynak": "filtreli-hasat-2026-07-29-SC.json",
+      "zaman": "2026-07-29T19:46:09.407Z",
+      "aday": 12456,
+      "yazilan": 7571,
+      "elenen": {
+        "mukerrer": 409,
+        "acre-bandi": 4440,
+        "kamu-sahipli": 33,
+        "mektup-eksik": 3
+      }
+    },
+    {
+      "key": "sd-pennington",
+      "eyalet": "SD",
+      "kaynak": "filtreli-hasat-2026-07-29-SD.json",
+      "zaman": "2026-07-29T19:48:24.306Z",
+      "aday": 9365,
+      "yazilan": 3731,
+      "elenen": {
+        "deger-bandi": 3114,
+        "kamu-sahipli": 716,
+        "acre-bandi": 1799,
+        "mukerrer": 5
+      }
+    },
+    {
+      "key": "tx-brazoria",
+      "eyalet": "TX",
+      "kaynak": "filtreli-hasat-2026-07-30-TX.json",
+      "zaman": "2026-07-30T00:52:14.354Z",
+      "aday": 77620,
+      "yazilan": 8174,
+      "elenen": {
+        "acre-bandi": 28863,
+        "kamu-sahipli": 7325,
+        "mektup-eksik": 1664,
+        "deger-bandi": 26450,
+        "mukerrer": 5144
+      }
+    },
+    {
+      "key": "tx-brewster",
+      "eyalet": "TX",
+      "kaynak": "filtreli-hasat-2026-07-30-TX.json",
+      "zaman": "2026-07-30T00:52:14.354Z",
+      "aday": 12528,
+      "yazilan": 9887,
+      "elenen": {
+        "acre-bandi": 609,
+        "mektup-eksik": 1643,
+        "kamu-sahipli": 57,
+        "deger-bandi": 282,
+        "mukerrer": 50
+      }
+    },
+    {
+      "key": "tx-cherokee",
+      "eyalet": "TX",
+      "kaynak": "filtreli-hasat-2026-07-30-TX.json",
+      "zaman": "2026-07-30T00:52:14.354Z",
+      "aday": 22606,
+      "yazilan": 10376,
+      "elenen": {
+        "acre-bandi": 4271,
+        "kamu-sahipli": 431,
+        "mektup-eksik": 608,
+        "deger-bandi": 6866,
+        "mukerrer": 54
+      }
+    },
+    {
+      "key": "tx-cochran",
+      "eyalet": "TX",
+      "kaynak": "filtreli-hasat-2026-07-30-TX.json",
+      "zaman": "2026-07-30T00:52:14.354Z",
+      "aday": 3163,
+      "yazilan": 1634,
+      "elenen": {
+        "acre-bandi": 330,
+        "mektup-eksik": 315,
+        "kamu-sahipli": 33,
+        "deger-bandi": 820,
+        "mukerrer": 31
+      }
+    },
+    {
+      "key": "tx-harrison",
+      "eyalet": "TX",
+      "kaynak": "filtreli-hasat-2026-07-30-TX.json",
+      "zaman": "2026-07-30T00:52:14.354Z",
+      "aday": 16632,
+      "yazilan": 9585,
+      "elenen": {
+        "acre-bandi": 3091,
+        "kamu-sahipli": 175,
+        "mektup-eksik": 1151,
+        "deger-bandi": 1841,
+        "mukerrer": 789
+      }
+    },
+    {
+      "key": "tx-hudspeth",
+      "eyalet": "TX",
+      "kaynak": "filtreli-hasat-2026-07-30-TX.json",
+      "zaman": "2026-07-30T00:52:14.354Z",
+      "aday": 19982,
+      "yazilan": 9399,
+      "elenen": {
+        "acre-bandi": 7442,
+        "mektup-eksik": 1366,
+        "kamu-sahipli": 262,
+        "deger-bandi": 1411,
+        "mukerrer": 102
+      }
+    },
+    {
+      "key": "tx-liberty",
+      "eyalet": "TX",
+      "kaynak": "filtreli-hasat-2026-07-30-TX.json",
+      "zaman": "2026-07-30T00:52:14.354Z",
+      "aday": 92072,
+      "yazilan": 30533,
+      "elenen": {
+        "acre-bandi": 31858,
+        "mektup-eksik": 5122,
+        "kamu-sahipli": 815,
+        "mukerrer": 10462,
+        "deger-bandi": 13282
+      }
+    },
+    {
+      "key": "tx-presidio",
+      "eyalet": "TX",
+      "kaynak": "filtreli-hasat-2026-07-30-TX.json",
+      "zaman": "2026-07-30T00:52:14.354Z",
+      "aday": 13873,
+      "yazilan": 7626,
+      "elenen": {
+        "acre-bandi": 1960,
+        "mektup-eksik": 1786,
+        "kamu-sahipli": 183,
+        "mukerrer": 893,
+        "deger-bandi": 1425
+      }
+    },
+    {
+      "key": "tx-terrell",
+      "eyalet": "TX",
+      "kaynak": "filtreli-hasat-2026-07-30-TX.json",
+      "zaman": "2026-07-30T00:52:14.354Z",
+      "aday": 4254,
+      "yazilan": 1411,
+      "elenen": {
+        "acre-bandi": 766,
+        "mektup-eksik": 403,
+        "deger-bandi": 1662,
+        "mukerrer": 12
+      }
+    },
+    {
+      "key": "wv-calhoun",
+      "eyalet": "WV",
+      "kaynak": "filtreli-hasat-2026-08-12-AL-ID-MS-MT-NC-WV-WY.json",
+      "zaman": "2026-08-12T04:21:06.444Z",
+      "aday": 1277,
+      "yazilan": 1240,
+      "elenen": {
+        "kamu-sahipli": 7,
+        "mektup-eksik": 30
+      }
+    },
+    {
+      "key": "wv-clay",
+      "eyalet": "WV",
+      "kaynak": "filtreli-hasat-2026-08-12-AL-ID-MS-MT-NC-WV-WY.json",
+      "zaman": "2026-08-12T04:21:06.444Z",
+      "aday": 1448,
+      "yazilan": 1401,
+      "elenen": {
+        "acre-bandi": 12,
+        "mektup-eksik": 31,
+        "kamu-sahipli": 4
+      }
+    },
+    {
+      "key": "wv-mcdowell",
+      "eyalet": "WV",
+      "kaynak": "filtreli-hasat-2026-08-12-AL-ID-MS-MT-NC-WV-WY.json",
+      "zaman": "2026-08-12T04:21:06.444Z",
+      "aday": 97,
+      "yazilan": 95,
+      "elenen": {
+        "mektup-eksik": 2
+      }
+    },
+    {
+      "key": "wv-webster",
+      "eyalet": "WV",
+      "kaynak": "filtreli-hasat-2026-08-12-AL-ID-MS-MT-NC-WV-WY.json",
+      "zaman": "2026-08-12T04:21:06.444Z",
+      "aday": 225,
+      "yazilan": 193,
+      "elenen": {
+        "acre-bandi": 3,
+        "mektup-eksik": 24,
+        "kamu-sahipli": 5
+      }
+    },
+    {
+      "key": "wv-wirt",
+      "eyalet": "WV",
+      "kaynak": "filtreli-hasat-2026-08-12-AL-ID-MS-MT-NC-WV-WY.json",
+      "zaman": "2026-08-12T04:21:06.444Z",
+      "aday": 2371,
+      "yazilan": 2344,
+      "elenen": {
+        "mektup-eksik": 26,
+        "kamu-sahipli": 1
+      }
+    },
+    {
+      "key": "wy-carbon",
+      "eyalet": "WY",
+      "kaynak": "filtreli-hasat-2026-08-12-AL-ID-MS-MT-NC-WV-WY.json",
+      "zaman": "2026-08-12T04:21:06.444Z",
+      "aday": 2705,
+      "yazilan": 2000,
+      "elenen": {
+        "acre-bandi": 631,
+        "deger-bandi": 24,
+        "kamu-sahipli": 50
+      }
+    },
+    {
+      "key": "wy-fremont",
+      "eyalet": "WY",
+      "kaynak": "filtreli-hasat-2026-08-12-AL-ID-MS-MT-NC-WV-WY.json",
+      "zaman": "2026-08-12T04:21:06.444Z",
+      "aday": 3264,
+      "yazilan": 2729,
+      "elenen": {
+        "acre-bandi": 491,
+        "deger-bandi": 13,
+        "kamu-sahipli": 24,
+        "mektup-eksik": 7
+      }
+    },
+    {
+      "key": "wy-lincoln",
+      "eyalet": "WY",
+      "kaynak": "filtreli-hasat-2026-08-12-AL-ID-MS-MT-NC-WV-WY.json",
+      "zaman": "2026-08-12T04:21:06.444Z",
+      "aday": 5921,
+      "yazilan": 3732,
+      "elenen": {
+        "mektup-eksik": 720,
+        "acre-bandi": 806,
+        "mukerrer": 662,
+        "kamu-sahipli": 1
+      }
+    }
+  ],
   "turlar": [
     {
       "kaynak": "filtreli-hasat-2026-07-29-MS.json",
@@ -360,6 +1142,190 @@
         "deger-bandi": 27283,
         "mektup-eksik": 3226,
         "mukerrer": 1899
+      }
+    },
+    {
+      "kaynak": "filtreli-hasat-2026-08-04-AL-ID-MS-MT-NC-WV-WY.json",
+      "baslangic": "2026-08-04T03:54:05.848Z",
+      "bitis": "2026-08-04T04:10:48.477Z",
+      "eyaletler": [
+        "AL",
+        "ID",
+        "MS",
+        "MT",
+        "NC",
+        "WV",
+        "WY"
+      ],
+      "aday": 246389,
+      "yazilan": 155063,
+      "elenen": {
+        "acre-bandi": 54519,
+        "kamu-sahipli": 4398,
+        "deger-bandi": 27282,
+        "mektup-eksik": 3223,
+        "mukerrer": 1904
+      }
+    },
+    {
+      "kaynak": "filtreli-hasat-2026-08-05-AL-ID-MS-MT-NC-WV-WY.json",
+      "baslangic": "2026-08-05T08:59:58.958Z",
+      "bitis": "2026-08-05T09:15:17.424Z",
+      "eyaletler": [
+        "AL",
+        "ID",
+        "MS",
+        "MT",
+        "NC",
+        "WV",
+        "WY"
+      ],
+      "aday": 226098,
+      "yazilan": 140185,
+      "elenen": {
+        "acre-bandi": 51485,
+        "kamu-sahipli": 4162,
+        "deger-bandi": 25841,
+        "mektup-eksik": 2948,
+        "mukerrer": 1477
+      }
+    },
+    {
+      "kaynak": "filtreli-hasat-2026-08-06-AL-ID-MS-MT-NC-WV-WY.json",
+      "baslangic": "2026-08-06T03:57:11.129Z",
+      "bitis": "2026-08-06T04:11:48.870Z",
+      "eyaletler": [
+        "AL",
+        "ID",
+        "MS",
+        "MT",
+        "NC",
+        "WV",
+        "WY"
+      ],
+      "aday": 246389,
+      "yazilan": 155056,
+      "elenen": {
+        "acre-bandi": 54524,
+        "kamu-sahipli": 4394,
+        "deger-bandi": 27283,
+        "mektup-eksik": 3225,
+        "mukerrer": 1907
+      }
+    },
+    {
+      "kaynak": "filtreli-hasat-2026-08-07-AL-ID-MS-MT-NC-WV-WY.json",
+      "baslangic": "2026-08-07T04:09:52.267Z",
+      "bitis": "2026-08-07T04:30:51.677Z",
+      "eyaletler": [
+        "AL",
+        "ID",
+        "MS",
+        "MT",
+        "NC",
+        "WV",
+        "WY"
+      ],
+      "aday": 246389,
+      "yazilan": 176283,
+      "elenen": {
+        "acre-bandi": 54506,
+        "kamu-sahipli": 4403,
+        "deger-bandi": 5826,
+        "mektup-eksik": 3224,
+        "mukerrer": 2147
+      }
+    },
+    {
+      "kaynak": "filtreli-hasat-2026-08-09-AL-ID-MS-MT-NC-WV-WY.json",
+      "baslangic": "2026-08-09T04:24:44.846Z",
+      "bitis": "2026-08-09T04:39:11.192Z",
+      "eyaletler": [
+        "AL",
+        "ID",
+        "MS",
+        "MT",
+        "NC",
+        "WV",
+        "WY"
+      ],
+      "aday": 246389,
+      "yazilan": 176278,
+      "elenen": {
+        "acre-bandi": 54508,
+        "kamu-sahipli": 4401,
+        "deger-bandi": 5826,
+        "mektup-eksik": 3225,
+        "mukerrer": 2151
+      }
+    },
+    {
+      "kaynak": "filtreli-hasat-2026-08-10-AL-ID-MS-MT-NC-WV-WY.json",
+      "baslangic": "2026-08-10T04:15:27.388Z",
+      "bitis": "2026-08-10T04:36:58.580Z",
+      "eyaletler": [
+        "AL",
+        "ID",
+        "MS",
+        "MT",
+        "NC",
+        "WV",
+        "WY"
+      ],
+      "aday": 246389,
+      "yazilan": 176304,
+      "elenen": {
+        "acre-bandi": 54498,
+        "kamu-sahipli": 4398,
+        "deger-bandi": 5826,
+        "mektup-eksik": 3226,
+        "mukerrer": 2137
+      }
+    },
+    {
+      "kaynak": "filtreli-hasat-2026-08-11-AL-ID-MS-MT-NC-WV-WY.json",
+      "baslangic": "2026-08-11T06:28:52.384Z",
+      "bitis": "2026-08-11T06:45:53.799Z",
+      "eyaletler": [
+        "AL",
+        "ID",
+        "MS",
+        "MT",
+        "NC",
+        "WV",
+        "WY"
+      ],
+      "aday": 246389,
+      "yazilan": 198155,
+      "elenen": {
+        "acre-bandi": 32231,
+        "kamu-sahipli": 4399,
+        "deger-bandi": 6091,
+        "mektup-eksik": 3222,
+        "mukerrer": 2291
+      }
+    },
+    {
+      "kaynak": "filtreli-hasat-2026-08-12-AL-ID-MS-MT-NC-WV-WY.json",
+      "baslangic": "2026-08-12T04:04:59.140Z",
+      "bitis": "2026-08-12T04:21:06.444Z",
+      "eyaletler": [
+        "AL",
+        "ID",
+        "MS",
+        "MT",
+        "NC",
+        "WV",
+        "WY"
+      ],
+      "aday": 246389,
+      "yazilan": 198145,
+      "elenen": {
+        "acre-bandi": 32238,
+        "kamu-sahipli": 4405,
+        "deger-bandi": 6091,
+        "mektup-eksik": 3223,
+        "mukerrer": 2287
       }
     }
   ]

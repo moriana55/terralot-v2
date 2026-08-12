@@ -211,6 +211,21 @@ export function scoreLead(lead, ctx) {
     if (cap !== "F") cap = "B"; // A+/A yalnız geo-doğrulanmış parsele
   }
 
+  // 1b) ULAŞILABİLİRLİK TAVANI (2026-08-12)
+  // A+/A dilimi hem panelde hem sunumda "sahibine ULAŞILABİLİR parsel" diye
+  // tanımlanıyor. Not motoru bunu kontrol etmiyordu: ölçümde AR'deki 4.047
+  // A+/A'nın 3.977'sinde, TN'deki 538'in 488'inde posta adresi YOKTU — yani
+  // vitrindeki parselin sahibine ne mektup atılabiliyordu ne de aranabiliyordu.
+  // Sahibe ulaşım yolu yoksa parsel iyi olsa bile en fazla B olur; skip trace
+  // ile telefon gelince kayıt kendiliğinden A+/A'ya yükselir (betik idempotent).
+  const ulasilabilir =
+    String(lead.mailing_address ?? "").trim() !== "" ||
+    String(lead.phone ?? "").trim() !== "";
+  if (!ulasilabilir) {
+    flags.push("sahibe ulaşım yolu yok (posta adresi ve telefon boş) — önce skip trace");
+    if (cap !== "F") cap = capMin(cap, "B");
+  }
+
   // 2) LİKİDİTE ~20 ─ rakip aynı county'de satıyor mu (pazar kanıtı) + büyüme
   const liq = ctx.liquidity?.get(`${st}|${county}`);
   const sliq = ctx.stateLiq?.get(st);

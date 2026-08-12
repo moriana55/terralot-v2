@@ -763,11 +763,11 @@ const GIRDILER: Girdi[] = [
 
   // ── MONTANA ───────────────────────────────────────────────────────────────
   // Eyalet geneli MSDI: 920.897 parsel, 286.441'i "Vacant Land". Tek endpoint.
-  { key: "mt-hill", state: "MT", county: "Hill", hasValue: true, bilinenDurum: "calisiyor", sources: [mtStatewide("Hill")] },
-  { key: "mt-blaine", state: "MT", county: "Blaine", hasValue: true, bilinenDurum: "calisiyor", sources: [mtStatewide("Blaine")] },
-  { key: "mt-phillips", state: "MT", county: "Phillips", hasValue: true, bilinenDurum: "calisiyor", sources: [mtStatewide("Phillips")] },
-  { key: "mt-garfield", state: "MT", county: "Garfield", hasValue: true, bilinenDurum: "calisiyor", sources: [mtStatewide("Garfield")] },
-  { key: "mt-sanders", state: "MT", county: "Sanders", hasValue: true, bilinenDurum: "calisiyor", sources: [mtStatewide("Sanders")] },
+  { key: "mt-hill", state: "MT", county: "Hill", hasValue: true, bilinenDurum: "servis-kapali", not: "Montana eyalet kadastro servisi (gisservicemt.gov) 2026-08-10'dan beri sorguya JSON yerine HTML dönüyor — üç modda da yanıt yok. DB'deki 47.768 MT lead'i 29 Temmuz hasadından kalma, TAZELENMİYOR. Yeni adres bulunana kadar açma.", sources: [mtStatewide("Hill")] },
+  { key: "mt-blaine", state: "MT", county: "Blaine", hasValue: true, bilinenDurum: "servis-kapali", not: "Montana eyalet kadastro servisi (gisservicemt.gov) 2026-08-10'dan beri sorguya JSON yerine HTML dönüyor — üç modda da yanıt yok. DB'deki 47.768 MT lead'i 29 Temmuz hasadından kalma, TAZELENMİYOR. Yeni adres bulunana kadar açma.", sources: [mtStatewide("Blaine")] },
+  { key: "mt-phillips", state: "MT", county: "Phillips", hasValue: true, bilinenDurum: "servis-kapali", not: "Montana eyalet kadastro servisi (gisservicemt.gov) 2026-08-10'dan beri sorguya JSON yerine HTML dönüyor — üç modda da yanıt yok. DB'deki 47.768 MT lead'i 29 Temmuz hasadından kalma, TAZELENMİYOR. Yeni adres bulunana kadar açma.", sources: [mtStatewide("Phillips")] },
+  { key: "mt-garfield", state: "MT", county: "Garfield", hasValue: true, bilinenDurum: "servis-kapali", not: "Montana eyalet kadastro servisi (gisservicemt.gov) 2026-08-10'dan beri sorguya JSON yerine HTML dönüyor — üç modda da yanıt yok. DB'deki 47.768 MT lead'i 29 Temmuz hasadından kalma, TAZELENMİYOR. Yeni adres bulunana kadar açma.", sources: [mtStatewide("Garfield")] },
+  { key: "mt-sanders", state: "MT", county: "Sanders", hasValue: true, bilinenDurum: "servis-kapali", not: "Montana eyalet kadastro servisi (gisservicemt.gov) 2026-08-10'dan beri sorguya JSON yerine HTML dönüyor — üç modda da yanıt yok. DB'deki 47.768 MT lead'i 29 Temmuz hasadından kalma, TAZELENMİYOR. Yeni adres bulunana kadar açma.", sources: [mtStatewide("Sanders")] },
 
   // ── WYOMING ───────────────────────────────────────────────────────────────
   // ⚠ WY eyalet geneli katmanında (373.666 parsel) sahip+posta VAR ama

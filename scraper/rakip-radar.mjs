@@ -196,6 +196,32 @@ async function main() {
   await pool.end();
 }
 
+/**
+ * Kopan bağlantıda yeniden dener.
+ *
+ * NEDEN (2026-08-12): gece turunda radar "Connection terminated unexpectedly"
+ * ile düşüyordu — Supabase uzun süren aggregate sorgusunda bağlantıyı
+ * kapatınca tur BAŞARISIZ damgası yiyordu. Aynı komut elle koşturulduğunda
+ * sorunsuz bitiyor, yani hata kalıcı değil GEÇİCİ. Kalıcı hatalarda
+ * (yetki/şema) boşuna beklememek için sadece bağlantı hataları yeniden denenir.
+ */
+const GECICI_RE = /Connection terminated|ECONNRESET|ETIMEDOUT|EPIPE|socket hang up|terminating connection/i;
+
+async function calistir() {
+  for (let deneme = 1; deneme <= 3; deneme++) {
+    try {
+      await main();
+      return;
+    } catch (e) {
+      const gecici = GECICI_RE.test(String(e?.message ?? ""));
+      if (!gecici || deneme === 3) throw e;
+      const bekle = deneme * 15_000;
+      console.warn(`radar: bağlantı koptu (${e.message}) — ${bekle / 1000}sn sonra ${deneme + 1}. deneme`);
+      await new Promise((r) => setTimeout(r, bekle));
+    }
+  }
+}
+
 if (process.argv[1]?.endsWith("rakip-radar.mjs")) {
-  main().catch((e) => { console.error(e); process.exit(1); });
+  calistir().catch((e) => { console.error(e); process.exit(1); });
 }

@@ -39,7 +39,10 @@ const SOURCES = [
   { key: "ZILLOW",     table: "tax_delinquent_properties", tsCol: "scraped_at",  like: "ZILLOW%" },
   { key: "competitor", table: "competitor_listings",       tsCol: "scraped_at" },
   { key: "govease",    table: "upcoming_sales",            tsCol: "scraped_at",  eq: "GOVEASE" },
-  { key: "offmarket",  table: "offmarket_leads",           tsCol: "updated_at" },
+  // offmarket_leads'te exact count 1,27M satırda zaman aşımına düşüyor (57014).
+  // Sayı, notlandırma turunun yazdığı özet tablodan okunur: aynı rakam, tek
+  // sorgu, zaman aşımı yok. (Aynı kalıp huni ekranında da kullanılıyor.)
+  { key: "offmarket",  table: "offmarket_grade_summary",   tsCol: "refreshed_at", sumCol: "n" },
 ];
 
 const url = process.env.SUPABASE_URL;
@@ -53,12 +56,30 @@ function isMissing(error) {
 // Bir kaynak için { count, maxTs, missing } döndürür. Hata olursa missing=true.
 async function probe(s, db) {
   try {
+    // Özet tablodan okunan kaynaklar: satır SAYMAK yerine bir kolonu TOPLA.
+    if (s.sumCol) {
+      const { data, error } = await db.from(s.table).select(`${s.sumCol},${s.tsCol}`);
+      if (error) return { missing: isMissing(error), unknown: !isMissing(error), error: error.message };
+      const rows = data ?? [];
+      const count = rows.reduce((t, r) => t + (Number(r[s.sumCol]) || 0), 0);
+      const maxTs = rows.reduce((m, r) => {
+        const v = r[s.tsCol];
+        return v && (!m || String(v) > String(m)) ? v : m;
+      }, null);
+      return { count, maxTs, missing: false };
+    }
+
     // count (head:true → satır taşımadan sadece sayar)
     let cq = db.from(s.table).select("*", { count: "exact", head: true });
     if (s.like) cq = cq.like("source", s.like);
     if (s.eq) cq = cq.eq("source", s.eq);
     const { count, error: cErr } = await cq;
-    if (cErr) return { missing: isMissing(cErr), error: cErr.message };
+    // Tablo/kolon yoksa "missing"; sayım hata verdiyse (1,27M satırda exact
+    // count zaman aşımına düşebiliyor — 57014) kaynağı SAYILAMADI say.
+    // Eskiden bu dal count'suz dönüyordu ve çağıran `count.toLocaleString()`
+    // üzerinde patlıyordu: denetçi her gece çöküyor ama run-all "OK" yazıyordu,
+    // yani bayatlama alarmı 9 gün boyunca hiç çalışmadı.
+    if (cErr) return { missing: isMissing(cErr), unknown: !isMissing(cErr), error: cErr.message };
 
     // en son zaman damgası
     let tq = db.from(s.table).select(s.tsCol).order(s.tsCol, { ascending: false, nullsFirst: false }).limit(1);
@@ -107,6 +128,13 @@ async function main() {
     if (r.missing) {
       // Tablo/kolon yok → kaynağı bilinmiyor say, state'i bozma, uyarı üretme.
       okLines.push(`• ${s.key}: ? (tablo/kolon yok)`);
+      if (prev[s.key]) nextState[s.key] = prev[s.key];
+      continue;
+    }
+    if (r.unknown) {
+      // Sorgu hata verdi (çoğunlukla sayım zaman aşımı). Sessiz geçilmez —
+      // ama "0 satır" da denmez, yoksa sahte DROP alarmı üretir.
+      warnLines.push(`⚠ ${s.key}: sayılamadı (${r.error})`);
       if (prev[s.key]) nextState[s.key] = prev[s.key];
       continue;
     }

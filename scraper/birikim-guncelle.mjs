@@ -65,6 +65,41 @@ function logdanTur(log, kaynak) {
   };
 }
 
+/**
+ * Log'un county kırılımını "kapsam" kayıtlarına çevirir.
+ *
+ * NEDEN VAR (2026-08-12): defterin tekillik anahtarı log DOSYA ADI idi, dosya
+ * adında tarih olduğu için aynı 7 eyalet her gece yeniden sayılıyordu —
+ * "incelenen parsel" 989 binken ekranda 3,5 milyon görünüyordu. Gerçek iş
+ * COUNTY başına ölçülür: bir county'yi 10 gece üst üste taramak 10 kat parsel
+ * incelemek değildir, aynı county'nin GÜNCEL halini görmektir.
+ *
+ * Bu yüzden her county için YALNIZCA EN SON gözlem tutulur. Toplam = son
+ * gözlemlerin toplamı. Doğrulandı: her logda county toplamı eyalet toplamına
+ * birebir eşit, yani kırılım kapsamı eksiksiz.
+ */
+function logdanKapsam(log, kaynak) {
+  const liste = Array.isArray(log?.county) ? log.county : [];
+  const zaman = log?.bitis ?? log?.baslangic ?? null;
+  const kayitlar = [];
+  for (const c of liste) {
+    const key = typeof c?.key === "string" ? c.key.trim().toLowerCase() : "";
+    if (!key) continue;
+    kayitlar.push({
+      key,
+      eyalet: (key.split("-")[0] ?? "").toUpperCase(),
+      kaynak,
+      zaman,
+      aday: sayi(c?.aday),
+      yazilan: sayi(c?.yazilan),
+      elenen: Object.fromEntries(
+        Object.entries(c?.elenen ?? {}).map(([k, n]) => [k, sayi(n)])
+      ),
+    });
+  }
+  return kayitlar;
+}
+
 function defterOku() {
   try {
     return JSON.parse(readFileSync(DEFTER, "utf8"));
@@ -86,6 +121,10 @@ function main() {
   const mevcut = defterOku();
   const map = new Map((mevcut.turlar ?? []).filter((t) => t?.kaynak).map((t) => [t.kaynak, t]));
   const oncekiSayi = map.size;
+  // county anahtarı → EN SON gözlem (bkz. logdanKapsam açıklaması)
+  const kapsamMap = new Map(
+    (mevcut.kapsam ?? []).filter((k) => k?.key).map((k) => [k.key, k])
+  );
 
   let okunan = 0;
   for (const f of dosyalar) {
@@ -99,6 +138,11 @@ function main() {
     const t = logdanTur(log, f);
     if (!t) continue;
     map.set(t.kaynak, t); // aynı ad → üzerine yaz, TOPLAM ŞİŞMEZ
+    for (const k of logdanKapsam(log, f)) {
+      const eski = kapsamMap.get(k.key);
+      // Zamanı olmayan eski kayıt varsa yenisi kazanır; ikisi de zamanlıysa en yeni.
+      if (!eski || String(k.zaman ?? "") >= String(eski.zaman ?? "")) kapsamMap.set(k.key, k);
+    }
     okunan++;
   }
 
@@ -108,15 +152,25 @@ function main() {
     return av - bv || a.kaynak.localeCompare(b.kaynak);
   });
 
-  const toplamAday = turlar.reduce((s, t) => s + t.aday, 0);
-  const toplamYazilan = turlar.reduce((s, t) => s + t.yazilan, 0);
+  const kapsam = [...kapsamMap.values()].sort((a, b) => a.key.localeCompare(b.key));
+  // GERÇEK (tekilleştirilmiş) iş: county başına son gözlemlerin toplamı.
+  const toplamAday = kapsam.reduce((s, k) => s + k.aday, 0);
+  const toplamYazilan = kapsam.reduce((s, k) => s + k.yazilan, 0);
+  // Tur toplamı SADECE karşılaştırma için — ekranda kullanılmaz (tekrarlı sayar).
+  const turAday = turlar.reduce((s, t) => s + t.aday, 0);
   const eyaletler = [...new Set(turlar.flatMap((t) => t.eyaletler))].sort();
 
   console.log(
     `birikim: ${okunan} log okundu · defter ${oncekiSayi} → ${turlar.length} tur · ` +
-      `incelenen=${toplamAday.toLocaleString("tr-TR")} uygun=${toplamYazilan.toLocaleString("tr-TR")} ` +
-      `eyalet=${eyaletler.length} [${eyaletler.join(",")}]`
+      `county=${kapsam.length} · incelenen=${toplamAday.toLocaleString("tr-TR")} ` +
+      `uygun=${toplamYazilan.toLocaleString("tr-TR")} eyalet=${eyaletler.length} [${eyaletler.join(",")}]`
   );
+  if (turAday > toplamAday) {
+    console.log(
+      `birikim: tur toplamı ${turAday.toLocaleString("tr-TR")} — aynı county'nin ` +
+        `tekrar taranmasından gelen ${(turAday - toplamAday).toLocaleString("tr-TR")} fazlalık ekrana YAZILMIYOR.`
+    );
+  }
 
   if (SADECE_RAPOR) {
     console.log("birikim: --rapor modu — dosya YAZILMADI.");
@@ -126,7 +180,11 @@ function main() {
   mkdirSync(path.dirname(DEFTER), { recursive: true });
   writeFileSync(
     DEFTER,
-    JSON.stringify({ surum: 1, guncelleme: new Date().toISOString(), turlar }, null, 2)
+    JSON.stringify(
+      { surum: 2, guncelleme: new Date().toISOString(), kapsam, turlar },
+      null,
+      2
+    )
   );
   console.log(`birikim: yazıldı → ${DEFTER}`);
 }

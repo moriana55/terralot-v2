@@ -112,8 +112,19 @@ async function main() {
       // PropStream hiçbir alanda 200 karakteri kabul etmiyor; birkaç kurum
       // adı (birleşik tröst adları) bunu aşıyor → kırpılır.
       kurumMu ? String(r.owner).trim().slice(0, 200) : "",
-      // Parsel adresi — boş arsada olmayabilir; UYDURULMAZ.
-      sokakAdresi(r.situs), "", r.state, "",
+      // ── MÜLK ADRESİ = SAHİBİN POSTA ADRESİ (2026-08-09) ──────────────────
+      // 25 kayıtlık testte 25/25 SIFIR eşleşme çıktı. Sebep: PropStream bir
+      // emlak aracı, skip trace'i kişiyi MÜLK ADRESİNDEN eşleştiriyor. Bizim
+      // boş arsalarımızın sokak adresi yok (çoğunda yalnız eyalet vardı),
+      // şehir/posta kodu da boştu → arama yapılamadı. Hesaptaki çalışan
+      // listeler (TIRED LANDLORDS, VACANT HOUSES) PropStream'in kendi
+      // aramasından geldiği için mülk adresleri tamdı.
+      //
+      // Skip trace'in aradığı şey KİŞİNİN OTURDUĞU ADRES; bizde o bilgi
+      // sahibin posta adresi. Parselin tarla adresi burada işe yaramıyor
+      // (kimse orada oturmuyor). Bu yüzden her iki adres bloğuna da posta
+      // adresi yazılır — "Mail Address Same" mantığı.
+      r.mailing_address, r.mailing_city, r.mailing_state, r.mailing_zip,
       // Posta adresi — skip trace asıl bunu kullanıyor, %100 dolu.
       r.mailing_address, r.mailing_city, r.mailing_state, r.mailing_zip,
     ]);
