@@ -323,7 +323,8 @@ export default function BugunEkrani() {
           &quot;rakip ucuza alıp pahalıya satıyor&quot; — doğrulanmadı, quit-claim kayıtları
           <br />
           {/* 12 Ağustos denetim turu — hepsi ölçülmüş, hepsi savunulabilir. */}
-          <b>Bu hafta:</b> sistem denetimi · A+/A artık &quot;sahibine ulaşılabilir&quot;
+          <b>Bu hafta:</b>{" "}
+          sistem denetimi · A+/A artık &quot;sahibine ulaşılabilir&quot;
           şartına bağlı (4.466 parsel üst dilimden düştü) · huni sayacındaki tekrar
           temizlendi · haritada görünmeyen 53.443 parselin pini geliyor ·
           gece turu 9 gün sonra tekrar çalışıyor · 4.060 sahibin telefonu PropStream&apos;de{" "}
