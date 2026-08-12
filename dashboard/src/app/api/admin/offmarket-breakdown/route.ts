@@ -65,13 +65,39 @@ export async function GET(req: NextRequest) {
       snapshotSayim.set(r.state, (snapshotSayim.get(r.state) ?? 0) + r.n);
     }
 
+    // ── CANLI YEDEK: özet tablo (2026-08-12) ─────────────────────────────────
+    // Head-count 1,27M satırda düzenli olarak zaman aşımına düşüyor ve akış
+    // sabit `fallbackCount`lara kadar iniyordu. O sabitlerin bir kısmı LEAD
+    // sayısı değil ERİŞİLEBİLİR PARSEL HAVUZU rakamıydı (WI 1.124.060 yazıyordu,
+    // gerçek lead 32.071) → ekran toplamı 2.102.620 gösteriyordu, gerçek
+    // 1.272.766. Notlandırma turunun her gece yazdığı `offmarket_grade_summary`
+    // 40 küsur satır; tek ucuz sorguyla okunur ve GÜNCELDİR. Sabitlere düşmeden
+    // önce buraya bakılır.
+    const ozetSayim = new Map<string, number>();
+    try {
+      const ozet = await s.from("offmarket_grade_summary").select("state,n");
+      for (const r of (ozet.data ?? []) as { state: string; n: number }[]) {
+        if (!r?.state) continue;
+        ozetSayim.set(r.state, (ozetSayim.get(r.state) ?? 0) + (Number(r.n) || 0));
+      }
+    } catch {
+      /* özet de okunamadıysa eski sıraya düşülür */
+    }
+
     const tahminiEyaletler: string[] = [];
     const byState = STATES.map((st, i) => {
       const canli = stateRes[i]?.count;
       let count = canli ?? null;
       if (count == null) {
-        count = snapshotSayim.get(st.code) ?? OFFMARKET_STATE_META[st.code as keyof typeof OFFMARKET_STATE_META]?.fallbackCount ?? 0;
-        tahminiEyaletler.push(st.code);
+        // Sıra: canlı özet tablo (güncel) → not matrisi snapshot'ı → sabit.
+        count =
+          ozetSayim.get(st.code) ??
+          snapshotSayim.get(st.code) ??
+          OFFMARKET_STATE_META[st.code as keyof typeof OFFMARKET_STATE_META]?.fallbackCount ??
+          0;
+        // Özet tablodan geldiyse bu bir TAHMİN değil, ölçülmüş sayının
+        // gece yazılmış kopyasıdır — kullanıcıya "tahmini" diye işaretlenmez.
+        if (!ozetSayim.has(st.code)) tahminiEyaletler.push(st.code);
       }
       return { state: st.code, label: st.label, region: st.region, color: st.color, count };
     }).sort((a, b) => b.count - a.count);
