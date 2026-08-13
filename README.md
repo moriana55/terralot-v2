@@ -9,6 +9,12 @@ An evidence-aware land-acquisition research system for sourcing, enriching, unde
 
 > Portfolio status: 66 dashboard domain tests, 3 scraper safety tests, dashboard and storefront production builds, three dependency audits, and credential-pattern scans are verified locally and repeated by public CI. External parcel APIs, live Supabase data, Clerk authentication, and county-source ingestion require owner credentials and remain explicit deployment gates.
 
+## Product evidence
+
+[![TerraLot product landing page](docs/screenshots/landing-desktop.png)](docs/screenshots/landing-desktop.png)
+
+Current default-branch public landing experience captured locally. It presents the product thesis; it does not claim that credential-gated acquisition workflows are publicly deployed.
+
 ## What is in this monorepo
 
 | Area | Purpose | Verified in this audit |
