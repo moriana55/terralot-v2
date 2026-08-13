@@ -3,18 +3,18 @@
 An evidence-aware land-acquisition research system for sourcing, enriching, underwriting, and reviewing U.S. vacant-land opportunities. The repository combines an operations dashboard, a county/public-record ingestion fleet, a buyer-facing storefront prototype, and the research documents behind the product strategy.
 
 [![CI](https://github.com/moriana55/terralot-v2/actions/workflows/ci.yml/badge.svg)](https://github.com/moriana55/terralot-v2/actions/workflows/ci.yml)
-[![Tests](https://img.shields.io/badge/dashboard%20tests-66%20passing-16a34a)](dashboard/src/lib)
+[![Tests](https://img.shields.io/badge/tests-69%20passing-16a34a)](docs/showcase-audit.md)
 [![Security audit](https://img.shields.io/badge/npm%20audits-0%20vulnerabilities-16a34a)](docs/showcase-audit.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-> Portfolio status: 66 domain tests, dashboard and storefront production builds, three dependency audits, and credential-pattern scans are verified locally. External parcel APIs, live Supabase data, Clerk authentication, and county-source ingestion require owner credentials and remain explicit deployment gates.
+> Portfolio status: 66 dashboard domain tests, 3 scraper safety tests, dashboard and storefront production builds, three dependency audits, and credential-pattern scans are verified locally and repeated by public CI. External parcel APIs, live Supabase data, Clerk authentication, and county-source ingestion require owner credentials and remain explicit deployment gates.
 
 ## What is in this monorepo
 
 | Area | Purpose | Verified in this audit |
 | --- | --- | --- |
 | [`dashboard/`](dashboard) | Next.js operations console, Cerberus underwriting, deal review, maps, acquisition tracking | 66 tests, lint with no errors, 138-route build, 0 audit vulnerabilities |
-| [`scraper/`](scraper) | County tax/public-data collection, normalization, scoring, deduplication, optional Supabase writes | syntax check, dependency replacement, 0 audit vulnerabilities |
+| [`scraper/`](scraper) | County tax/public-data collection, normalization, scoring, deduplication, optional Supabase writes | 3 parser-safety tests, syntax check, 0 audit vulnerabilities |
 | [`landforever/`](landforever) | Buyer-facing owner-finance storefront prototype | lint, 14-page static build, 0 audit vulnerabilities |
 | [`investor-docs/`](investor-docs) | Market, competition, financial, technology, and partnership research | source material; not runtime behavior |
 

@@ -7,11 +7,13 @@ Audit date: 2026-08-13
 | Gate | Result | Evidence |
 | --- | --- | --- |
 | Dashboard tests | Pass | 66/66 across eight domain test files |
+| Scraper tests | Pass | 3/3 across tag stripping and single-pass entity decoding |
 | Dashboard lint | Pass with backlog warnings | No errors; 113 non-blocking legacy/WIP warnings |
 | Dashboard production build | Pass | Next.js 16.3, TypeScript, 138 generated routes |
 | Storefront lint/build | Pass | Next.js 16.3, React 19, 14 generated pages |
 | Dependency audits | Pass | Dashboard, storefront, and scraper each report zero known vulnerabilities |
 | Credential scan | Pass | No committed private-key blocks or live-looking Stripe secrets found |
+| Code scanning | Pass | GitHub CodeQL default setup reports zero open alerts on the default branch |
 
 ## Changes made during audit
 
