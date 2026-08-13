@@ -30,7 +30,7 @@
 require('dotenv').config();
 const crypto = require('crypto');
 const { liqFor, scoreDeal, extraScores, redemptionPenalty } = require('./scoring');
-const { stripHtmlTags } = require('./html-text');
+const { decodeHtmlEntities, stripHtmlTags } = require('./html-text');
 
 const BASE = 'https://cosl.org';
 const MAX_COUNTIES = parseInt(process.env.AR_COUNTIES || '72', 10);
@@ -69,12 +69,7 @@ const num = (v) => {
   const m = String(v).replace(/[$,]/g, '').match(/-?\d+(\.\d+)?/);
   return m ? parseFloat(m[0]) : null;
 };
-const decode = (s) =>
-  (s || '')
-    .replace(/&amp;/g, '&').replace(/&#x27;/g, "'").replace(/&#39;/g, "'")
-    .replace(/&quot;/g, '"').replace(/&lt;/g, '<').replace(/&gt;/g, '>')
-    .replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
-const decodeText = (s) => stripHtmlTags(decode(s)).replace(/\s+/g, ' ').trim();
+const decodeText = (s) => stripHtmlTags(decodeHtmlEntities(s)).replace(/\s+/g, ' ').trim();
 
 // "M/D/YYYY 10:00:00 AM" → "YYYY-MM-DD"
 function isoDate(raw) {
