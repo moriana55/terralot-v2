@@ -30,11 +30,12 @@
 const BASE = 'https://tndtax.com';
 const UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36';
 const WRITE = process.argv.includes('--write');
+const { stripHtmlTags } = require('./html-text');
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 // ── küçük yardımcılar ───────────────────────────────────────────────────────
-const stripHtml = (s) => String(s == null ? '' : s).replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
+const stripHtml = (s) => stripHtmlTags(s).replace(/\s+/g, ' ').trim();
 const num = (v) => {
   if (v == null) return null;
   const m = String(v).replace(/[$,]/g, '').match(/-?\d+(\.\d+)?/);

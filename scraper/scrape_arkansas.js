@@ -30,6 +30,7 @@
 require('dotenv').config();
 const crypto = require('crypto');
 const { liqFor, scoreDeal, extraScores, redemptionPenalty } = require('./scoring');
+const { stripHtmlTags } = require('./html-text');
 
 const BASE = 'https://cosl.org';
 const MAX_COUNTIES = parseInt(process.env.AR_COUNTIES || '72', 10);
@@ -68,12 +69,12 @@ const num = (v) => {
   const m = String(v).replace(/[$,]/g, '').match(/-?\d+(\.\d+)?/);
   return m ? parseFloat(m[0]) : null;
 };
-const stripTags = (s) => (s || '').replace(/<[^>]+>/g, '');
 const decode = (s) =>
   (s || '')
     .replace(/&amp;/g, '&').replace(/&#x27;/g, "'").replace(/&#39;/g, "'")
     .replace(/&quot;/g, '"').replace(/&lt;/g, '<').replace(/&gt;/g, '>')
     .replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
+const decodeText = (s) => stripHtmlTags(decode(s)).replace(/\s+/g, ' ').trim();
 
 // "M/D/YYYY 10:00:00 AM" → "YYYY-MM-DD"
 function isoDate(raw) {
@@ -137,10 +138,10 @@ async function fetchCatalog(sale) {
   while ((tr = trRe.exec(html))) {
     const cells = [...tr[1].matchAll(/<td[^>]*>([\s\S]*?)<\/td>/g)].map((c) => c[1]);
     if (cells.length < 6) continue; // skip header / cancelled / spacer rows
-    const saleNo = decode(stripTags(cells[0]));
-    const name = decode(stripTags(cells[1]));
-    const legal = decode(stripTags(cells[2]));
-    const parcel = decode(stripTags(cells[4])); // visible link text = real APN
+    const saleNo = decodeText(cells[0]);
+    const name = decodeText(cells[1]);
+    const legal = decodeText(cells[2]);
+    const parcel = decodeText(cells[4]); // visible link text = real APN
     const taxes = num(cells[5]);
     if (!/^\d+$/.test(saleNo)) continue;        // must be a numbered sale line
     if (!name || /ENTRY CANCELLED/i.test(name)) continue;

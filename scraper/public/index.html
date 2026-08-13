@@ -2236,6 +2236,36 @@
       });
     }
 
+    function createPrintDocument(title, css) {
+      const printWindow = window.open('', '_blank');
+      if (!printWindow) {
+        alert('Yazdırma penceresi engellendi. Tarayıcı popup iznini açın.');
+        return null;
+      }
+      const doc = printWindow.document;
+      doc.title = title;
+      const style = doc.createElement('style');
+      style.textContent = css;
+      doc.head.appendChild(style);
+      return { printWindow, doc };
+    }
+
+    function appendPrintLine(doc, parent, tagName, parts, className) {
+      const element = doc.createElement(tagName);
+      if (className) element.className = className;
+      for (const part of parts) {
+        if (typeof part === 'string') {
+          element.appendChild(doc.createTextNode(part));
+        } else {
+          const strong = doc.createElement('strong');
+          strong.textContent = String(part.strong);
+          element.appendChild(strong);
+        }
+      }
+      parent.appendChild(element);
+      return element;
+    }
+
     // Modal Operations
     function openContractModal(prop) {
       document.getElementById('contract-zpid').value = prop.zpid;
@@ -2279,89 +2309,81 @@
       const propApn = document.getElementById('contract-apn').value;
       const propSize = document.getElementById('contract-size').value;
 
-      const printWindow = window.open('', '_blank');
-      
       // Check if signature was drawn
       const isSigPresent = sigCanvas ? !isCanvasBlank(sigCanvas) : false;
       const sigData = isSigPresent ? sigCanvas.toDataURL() : '';
-      const buyerSigHtml = isSigPresent 
-        ? `<div style="height: 60px; margin: 10px 0;"><img src="${sigData}" style="max-height: 60px; max-width: 220px;" /></div>`
-        : `<div style="height: 60px; border-bottom: 1px solid #111; width: 80%; margin: 10px 0;"></div>`;
+      const printContext = createPrintDocument(
+        `Land Purchase Contract - ${propAddress}`,
+        `body { font-family: 'Times New Roman', Times, serif; padding: 3rem; color: #111; line-height: 1.6; font-size: 11pt; }
+         h1 { text-align: center; text-transform: uppercase; margin-bottom: 1rem; font-size: 16pt; font-weight: bold; }
+         .section-title { font-weight: bold; margin-top: 1.5rem; text-transform: uppercase; }
+         .signature-block { margin-top: 4rem; display: flex; justify-content: space-between; }
+         .signature-line { border-top: 1px solid #111; width: 45%; padding-top: 0.5rem; margin-top: 2rem; }
+         .signature-space { height: 60px; border-bottom: 1px solid #111; width: 80%; margin: 10px 0; }
+         p { margin-bottom: 1rem; text-align: justify; }
+         ul { margin-bottom: 1rem; padding-left: 2rem; }
+         li { margin-bottom: 0.5rem; }`,
+      );
+      if (!printContext) return;
+      const { printWindow, doc } = printContext;
+      const body = doc.body;
+      const agreementDate = new Date().toLocaleDateString('en-US');
 
-      const contractHtml = `
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <title>Land Purchase Contract - ${propAddress}</title>
-          <style>
-            body { font-family: 'Times New Roman', Times, serif; padding: 3rem; color: #111; line-height: 1.6; font-size: 11pt; }
-            h1, h2 { text-align: center; text-transform: uppercase; margin-bottom: 1rem; }
-            h1 { font-size: 16pt; font-weight: bold; }
-            h2 { font-size: 12pt; margin-top: 1.5rem; }
-            .section-title { font-weight: bold; margin-top: 1.5rem; text-transform: uppercase; }
-            .meta-info { margin-bottom: 2rem; }
-            .signature-block { margin-top: 4rem; display: flex; justify-content: space-between; }
-            .signature-line { border-top: 1px solid #111; width: 45%; padding-top: 0.5rem; margin-top: 2rem; }
-            p { margin-bottom: 1rem; text-align: justify; }
-            ul { margin-bottom: 1rem; padding-left: 2rem; }
-            li { margin-bottom: 0.5rem; }
-          </style>
-        </head>
-        <body>
-          <h1>LAND PURCHASE AND SALE AGREEMENT</h1>
-          <p style="text-align: right;"><strong>Agreement Date:</strong> ${new Date().toLocaleDateString('en-US')}</p>
-          
-          <p>This Land Purchase and Sale Agreement (the "Agreement") is entered into by and between:</p>
-          <p><strong>SELLER:</strong> ${sellerName} ("Seller")<br>
-          <strong>BUYER:</strong> ${buyerName} ("Buyer")</p>
- 
-          <p>Seller and Buyer, in consideration of the mutual covenants and promises contained herein, agree as follows:</p>
- 
-          <div class="section-title">1. DESCRIPTION OF PROPERTY:</div>
-          <p>Seller agrees to sell, and Buyer agrees to buy, that certain parcel of land located in the County of <strong>${propCity}</strong>, State of <strong>${propState}</strong>, described as follows:</p>
-          <ul>
-            <li><strong>Property Address:</strong> ${propAddress}, ${propCity}, ${propState} ${propZip}</li>
-            <li><strong>Assessor's Parcel Number (APN):</strong> ${propApn || 'To be verified in escrow'}</li>
-            <li><strong>Acreage/Size:</strong> ${propSize}</li>
-          </ul>
- 
-          <div class="section-title">2. PURCHASE PRICE:</div>
-          <p>The total Purchase Price to be paid by Buyer at closing is <strong>$${price.toLocaleString()}</strong> USD, payable as follows:</p>
-          <ul>
-            <li><strong>Earnest Money Deposit (EMD):</strong> $${earnest.toLocaleString()} USD shall be deposited into Escrow within three (3) business days of execution of this Agreement.</li>
-            <li><strong>Cash Balance:</strong> The remaining balance of $${(price - earnest).toLocaleString()} USD, subject to standard closing adjustments, shall be paid by Buyer at the Closing.</li>
-          </ul>
- 
-          <div class="section-title">3. DUE DILIGENCE PERIOD:</div>
-          <p>Buyer shall have a Due Diligence Period of fifteen (15) days from the Agreement Date to inspect the property, perform feasibility studies, verify zoning, easements, access, and utilities. Buyer may terminate this Agreement for any reason prior to the expiration of the Due Diligence Period and receive a full refund of the Earnest Money Deposit.</p>
- 
-          <div class="section-title">4. TITLE AND CONVEYANCE:</div>
-          <p>Seller covenants to convey marketable title to the Property by Warranty Deed, free and clear of all liens, mortgages, and encumbrances, except covenants, conditions, restrictions, and easements of record. Buyer may obtain a title insurance commitment at Buyer's expense.</p>
- 
-          <div class="section-title">5. CLOSING:</div>
-          <p>This transaction shall close on or before <strong>${closing} days</strong> from the Agreement Date (the "Closing Date"). Taxes, escrow fees, and closing costs shall be prorated as of the Closing Date. Escrow and closing shall be conducted by a licensed Title Company selected by Buyer.</p>
- 
-          <div class="section-title">6. ENTIRE AGREEMENT:</div>
-          <p>This Agreement constitutes the entire contract between the parties. Any modifications must be made in writing and signed by both Buyer and Seller. This Agreement shall be binding upon and inure to the benefit of the parties and their respective heirs, successors, and assigns.</p>
- 
-          <div class="signature-block">
-            <div class="signature-line">
-              ${buyerSigHtml}
-              <p><strong>BUYER:</strong> ${buyerName}</p>
-              <p>Date: ${new Date().toLocaleDateString('en-US')}</p>
-            </div>
-            <div class="signature-line">
-              <div style="height: 60px; border-bottom: 1px solid #111; width: 80%; margin: 10px 0;"></div>
-              <p><strong>SELLER:</strong> ${sellerName}</p>
-              <p>Date: ______________________________</p>
-            </div>
-          </div>
-        </body>
-        </html>
-      `;
+      appendPrintLine(doc, body, 'h1', ['LAND PURCHASE AND SALE AGREEMENT']);
+      const dateLine = appendPrintLine(doc, body, 'p', [{ strong: 'Agreement Date: ' }, agreementDate]);
+      dateLine.style.textAlign = 'right';
+      appendPrintLine(doc, body, 'p', ['This Land Purchase and Sale Agreement (the "Agreement") is entered into by and between:']);
+      appendPrintLine(doc, body, 'p', [{ strong: 'SELLER: ' }, `${sellerName} ("Seller") · `, { strong: 'BUYER: ' }, `${buyerName} ("Buyer")`]);
+      appendPrintLine(doc, body, 'p', ['Seller and Buyer, in consideration of the mutual covenants and promises contained herein, agree as follows:']);
 
-      printWindow.document.write(contractHtml);
-      printWindow.document.close();
+      appendPrintLine(doc, body, 'div', ['1. DESCRIPTION OF PROPERTY:'], 'section-title');
+      appendPrintLine(doc, body, 'p', ['Seller agrees to sell, and Buyer agrees to buy, that certain parcel of land located in the County of ', { strong: propCity }, ', State of ', { strong: propState }, ', described as follows:']);
+      const propertyList = doc.createElement('ul');
+      appendPrintLine(doc, propertyList, 'li', [{ strong: 'Property Address: ' }, `${propAddress}, ${propCity}, ${propState} ${propZip}`]);
+      appendPrintLine(doc, propertyList, 'li', [{ strong: "Assessor's Parcel Number (APN): " }, propApn || 'To be verified in escrow']);
+      appendPrintLine(doc, propertyList, 'li', [{ strong: 'Acreage/Size: ' }, propSize]);
+      body.appendChild(propertyList);
+
+      appendPrintLine(doc, body, 'div', ['2. PURCHASE PRICE:'], 'section-title');
+      appendPrintLine(doc, body, 'p', ['The total Purchase Price to be paid by Buyer at closing is ', { strong: `$${price.toLocaleString()}` }, ' USD, payable as follows:']);
+      const paymentList = doc.createElement('ul');
+      appendPrintLine(doc, paymentList, 'li', [{ strong: 'Earnest Money Deposit (EMD): ' }, `$${earnest.toLocaleString()} USD shall be deposited into Escrow within three (3) business days of execution of this Agreement.`]);
+      appendPrintLine(doc, paymentList, 'li', [{ strong: 'Cash Balance: ' }, `The remaining balance of $${(price - earnest).toLocaleString()} USD, subject to standard closing adjustments, shall be paid by Buyer at the Closing.`]);
+      body.appendChild(paymentList);
+
+      const sections = [
+        ['3. DUE DILIGENCE PERIOD:', 'Buyer shall have a Due Diligence Period of fifteen (15) days from the Agreement Date to inspect the property, perform feasibility studies, verify zoning, easements, access, and utilities. Buyer may terminate this Agreement for any reason prior to the expiration of the Due Diligence Period and receive a full refund of the Earnest Money Deposit.'],
+        ['4. TITLE AND CONVEYANCE:', "Seller covenants to convey marketable title to the Property by Warranty Deed, free and clear of all liens, mortgages, and encumbrances, except covenants, conditions, restrictions, and easements of record. Buyer may obtain a title insurance commitment at Buyer's expense."],
+        ['5. CLOSING:', `This transaction shall close on or before ${closing} days from the Agreement Date (the "Closing Date"). Taxes, escrow fees, and closing costs shall be prorated as of the Closing Date. Escrow and closing shall be conducted by a licensed Title Company selected by Buyer.`],
+        ['6. ENTIRE AGREEMENT:', 'This Agreement constitutes the entire contract between the parties. Any modifications must be made in writing and signed by both Buyer and Seller. This Agreement shall be binding upon and inure to the benefit of the parties and their respective heirs, successors, and assigns.'],
+      ];
+      for (const [heading, copy] of sections) {
+        appendPrintLine(doc, body, 'div', [heading], 'section-title');
+        appendPrintLine(doc, body, 'p', [copy]);
+      }
+
+      const signatures = doc.createElement('div');
+      signatures.className = 'signature-block';
+      for (const [role, name] of [['BUYER', buyerName], ['SELLER', sellerName]]) {
+        const signature = doc.createElement('div');
+        signature.className = 'signature-line';
+        if (role === 'BUYER' && isSigPresent) {
+          const image = doc.createElement('img');
+          image.src = sigData;
+          image.alt = 'Buyer signature';
+          image.style.cssText = 'display:block;max-height:60px;max-width:220px;margin:10px 0;';
+          signature.appendChild(image);
+        } else {
+          const space = doc.createElement('div');
+          space.className = 'signature-space';
+          signature.appendChild(space);
+        }
+        appendPrintLine(doc, signature, 'p', [{ strong: `${role}: ` }, name]);
+        appendPrintLine(doc, signature, 'p', [`Date: ${role === 'BUYER' ? agreementDate : '______________________________'}`]);
+        signatures.appendChild(signature);
+      }
+      body.appendChild(signatures);
+
       printWindow.focus();
       // Let it load standard print dialog
       setTimeout(() => {
@@ -2735,60 +2757,37 @@
     dmPrintBtn.addEventListener('click', () => {
       const address = document.getElementById('dm-env-address').innerText;
       const cityState = document.getElementById('dm-env-city-state').innerText;
-      const letterContentHtml = document.getElementById('dm-letter-container').innerHTML;
-      
-      const printWindow = window.open('', '_blank');
-      printWindow.document.write(`
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <title>Direct Mail Offer - ${address}</title>
-          <style>
-            body { font-family: Georgia, serif; padding: 3rem; color: #1e293b; line-height: 1.5; font-size: 11pt; }
-            .envelope-box {
-              border: 1px solid #cbd5e1; border-radius: 8px; padding: 1.25rem; font-family: 'Courier New', Courier, monospace; font-size: 0.8rem; line-height: 1.4; color: #334155; position: relative; margin-bottom: 4rem; width: 85%;
-            }
-            .stamp {
-              position: absolute; right: 1.25rem; top: 1.25rem; width: 55px; height: 65px; border: 2px dashed #94a3b8; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 0.6rem; color: #94a3b8; text-align: center; font-weight: bold; border-radius: 4px;
-            }
-            .letter-box {
-              background: #fff; font-family: Georgia, serif; font-size: 11pt; line-height: 1.6; color: #1e293b; margin-top: 2rem;
-            }
-            @media print {
-              .no-print { display: none; }
-              body { padding: 1rem; }
-              .envelope-box { border: 1px solid #94a3b8; }
-            }
-          </style>
-        </head>
-        <body>
-          <div class="envelope-box">
-            <div class="stamp">
-              <span>FIRST</span><br>
-              <span>CLASS</span><br>
-              <span>STAMP</span>
-            </div>
-            <div style="margin-bottom: 2rem;">
-              <strong>YIGIT ERTURK LLC</strong><br>
-              1209 Mountain Road PL NE<br>
-              Albuquerque, NM 87110
-            </div>
-            <div style="margin-left: 5rem;">
-              <strong>TO: OWNER OF RECORD</strong><br>
-              <span>${address}</span><br>
-              <span>${cityState}</span>
-            </div>
-          </div>
-          
-          <hr style="border: 1px dashed #cbd5e1; margin: 2rem 0;" class="no-print">
-          
-          <div class="letter-box">
-            ${letterContentHtml}
-          </div>
-        </body>
-        </html>
-      `);
-      printWindow.document.close();
+      const sourceLetter = document.getElementById('dm-letter-container');
+      const printContext = createPrintDocument(
+        `Direct Mail Offer - ${address}`,
+        `body { font-family: Georgia, serif; padding: 3rem; color: #1e293b; line-height: 1.5; font-size: 11pt; }
+         .envelope-box { border: 1px solid #cbd5e1; border-radius: 8px; padding: 1.25rem; font-family: 'Courier New', Courier, monospace; font-size: 0.8rem; line-height: 1.4; color: #334155; position: relative; margin-bottom: 4rem; width: 85%; }
+         .stamp { position: absolute; right: 1.25rem; top: 1.25rem; width: 55px; height: 65px; border: 2px dashed #94a3b8; display: flex; align-items: center; justify-content: center; font-size: 0.6rem; color: #94a3b8; text-align: center; font-weight: bold; border-radius: 4px; }
+         .letter-box { background: #fff; font-family: Georgia, serif; font-size: 11pt; line-height: 1.6; color: #1e293b; margin-top: 2rem; }
+         .sender { margin-bottom: 2rem; }
+         .recipient { margin-left: 5rem; }
+         .cut-line { border: 1px dashed #cbd5e1; margin: 2rem 0; }
+         @media print { .no-print { display: none; } body { padding: 1rem; } .envelope-box { border: 1px solid #94a3b8; } }`,
+      );
+      if (!printContext) return;
+      const { printWindow, doc } = printContext;
+
+      const envelope = doc.createElement('div');
+      envelope.className = 'envelope-box';
+      appendPrintLine(doc, envelope, 'div', ['FIRST CLASS STAMP'], 'stamp');
+      appendPrintLine(doc, envelope, 'div', [{ strong: 'YIGIT ERTURK LLC' }, ' · 1209 Mountain Road PL NE · Albuquerque, NM 87110'], 'sender');
+      appendPrintLine(doc, envelope, 'div', [{ strong: 'TO: OWNER OF RECORD' }, ` · ${address} · ${cityState}`], 'recipient');
+      doc.body.appendChild(envelope);
+
+      const cutLine = doc.createElement('hr');
+      cutLine.className = 'cut-line no-print';
+      doc.body.appendChild(cutLine);
+
+      const letterBox = doc.createElement('div');
+      letterBox.className = 'letter-box';
+      if (sourceLetter) letterBox.appendChild(sourceLetter.cloneNode(true));
+      doc.body.appendChild(letterBox);
+
       printWindow.focus();
       setTimeout(() => {
         printWindow.print();
@@ -3815,7 +3814,7 @@
         return;
       }
 
-      grid.innerHTML = filtered.map(c => {
+      grid.innerHTML = filtered.map((c, countyIndex) => {
         const stateColor = c.state === 'TX' ? '#2563eb' : c.state === 'PA' ? '#7c3aed' : '#d97706';
         const avgDisc = c.avg_discount || 0;
         const discountColor = avgDisc >= 80 ? '#16a34a' : avgDisc >= 50 ? '#d97706' : '#2563eb';
@@ -3851,13 +3850,21 @@
             </div>
 
             <div style="display:flex;gap:0.5rem;margin-top:0.25rem;">
-              <button onclick="goToCountyDeals('${c.county.replace(/'/g, "\\'")}', '${c.state}')" class="btn btn-primary btn-sm" style="flex:1;background:linear-gradient(135deg, #10b981, #059669);border:none;font-weight:600;display:flex;align-items:center;justify-content:center;gap:0.25rem;border-radius:8px;height:34px;font-size:0.75rem;cursor:pointer;">
+              <button data-county-index="${countyIndex}" class="btn btn-primary btn-sm county-deals-button" style="flex:1;background:linear-gradient(135deg, #10b981, #059669);border:none;font-weight:600;display:flex;align-items:center;justify-content:center;gap:0.25rem;border-radius:8px;height:34px;font-size:0.75rem;cursor:pointer;">
                 <i data-lucide="eye" style="width:14px;height:14px;"></i> Mülkleri Listele
               </button>
             </div>
           </div>
         `;
       }).join('');
+
+      grid.querySelectorAll('.county-deals-button').forEach(button => {
+        button.addEventListener('click', () => {
+          const countyIndex = Number.parseInt(button.dataset.countyIndex || '', 10);
+          const county = filtered[countyIndex];
+          if (county) goToCountyDeals(county.county, county.state);
+        });
+      });
       
       lucide.createIcons();
     }

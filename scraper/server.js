@@ -3,6 +3,7 @@ const path = require('path');
 const fs = require('fs');
 const https = require('https');
 const Database = require('better-sqlite3');
+const { rateLimit } = require('express-rate-limit');
 const { spawn } = require('child_process');
 const { 
   updateListingOwnerInfo, 
@@ -26,6 +27,12 @@ const DB_PATH = path.join(__dirname, 'zillow_listings.db');
 const db = new Database(DB_PATH);
 
 app.use(express.json());
+app.use('/api', rateLimit({
+  windowMs: 60 * 1000,
+  limit: 120,
+  standardHeaders: 'draft-8',
+  legacyHeaders: false,
+}));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // 📊 İstatistikler API
@@ -912,11 +919,15 @@ app.get('/api/tax-sales', (req, res) => {
     };
     const orderBy = validSorts[sort] || 'discount_pct DESC';
 
-    const offset = (parseInt(page) - 1) * parseInt(limit);
+    const pageNumber = Math.max(1, Number.parseInt(page, 10) || 1);
+    const limitNumber = Math.min(100, Math.max(1, Number.parseInt(limit, 10) || 50));
+    const offset = (pageNumber - 1) * limitNumber;
     const total = db.prepare(`SELECT COUNT(*) as c FROM tax_sales WHERE ${whereStr}`).get(params).c;
-    const rows = db.prepare(`SELECT * FROM tax_sales WHERE ${whereStr} ORDER BY ${orderBy} LIMIT ${limit} OFFSET ${offset}`).all(params);
+    params.pageLimit = limitNumber;
+    params.pageOffset = offset;
+    const rows = db.prepare(`SELECT * FROM tax_sales WHERE ${whereStr} ORDER BY ${orderBy} LIMIT @pageLimit OFFSET @pageOffset`).all(params);
 
-    res.json({ success: true, total, page: parseInt(page), limit: parseInt(limit), data: rows });
+    res.json({ success: true, total, page: pageNumber, limit: limitNumber, data: rows });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }
@@ -1035,4 +1046,3 @@ app.patch('/api/tax-sales/:uid/owner', (req, res) => {
 app.listen(PORT, () => {
   console.log(`🚀 Sunucu çalışıyor: http://localhost:${PORT}`);
 });
-

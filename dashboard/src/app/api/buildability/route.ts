@@ -3,6 +3,7 @@ import { z } from "zod";
 import { supabaseAdmin } from "@/lib/supabase";
 import { enforceRateLimit, requireGate } from "@/lib/api-guard";
 import { aiEnabled, aiNarrative } from "@/lib/ai-narrative";
+import { runDueDiligence } from "@/lib/due-diligence";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -120,12 +121,9 @@ export async function POST(req: NextRequest) {
   // live dd-check for flood + road
   if (lat && lng && (floodScore == null || roadAccess == null)) {
     try {
-      const r = await fetch(`${req.nextUrl.origin}/api/dd-check?lat=${lat}&lon=${lng}`, {
-        headers: { cookie: req.headers.get("cookie") || "" },
-      });
-      const j = await r.json();
-      floodScore = floodScore ?? j?.flood?.riskScore ?? null;
-      roadAccess = roadAccess ?? j?.road?.accessType ?? null;
+      const j = await runDueDiligence(lat, lng);
+      floodScore = floodScore ?? ("riskScore" in j.flood ? j.flood.riskScore : null);
+      roadAccess = roadAccess ?? ("accessType" in j.road ? j.road.accessType : null);
     } catch { /* graceful */ }
   }
   if (floodScore == null) dataGaps.push("flood risk (no lat/lng or FEMA unavailable)");

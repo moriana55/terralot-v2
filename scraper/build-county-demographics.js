@@ -118,7 +118,7 @@ async function fetchACS() {
   const url =
     `https://api.census.gov/data/${ACS_YEAR}/acs/acs5` +
     `?get=NAME,${ACS_VARS.join(",")}&for=county:*&key=${API_KEY}`;
-  console.log("ACS indiriliyor:", url.replace(API_KEY, "***"));
+  console.log(`ACS ${ACS_YEAR} county dataset indiriliyor (API anahtarı gizlendi).`);
   const raw = await get(url);
   let rows;
   try { rows = JSON.parse(raw); }

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
 import { enforceRateLimit, requireGate } from "@/lib/api-guard";
+import { sendOutreachLob } from "@/lib/lob-client";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -179,7 +180,6 @@ export async function POST(req: NextRequest) {
       errMsg = "owner_address eksik/parse edilemedi — Lob için tam adres gerekli";
     } else {
       try {
-        const base = req.nextUrl.origin;
         const lobBody = {
           action: channel === "postcard" ? "send_postcard" : "send_letter",
           to: { name: lead.owner_name || "Property Owner", address_line1: addr.line1, city: addr.city, state: addr.state, zip: addr.zip },
@@ -190,12 +190,7 @@ export async function POST(req: NextRequest) {
             : { template: "tmpl_letter_placeholder" }),
           description: `TerraLot ${type} — ${sheet.county || ""}`,
         };
-        const r = await fetch(`${base}/api/lob`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json", cookie: req.headers.get("cookie") || "" },
-          body: JSON.stringify(lobBody),
-        });
-        lobResult = await r.json().catch(() => null);
+        lobResult = await sendOutreachLob(lobBody);
         if (lobResult && (lobResult.id || lobResult.sandbox)) {
           providerId = (lobResult.id as string) || null;
           status = lobResult.sandbox ? "mock" : "sent";

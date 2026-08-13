@@ -64,5 +64,6 @@ jobs:
           cache: npm
           cache-dependency-path: scraper/package-lock.json
       - run: npm ci
+      - run: npm test
       - run: node --check scrape_nebraska.js
       - run: npm audit --audit-level=high

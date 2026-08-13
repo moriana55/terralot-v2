@@ -5,6 +5,7 @@ import { enforceRateLimit, requireGate } from "@/lib/api-guard";
 import { aiEnabled, aiNarrative } from "@/lib/ai-narrative";
 import { saneAcres, saneBid, medianPpa, intrinsicValue } from "@/lib/land-valuation";
 import { priceParcel } from "@/lib/pricing";
+import { runDueDiligence } from "@/lib/due-diligence";
 
 // Input contract — every field optional, but the request must identify a parcel
 // by at least one of leadId/apn/address (enforced after parse). Strings are
@@ -223,13 +224,9 @@ export async function POST(req: NextRequest) {
   let roadAccess: string | null = lead.road_access ?? null;
   if (lead.lat && lead.lng && (!lead.dd_checked || floodScore == null)) {
     try {
-      const base = req.nextUrl.origin;
-      const r = await fetch(`${base}/api/dd-check?lat=${lead.lat}&lon=${lead.lng}`, {
-        headers: { cookie: req.headers.get("cookie") || "" },
-      });
-      const j = await r.json();
-      floodScore = j?.flood?.riskScore ?? floodScore;
-      roadAccess = j?.road?.accessType ?? roadAccess;
+      const j = await runDueDiligence(lead.lat, lead.lng);
+      floodScore = ("riskScore" in j.flood ? j.flood.riskScore : null) ?? floodScore;
+      roadAccess = ("accessType" in j.road ? j.road.accessType : null) ?? roadAccess;
     } catch { /* graceful */ }
   }
   if (floodScore == null) dataGaps.push("flood risk (no lat/lng or FEMA unavailable)");
