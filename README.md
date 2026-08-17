@@ -2,7 +2,7 @@
 
 An evidence-aware land-acquisition research system for sourcing, enriching, underwriting, and reviewing U.S. vacant-land opportunities. The repository combines an operations dashboard, a county/public-record ingestion fleet, a buyer-facing storefront prototype, and the research documents behind the product strategy.
 
-[![CI](https://github.com/moriana55/terralot-v2/actions/workflows/ci.yml/badge.svg)](https://github.com/moriana55/terralot-v2/actions/workflows/ci.yml)
+[![CI](https://github.com/yigiterturk-dev/terralot-v2/actions/workflows/ci.yml/badge.svg)](https://github.com/yigiterturk-dev/terralot-v2/actions/workflows/ci.yml)
 [![Tests](https://img.shields.io/badge/tests-69%20passing-16a34a)](docs/showcase-audit.md)
 [![Security audit](https://img.shields.io/badge/npm%20audits-0%20vulnerabilities-16a34a)](docs/showcase-audit.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
